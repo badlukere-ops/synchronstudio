@@ -6032,6 +6032,163 @@
     ]
   },
   {
+    "id": "makinaoyamai",
+    "title": "Jujutsu Kaisen — Maki vs Naoya mit Mai-Flashback (3 Rollen)",
+    "videoUrl": "scenes/makinaoyamai.mp4",
+    "avatars": {
+      "1": "scenes/makinaoyamai/naoya.png",
+      "2": "scenes/makinaoyamai/maki.png",
+      "3": "scenes/makinaoyamai/mai.png"
+    },
+    "roles": [
+      {
+        "id": 1,
+        "name": "Naoya",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Maki",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 3,
+        "name": "Mai",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 2.45,
+        "end": 4.39,
+        "chars": [
+          1
+        ],
+        "who": "Naoya",
+        "text": "Du Bist So Grausam...",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 4.43,
+        "end": 8.84,
+        "chars": [
+          1
+        ],
+        "who": "Naoya",
+        "text": "Schrecklich, hast du denn garkein herz du fiese schlampe",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 9.1,
+        "end": 13.24,
+        "chars": [
+          2
+        ],
+        "who": "Maki",
+        "text": "Nicht mehr... das hat sie mir eiskalt rausgerissen...",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 15.85,
+        "end": 20.32,
+        "chars": [
+          3
+        ],
+        "who": "Mai",
+        "text": "Die Fluchkraft und alles andere werde ich mit mir mitnehmen...",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 21.49,
+        "end": 24.49,
+        "chars": [
+          3
+        ],
+        "who": "Mai",
+        "text": "Bitte Versprich mir... nur eines...",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 26.03,
+        "end": 29.29,
+        "chars": [
+          3
+        ],
+        "who": "Mai",
+        "text": "Zerstöre... Einfach Alles... (flüster ton)",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 29.35,
+        "end": 32.43,
+        "chars": [
+          2
+        ],
+        "who": "Maki",
+        "text": "Mit Diesen Körper kann ich das endlich sehen!",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 32.74,
+        "end": 34.9,
+        "chars": [
+          1
+        ],
+        "who": "Naoya",
+        "text": "Du Falsche... (denk dir was aus oder so)",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 35.21,
+        "end": 36.26,
+        "chars": [
+          1
+        ],
+        "who": "Naoya",
+        "text": "Bleh(geschlagen sound)",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 36.63,
+        "end": 37.64,
+        "chars": [
+          1
+        ],
+        "who": "Naoya",
+        "text": "Bleh(geschlagen sound)",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 38,
+        "end": 39.17,
+        "chars": [
+          1
+        ],
+        "who": "Naoya",
+        "text": "Bleh(geschlagen sound)",
+        "de": "Original Ist Deutsch"
+      },
+      {
+        "t": 39.44,
+        "end": 40.55,
+        "chars": [
+          1
+        ],
+        "who": "Naoya",
+        "text": "Bleh(geschlagen sound)",
+        "de": "Original Ist Deutsch"
+      }
+    ],
+    "voiceTrack": "scenes/makinaoyamai_voices.mp3",
+    "difficultyOverride": "easy"
+  },
+  {
     "id": "testplace",
     "title": "🧪 Test Place — Verbindungs- & Audio-Check (4 Rollen)",
     "videoUrl": "scenes/testplace.mp4",

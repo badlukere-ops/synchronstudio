@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "6.5";
+const APP_VERSION = "6.6";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -132,6 +132,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "6.6", items: [
+    "🖼️ Seitenpanels erscheinen jetzt nur noch in Lobby & Warteraum (vorher fälschlich auch bei Mikro-Setup & Co.)",
+    "📏 Kritzel-Board & Fun-Fact-Panel deutlich größer, werden bei Bedarf scrollbar",
+    "🎬 Neue Szene: Jujutsu Kaisen — Maki vs Naoya mit Mai-Flashback (von dir selbst gebaut!)"
+  ]},
   { v: "6.5", items: [
     "🖼️ Kritzel-Board zieht auf breiten Bildschirmen als festes Panel an den rechten Rand um (statt in der Karten-Spalte)",
     "💡 Neues linkes Seitenpanel mit rotierendem Fun-Fact-Ticker zum Ausgleich",
@@ -259,6 +264,9 @@ const AVATAR_CHARS = [
   { img: "scenes/notmywallet/manray.png", label: "Man Ray" },
   { img: "scenes/turnedagainstme/anakin.png", label: "Anakin" },
   { img: "scenes/turnedagainstme/obiwan.png", label: "Obi-Wan" },
+  { img: "scenes/makinaoyamai/naoya.png", label: "Naoya" },
+  { img: "scenes/makinaoyamai/maki.png", label: "Maki" },
+  { img: "scenes/makinaoyamai/mai.png", label: "Mai" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
@@ -841,9 +849,11 @@ show = function(id) {
   const calm = id === "scr-booth" || id === "scr-record";
   const f = document.getElementById("floaties");
   if (f) f.style.display = calm ? "none" : "";
+  // Seitenpanels NUR in Lobby & Warteraum zeigen — überall sonst (Mikro-Setup, Avatar-Wahl, Premiere, Bewertung …) aus
+  const showPanels = id === "scr-lobby" || id === "scr-wait";
   const spL = document.getElementById("side-panel-left"), spR = document.getElementById("side-panel-right");
-  [spL, spR].forEach(sp => { if (sp) sp.style.visibility = calm ? "hidden" : "visible"; });
-  if (!calm) setTimeout(renderDrawBoard, 30);   // Canvas war ggf. gerade erst sichtbar -> Größe neu berechnen & zeichnen
+  [spL, spR].forEach(sp => { if (sp) sp.style.visibility = showPanels ? "visible" : "hidden"; });
+  if (showPanels) setTimeout(renderDrawBoard, 30);   // Canvas war ggf. gerade erst sichtbar -> Größe neu berechnen & zeichnen
   document.body.classList.toggle("ingame", calm);
 };
 
