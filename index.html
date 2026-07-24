@@ -56,10 +56,10 @@
   .wrap{max-width:980px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
 
   /* 🖼️ Feste Seitenpanels links & rechts — nur auf breiten Bildschirmen, damit nichts überlappt */
-  .side-panel{position:fixed;top:100px;width:250px;max-height:calc(100vh - 70px);z-index:2;display:none}
-  .side-panel .card{margin:0;height:100%;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
-  .side-panel-left{left:max(20px, calc(50% - 490px - 270px))}
-  .side-panel-right{left:min(calc(100vw - 270px), calc(50% + 490px + 20px))}
+  .side-panel{position:fixed;top:100px;width:270px;z-index:2;display:none}
+  .side-panel .card{margin:0}
+  .side-panel-left{left:max(20px, calc(50% - 490px - 290px))}
+  .side-panel-right{left:min(calc(100vw - 290px), calc(50% + 490px + 20px))}
   @media (min-width:1560px){ .side-panel{display:block} }
   @media (prefers-reduced-motion:reduce){ .side-panel{display:none!important} }
 
@@ -251,6 +251,12 @@
     transition:opacity .3s;min-height:1.3em;
   }
   @media (prefers-reduced-motion:reduce){.flyemoji,.confetti-bit{animation:none;display:none}}
+
+  /* 🌑 Blackout-Vorhang vor der episch inszenierten Podium-Enthüllung */
+  .podium-blackout{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:40}
+  .podium-blackout.in{opacity:.94;transition:opacity .5s ease-in}
+  .podium-blackout.out{opacity:0;transition:opacity 6.2s ease-out}
+  @media (prefers-reduced-motion:reduce){.podium-blackout{display:none!important}}
 
   .raterow{
     display:flex;align-items:center;gap:12px;
@@ -742,6 +748,7 @@
       <p class="status" id="prem-status"></p>
       <div id="redo-panel-prem" style="margin-top:8px"></div>
       <button class="primary big" id="btn-prem-start" style="display:none" disabled>🎬 Premiere für alle starten</button>
+      <button class="primary big" id="btn-duel-play-start" style="display:none">🥊 Beide Versionen abspielen (nur Host)</button>
       <div class="prompter" id="play-prompter"></div>
       <div class="row" style="margin-top:12px;gap:14px">
         <span class="tag">🔊 Gesamt</span><input type="range" id="vol-master" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
@@ -796,18 +803,19 @@
   <div class="card">
     <h2 style="font-size:1rem">🎨 Kritzel-Board</h2>
     <p class="sub" style="margin-bottom:8px">Malt zusammen, während ihr wartet!</p>
-    <div style="display:flex;gap:10px;flex:1;min-height:0">
+    <div style="display:flex;gap:10px">
       <div style="display:flex;flex-direction:column;gap:7px;flex-shrink:0;width:60px">
         <div id="draw-colors" style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px"></div>
         <button class="ghost" id="btn-draw-eraser" title="Radiergummi" style="padding:5px;font-size:1rem">🧽</button>
         <input type="range" id="draw-size" min="2" max="24" value="4" style="width:100%" title="Stiftgröße">
         <button class="ghost" id="btn-draw-clear" style="padding:5px;font-size:.72rem">🧹</button>
       </div>
-      <canvas id="draw-canvas" class="draw-canvas" style="flex:1;min-width:0;min-height:440px;display:block;background:#0e0e13;border:1px solid var(--line);border-radius:12px;cursor:crosshair;touch-action:none"></canvas>
+      <canvas id="draw-canvas" class="draw-canvas" width="180" height="420" style="width:180px;height:420px;display:block;background:#0e0e13;border:1px solid var(--line);border-radius:12px;cursor:crosshair;touch-action:none"></canvas>
     </div>
   </div>
 </div>
 
+<div id="podium-blackout" class="podium-blackout"></div>
 <div id="emoji-layer" style="position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden"></div>
 <div class="countdown" id="countdown"><div>3</div></div>
 <script src="client.js"></script>

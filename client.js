@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "6.8";
+const APP_VERSION = "6.9";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -111,6 +111,39 @@ const SFX = (() => {
     stop:  () => tone(170, 0.14, "sine", 0.14, 0, 340),
     done:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.13, "triangle", 0.1, i * 0.09)),
     err:   () => tone(150, 0.22, "sawtooth", 0.09),
+    drumroll: (durationSec = 6) => {
+      try {
+        const a = getCtx();
+        const t0 = a.currentTime + 0.05;
+        const noiseBuf = a.createBuffer(1, Math.max(1, a.sampleRate * 0.04), a.sampleRate);
+        const nd = noiseBuf.getChannelData(0);
+        for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+        const hits = 40;
+        for (let i = 0; i < hits; i++) {
+          const p = i / hits;
+          const t = t0 + durationSec * (1 - Math.pow(1 - p, 2.4));   // faengt langsam an, wird zum Schluss immer schneller
+          const src = a.createBufferSource(); src.buffer = noiseBuf;
+          const filt = a.createBiquadFilter(); filt.type = "bandpass"; filt.frequency.value = 180 + p * 220; filt.Q.value = 1.1;
+          const g = a.createGain();
+          g.gain.setValueAtTime(0.035 + p * 0.09, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
+          src.connect(filt); filt.connect(g); g.connect(a.destination);
+          try { src.start(t); src.stop(t + 0.06); } catch {}
+        }
+        // Abschließender Crash/Cymbal-Schlag am Ende des Wirbels
+        const crashLen = Math.max(1, a.sampleRate * 0.5);
+        const crashBuf = a.createBuffer(1, crashLen, a.sampleRate);
+        const cd = crashBuf.getChannelData(0);
+        for (let i = 0; i < crashLen; i++) cd[i] = (Math.random() * 2 - 1) * (1 - i / crashLen);
+        const crashSrc = a.createBufferSource(); crashSrc.buffer = crashBuf;
+        const crashG = a.createGain();
+        const tc = t0 + durationSec;
+        crashG.gain.setValueAtTime(0.16, tc);
+        crashG.gain.exponentialRampToValueAtTime(0.001, tc + 0.5);
+        crashSrc.connect(crashG); crashG.connect(a.destination);
+        try { crashSrc.start(tc); crashSrc.stop(tc + 0.55); } catch {}
+      } catch {}
+    },
   };
 })();
 document.addEventListener("click", e => { if (e.target.closest("button:not(:disabled)")) SFX.click(); });
@@ -132,6 +165,14 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "6.9", items: [
+    "🐛 Fix: Original-Audio spielte manchmal die Stimme der VORHERIGEN Szene ab (Voice-Track-Cache wurde beim direkten Laden über den Host-Dropdown und beim Duell-Start nicht zurückgesetzt)",
+    "🎨 Kritzel-Board: feste Pixel-Maße statt verschachteltem Flexbox+Scroll — sollte das Verzerren/Nicht-Sehen bei manchen Browsern (Opera, Avast) beheben",
+    "🥊 Duell-Modus: Host muss jetzt aktiv „Beide Versionen abspielen” klicken, startet nicht mehr automatisch; veraltete „X/Y geladen”-Anzeige vom normalen Modus wird ausgeblendet",
+    "⏳ Kurze 3-Sekunden-Pause mit Countdown zwischen Duell-Take 1→2 und zwischen Match-Runden, statt direktem Sprung",
+    "🏷️ Moduswechsel-Anzeige im Warteraum wird jetzt bei jedem Betreten frisch neu berechnet (gegen veraltete Labels)",
+    "🌑 Podium-Finale: Erst wird's dunkel mit aufbauendem Trommelwirbel, dann schwingt der Scheinwerfer episch zur Enthüllung"
+  ]},
   { v: "6.8", items: [
     "🐛 Fix: Wer neu dem Raum beitrat, bekam den bisherigen Kritzel-Board-Stand nie mitgeschickt — Leinwand sah leer aus, bis man selbst malte und dadurch (unabsichtlich) alles Vorherige lokal überschrieb",
     "🐛 Fix: Verzerrte/kaputte Striche, falls die Leinwand beim allerersten Klick noch nicht fertig gelayoutet war"
@@ -851,7 +892,7 @@ const _origShow = show;
 show = function(id) {
   _origShow(id);
   updateLobbyMusic();
-  if (id === "scr-lobby" || id === "scr-wait") startTipRotation(); else clearInterval(tipTimer);
+  if (id === "scr-lobby" || id === "scr-wait") { startTipRotation(); renderSettingsView(); } else clearInterval(tipTimer);
   // Ingame (Booth/Aufnahme) ruhig halten: keine Ablenkung
   const calm = id === "scr-booth" || id === "scr-record";
   const f = document.getElementById("floaties");
@@ -1143,6 +1184,7 @@ function handleMsg(msg, conn) {
     case "duelSetupInfo": duelInfo = msg.duelInfo; break;
     case "duelSubmit": collectDuelSubmit(msg.playerId, msg.items); break;
     case "duelReady": loadDuelSequence(msg.dataA, msg.dataB, msg.duelInfo); break;
+    case "duelPlayGo": if (window.__duelRunSequence) { window.__duelRunSequence(); window.__duelRunSequence = null; } break;
     case "duelVote": collectDuelVote(conn.peer, msg.choice); break;
     case "duelVoteBroadcast": showDuelVoteLive(msg.tally); break;
     case "duelResult": showDuelResult(msg.result); break;
@@ -1224,6 +1266,7 @@ $("btn-load-scene").onclick = () => {
   scene = JSON.parse(JSON.stringify(s));       // Kopie, damit Blind-Flag das Original nicht verändert
   scene.blind = $("blind-mode").checked;
   localVideoBuf = null; videoBlobUrl = null;
+  voiceTrackBuf = null; voiceTrackTried = false;   // sonst spielt "Original anhören" noch die Stimmen der VORHERIGEN Szene ab!
   resetRoles();
   showScene(scene.videoUrl);
   broadcast({ t: "scene", scene });
@@ -1717,6 +1760,7 @@ $("btn-duel-start").onclick = () => {
   duelInfo = { roleId, aId, bId };
   scene = JSON.parse(JSON.stringify(duelStagedScene));
   localVideoBuf = null; videoBlobUrl = null;
+  voiceTrackBuf = null; voiceTrackTried = false;
   players.forEach(p => { p.role = (p.id === aId || p.id === bId) ? roleId : null; p.ready = true; });
   Object.keys(duelSubs).forEach(k => delete duelSubs[k]);
   Object.keys(duelVotes).forEach(k => delete duelVotes[k]);
@@ -2591,6 +2635,8 @@ $("btn-next-round").onclick = async () => {
   if (continueMatch) {
     match.round++;
     if (match.mode === "rounds" || match.mode === "elimination") {
+      // Kurze Verschnaufpause mit Countdown, bevor's in die naechste Runde geht
+      for (let s = 3; s >= 1; s--) { $("btn-next-round").style.display = "none"; status("rate-progress", "⏳ Nächste Runde in " + s + " …"); await new Promise(r => setTimeout(r, 1000)); }
       // Neue Zufalls-Szene + neue Zufalls-Rollen, zurück in die Lobby zum Bereitmachen
       backToLobby(true);
       await pickRandomScene();
@@ -2659,7 +2705,12 @@ function showFinal(list, rounds, championName) {
 
   if (isHost) $("btn-back-lobby").style.display = "";
 
-  // 🔦 Scheinwerfer-Enthüllung: schwingt hin und her, hält kurz je Platz, ~7 Sekunden episch bis zum 1. Platz
+  // 🌑 Erst wird's dunkel, Trommelwirbel baut sich auf … 🔦 dann schwingt der Scheinwerfer, hält kurz je Platz — episch bis zum 1. Platz
+  const blackout = $("podium-blackout");
+  blackout.className = "podium-blackout";
+  void blackout.offsetWidth;   // Reflow erzwingen, damit die "in"-Transition sauber greift
+  blackout.classList.add("in");
+
   const spot = $("podium-spotlight");
   spot.className = "spotlight";
   const steps = [];
@@ -2667,7 +2718,11 @@ function showFinal(list, rounds, championName) {
   if (top3[1]) steps.push({ id: "podium-2", settle: "settle-2", sweepMs: top3[2] ? 1100 : 1600 });
   if (top3[0]) steps.push({ id: "podium-1", settle: "settle-1", sweepMs: (top3[2] || top3[1]) ? 1400 : 1600 });
 
-  let t = 0;
+  const BLACKOUT_BEAT = 800;   // kurzer dunkler Moment zum Aufbauen der Spannung, bevor's losgeht
+  let t = BLACKOUT_BEAT;
+  const totalSweep = steps.reduce((s, st) => s + st.sweepMs, 0) + steps.length * 700;
+  setTimeout(() => { SFX.drumroll(totalSweep / 1000); blackout.classList.remove("in"); blackout.classList.add("out"); }, BLACKOUT_BEAT);
+
   steps.forEach((step, i) => {
     setTimeout(() => { spot.className = "spotlight sweeping"; }, t);
     t += step.sweepMs;
@@ -2679,7 +2734,7 @@ function showFinal(list, rounds, championName) {
     }, t + 160);
     t += 700;   // kurz auf dem enthüllten Platz verweilen, bevor's weiterschwingt
   });
-  setTimeout(() => { spot.className = "spotlight hide"; }, t + 500);
+  setTimeout(() => { spot.className = "spotlight hide"; blackout.className = "podium-blackout"; }, t + 500);
 }
 
 $("btn-back-lobby").onclick = () => {
@@ -2924,7 +2979,7 @@ async function decodeDuelData(data) {
     }
   }
   // Alle anderen Rollen (nicht die Duell-Rolle) sprechen original, falls vorhanden
-  if (scene.lines) {
+  if (scene && scene.lines) {
     const coveredIdx = new Set(items.map(i => i.lineIdx));
     for (let i = 0; i < scene.lines.length; i++) {
       const l = scene.lines[i];
@@ -2943,6 +2998,8 @@ async function loadDuelSequence(dataA, dataB, info) {
   show("scr-playback");
   $("btn-replay").style.display = "none"; $("btn-download-audio").style.display = "none";
   $("btn-download").style.display = "none"; $("btn-again").style.display = "none"; $("btn-back").style.display = "none";
+  $("prem-status").textContent = "";   // veraltete "X/Y geladen"-Anzeige vom normalen Modus ausblenden, gilt hier nicht
+  $("btn-prem-start").style.display = "none";
   status("play-status", "🥊 Bereite beide Versionen vor …");
 
   const itemsA = await decodeDuelData(dataA);
@@ -2960,11 +3017,22 @@ async function loadDuelSequence(dataA, dataB, info) {
     playMix(false);
   });
 
-  await playOnce(itemsA, "Take 1: " + nameOf(duelInfo.aId));
-  await new Promise(r => setTimeout(r, 500));
-  await playOnce(itemsB, "Take 2: " + nameOf(duelInfo.bId));
+  const runSequence = async () => {
+    $("btn-duel-play-start").style.display = "none";
+    await playOnce(itemsA, "Take 1: " + nameOf(duelInfo.aId));
+    for (let s = 3; s >= 1; s--) { status("play-status", "⏳ Take 2 in " + s + " …"); await new Promise(r => setTimeout(r, 1000)); }
+    await playOnce(itemsB, "Take 2: " + nameOf(duelInfo.bId));
+    showDuelVote();
+  };
 
-  showDuelVote();
+  if (isHost) {
+    status("play-status", "✅ Beide Versionen bereit — du entscheidest, wann's losgeht!");
+    $("btn-duel-play-start").style.display = "";
+    $("btn-duel-play-start").onclick = () => { broadcast({ t: "duelPlayGo" }); runSequence(); };
+  } else {
+    status("play-status", "✅ Bereit — warte, bis der Host startet …");
+    window.__duelRunSequence = runSequence;   // Gast wartet auf die "duelPlayGo"-Nachricht vom Host
+  }
 }
 
 // ── Abstimm-Screen: alle außer den beiden Duellanten stimmen ab ──
