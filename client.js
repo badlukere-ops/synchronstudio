@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "6.6";
+const APP_VERSION = "6.7";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -132,6 +132,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "6.7", items: [
+    "🐛 Fix: Seitenpanels waren beim allerersten Laden (Mikro-Screen) noch sichtbar — der Screen ist per HTML von Anfang an aktiv, bevor meine Sichtbarkeits-Logik überhaupt einmal lief"
+  ]},
   { v: "6.6", items: [
     "🖼️ Seitenpanels erscheinen jetzt nur noch in Lobby & Warteraum (vorher fälschlich auch bei Mikro-Setup & Co.)",
     "📏 Kritzel-Board & Fun-Fact-Panel deutlich größer, werden bei Bedarf scrollbar",
