@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "6.7";
+const APP_VERSION = "6.8";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -132,6 +132,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "6.8", items: [
+    "🐛 Fix: Wer neu dem Raum beitrat, bekam den bisherigen Kritzel-Board-Stand nie mitgeschickt — Leinwand sah leer aus, bis man selbst malte und dadurch (unabsichtlich) alles Vorherige lokal überschrieb",
+    "🐛 Fix: Verzerrte/kaputte Striche, falls die Leinwand beim allerersten Klick noch nicht fertig gelayoutet war"
+  ]},
   { v: "6.7", items: [
     "🐛 Fix: Seitenpanels waren beim allerersten Laden (Mikro-Screen) noch sichtbar — der Screen ist per HTML von Anfang an aktiv, bevor meine Sichtbarkeits-Logik überhaupt einmal lief"
   ]},
@@ -1094,6 +1098,7 @@ function handleMsg(msg, conn) {
       if (players.length >= 8) { conn.send({ t: "full", cap: 8 }); setTimeout(() => conn.close(), 500); break; }
       players.push({ id: conn.peer, name: msg.name, avatar: msg.avatar || null, accessory: msg.accessory || null, role: null, ready: false, done: 0, total: 0 });
       if (scene) { if (localVideoBuf) sendLocalVideo(conn); else conn.send({ t: "scene", scene }); }
+      conn.send({ t: "drawState", drawBoard });   // aktuellen Kritzel-Board-Stand mitschicken, sonst sieht der/die Neue nur leere Leinwand
       broadcastState();
       break;
     }
@@ -2408,6 +2413,7 @@ function initDrawCanvas(canvasId, colorsId, sizeId, clearId, eraserId) {
   renderDrawBoardOn(canvasId);
   const posOf = (e) => {
     const r = c.getBoundingClientRect();
+    if (!r.width || !r.height) return [0.5, 0.5];   // Canvas noch nicht fertig gelayoutet -> keine kaputten/verzerrten Punkte erzeugen
     const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
     const cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
     return [Math.min(1, Math.max(0, cx / r.width)), Math.min(1, Math.max(0, cy / r.height))];
