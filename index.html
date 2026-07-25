@@ -104,25 +104,68 @@
   input[type=text],select{
     background:#0e0e13;border:1px solid var(--line);border-radius:10px;
     color:var(--text);padding:11px 14px;font:inherit;min-width:0;
+    transition:border-color .18s, box-shadow .18s, background .18s;
   }
-  input[type=text]:focus,select:focus,button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  input[type=text]:hover,select:hover{border-color:#3d3d4c}
+  input[type=text]:focus,select:focus,button:focus-visible{
+    outline:none;border-color:var(--amber);
+    box-shadow:0 0 0 3px rgba(255,201,92,.16);
+  }
+  input[type=text]::placeholder{color:#5a5a6c}
+  /* Eigener Dropdown-Pfeil statt System-Standard */
+  select{
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%238d8da0' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 13px center;padding-right:34px;cursor:pointer;
+  }
   input.code{width:130px;text-align:center;font-family:'Archivo Black';letter-spacing:.22em;font-size:1.15rem}
+
+  /* Einheitliche, hübschere Regler */
+  input[type=range]{
+    appearance:none;-webkit-appearance:none;background:transparent;height:18px;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:99px;background:#22222c}
+  input[type=range]::-moz-range-track{height:5px;border-radius:99px;background:#22222c}
+  input[type=range]::-webkit-slider-thumb{
+    appearance:none;-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+    background:var(--amber);margin-top:-5px;border:none;
+    box-shadow:0 0 0 0 rgba(255,201,92,.35);transition:box-shadow .16s, transform .12s;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:15px;height:15px;border-radius:50%;background:var(--amber);border:none;
+    box-shadow:0 0 0 0 rgba(255,201,92,.35);transition:box-shadow .16s, transform .12s;
+  }
+  input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(255,201,92,.18);transform:scale(1.08)}
+  input[type=range]:hover::-moz-range-thumb{box-shadow:0 0 0 5px rgba(255,201,92,.18);transform:scale(1.08)}
+
+  /* Checkboxen einheitlich */
+  input[type=checkbox]{accent-color:var(--amber);cursor:pointer}
+
+  /* Scrollbalken passend zum dunklen Look */
+  *{scrollbar-width:thin;scrollbar-color:#33333f transparent}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#2c2c38;border-radius:99px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-thumb:hover{background:#3d3d4c}
 
   button{
     background:#1f1f28;border:1px solid var(--line);border-radius:10px;
     color:var(--text);padding:11px 18px;font:inherit;font-weight:700;cursor:pointer;
-    transition:transform .1s,border-color .15s,filter .15s;
+    transition:transform .1s,border-color .15s,filter .15s,background .15s;
   }
-  button:hover{border-color:#4a4a5a;transform:translateY(-1px)}
+  button:hover{border-color:#4a4a5a;background:#25252f;transform:translateY(-1px)}
   button:active{transform:translateY(0)}
   button.primary{background:var(--grad);border:none;color:#14060a;text-shadow:0 1px 0 rgba(255,255,255,.25);box-shadow:0 4px 18px rgba(255,77,85,.28)}
   button.primary:hover{filter:brightness(1.12);box-shadow:0 6px 26px rgba(255,77,85,.45);transform:translateY(-2px)}
   button:disabled{opacity:.35;cursor:not-allowed;transform:none}
   button.ghost{background:transparent}
+  button.ghost:hover{background:rgba(255,255,255,.04)}
   button.big{font-size:1.05rem;padding:15px 26px;border-radius:12px}
 
   .screen{display:none}
-  .screen.active{display:block}
+  .screen.active{display:block;animation:screenin .32s ease both}
+  @keyframes screenin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @media (prefers-reduced-motion:reduce){.screen.active{animation:none}}
 
   .tag{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .roomcode-big{font-family:'Archivo Black';font-size:2.6rem;letter-spacing:.28em;background:linear-gradient(120deg,var(--amber),var(--hot),var(--violet),var(--amber));background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 4s linear infinite}
@@ -149,10 +192,10 @@
   .countdown.show{display:flex}
   .countdown div{font-family:'Archivo Black';font-size:20vw;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-  .bar{height:8px;background:#1c1c25;border-radius:99px;overflow:hidden;margin-top:8px}
-  .bar i{display:block;height:100%;width:0;background:var(--grad);transition:width .2s}
+  .bar{height:8px;background:#1c1c25;border-radius:99px;overflow:hidden;margin-top:8px;box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
+  .bar i{display:block;height:100%;width:0;background:var(--grad);transition:width .25s ease;box-shadow:0 0 12px rgba(255,77,85,.4)}
 
-  .hint{font-size:.85rem;color:var(--muted);border-left:3px solid var(--amber);padding:6px 12px;margin-top:14px}
+  .hint{font-size:.85rem;color:var(--muted);border-left:3px solid var(--amber);padding:8px 14px;margin-top:14px;background:rgba(255,201,92,.04);border-radius:0 8px 8px 0}
   .status{font-size:.9rem;color:var(--muted);margin-top:10px;min-height:1.4em}
 
   label.small{font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px}
@@ -523,6 +566,14 @@
       </div>
       <div class="bar" id="upload-bar" style="display:none"><i></i></div>
       <p class="status" id="scene-status"></p>
+      <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px">
+        <div class="row" style="margin:0">
+          <button class="ghost" id="btn-check-scenes">🔍 Alle Szenen-Dateien prüfen</button>
+          <span class="tag" id="check-status"></span>
+        </div>
+        <div class="bar" id="check-bar" style="display:none;margin-top:10px"><i></i></div>
+        <div id="check-result" style="margin-top:10px;display:none;max-height:280px;overflow-y:auto"></div>
+      </div>
     </div>
 
     <div class="card" id="scene-card" style="display:none">

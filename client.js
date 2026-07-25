@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "6.9";
+const APP_VERSION = "7.0";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -165,6 +165,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "7.0", items: [
+    "🔍 Neuer Selbst-Check: Knopf in den Host-Einstellungen prüft alle Szenen-Dateien auf einmal und listet dir kaputte Verweise auf — kein Rätselraten mehr bei „Video lädt nicht“",
+    "✨ UI-Politur: eigene Scrollbalken, weicherer Fokus-Glow statt hartem Rahmen, einheitliche Regler & Dropdown-Pfeile, sanfte Screen-Übergänge, Fortschrittsbalken mit Glow"
+  ]},
   { v: "6.9", items: [
     "🐛 Fix: Original-Audio spielte manchmal die Stimme der VORHERIGEN Szene ab (Voice-Track-Cache wurde beim direkten Laden über den Host-Dropdown und beim Duell-Start nicht zurückgesetzt)",
     "🎨 Kritzel-Board: feste Pixel-Maße statt verschachteltem Flexbox+Scroll — sollte das Verzerren/Nicht-Sehen bei manchen Browsern (Opera, Avast) beheben",
@@ -1259,6 +1263,78 @@ async function loadSceneList() {
       }).join("")
     : "<option>— Szenen laden… kurz warten &amp; Seite neu laden —</option>";
 }
+
+// ── 🔍 Selbst-Check: prüft, ob wirklich alle in scenes.json referenzierten Dateien existieren ──
+function filesOfScene(s) {
+  const out = [];
+  if (s.videoUrl) out.push(s.videoUrl);
+  if (s.voiceTrack) out.push(s.voiceTrack);
+  for (const a of Object.values(s.avatars || {})) out.push(a);
+  for (const l of (s.lines || [])) if (l.orig) out.push(l.orig);
+  return [...new Set(out)];   // Duplikate raus, spart Anfragen
+}
+async function checkFileExists(url) {
+  try {
+    const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+    return res.ok;
+  } catch { return false; }
+}
+async function runWithLimit(tasks, limit) {
+  const results = [];
+  let i = 0;
+  const workers = Array.from({ length: Math.min(limit, tasks.length) }, async () => {
+    while (i < tasks.length) {
+      const idx = i++;
+      results[idx] = await tasks[idx]();
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+$("btn-check-scenes") && ($("btn-check-scenes").onclick = async () => {
+  const btn = $("btn-check-scenes");
+  btn.disabled = true;
+  $("check-result").style.display = "none";
+  $("check-bar").style.display = "";
+  setBar("check-bar", 0);
+
+  // Alle Datei-Referenzen aus allen Szenen einsammeln
+  const jobs = [];
+  for (const s of sceneList) for (const f of filesOfScene(s)) jobs.push({ sceneId: s.id, title: s.title, file: f });
+  if (!jobs.length) { status("check-status", "Keine Szenen geladen.", true); btn.disabled = false; $("check-bar").style.display = "none"; return; }
+
+  let done = 0;
+  const tasks = jobs.map(j => async () => {
+    const ok = await checkFileExists(j.file);
+    done++;
+    setBar("check-bar", Math.round(done / jobs.length * 100));
+    status("check-status", "Prüfe … " + done + "/" + jobs.length);
+    return { ...j, ok };
+  });
+  const results = await runWithLimit(tasks, 8);   // max. 8 gleichzeitig, sonst überlastet's den Browser
+
+  // Fehlende Dateien nach Szene gruppieren
+  const broken = results.filter(r => !r.ok);
+  const bySc = {};
+  for (const b of broken) (bySc[b.sceneId] = bySc[b.sceneId] || { title: b.title, files: [] }).files.push(b.file);
+
+  $("check-bar").style.display = "none";
+  const el = $("check-result");
+  el.style.display = "";
+  if (!broken.length) {
+    status("check-status", "");
+    el.innerHTML = `<div class="raterow" style="border-color:var(--ok)"><span>✅ Alles in Ordnung — alle ${jobs.length} Dateien aus ${sceneList.length} Szenen sind erreichbar.</span></div>`;
+  } else {
+    status("check-status", "");
+    el.innerHTML = `<div class="raterow" style="border-color:var(--hot);margin-bottom:8px"><span>⚠️ ${broken.length} von ${jobs.length} Dateien fehlen (${Object.keys(bySc).length} Szenen betroffen)</span></div>` +
+      Object.entries(bySc).map(([sid, info]) => `
+        <div style="background:#14141b;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:6px">
+          <div style="font-weight:700;margin-bottom:4px">${esc(info.title)} <span class="tag">(${esc(sid)})</span></div>
+          ${info.files.map(f => `<div class="tag" style="color:var(--hot);text-transform:none;letter-spacing:0">✕ ${esc(f)}</div>`).join("")}
+        </div>`).join("");
+  }
+  btn.disabled = false;
+});
 
 $("btn-load-scene").onclick = () => {
   const s = sceneList[$("scene-select").value];
