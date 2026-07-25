@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "7.2";
+const APP_VERSION = "7.3";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -111,6 +111,7 @@ const SFX = (() => {
     stop:  () => tone(170, 0.14, "sine", 0.14, 0, 340),
     done:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.13, "triangle", 0.1, i * 0.09)),
     err:   () => tone(150, 0.22, "sawtooth", 0.09),
+    leave: () => [392, 294, 196].forEach((f, i) => tone(f, 0.16, "sine", 0.075, i * 0.1)),
     drumroll: (durationSec = 6) => {
       try {
         const a = getCtx();
@@ -165,6 +166,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "7.3", items: [
+    "🎥 Kinosaal-Modus: Bei der Premiere fährt der ganze Saal runter — nur die Leinwand bleibt hell und bekommt einen Projektor-Schein",
+    "🏆 Podium sind jetzt echte Körper statt flacher Rechtecke: gekippte Deckfläche, Bodenschatten, beleuchteter Siegersockel",
+    "👋 Wenn jemand den Raum verlässt, sieht und hört man es jetzt — Einblendung mit Namen plus abfallender Ton",
+    "🐛 Fix: Kritzel-Board flackerte beim Malen, weil der eigene laufende Strich bei jedem Neuaufbau kurz verschwand"
+  ]},
   { v: "7.2", items: [
     "📊 Lebendiges VU-Meter im Kopfbereich — die LED-Kette folgt deinem Mikro in Echtzeit, mit nachlaufender Spitzenanzeige wie am echten Pult",
     "🎞️ Filmkorn und Vignette über allem — nimmt dem Bild das Sterile, alles wirkt analog statt frisch gerendert",
@@ -1056,6 +1063,30 @@ function startFunFactRotation() {
 
 
 // ── Mini-Konfetti: kleiner Belohnungsmoment beim "Bin bereit" ──
+// ── Kurze Einblendung oben, z.B. wenn jemand den Raum verlässt ──
+function showToast(text, kind) {
+  let host = document.getElementById("toast-host");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "toast-host";
+    host.style.cssText = "position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:120;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none";
+    document.body.appendChild(host);
+  }
+  const t = document.createElement("div");
+  const accent = kind === "leave" ? "var(--hot)" : "var(--amber)";
+  t.style.cssText = `font-family:var(--font-body);font-size:.92rem;font-weight:600;color:var(--text);
+    background:linear-gradient(180deg,#22222a,#17171d);border:1px solid ${accent};border-left:4px solid ${accent};
+    border-radius:8px;padding:11px 18px;box-shadow:0 10px 30px rgba(0,0,0,.6);
+    opacity:0;transform:translateY(-10px);transition:opacity .25s, transform .25s`;
+  t.textContent = text;
+  host.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity = "1"; t.style.transform = "translateY(0)"; });
+  setTimeout(() => {
+    t.style.opacity = "0"; t.style.transform = "translateY(-10px)";
+    setTimeout(() => t.remove(), 300);
+  }, 3600);
+}
+
 function burstConfetti() {
   const layer = document.getElementById("emoji-layer");
   if (!layer) return;
@@ -1171,7 +1202,16 @@ function enterLobby(code) {
 function setupHostConn(conn) {
   conn.on("open", () => conns.set(conn.peer, conn));
   conn.on("data", (msg) => handleMsg(msg, conn));
-  conn.on("close", () => { conns.delete(conn.peer); players = players.filter(p => p.id !== conn.peer); broadcastState(); });
+  conn.on("close", () => {
+    const gone = players.find(p => p.id === conn.peer);
+    const goneName = gone ? gone.name : "Jemand";
+    conns.delete(conn.peer);
+    players = players.filter(p => p.id !== conn.peer);
+    broadcast({ t: "playerLeft", name: goneName });
+    showToast("👋 " + goneName + " hat den Raum verlassen", "leave");
+    SFX.leave();
+    broadcastState();
+  });
 }
 function broadcast(msg) { conns.forEach(c => { if (c.open) c.send(msg); }); }
 function broadcastState() { renderPlayers(); renderBoothPlayers(); broadcast({ t: "state", players }); checkStartable(); checkAllDone(); if (isHost) renderPremState(); }
@@ -1219,6 +1259,7 @@ function handleMsg(msg, conn) {
       show("scr-start"); break;
     case "state": players = msg.players; renderPlayers(); renderRoles(); renderBoothPlayers(); if (document.querySelector("#scr-playback.active")) renderPremStateGuest(); break;
     case "scene": scene = msg.scene; videoBlobUrl = null; voiceTrackBuf = null; voiceTrackTried = false; showScene(scene.videoUrl); break;
+    case "playerLeft": showToast("👋 " + msg.name + " hat den Raum verlassen", "leave"); SFX.leave(); break;
     case "settings": match.mode = msg.mode; match.rounds = msg.rounds; match.round = msg.round; match.autoRoulette = msg.autoRoulette; renderSettingsView(msg); break;
     case "sceneReset":
       scene = null; videoBlobUrl = null;
@@ -2531,23 +2572,31 @@ function strokeVisual(color, size) {
   // "eraser" ist keine echte Farbe -- male stattdessen mit der Canvas-Hintergrundfarbe und etwas dicker
   return color === "eraser" ? { color: DRAW_BG, width: size * 2.2 } : { color, width: size };
 }
+function drawOneStroke(g, c, s) {
+  if (!s || !s.points.length) return;
+  const v = strokeVisual(s.color, s.size || 4);
+  g.strokeStyle = v.color; g.lineWidth = v.width * (window.devicePixelRatio || 1);
+  g.lineCap = "round"; g.lineJoin = "round";
+  g.beginPath();
+  s.points.forEach((p, i) => {
+    const x = p[0] * c.width, y = p[1] * c.height;
+    if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+  });
+  g.stroke();
+}
 function renderDrawBoardOn(canvasId) {
   const g = drawCanvasCtx(canvasId);
   if (!g) return;
   const c = $(canvasId);
+  const live = (drawing && curStroke) ? curStroke : null;
   g.clearRect(0, 0, c.width, c.height);
   for (const s of drawBoard.strokes) {
-    if (!s.points.length) continue;
-    const v = strokeVisual(s.color, s.size || 4);
-    g.strokeStyle = v.color; g.lineWidth = v.width * (window.devicePixelRatio || 1);
-    g.lineCap = "round"; g.lineJoin = "round";
-    g.beginPath();
-    s.points.forEach((p, i) => {
-      const x = p[0] * c.width, y = p[1] * c.height;
-      if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
-    });
-    g.stroke();
+    if (live && s.id === live.id) continue;   // gespeicherte Fassung ist älter — gleich kommt die aktuelle
+    drawOneStroke(g, c, s);
   }
+  // Den eigenen Strich, an dem gerade gezogen wird, immer zuletzt und in seiner neuesten Fassung zeichnen.
+  // Sonst verschwindet der zuletzt gezogene Teil bei jedem Neuaufbau kurz -> sichtbares Flackern.
+  if (live) drawOneStroke(g, c, live);
 }
 function renderDrawBoard() { DRAW_CANVAS_IDS.forEach(renderDrawBoardOn); }
 const DRAW_CANVAS_COLOR_IDS = ["draw-colors"];
@@ -2629,6 +2678,7 @@ let pendingRate = false, myStars = {}, rateSent = false;
 const allRatings = new Map();   // Host: voterId → {targetId: stars}
 
 function showRateCard() {
+  document.body.classList.remove("cinema");   // Licht wieder an
   const speakers = players.filter(p => p.role != null && p.id !== myId);
   const anySpeakers = players.filter(p => p.role != null).length >= 2;
   if (!anySpeakers) return;                      // Solo: keine Show
@@ -2859,6 +2909,7 @@ $("btn-back-lobby").onclick = () => {
   backToLobby();
 };
 function backToLobby(keepMatch) {
+  document.body.classList.remove("cinema");
   if (!keepMatch) { match.round = 1; match.totals = {}; }
   players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; });
   mixItems = []; collected.clear(); takes = {};
@@ -3318,6 +3369,7 @@ function premStart() {
   $("btn-download").disabled = false;
   $("btn-prem-start") && ($("btn-prem-start").style.display = "none");
   status("play-status", "🍿 Premiere!");
+  document.body.classList.add("cinema");   // Saal fährt runter
   countdown().then(() => playMix(false));
 }
 
