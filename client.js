@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "7.6";
+const APP_VERSION = "7.7";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -173,6 +173,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "7.7", items: [
+    "⚡ Noten fallen jetzt fast 3x schneller (0,62 statt 1,7 Sekunden von oben bis zur Linie)",
+    "🎯 Dafür deutlich weniger davon: 639 statt 961 — sie kleben nicht mehr aneinander, im Schnitt sind rund 2 gleichzeitig zu sehen",
+    "🔀 Längste Serie auf einer Seite von 5 auf 3 runter, mit harter Grenze gegen monotone Blöcke",
+    "🐛 Halte-Noten-Bug gefunden: sie verschwanden nach fest eingestellten 0,45 Sekunden — bei 0,9s Haltedauer also exakt auf halbem Weg. Jetzt bleiben sie bis zum Ende sichtbar."
+  ]},
   { v: "7.6", items: [
     "🎵 Beat-Booth nochmal deutlich schneller: 961 statt 646 Noten (4,8 statt 3,2 pro Sekunde)",
     "🔀 Abwechslungsreichere Muster — 8 verschiedene Rhythmus-Figuren, die alle paar Takte wechseln und gespiegelt werden; längste Serie auf einer Seite jetzt 4 statt 5+",
@@ -1094,7 +1100,7 @@ const BG = {
   startedAt: 0, countdownUntil: 0, vol: 0.5,
   parts: [], flash: [0, 0], shake: 0, ringPop: [0, 0], pulse: 0, lastBeat: -1,
 };
-const BG_APPROACH = 1.7;                       // Sekunden, die eine Note von oben bis zur Linie braucht
+const BG_APPROACH = 0.62;                      // Sekunden von oben bis zur Linie -- kurz = die Noten schießen runter
 const BG_WINDOWS = [[0.075, "perfect", 300], [0.13, "good", 180], [0.2, "ok", 80]];
 const BG_KEYS = { f: 0, j: 1 };
 
@@ -1247,7 +1253,8 @@ function bgDraw() {
   // Noten
   for (const n of BG.notes) {
     const dt = n.t - t;
-    if (dt > BG_APPROACH || dt < -0.45) continue;
+    // Halte-Noten muessen bis zum ENDE ihrer Haltedauer sichtbar bleiben, nicht nur 0.45s nach dem Anschlag
+    if (dt > BG_APPROACH || (dt + (n.hold || 0)) < -0.45) continue;
     const cx = n.lane * laneW + laneW / 2;
     const y = hitY * (1 - dt / BG_APPROACH);
     const isHeld = BG.held[n.lane] === n;
