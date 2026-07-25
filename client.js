@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "7.5";
+const APP_VERSION = "7.6";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -112,6 +112,13 @@ const SFX = (() => {
     done:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.13, "triangle", 0.1, i * 0.09)),
     err:   () => tone(150, 0.22, "sawtooth", 0.09),
     leave: () => [392, 294, 196].forEach((f, i) => tone(f, 0.16, "sine", 0.075, i * 0.1)),
+    // Trefferton fürs Rhythmus-Spiel: kurz, weich, tonhöhenabhängig von der Wertung
+    beathit: (kind) => {
+      const f = kind === "perfect" ? 1046 : kind === "good" ? 784 : 587;
+      const v = kind === "perfect" ? 0.045 : 0.032;
+      tone(f, 0.055, "sine", v);
+      if (kind === "perfect") tone(f * 1.5, 0.045, "sine", 0.022, 0.012);
+    },
     drumroll: (durationSec = 6) => {
       try {
         const a = getCtx();
@@ -166,6 +173,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "7.6", items: [
+    "🎵 Beat-Booth nochmal deutlich schneller: 961 statt 646 Noten (4,8 statt 3,2 pro Sekunde)",
+    "🔀 Abwechslungsreichere Muster — 8 verschiedene Rhythmus-Figuren, die alle paar Takte wechseln und gespiegelt werden; längste Serie auf einer Seite jetzt 4 statt 5+",
+    "🟢 Halte-Noten repariert: die Kugel bleibt jetzt sichtbar auf der Trefferlinie stehen statt zu verschwinden, mit grün leuchtendem Rand, Fortschrittsbalken und laufendem Funkenflug",
+    "🔊 Trefferton statt Klick: kurz und weich, Tonhöhe richtet sich nach der Wertung"
+  ]},
   { v: "7.5", items: [
     "🎵 Beat-Booth deutlich schneller: die Beat-Erkennung hatte nur jeden zweiten Schlag erwischt — jetzt 646 statt 355 Noten (3,2 statt 1,8 pro Sekunde)",
     "💥 Treffer knallen jetzt: Funken fliegen, die Spur blitzt auf, das Bild ruckelt kurz, ein Ring ploppt aus der Taste",
@@ -1154,7 +1167,7 @@ function bgHitAttempt(lane) {
       bgAddHit(kind, pts);
       bgBurst(lane, kind);
       if (best.hold > 0) BG.held[lane] = best;   // Halte-Note startet
-      SFX.click();
+      SFX.beathit(kind);
       return;
     }
   }
@@ -1240,33 +1253,55 @@ function bgDraw() {
     const isHeld = BG.held[n.lane] === n;
     const col = n.hold > 0 ? "168,85,247" : n.lane === 0 ? "240,168,48" : "230,57,70";
 
-    if (n.hold > 0) {                       // Halte-Balken mit Leuchtkern
+    // Beim Halten bleibt die Kugel auf der Trefferlinie stehen, statt darunter zu verschwinden
+    const drawY = isHeld ? hitY : y;
+
+    if (n.hold > 0) {                       // Halte-Balken: schrumpft sichtbar von unten weg
       const yEnd = hitY * (1 - (n.t + n.hold - t) / BG_APPROACH);
-      const top = Math.min(y, yEnd), hgt = Math.abs(y - yEnd);
-      g.fillStyle = n.holdBroken ? "rgba(230,57,70,.2)" : `rgba(${col},${isHeld ? .55 : .3})`;
-      g.fillRect(cx - 10, top, 20, hgt);
-      g.fillStyle = `rgba(255,255,255,${isHeld ? .5 : .18})`;
-      g.fillRect(cx - 2, top, 4, hgt);
+      const top = Math.min(drawY, yEnd), bot = Math.max(drawY, yEnd);
+      const hgt = Math.max(0, bot - top);
+      if (hgt > 0.5) {
+        g.fillStyle = n.holdBroken ? "rgba(230,57,70,.18)" : `rgba(${col},${isHeld ? .6 : .28})`;
+        g.fillRect(cx - 10, top, 20, hgt);
+        g.fillStyle = `rgba(255,255,255,${isHeld ? .55 : .15})`;
+        g.fillRect(cx - 2.5, top, 5, hgt);
+        if (isHeld) {                        // Rand leuchtet, solange gehalten wird
+          g.strokeStyle = "rgba(95,227,161,.85)"; g.lineWidth = 2;
+          g.strokeRect(cx - 10, top, 20, hgt);
+        }
+      }
+      // Fortschritt: wie viel vom Halten ist geschafft
+      if (isHeld) {
+        const p = Math.max(0, Math.min(1, (t - n.t) / n.hold));
+        g.fillStyle = "rgba(95,227,161,.9)";
+        g.fillRect(cx - 14, hitY + 26, 28 * p, 3);
+        g.fillStyle = "rgba(255,255,255,.14)";
+        g.fillRect(cx - 14 + 28 * p, hitY + 26, 28 * (1 - p), 3);
+        if (Math.random() < 0.5) BG.parts.push({ lane: n.lane, x: (Math.random()-.5)*18, y: 0,
+          vx: (Math.random()-.5)*1.6, vy: -1.4 - Math.random()*1.6, life: .8, col: "#5fe3a1", r: 1.3 + Math.random()*1.5 });
+      }
     }
     if (n.done && !n.hold) continue;
+    if (n.done && n.hold && !isHeld) continue;   // fertige Halte-Note nicht weiter zeichnen
 
     // Schweif hinter der Note
     if (!n.done) {
-      const tg = g.createLinearGradient(0, y - 26, 0, y);
+      const tg = g.createLinearGradient(0, drawY - 26, 0, drawY);
       tg.addColorStop(0, `rgba(${col},0)`); tg.addColorStop(1, `rgba(${col},.35)`);
-      g.fillStyle = tg; g.fillRect(cx - 7, y - 26, 14, 26);
+      g.fillStyle = tg; g.fillRect(cx - 7, drawY - 26, 14, 26);
     }
 
-    const r = n.hold > 0 ? 13 : 11.5;
+    const r = (n.hold > 0 ? 13 : 11.5) * (isHeld ? 1.15 : 1);
     g.save();
-    g.shadowColor = `rgba(${col},.9)`; g.shadowBlur = n.done ? 4 : 14;
-    g.beginPath(); g.arc(cx, y, r, 0, Math.PI * 2);
-    g.fillStyle = n.done ? (isHeld ? "#5fe3a1" : "rgba(120,120,135,.35)") : `rgb(${col})`;
+    g.shadowColor = isHeld ? "rgba(95,227,161,.95)" : `rgba(${col},.9)`;
+    g.shadowBlur = isHeld ? 20 : (n.done ? 4 : 14);
+    g.beginPath(); g.arc(cx, drawY, r, 0, Math.PI * 2);
+    g.fillStyle = isHeld ? "#5fe3a1" : (n.done ? "rgba(120,120,135,.35)" : `rgb(${col})`);
     g.fill();
     g.restore();
-    if (!n.done) {                          // Glanzlicht oben, macht die Note plastisch
-      g.beginPath(); g.arc(cx - r * .3, y - r * .35, r * .34, 0, Math.PI * 2);
-      g.fillStyle = "rgba(255,255,255,.5)"; g.fill();
+    if (!n.done || isHeld) {                // Glanzlicht oben, macht die Note plastisch
+      g.beginPath(); g.arc(cx - r * .3, drawY - r * .35, r * .34, 0, Math.PI * 2);
+      g.fillStyle = "rgba(255,255,255,.55)"; g.fill();
     }
   }
 
