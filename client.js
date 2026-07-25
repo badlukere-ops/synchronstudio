@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "7.1";
+const APP_VERSION = "7.2";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -165,6 +165,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "7.2", items: [
+    "📊 Lebendiges VU-Meter im Kopfbereich — die LED-Kette folgt deinem Mikro in Echtzeit, mit nachlaufender Spitzenanzeige wie am echten Pult",
+    "🎞️ Filmkorn und Vignette über allem — nimmt dem Bild das Sterile, alles wirkt analog statt frisch gerendert",
+    "🎛️ Knöpfe sind jetzt echte Geräte-Taster: leicht erhaben, rasten beim Drücken spürbar ein",
+    "🔶 Hauptknöpfe in gebürstetem Bernstein statt Farbverlauf"
+  ]},
   { v: "7.1", items: [
     "🎛️ Komplettes Redesign — das Spiel sieht jetzt aus wie echtes Studio-Equipment statt wie eine Webseite",
     "🏷️ Überschriften sitzen auf Gaffer-Tape, so wie in echten Studios auf jedes Gerät geklebt wird",
@@ -488,6 +494,31 @@ function applyMicTuning() {
 
 // ── Noise Gate: Mikro ist stumm, solange du nicht sprichst ──
 let gateOpen = true, lastLoudT = 0;
+// ── VU-Meter im Kopfbereich: LED-Kette, die dem Mikro-Pegel folgt ──
+const VU_SEGMENTS = 12;
+let vuBuilt = false, vuPeak = 0, vuPeakT = 0;
+function updateVuMeter(rms) {
+  const wrap = $("vu-leds");
+  if (!wrap) return;
+  if (!vuBuilt) { wrap.innerHTML = "<i></i>".repeat(VU_SEGMENTS); vuBuilt = true; }
+  // RMS ist typischerweise sehr klein — auf eine Skala ziehen, bei der normales Sprechen
+  // im mittleren Bereich landet und nur echtes Anschreien ganz oben rot wird
+  const level = Math.min(1, Math.pow(Math.max(0, rms) * 3.6, 0.72));
+  const lit = Math.round(level * VU_SEGMENTS);
+  const now = performance.now();
+  if (lit >= vuPeak) { vuPeak = lit; vuPeakT = now; }
+  else if (now - vuPeakT > 700) vuPeak = Math.max(lit, vuPeak - 1), vuPeakT = now - 640;   // Spitzenwert klingt langsam ab
+  const kids = wrap.children;
+  for (let i = 0; i < VU_SEGMENTS; i++) {
+    const el = kids[i];
+    if (!el) continue;
+    const isLit = i < lit, isPeak = i === vuPeak - 1 && vuPeak > lit;
+    el.className = (isLit || isPeak) ? (i >= VU_SEGMENTS - 2 ? "on-hi" : i >= VU_SEGMENTS - 5 ? "on-mid" : "on-lo") : "";
+    el.style.opacity = isPeak && !isLit ? ".55" : "1";
+    el.style.height = (42 + (i / VU_SEGMENTS) * 58) + "%";   // Treppe nach oben, wie am echten Gerät
+  }
+}
+
 function startGateLoop() {
   const buf = new Float32Array(gateAn.fftSize);
   (function loop() {
@@ -502,6 +533,7 @@ function startGateLoop() {
     // Lobby-Mikro-Live-Anzeige: unabhängig vom Gate, zeigt einfach "kommt gerade Ton an"
     const liveDot = $("mic-live-dot");
     if (liveDot) liveDot.style.background = rms > 0.02 ? "var(--ok)" : "#3a3a46";
+    updateVuMeter(rms);
 
     const thr = micSettings.gate * 0.16;            // Slider 0..1 → Schwelle 0..0.16 RMS (deutlich stärker)
     if (thr <= 0) {

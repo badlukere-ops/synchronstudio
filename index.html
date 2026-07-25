@@ -41,6 +41,22 @@
     position:relative;
   }
   /* Halftone-Layer über allem, ganz subtil */
+  /* Filmkorn + Vignette über allem — nimmt dem Bild das "frisch aus dem Rechner"-Sterile */
+  .grain{
+    position:fixed;inset:-150%;pointer-events:none;z-index:70;opacity:.13;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+    animation:grainshift 7s steps(6) infinite;
+  }
+  @keyframes grainshift{
+    0%,100%{transform:translate(0,0)} 16%{transform:translate(-2%,1%)} 33%{transform:translate(1%,-2%)}
+    50%{transform:translate(-1%,2%)} 66%{transform:translate(2%,1%)} 83%{transform:translate(1%,-1%)}
+  }
+  .vignette{
+    position:fixed;inset:0;pointer-events:none;z-index:69;
+    background:radial-gradient(ellipse 120% 90% at 50% 42%,transparent 45%,rgba(0,0,0,.5) 100%);
+  }
+  @media (prefers-reduced-motion:reduce){.grain{animation:none}}
+
   body::before{
     content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
     background-image:radial-gradient(circle,rgba(255,255,255,.045) 1px,transparent 1.6px);
@@ -90,6 +106,24 @@
   .logo{font-family:var(--font-display);font-size:1.85rem;letter-spacing:.01em;text-transform:uppercase;line-height:.95}
   .logo em{font-style:normal;color:var(--amber);text-shadow:0 0 22px rgba(240,168,48,.4)}
   .logo span{color:var(--muted);font-family:var(--font-mono);font-weight:400;font-size:.66rem;display:block;letter-spacing:.22em;text-transform:uppercase;margin-top:3px}
+
+  /* VU-Meter: LED-Kette hinter Glas, grün → bernstein → rot wie am echten Pult */
+  .vumeter{
+    display:flex;flex-direction:column;gap:4px;align-items:center;
+    background:linear-gradient(180deg,#0c0c10,#131318);
+    border:1px solid #2c2c36;border-radius:6px;padding:7px 9px 5px;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.65);
+  }
+  .vu-leds{display:flex;gap:2.5px;align-items:flex-end;height:15px}
+  .vu-leds i{
+    display:block;width:4px;height:100%;border-radius:1px;
+    background:#1e1e26;transition:background .06s, box-shadow .06s;
+  }
+  .vu-leds i.on-lo{background:var(--vu);box-shadow:0 0 6px rgba(95,227,161,.75)}
+  .vu-leds i.on-mid{background:var(--amber);box-shadow:0 0 6px rgba(240,168,48,.8)}
+  .vu-leds i.on-hi{background:var(--hot);box-shadow:0 0 8px rgba(230,57,70,.9)}
+  .vu-label{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:#5a5a68}
+  @media(max-width:700px){.vumeter{display:none}}
 
   /* ON AIR als echtes Studioschild — kein Verlauf, sondern glühendes Rot hinter Glas */
   .onair{
@@ -196,19 +230,31 @@
   ::-webkit-scrollbar-thumb{background:#2c2c38;border-radius:99px;border:2px solid var(--bg)}
   ::-webkit-scrollbar-thumb:hover{background:#3d3d4c}
 
+  /* Knöpfe wie echte Geräte-Taster: leicht erhaben, rasten beim Drücken ein */
   button{
-    background:#1f1f28;border:1px solid var(--line);border-radius:10px;
-    color:var(--text);padding:11px 18px;font:inherit;font-weight:700;cursor:pointer;
-    transition:transform .1s,border-color .15s,filter .15s,background .15s;
+    background:linear-gradient(180deg,#2a2a33,#1c1c23);
+    border:1px solid var(--metal);border-radius:8px;
+    color:var(--text);padding:11px 18px;font:inherit;font-weight:600;cursor:pointer;
+    letter-spacing:.01em;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 2px 0 #0d0d11, 0 4px 10px rgba(0,0,0,.4);
+    transition:transform .07s, box-shadow .07s, border-color .15s, filter .15s;
   }
-  button:hover{border-color:#4a4a5a;background:#25252f;transform:translateY(-1px)}
-  button:active{transform:translateY(0)}
-  button.primary{background:var(--grad);border:none;color:#14060a;text-shadow:0 1px 0 rgba(255,255,255,.25);box-shadow:0 4px 18px rgba(255,77,85,.28)}
-  button.primary:hover{filter:brightness(1.12);box-shadow:0 6px 26px rgba(255,77,85,.45);transform:translateY(-2px)}
-  button:disabled{opacity:.35;cursor:not-allowed;transform:none}
-  button.ghost{background:transparent}
-  button.ghost:hover{background:rgba(255,255,255,.04)}
-  button.big{font-size:1.05rem;padding:15px 26px;border-radius:12px}
+  button:hover{border-color:#54545f;filter:brightness(1.14)}
+  button:active{
+    transform:translateY(2px);
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.55), 0 0 0 #0d0d11;
+  }
+  button.primary{
+    background:linear-gradient(180deg,#f5b544,#d98a1e);
+    border-color:#8a5a11;color:#241300;text-shadow:0 1px 0 rgba(255,255,255,.3);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 2px 0 #6d4409, 0 6px 20px rgba(240,168,48,.3);
+  }
+  button.primary:hover{filter:brightness(1.09);box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 2px 0 #6d4409, 0 8px 28px rgba(240,168,48,.45)}
+  button.primary:active{transform:translateY(2px);box-shadow:inset 0 2px 6px rgba(0,0,0,.4), 0 0 0 #6d4409}
+  button:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+  button.ghost{background:linear-gradient(180deg,#1e1e25,#17171d);box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 2px 0 #0d0d11}
+  button.ghost:hover{background:linear-gradient(180deg,#25252d,#1c1c22)}
+  button.big{font-size:1.05rem;padding:15px 26px;border-radius:10px}
 
   .screen{display:none}
   .screen.active{display:block;animation:screenin .32s ease both}
@@ -461,6 +507,10 @@
       <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.35" title="Musik-Lautstärke" style="width:70px;accent-color:var(--amber)">
       <canvas id="music-viz" style="width:44px;height:26px"></canvas>
       <button class="ghost" id="btn-mic-settings" title="Mikrofon-Einstellungen" style="font-size:1.1rem">🎚</button>
+      <div class="vumeter" title="Mikrofon-Pegel">
+        <div class="vu-leds" id="vu-leds"></div>
+        <span class="vu-label">Mic</span>
+      </div>
       <div class="onair" id="onair">On Air</div>
     </div>
   </header>
@@ -895,6 +945,8 @@
   </section>
 
 </div>
+<div class="vignette"></div>
+<div class="grain"></div>
 <div class="floaties" id="floaties"></div>
 
 <!-- Linkes Seitenpanel: Fun-Fact-Ticker -->
