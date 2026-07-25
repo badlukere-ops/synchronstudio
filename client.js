@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "7.3";
+const APP_VERSION = "7.4";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -166,6 +166,13 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "7.4", items: [
+    "🎵 Neues Rhythmus-Spiel „Beat-Booth“ im linken Panel — F für links, J für rechts, im Takt treffen",
+    "🎯 Bewertung pro Note: Perfect / Good / OK / Miss, mit Combo-Bonus und Genauigkeit am Ende",
+    "🟣 Halte-Noten: manche Noten müssen gedrückt gehalten werden",
+    "🔇 Die Musik hört nur, wer selbst spielt — Lobby-Musik pausiert solange automatisch",
+    "⏹ Bricht von selbst ab, sobald der Host startet oder es sonst weitergeht"
+  ]},
   { v: "7.3", items: [
     "🎥 Kinosaal-Modus: Bei der Premiere fährt der ganze Saal runter — nur die Leinwand bleibt hell und bekommt einen Projektor-Schein",
     "🏆 Podium sind jetzt echte Körper statt flacher Rechtecke: gekippte Deckfläche, Bodenschatten, beleuchteter Siegersockel",
@@ -950,6 +957,7 @@ show = function(id) {
   if (f) f.style.display = calm ? "none" : "";
   // Seitenpanels NUR in Lobby & Warteraum zeigen — überall sonst (Mikro-Setup, Avatar-Wahl, Premiere, Bewertung …) aus
   const showPanels = id === "scr-lobby" || id === "scr-wait";
+  if (!showPanels && BG.running) bgStop(false);   // Beat-Booth beenden, sobald es weitergeht
   const spL = document.getElementById("side-panel-left"), spR = document.getElementById("side-panel-right");
   [spL, spR].forEach(sp => { if (sp) sp.style.visibility = showPanels ? "visible" : "hidden"; });
   if (showPanels) setTimeout(renderDrawBoard, 30);   // Canvas war ggf. gerade erst sichtbar -> Größe neu berechnen & zeichnen
@@ -1055,6 +1063,238 @@ function rotateFunFact() {
   el.style.opacity = "0";
   setTimeout(() => { el.textContent = FUN_FACTS[funFactIdx % FUN_FACTS.length]; funFactIdx++; el.style.opacity = "1"; }, 300);
 }
+// ═════════════════════════════════════════════════════════════
+// 🎵 BEAT-BOOTH — Rhythmus-Minispiel (F = links, J = rechts)
+// Läuft rein lokal: die Musik hört nur, wer selbst spielt.
+// ═════════════════════════════════════════════════════════════
+const BG = {
+  audio: null, chart: null, notes: [], running: false, raf: null,
+  score: 0, combo: 0, maxCombo: 0, counts: { perfect: 0, good: 0, ok: 0, miss: 0 },
+  held: [null, null],        // laufende Halte-Note je Spur
+  keyDown: [false, false],
+  startedAt: 0, countdownUntil: 0, vol: 0.5,
+};
+const BG_APPROACH = 1.7;                       // Sekunden, die eine Note von oben bis zur Linie braucht
+const BG_WINDOWS = [[0.075, "perfect", 300], [0.13, "good", 180], [0.2, "ok", 80]];
+const BG_KEYS = { f: 0, j: 1 };
+
+async function bgLoadChart() {
+  if (BG.chart) return BG.chart;
+  try {
+    const res = await fetch("beatchart.json?t=" + Date.now(), { cache: "no-store" });
+    BG.chart = await res.json();
+    return BG.chart;
+  } catch (e) { console.error("Beat-Chart nicht ladbar:", e); return null; }
+}
+
+function bgJudge(text, color) {
+  const el = $("bg-judge");
+  if (!el) return;
+  el.textContent = text;
+  el.style.color = color;
+  el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
+}
+
+function bgAddHit(kind, points) {
+  BG.counts[kind]++;
+  if (kind === "miss") { BG.combo = 0; }
+  else {
+    BG.combo++;
+    BG.maxCombo = Math.max(BG.maxCombo, BG.combo);
+    BG.score += points + Math.min(BG.combo, 50) * 2;   // Combo-Bonus, gedeckelt
+  }
+  const sc = $("bg-score"), cb = $("bg-combo");
+  if (sc) sc.textContent = BG.score;
+  if (cb) { cb.textContent = BG.combo; cb.classList.toggle("hot", BG.combo >= 10); }
+  const colors = { perfect: "#5fe3a1", good: "#f0a830", ok: "#8a8a99", miss: "#e63946" };
+  const labels = { perfect: "Perfect!", good: "Good", ok: "OK", miss: "Miss" };
+  bgJudge(labels[kind], colors[kind]);
+}
+
+function bgNow() {
+  if (!BG.audio) return 0;
+  return BG.audio.currentTime;
+}
+
+function bgHitAttempt(lane) {
+  if (!BG.running) return;
+  const t = bgNow();
+  let best = null, bestDiff = 9;
+  for (const n of BG.notes) {
+    if (n.done || n.lane !== lane) continue;
+    const d = Math.abs(n.t - t);
+    if (d < bestDiff) { bestDiff = d; best = n; }
+  }
+  if (!best || bestDiff > 0.2) return;      // nichts in Reichweite -> kein Fehlklick-Abzug, bleibt fair
+  for (const [win, kind, pts] of BG_WINDOWS) {
+    if (bestDiff <= win) {
+      best.done = true; best.hit = kind;
+      bgAddHit(kind, pts);
+      if (best.hold > 0) BG.held[lane] = best;   // Halte-Note startet
+      SFX.click();
+      return;
+    }
+  }
+}
+
+function bgRelease(lane) {
+  const h = BG.held[lane];
+  if (!h) return;
+  BG.held[lane] = null;
+  const t = bgNow();
+  if (t < h.t + h.hold - 0.15) {              // zu früh losgelassen
+    h.holdBroken = true;
+    bgAddHit("miss", 0);
+  } else {
+    h.holdDone = true;
+    BG.score += 120;
+    const sc = $("bg-score"); if (sc) sc.textContent = BG.score;
+    bgJudge("Hold!", "#5fe3a1");
+  }
+}
+
+function bgDraw() {
+  const c = $("bg-canvas");
+  if (!c) return;
+  const g = c.getContext("2d");
+  const W = c.width, H = c.height;
+  const hitY = H - 46;
+  const laneW = W / 2;
+  const t = bgNow();
+
+  g.clearRect(0, 0, W, H);
+
+  // Spuren
+  for (let L = 0; L < 2; L++) {
+    const x = L * laneW;
+    g.fillStyle = BG.keyDown[L] ? "rgba(240,168,48,.08)" : "rgba(255,255,255,.015)";
+    g.fillRect(x + 4, 0, laneW - 8, H);
+    g.strokeStyle = "rgba(255,255,255,.05)";
+    g.strokeRect(x + 4.5, .5, laneW - 9, H - 1);
+  }
+
+  // Trefferlinie + Tastenkappen
+  g.fillStyle = "rgba(240,168,48,.55)";
+  g.fillRect(0, hitY - 1, W, 2);
+  for (let L = 0; L < 2; L++) {
+    const cx = L * laneW + laneW / 2;
+    g.beginPath(); g.arc(cx, hitY, 17, 0, Math.PI * 2);
+    g.fillStyle = BG.keyDown[L] ? "rgba(240,168,48,.35)" : "rgba(255,255,255,.05)";
+    g.fill();
+    g.strokeStyle = BG.keyDown[L] ? "#f0a830" : "#3a3a44"; g.lineWidth = 2; g.stroke();
+    g.fillStyle = BG.keyDown[L] ? "#0b0b0e" : "#8a8a99";
+    g.font = "700 15px 'Space Mono',monospace"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText(L === 0 ? "F" : "J", cx, hitY + 1);
+  }
+
+  // Noten
+  for (const n of BG.notes) {
+    const dt = n.t - t;
+    if (dt > BG_APPROACH || dt < -0.45) continue;
+    const cx = n.lane * laneW + laneW / 2;
+    const y = hitY * (1 - dt / BG_APPROACH);
+    const isHeld = BG.held[n.lane] === n;
+
+    if (n.hold > 0) {                       // Halte-Note: Balken nach oben
+      const yEnd = hitY * (1 - (n.t + n.hold - t) / BG_APPROACH);
+      g.fillStyle = n.holdBroken ? "rgba(230,57,70,.25)" : (isHeld ? "rgba(95,227,161,.5)" : "rgba(168,85,247,.4)");
+      g.fillRect(cx - 9, Math.min(y, yEnd), 18, Math.abs(y - yEnd));
+    }
+    if (n.done && !n.hold) continue;
+    g.beginPath(); g.arc(cx, y, n.hold > 0 ? 13 : 11, 0, Math.PI * 2);
+    g.fillStyle = n.done ? (isHeld ? "#5fe3a1" : "rgba(120,120,135,.4)")
+                : n.hold > 0 ? "#a855f7" : (n.lane === 0 ? "#f0a830" : "#e63946");
+    g.fill();
+    g.strokeStyle = "rgba(0,0,0,.5)"; g.lineWidth = 1.5; g.stroke();
+  }
+}
+
+function bgTick() {
+  if (!BG.running) return;
+  BG.raf = requestAnimationFrame(bgTick);
+  const t = bgNow();
+
+  // Countdown vor dem Start
+  const cd = $("bg-count");
+  if (performance.now() < BG.countdownUntil) {
+    const left = Math.ceil((BG.countdownUntil - performance.now()) / 1000);
+    if (cd) { cd.classList.add("show"); cd.textContent = left; }
+    bgDraw();
+    return;
+  } else if (cd && cd.classList.contains("show")) {
+    cd.classList.remove("show");
+    BG.audio.play().catch(() => {});
+  }
+
+  // Verpasste Noten einsammeln
+  for (const n of BG.notes) {
+    if (!n.done && !n.missed && n.t < t - 0.2) { n.missed = true; n.done = true; bgAddHit("miss", 0); }
+    // Halte-Note bis zum Ende durchgehalten -> automatisch gutschreiben
+    if (BG.held[n.lane] === n && t >= n.t + n.hold) bgRelease(n.lane);
+  }
+
+  bgDraw();
+  if (BG.audio.ended || t >= BG.chart.duration - 0.1) bgStop(true);
+}
+
+async function bgStart() {
+  const chart = await bgLoadChart();
+  if (!chart) { status("bg-result", "Beat-Chart nicht gefunden.", true); return; }
+  bgStop(false);
+
+  BG.notes = chart.notes.map(n => ({ ...n, done: false, missed: false, hit: null, holdBroken: false, holdDone: false }));
+  BG.score = 0; BG.combo = 0; BG.maxCombo = 0;
+  BG.counts = { perfect: 0, good: 0, ok: 0, miss: 0 };
+  BG.held = [null, null]; BG.keyDown = [false, false];
+  $("bg-score").textContent = "0"; $("bg-combo").textContent = "0";
+  $("bg-result").textContent = "";
+  $("bg-start").style.display = "none"; $("bg-stop").style.display = "";
+
+  if (!BG.audio) { BG.audio = new Audio("beatgame.mp3"); BG.audio.preload = "auto"; }
+  BG.audio.volume = BG.vol;
+  BG.audio.currentTime = 0;
+
+  lobbyAudio.pause();                       // Lobby-Musik aus, sonst hört man zwei Songs übereinander
+  BG.running = true;
+  BG.countdownUntil = performance.now() + 3000;
+  bgTick();
+}
+
+function bgStop(showResult) {
+  BG.running = false;
+  cancelAnimationFrame(BG.raf);
+  if (BG.audio) { BG.audio.pause(); }
+  const cd = $("bg-count"); if (cd) cd.classList.remove("show");
+  const sb = $("bg-start"), st = $("bg-stop");
+  if (sb) sb.style.display = ""; if (st) st.style.display = "none";
+  if (showResult) {
+    const c = BG.counts, total = c.perfect + c.good + c.ok + c.miss;
+    const acc = total ? Math.round((c.perfect + c.good * 0.7 + c.ok * 0.35) / total * 100) : 0;
+    const res = $("bg-result");
+    if (res) res.innerHTML = `🏁 <b>${BG.score}</b> Punkte · ${acc}% Genauigkeit · längste Combo ${BG.maxCombo}<br>
+      <span style="color:#5fe3a1">${c.perfect} Perfect</span> · <span style="color:#f0a830">${c.good} Good</span> · ${c.ok} OK · <span style="color:#e63946">${c.miss} Miss</span>`;
+    SFX.done();
+  }
+  updateLobbyMusic();                       // Lobby-Musik ggf. wieder an
+}
+
+document.addEventListener("keydown", e => {
+  if (!BG.running) return;
+  const tag = (e.target && e.target.tagName) || "";
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+  const lane = BG_KEYS[e.key.toLowerCase()];
+  if (lane === undefined || BG.keyDown[lane]) return;
+  e.preventDefault();
+  BG.keyDown[lane] = true;
+  bgHitAttempt(lane);
+});
+document.addEventListener("keyup", e => {
+  const lane = BG_KEYS[(e.key || "").toLowerCase()];
+  if (lane === undefined) return;
+  BG.keyDown[lane] = false;
+  if (BG.running) bgRelease(lane);
+});
+
 function startFunFactRotation() {
   clearInterval(funFactTimer);
   rotateFunFact();
@@ -2390,6 +2630,9 @@ document.addEventListener("DOMContentLoaded", () => {
   $("btn-dice-reset") && ($("btn-dice-reset").onclick = () => diceAction({ k: "reset" }));
   renderDice();
   initDrawCanvas("draw-canvas", "draw-colors", "draw-size", "btn-draw-clear", "btn-draw-eraser");
+  $("bg-start") && ($("bg-start").onclick = () => bgStart());
+  $("bg-stop") && ($("bg-stop").onclick = () => bgStop(true));
+  $("bg-vol") && ($("bg-vol").oninput = e => { BG.vol = parseFloat(e.target.value); if (BG.audio) BG.audio.volume = BG.vol; });
   startFunFactRotation();
 });
 
