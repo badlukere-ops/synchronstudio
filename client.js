@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "7.4";
+const APP_VERSION = "7.5";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -166,6 +166,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "7.5", items: [
+    "🎵 Beat-Booth deutlich schneller: die Beat-Erkennung hatte nur jeden zweiten Schlag erwischt — jetzt 646 statt 355 Noten (3,2 statt 1,8 pro Sekunde)",
+    "💥 Treffer knallen jetzt: Funken fliegen, die Spur blitzt auf, das Bild ruckelt kurz, ein Ring ploppt aus der Taste",
+    "🌌 Neue Optik: Noten mit Leuchtschweif und Glanzlicht, Spuren mit Fluchtpunkt-Sog, Hintergrund pulsiert im Takt",
+    "🏷️ Trefferanzeige springt größer und wuchtiger ins Bild"
+  ]},
   { v: "7.4", items: [
     "🎵 Neues Rhythmus-Spiel „Beat-Booth“ im linken Panel — F für links, J für rechts, im Takt treffen",
     "🎯 Bewertung pro Note: Perfect / Good / OK / Miss, mit Combo-Bonus und Genauigkeit am Ende",
@@ -1073,6 +1079,7 @@ const BG = {
   held: [null, null],        // laufende Halte-Note je Spur
   keyDown: [false, false],
   startedAt: 0, countdownUntil: 0, vol: 0.5,
+  parts: [], flash: [0, 0], shake: 0, ringPop: [0, 0], pulse: 0, lastBeat: -1,
 };
 const BG_APPROACH = 1.7;                       // Sekunden, die eine Note von oben bis zur Linie braucht
 const BG_WINDOWS = [[0.075, "perfect", 300], [0.13, "good", 180], [0.2, "ok", 80]];
@@ -1095,6 +1102,21 @@ function bgJudge(text, color) {
   el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
 }
 
+// Treffer-Effekte: Funken, kurzer Blitz auf der Spur, leichtes Rütteln
+function bgBurst(lane, kind) {
+  const colors = { perfect: "#5fe3a1", good: "#f0a830", ok: "#8a8a99", miss: "#e63946" };
+  const col = colors[kind] || "#f0a830";
+  const n = kind === "perfect" ? 16 : kind === "good" ? 11 : kind === "miss" ? 5 : 8;
+  for (let i = 0; i < n; i++) {
+    const a = (Math.PI * 2 * i) / n + Math.random() * 0.5;
+    const sp = 1.7 + Math.random() * 3.4;
+    BG.parts.push({ lane, x: (Math.random() - .5) * 14, y: 0, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.3, life: 1, col, r: 1.6 + Math.random() * 2.4 });
+  }
+  BG.flash[lane] = kind === "miss" ? 0.5 : 1;
+  BG.shake = kind === "perfect" ? 5.5 : kind === "miss" ? 3 : 3.5;
+  if (kind !== "miss") BG.ringPop[lane] = 1;
+}
+
 function bgAddHit(kind, points) {
   BG.counts[kind]++;
   if (kind === "miss") { BG.combo = 0; }
@@ -1107,7 +1129,7 @@ function bgAddHit(kind, points) {
   if (sc) sc.textContent = BG.score;
   if (cb) { cb.textContent = BG.combo; cb.classList.toggle("hot", BG.combo >= 10); }
   const colors = { perfect: "#5fe3a1", good: "#f0a830", ok: "#8a8a99", miss: "#e63946" };
-  const labels = { perfect: "Perfect!", good: "Good", ok: "OK", miss: "Miss" };
+  const labels = { perfect: "PERFECT", good: "GOOD", ok: "OK", miss: "MISS" };
   bgJudge(labels[kind], colors[kind]);
 }
 
@@ -1130,6 +1152,7 @@ function bgHitAttempt(lane) {
     if (bestDiff <= win) {
       best.done = true; best.hit = kind;
       bgAddHit(kind, pts);
+      bgBurst(lane, kind);
       if (best.hold > 0) BG.held[lane] = best;   // Halte-Note startet
       SFX.click();
       return;
@@ -1158,34 +1181,55 @@ function bgDraw() {
   if (!c) return;
   const g = c.getContext("2d");
   const W = c.width, H = c.height;
-  const hitY = H - 46;
+  const hitY = H - 52;
   const laneW = W / 2;
   const t = bgNow();
 
-  g.clearRect(0, 0, W, H);
+  // Kamerawackler nach einem Treffer
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  if (BG.shake > 0.1) {
+    g.translate((Math.random() - .5) * BG.shake, (Math.random() - .5) * BG.shake);
+    BG.shake *= 0.82;
+  }
+  g.clearRect(-10, -10, W + 20, H + 20);
 
-  // Spuren
+  // Hintergrund pulsiert im Takt
+  BG.pulse *= 0.9;
+  const bpmSec = 60 / ((BG.chart && BG.chart.bpm) || 235) * 2;
+  const beatIdx = Math.floor(t / bpmSec);
+  if (beatIdx !== BG.lastBeat) { BG.lastBeat = beatIdx; BG.pulse = 1; }
+  const bgGrad = g.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, `rgba(168,85,247,${0.05 + BG.pulse * 0.05})`);
+  bgGrad.addColorStop(0.55, "rgba(10,10,14,0)");
+  g.fillStyle = bgGrad; g.fillRect(0, 0, W, H);
+
+  // Spuren mit Fluchtpunkt-Wirkung
   for (let L = 0; L < 2; L++) {
     const x = L * laneW;
-    g.fillStyle = BG.keyDown[L] ? "rgba(240,168,48,.08)" : "rgba(255,255,255,.015)";
-    g.fillRect(x + 4, 0, laneW - 8, H);
-    g.strokeStyle = "rgba(255,255,255,.05)";
-    g.strokeRect(x + 4.5, .5, laneW - 9, H - 1);
+    const lg = g.createLinearGradient(0, 0, 0, hitY);
+    const base = L === 0 ? "240,168,48" : "230,57,70";
+    lg.addColorStop(0, `rgba(${base},0)`);
+    lg.addColorStop(1, `rgba(${base},${BG.keyDown[L] ? .16 : .05})`);
+    g.fillStyle = lg; g.fillRect(x + 5, 0, laneW - 10, hitY);
+    g.strokeStyle = `rgba(${base},.18)`; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(x + 5.5, 0); g.lineTo(x + 5.5, hitY);
+    g.moveTo(x + laneW - 5.5, 0); g.lineTo(x + laneW - 5.5, hitY); g.stroke();
+
+    // Aufblitzen direkt nach dem Treffer
+    if (BG.flash[L] > 0.02) {
+      g.fillStyle = `rgba(255,255,255,${BG.flash[L] * 0.13})`;
+      g.fillRect(x + 5, 0, laneW - 10, hitY);
+      BG.flash[L] *= 0.84;
+    }
   }
 
-  // Trefferlinie + Tastenkappen
-  g.fillStyle = "rgba(240,168,48,.55)";
-  g.fillRect(0, hitY - 1, W, 2);
-  for (let L = 0; L < 2; L++) {
-    const cx = L * laneW + laneW / 2;
-    g.beginPath(); g.arc(cx, hitY, 17, 0, Math.PI * 2);
-    g.fillStyle = BG.keyDown[L] ? "rgba(240,168,48,.35)" : "rgba(255,255,255,.05)";
-    g.fill();
-    g.strokeStyle = BG.keyDown[L] ? "#f0a830" : "#3a3a44"; g.lineWidth = 2; g.stroke();
-    g.fillStyle = BG.keyDown[L] ? "#0b0b0e" : "#8a8a99";
-    g.font = "700 15px 'Space Mono',monospace"; g.textAlign = "center"; g.textBaseline = "middle";
-    g.fillText(L === 0 ? "F" : "J", cx, hitY + 1);
-  }
+  // Trefferlinie: glüht im Takt
+  const glowA = 0.35 + BG.pulse * 0.4;
+  g.save();
+  g.shadowColor = "rgba(240,168,48,.9)"; g.shadowBlur = 12 + BG.pulse * 14;
+  g.fillStyle = `rgba(240,168,48,${glowA})`;
+  g.fillRect(0, hitY - 1.5, W, 3);
+  g.restore();
 
   // Noten
   for (const n of BG.notes) {
@@ -1194,19 +1238,73 @@ function bgDraw() {
     const cx = n.lane * laneW + laneW / 2;
     const y = hitY * (1 - dt / BG_APPROACH);
     const isHeld = BG.held[n.lane] === n;
+    const col = n.hold > 0 ? "168,85,247" : n.lane === 0 ? "240,168,48" : "230,57,70";
 
-    if (n.hold > 0) {                       // Halte-Note: Balken nach oben
+    if (n.hold > 0) {                       // Halte-Balken mit Leuchtkern
       const yEnd = hitY * (1 - (n.t + n.hold - t) / BG_APPROACH);
-      g.fillStyle = n.holdBroken ? "rgba(230,57,70,.25)" : (isHeld ? "rgba(95,227,161,.5)" : "rgba(168,85,247,.4)");
-      g.fillRect(cx - 9, Math.min(y, yEnd), 18, Math.abs(y - yEnd));
+      const top = Math.min(y, yEnd), hgt = Math.abs(y - yEnd);
+      g.fillStyle = n.holdBroken ? "rgba(230,57,70,.2)" : `rgba(${col},${isHeld ? .55 : .3})`;
+      g.fillRect(cx - 10, top, 20, hgt);
+      g.fillStyle = `rgba(255,255,255,${isHeld ? .5 : .18})`;
+      g.fillRect(cx - 2, top, 4, hgt);
     }
     if (n.done && !n.hold) continue;
-    g.beginPath(); g.arc(cx, y, n.hold > 0 ? 13 : 11, 0, Math.PI * 2);
-    g.fillStyle = n.done ? (isHeld ? "#5fe3a1" : "rgba(120,120,135,.4)")
-                : n.hold > 0 ? "#a855f7" : (n.lane === 0 ? "#f0a830" : "#e63946");
+
+    // Schweif hinter der Note
+    if (!n.done) {
+      const tg = g.createLinearGradient(0, y - 26, 0, y);
+      tg.addColorStop(0, `rgba(${col},0)`); tg.addColorStop(1, `rgba(${col},.35)`);
+      g.fillStyle = tg; g.fillRect(cx - 7, y - 26, 14, 26);
+    }
+
+    const r = n.hold > 0 ? 13 : 11.5;
+    g.save();
+    g.shadowColor = `rgba(${col},.9)`; g.shadowBlur = n.done ? 4 : 14;
+    g.beginPath(); g.arc(cx, y, r, 0, Math.PI * 2);
+    g.fillStyle = n.done ? (isHeld ? "#5fe3a1" : "rgba(120,120,135,.35)") : `rgb(${col})`;
     g.fill();
-    g.strokeStyle = "rgba(0,0,0,.5)"; g.lineWidth = 1.5; g.stroke();
+    g.restore();
+    if (!n.done) {                          // Glanzlicht oben, macht die Note plastisch
+      g.beginPath(); g.arc(cx - r * .3, y - r * .35, r * .34, 0, Math.PI * 2);
+      g.fillStyle = "rgba(255,255,255,.5)"; g.fill();
+    }
   }
+
+  // Tastenkappen unten
+  for (let L = 0; L < 2; L++) {
+    const cx = L * laneW + laneW / 2;
+    const base = L === 0 ? "240,168,48" : "230,57,70";
+    if (BG.ringPop[L] > 0.02) {              // Ring, der beim Treffer aufploppt
+      g.beginPath(); g.arc(cx, hitY, 19 + (1 - BG.ringPop[L]) * 20, 0, Math.PI * 2);
+      g.strokeStyle = `rgba(${base},${BG.ringPop[L] * .7})`; g.lineWidth = 2.5; g.stroke();
+      BG.ringPop[L] *= 0.88;
+    }
+    const pressed = BG.keyDown[L];
+    g.save();
+    g.shadowColor = `rgba(${base},${pressed ? .9 : .3})`; g.shadowBlur = pressed ? 18 : 6;
+    g.beginPath(); g.arc(cx, hitY, 18, 0, Math.PI * 2);
+    g.fillStyle = pressed ? `rgba(${base},.4)` : "rgba(18,18,24,.9)";
+    g.fill();
+    g.strokeStyle = pressed ? `rgb(${base})` : `rgba(${base},.55)`; g.lineWidth = 2.5; g.stroke();
+    g.restore();
+    g.fillStyle = pressed ? "#0b0b0e" : `rgba(${base},.9)`;
+    g.font = "700 16px 'Space Mono',monospace"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText(L === 0 ? "F" : "J", cx, hitY + 1);
+  }
+
+  // Funken
+  for (let i = BG.parts.length - 1; i >= 0; i--) {
+    const p = BG.parts[i];
+    p.x += p.vx; p.y += p.vy; p.vy += 0.16; p.life -= 0.035;
+    if (p.life <= 0) { BG.parts.splice(i, 1); continue; }
+    const px = p.lane * laneW + laneW / 2 + p.x;
+    g.globalAlpha = Math.max(0, p.life);
+    g.fillStyle = p.col;
+    g.beginPath(); g.arc(px, hitY + p.y, p.r * p.life, 0, Math.PI * 2); g.fill();
+    g.globalAlpha = 1;
+  }
+  if (BG.parts.length > 220) BG.parts.splice(0, BG.parts.length - 220);
+  g.setTransform(1, 0, 0, 1, 0, 0);
 }
 
 function bgTick() {
@@ -1228,7 +1326,7 @@ function bgTick() {
 
   // Verpasste Noten einsammeln
   for (const n of BG.notes) {
-    if (!n.done && !n.missed && n.t < t - 0.2) { n.missed = true; n.done = true; bgAddHit("miss", 0); }
+    if (!n.done && !n.missed && n.t < t - 0.2) { n.missed = true; n.done = true; bgAddHit("miss", 0); bgBurst(n.lane, "miss"); }
     // Halte-Note bis zum Ende durchgehalten -> automatisch gutschreiben
     if (BG.held[n.lane] === n && t >= n.t + n.hold) bgRelease(n.lane);
   }
@@ -1246,6 +1344,7 @@ async function bgStart() {
   BG.score = 0; BG.combo = 0; BG.maxCombo = 0;
   BG.counts = { perfect: 0, good: 0, ok: 0, miss: 0 };
   BG.held = [null, null]; BG.keyDown = [false, false];
+  BG.parts = []; BG.flash = [0, 0]; BG.shake = 0; BG.ringPop = [0, 0]; BG.pulse = 0; BG.lastBeat = -1;
   $("bg-score").textContent = "0"; $("bg-combo").textContent = "0";
   $("bg-result").textContent = "";
   $("bg-start").style.display = "none"; $("bg-stop").style.display = "";
