@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "7.0";
+const APP_VERSION = "7.1";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -153,7 +153,7 @@ window.addEventListener("DOMContentLoaded", () => {
   watchVideoErrors($("play-video"), "play-status");
 });
 document.body.insertAdjacentHTML("beforeend",
-  `<button id="patchnotes-btn" style="position:fixed;left:10px;bottom:8px;z-index:99;font-size:.68rem;color:#8a8aa0;letter-spacing:.08em;background:#14141b;border:1px solid var(--line);border-radius:99px;padding:3px 10px;cursor:pointer">v${APP_VERSION} · 📋 Patch Notes</button>
+  `<button id="patchnotes-btn" style="position:fixed;left:12px;bottom:10px;z-index:99;font-family:var(--font-mono);font-size:.62rem;color:#7a7a88;letter-spacing:.12em;background:linear-gradient(180deg,#1a1a20,#131318);border:1px solid var(--metal);border-radius:5px;padding:5px 11px;cursor:pointer">v${APP_VERSION} · 📋 Patch Notes</button>
    <div id="patchnotes-overlay" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px">
      <div style="max-width:520px;width:100%;max-height:80vh;overflow-y:auto;background:#14141b;border:1px solid var(--line);border-radius:16px;padding:22px">
        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -165,6 +165,14 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "7.1", items: [
+    "🎛️ Komplettes Redesign — das Spiel sieht jetzt aus wie echtes Studio-Equipment statt wie eine Webseite",
+    "🏷️ Überschriften sitzen auf Gaffer-Tape, so wie in echten Studios auf jedes Gerät geklebt wird",
+    "🔤 Neue Schriften: Anton für Schlagzeilen (Kinoplakat-Wucht), Barlow für Fließtext, Space Mono für Zahlen & Beschriftungen",
+    "🎨 Neue Farbwelt aus echtem Studio-Material: Flightcase-Anthrazit, Röhren-Bernstein, ON-AIR-Rot",
+    "📻 Raumcode & Line-Zähler leuchten jetzt wie Geräte-Displays, Kopfzeile ist eine Rack-Blende mit Rändelschrauben",
+    "🧰 Karten sind echte Flightcase-Panels mit Nieten, Metallkante und Bürstung — auch im Editor"
+  ]},
   { v: "7.0", items: [
     "🔍 Neuer Selbst-Check: Knopf in den Host-Einstellungen prüft alle Szenen-Dateien auf einmal und listet dir kaputte Verweise auf — kein Rätselraten mehr bei „Video lädt nicht“",
     "✨ UI-Politur: eigene Scrollbalken, weicherer Fokus-Glow statt hartem Rahmen, einheitliche Regler & Dropdown-Pfeile, sanfte Screen-Übergänge, Fortschrittsbalken mit Glow"
@@ -236,7 +244,7 @@ const PATCH_NOTES = [
 $("patchnotes-btn").onclick = () => {
   $("patchnotes-body").innerHTML = PATCH_NOTES.map(g => `
     <div>
-      <div style="font-family:'Archivo Black';color:var(--amber);margin-bottom:6px">v${g.v}</div>
+      <div style="font-family:var(--font-display);color:var(--amber);margin-bottom:6px">v${g.v}</div>
       <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px">${g.items.map(i => `<li>${i}</li>`).join("")}</ul>
     </div>`).join("");
   $("patchnotes-overlay").style.display = "flex";
