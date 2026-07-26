@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "7.7";
+const APP_VERSION = "7.8";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -173,6 +173,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "7.8", items: [
+    "🎬 Drei neue Szenen: Demon Slayer — Akaza, Douma & Gyokko im Infinity Castle (von Elias selbst gebaut!), Megamind — Presentation!, und Jujutsu Kaisen — Yo Satoru",
+    "🎭 Acht neue Profilbilder: Douma, Gyokko, Akaza, Megamind, Hal, Gojo und Kenjaku"
+  ]},
   { v: "7.7", items: [
     "⚡ Noten fallen jetzt fast 3x schneller (0,62 statt 1,7 Sekunden von oben bis zur Linie)",
     "🎯 Dafür deutlich weniger davon: 639 statt 961 — sie kleben nicht mehr aneinander, im Schnitt sind rund 2 gleichzeitig zu sehen",
@@ -372,6 +376,13 @@ const AVATAR_CHARS = [
   { img: "scenes/makinaoyamai/naoya.png", label: "Naoya" },
   { img: "scenes/makinaoyamai/maki.png", label: "Maki" },
   { img: "scenes/makinaoyamai/mai.png", label: "Mai" },
+  { img: "scenes/akazagyokodoumaszenevideo/douma.png", label: "Douma" },
+  { img: "scenes/akazagyokodoumaszenevideo/gyokko.png", label: "Gyokko" },
+  { img: "scenes/akazagyokodoumaszenevideo/akaza.png", label: "Akaza" },
+  { img: "scenes/megamind/megamind.png", label: "Megamind" },
+  { img: "scenes/megamind/hal.png", label: "Hal" },
+  { img: "scenes/yosatarou/gojo.png", label: "Gojo (Yo Satoru)" },
+  { img: "scenes/yosatarou/kenjaku.png", label: "Kenjaku" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {

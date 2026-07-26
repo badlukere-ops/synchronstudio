@@ -6189,6 +6189,614 @@
     "difficultyOverride": "easy"
   },
   {
+    "id": "akazagyokodoumaszenevideo",
+    "title": "Akaza, Douma und Gyokko Im Infinity Castle",
+    "videoUrl": "scenes/akazagyokodoumaszenevideo.mp4",
+    "roles": [
+      {
+        "id": 1,
+        "name": "Douma",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Gyokko",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 3,
+        "name": "Akaza",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 1.34,
+        "end": 5.75,
+        "chars": [
+          1
+        ],
+        "who": "Douma",
+        "text": "Ich bin ein kleines bisschen enttäuscht von dir Akaza...",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 7.92,
+        "end": 11.46,
+        "chars": [
+          1
+        ],
+        "who": "Douma",
+        "text": "Um mich machst du dir also garkeine sorgen oder wie oder was?",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 11.63,
+        "end": 20.75,
+        "chars": [
+          1
+        ],
+        "who": "Douma",
+        "text": "Also ich war ja krank vor angst euch wäre etwas zugestoßen... immerhin seid ihr meine kamerraden und meine freunde... und ohne euch... hätte mein leben ja garkein sinn mehr.",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 22.12,
+        "end": 24.45,
+        "chars": [
+          2
+        ],
+        "who": "Gyokko",
+        "text": "Bitte beruhige dich douma...",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 24.47,
+        "end": 26.67,
+        "chars": [
+          1
+        ],
+        "who": "Douma",
+        "text": "ist ja schon ziemlich lange her Gyokko!",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 26.72,
+        "end": 33.14,
+        "chars": [
+          1
+        ],
+        "who": "Douma",
+        "text": "Übrigens danke für dein geschenk... ich habe in der vase ein frauen kopf ausgestellt... schicke raum deko (lustiger ton oder so?)",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 33.59,
+        "end": 39.43,
+        "chars": [
+          2
+        ],
+        "who": "Gyokko",
+        "text": "Ehrlich gesagt war sie eigentlich für was anderes gedacht... aber weißt du was? mir gefällt der gedanke! hihi",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 39.72,
+        "end": 40.88,
+        "chars": [
+          1
+        ],
+        "who": "Douma",
+        "text": "Ja Oder?",
+        "de": "Original ist Deutsch!",
+        "effect": "underwater"
+      },
+      {
+        "t": 42.22,
+        "end": 43.37,
+        "chars": [
+          3
+        ],
+        "who": "Akaza",
+        "text": "Nimm Deine Pfoten weg...",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 43.41,
+        "end": 44.4,
+        "chars": [
+          1
+        ],
+        "who": "Douma",
+        "text": "Hmmm?",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 44.51,
+        "end": 47,
+        "chars": [
+          3
+        ],
+        "who": "Akaza",
+        "text": "Ich hab gesagt du sollst mich loslassen...!!!",
+        "de": "Original ist Deutsch!"
+      },
+      {
+        "t": 52.34,
+        "end": 61,
+        "chars": [
+          1
+        ],
+        "who": "Douma",
+        "text": "Jungeeeee... was für eine statliche faust... das hat mich echt überrascht... wie es scheint bist du stärker geworden akaza...",
+        "de": "Original ist Deutsch!"
+      }
+    ],
+    "voiceTrack": "scenes/akazagyokodoumaszenevideo_voices.mp3",
+    "difficultyOverride": "medium",
+    "avatars": {
+      "1": "scenes/akazagyokodoumaszenevideo/douma.png",
+      "2": "scenes/akazagyokodoumaszenevideo/gyokko.png",
+      "3": "scenes/akazagyokodoumaszenevideo/akaza.png"
+    }
+  },
+  {
+    "id": "megamind",
+    "title": "Megamind — Presentation! (2 Rollen)",
+    "videoUrl": "scenes/megamind.mp4",
+    "avatars": {
+      "1": "scenes/megamind/hal.png",
+      "2": "scenes/megamind/megamind.png"
+    },
+    "roles": [
+      {
+        "id": 1,
+        "name": "Hal",
+        "pan": -0.5,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Megamind",
+        "pan": 0.5,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 0.0,
+        "end": 7.07,
+        "chars": [
+          1
+        ],
+        "who": "Hal",
+        "text": "You're so naive Roxy. You see the good in everyone, even when it's not there. You're living a fantasy.",
+        "de": "Du bist so naiv, Roxy. Du siehst in jedem das Gute, selbst wenn da keins ist. Du lebst in einer Fantasiewelt.",
+        "orig": "scenes/megamind/lines/01.mp3"
+      },
+      {
+        "t": 7.07,
+        "end": 12.8,
+        "chars": [
+          1
+        ],
+        "who": "Hal",
+        "text": "There is no Easter Bunny. There is no Tooth Fairy. And there is no Queen of England!",
+        "de": "Es gibt keinen Osterhasen. Es gibt keine Zahnfee. Und es gibt keinen Helden, der dich rettet!",
+        "orig": "scenes/megamind/lines/02.mp3"
+      },
+      {
+        "t": 12.8,
+        "end": 28.07,
+        "chars": [
+          1
+        ],
+        "who": "Hal",
+        "text": "This is the real world, and you need to wake up!",
+        "de": "Das hier ist die echte Welt, und du musst endlich aufwachen!",
+        "orig": "scenes/megamind/lines/03.mp3"
+      },
+      {
+        "t": 28.07,
+        "end": 31.8,
+        "chars": [
+          2
+        ],
+        "who": "Megamind",
+        "text": "You dare challenge Megamind?",
+        "de": "Du wagst es, dich mit Megamind anzulegen?",
+        "orig": "scenes/megamind/lines/04.mp3"
+      },
+      {
+        "t": 31.8,
+        "end": 34.76,
+        "chars": [
+          1
+        ],
+        "who": "Hal",
+        "text": "This town isn't big enough for two supervillains!",
+        "de": "Diese Stadt ist nicht groß genug für zwei Superschurken!",
+        "orig": "scenes/megamind/lines/05.mp3"
+      },
+      {
+        "t": 34.76,
+        "end": 39.92,
+        "chars": [
+          2
+        ],
+        "who": "Megamind",
+        "text": "Oh you're a villain alright, just not a super one.",
+        "de": "Oh, ein Schurke bist du auf jeden Fall — nur eben kein super.",
+        "orig": "scenes/megamind/lines/06.mp3"
+      },
+      {
+        "t": 39.92,
+        "end": 45.8,
+        "chars": [
+          1
+        ],
+        "who": "Hal",
+        "text": "Yeah? What's the difference?",
+        "de": "Ach ja? Was ist denn der Unterschied?",
+        "orig": "scenes/megamind/lines/07.mp3"
+      },
+      {
+        "t": 45.8,
+        "end": 49.32,
+        "chars": [
+          2
+        ],
+        "who": "Megamind",
+        "text": "Presentation!",
+        "de": "Präsentation!",
+        "orig": "scenes/megamind/lines/08.mp3"
+      },
+      {
+        "t": 49.32,
+        "end": 51.1,
+        "chars": [
+          1
+        ],
+        "who": "Hal",
+        "text": "AHH!",
+        "de": "AHH!",
+        "orig": "scenes/megamind/lines/09.mp3"
+      },
+      {
+        "t": 51.1,
+        "end": 52.1,
+        "chars": [
+          1
+        ],
+        "who": "Hal",
+        "text": "AHH!",
+        "de": "AHH!",
+        "orig": "scenes/megamind/lines/10.mp3"
+      },
+      {
+        "t": 52.1,
+        "end": 53.01,
+        "chars": [
+          1
+        ],
+        "who": "Hal",
+        "text": "AHH!",
+        "de": "AHH!",
+        "orig": "scenes/megamind/lines/11.mp3"
+      },
+      {
+        "t": 53.01,
+        "end": 55.23,
+        "chars": [
+          1
+        ],
+        "who": "Hal",
+        "text": "AHH!",
+        "de": "AHH!",
+        "orig": "scenes/megamind/lines/12.mp3"
+      }
+    ]
+  },
+  {
+    "id": "yosatarou",
+    "title": "Jujutsu Kaisen — Yo Satoru (Gojo & Kenjaku, 2 Rollen)",
+    "videoUrl": "scenes/yosatarou.mp4",
+    "avatars": {
+      "1": "scenes/yosatarou/gojo.png",
+      "2": "scenes/yosatarou/kenjaku.png"
+    },
+    "roles": [
+      {
+        "id": 1,
+        "name": "Gojo",
+        "pan": -0.5,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Kenjaku",
+        "pan": 0.5,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 0.7,
+        "end": 5.85,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "Hmph...",
+        "de": "Hmpf...",
+        "orig": "scenes/yosatarou/lines/01.mp3"
+      },
+      {
+        "t": 5.85,
+        "end": 11.5,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "Hey... Satorou",
+        "de": "Hey... Satoru",
+        "orig": "scenes/yosatarou/lines/02.mp3"
+      },
+      {
+        "t": 11.5,
+        "end": 13.53,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "Huh...?",
+        "de": "Häh...?",
+        "orig": "scenes/yosatarou/lines/03.mp3"
+      },
+      {
+        "t": 13.53,
+        "end": 16.53,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "Long time no see...",
+        "de": "Lange nicht gesehen...",
+        "orig": "scenes/yosatarou/lines/04.mp3"
+      },
+      {
+        "t": 16.53,
+        "end": 19.3,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "A Fake..?",
+        "de": "Eine Fälschung..?",
+        "orig": "scenes/yosatarou/lines/05.mp3"
+      },
+      {
+        "t": 19.3,
+        "end": 39.77,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "A Transformation Technique..? No... it's Really Him!",
+        "de": "Eine Verwandlungstechnik..? Nein... er ist es wirklich!",
+        "orig": "scenes/yosatarou/lines/06.mp3"
+      },
+      {
+        "t": 39.77,
+        "end": 42.31,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "[Grunt]",
+        "de": "[Ächzen]",
+        "orig": "scenes/yosatarou/lines/07.mp3"
+      },
+      {
+        "t": 42.31,
+        "end": 45.17,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "You shouldn't lose yourself in thought.",
+        "de": "Du solltest dich nicht in Gedanken verlieren.",
+        "orig": "scenes/yosatarou/lines/08.mp3"
+      },
+      {
+        "t": 45.17,
+        "end": 47.1,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "Not in the midst of battle, Satorou.",
+        "de": "Nicht mitten im Kampf, Satoru.",
+        "orig": "scenes/yosatarou/lines/09.mp3"
+      },
+      {
+        "t": 47.1,
+        "end": 51.65,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "I can't sense any cursed energy... I can't get my body to move either.",
+        "de": "Ich spüre keine Fluchenergie... ich krieg meinen Körper nicht unter Kontrolle...",
+        "orig": "scenes/yosatarou/lines/10.mp3"
+      },
+      {
+        "t": 51.65,
+        "end": 56.48,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "The information provided by my Six Eyes, is telling me you're Suguru Geto.",
+        "de": "Was meine Sechs Augen mir sagen, ist eindeutig...",
+        "orig": "scenes/yosatarou/lines/11.mp3"
+      },
+      {
+        "t": 56.48,
+        "end": 70.84,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "BUT BOTH MY HEART AND MY SOUL KNOW OTHERWISE! NOW ANSWER ME ALREADY..! WHO THE HELL ARE YOU!?",
+        "de": "ABER MEIN HERZ UND MEINE SEELE WISSEN ES BESSER! ANTWORTE MIR JETZT!",
+        "orig": "scenes/yosatarou/lines/12.mp3"
+      },
+      {
+        "t": 70.84,
+        "end": 75.43,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "How could you possibly tell?",
+        "de": "Wie konntest du das bloß merken?",
+        "orig": "scenes/yosatarou/lines/13.mp3"
+      },
+      {
+        "t": 75.43,
+        "end": 79.82,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "You needn't worry, I'll release your seal eventually.",
+        "de": "Keine Sorge, ich löse dein Siegel irgendwann.",
+        "orig": "scenes/yosatarou/lines/14.mp3"
+      },
+      {
+        "t": 79.82,
+        "end": 83.16,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "A hundred... No, maybe a thousand years.",
+        "de": "In hundert... nein, vielleicht tausend Jahren.",
+        "orig": "scenes/yosatarou/lines/15.mp3"
+      },
+      {
+        "t": 83.16,
+        "end": 88.55,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "You're just too strong to be let loose.",
+        "de": "Du bist einfach zu stark, um frei herumzulaufen.",
+        "orig": "scenes/yosatarou/lines/16.mp3"
+      },
+      {
+        "t": 88.55,
+        "end": 94.7,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "Goodnight... Satorou Gojo. Let us meet again in the new world.",
+        "de": "Gute Nacht... Satoru Gojo. Sehen wir uns im nächsten Leben wieder.",
+        "orig": "scenes/yosatarou/lines/17.mp3"
+      },
+      {
+        "t": 94.7,
+        "end": 96.13,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "Goodnight or not.",
+        "de": "Gute Nacht oder nicht.",
+        "orig": "scenes/yosatarou/lines/18.mp3"
+      },
+      {
+        "t": 96.13,
+        "end": 98.33,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "It's time for YOU to wake up already.",
+        "de": "Es wird Zeit, dass DU endlich aufwachst.",
+        "orig": "scenes/yosatarou/lines/19.mp3"
+      },
+      {
+        "t": 98.33,
+        "end": 101.47,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "How long are you going to wanna keep using you, Suguru?",
+        "de": "Wie lange willst du ihn noch benutzen, Suguru?",
+        "orig": "scenes/yosatarou/lines/20.mp3"
+      },
+      {
+        "t": 101.47,
+        "end": 109.9,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "Ugh C'mawwwwn, You guys are we gonnda do this or what? The view sucks and I'm just kind of bored.",
+        "de": "Ach kommt schooon, Leute, machen wir das jetzt oder was?",
+        "orig": "scenes/yosatarou/lines/21.mp3"
+      },
+      {
+        "t": 109.9,
+        "end": 153.99,
+        "chars": [
+          2
+        ],
+        "who": "Kenjaku",
+        "text": "I wanted to enjoy this sight for a little bit longer... But, you are right, I wouldn't want anything to happen... GATE CLOSED.",
+        "de": "Ich hätte diesen Anblick gern noch ein bisschen länger genossen...",
+        "orig": "scenes/yosatarou/lines/22.mp3"
+      },
+      {
+        "t": 153.99,
+        "end": 167.19,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "looks like physical time doesn't pass time inside here, man did I screw up or what. This place is all kinds of bad, eh well it will all work out somehow.",
+        "de": "Sieht so aus, als würde hier drin keine echte Zeit vergehen...",
+        "orig": "scenes/yosatarou/lines/23.mp3"
+      },
+      {
+        "t": 167.19,
+        "end": 177.77,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "I have faith... In everyone..",
+        "de": "Ich hab Vertrauen... in alle...",
+        "orig": "scenes/yosatarou/lines/24.mp3"
+      }
+    ]
+  },
+  {
     "id": "testplace",
     "title": "🧪 Test Place — Verbindungs- & Audio-Check (4 Rollen)",
     "videoUrl": "scenes/testplace.mp4",
