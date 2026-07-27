@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "8.0";
+const APP_VERSION = "8.1";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -173,10 +173,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "8.1", items: [
+    "🔥 Szene „Set Your Heart Ablaze“ war zwar hochgeladen, fehlte aber in der scenes.json — jetzt drin (37 Szenen)"
+  ]},
   { v: "8.0", items: [
     "🎤 Fix: Der Mikrofon-Setup startete an einem Klick-Listener, der sich beim ERSTEN Klick irgendwo verbraucht hat — auch wenn dabei gar nichts passiert ist. Danach fragte der Browser nie wieder.",
-    "🩺 Klare Fehlermeldungen statt Einheitstext: blockiert, kein Gerät gefunden, oder von Discord/OBS belegt — jeweils mit passender Anleitung",
-    "🔁 Neuer Knopf „Mikrofon aktivieren“, um es jederzeit erneut anzufragen"
+    "🩺 Klare Fehlermeldungen statt Einheitstext: blockiert, kein Gerät gefunden, oder von Discord/OBS belegt — jeweils mit passender Anleitung"
   ]},
   { v: "7.9", items: [
     "🔥 Neue Szene: Demon Slayer — Set Your Heart Ablaze (Rengoku vs Akaza, 3 Rollen, 36 Zeilen)",
@@ -550,10 +552,9 @@ async function buildMic() {
     else if (n === "NotReadableError")
       msg = "🎤 Mikrofon ist von einem anderen Programm belegt (Discord, OBS, Teams …). Dort schließen und nochmal versuchen.";
     else
-      msg = "🎤 Mikro-Zugriff fehlgeschlagen" + (n ? " (" + n + ")" : "") + " — nochmal auf Mikrofon aktivieren drücken.";
+      msg = "🎤 Mikro-Zugriff fehlgeschlagen" + (n ? " (" + n + ")" : "") + " — Seite neu laden und nochmal versuchen.";
     status("mic-status", msg, true);
-    const btn = $("btn-mic-retry"); if (btn) btn.style.display = "";
-    SFX.err();
+      SFX.err();
     return false;
   }
 }
@@ -867,13 +868,7 @@ function micKickstart() {
   if (document.querySelector("#scr-mic.active")) initMicScreen();
 }
 document.addEventListener("click", micKickstart);
-$("btn-mic-retry") && ($("btn-mic-retry").onclick = async () => {
-  $("btn-mic-retry").disabled = true;
-  status("mic-status", "🎤 Frage Mikrofon an …");
-  const ok = await initMicScreen();
-  $("btn-mic-retry").disabled = false;
-  if (ok !== false && micStream) $("btn-mic-retry").style.display = "none";
-});
+
 
 
 // ═════════════════════════════════════════════════════════════
