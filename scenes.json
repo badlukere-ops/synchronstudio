@@ -8950,7 +8950,7 @@
       "effect": "hall"
     }
   ],
-  "voiceTrack": "scenes/saevsrin_voices.wav",
+  "voiceTrack": "scenes/saevsrin_voices.flac",
   "avatars": {
     "1": "scenes/meinpack/meinpack_announcer.png",
     "2": "scenes/meinpack/meinpack_shidou.png",
