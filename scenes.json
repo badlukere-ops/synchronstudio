@@ -7228,6 +7228,1375 @@
     ]
   },
   {
+    "id": "broly",
+    "title": "Dragon Ball Super — Broly Power Up (5 Rollen)",
+    "videoUrl": "scenes/broly.mp4",
+    "avatars": {
+      "1": "scenes/broly/goku.png",
+      "2": "scenes/broly/broly.png",
+      "3": "scenes/broly/paragus.png",
+      "4": "scenes/broly/frieza.png",
+      "5": "scenes/broly/krillin.png"
+    },
+    "roles": [
+      {
+        "id": 1,
+        "name": "Goku",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Broly",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 3,
+        "name": "Paragus",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 4,
+        "name": "Frieza",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 5,
+        "name": "Krillin",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 1.92,
+        "end": 3.59,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "*Grunt*",
+        "de": "*Grunzt*",
+        "orig": "scenes/broly/lines/01.mp3"
+      },
+      {
+        "t": 3.59,
+        "end": 6.5,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "Huh? *Light grunt*",
+        "de": "Huh? *Leichtes Grunzen*",
+        "orig": "scenes/broly/lines/02.mp3"
+      },
+      {
+        "t": 6.5,
+        "end": 7.78,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "HURRAHHH!",
+        "de": "HURRAAA!",
+        "orig": "scenes/broly/lines/03.mp3"
+      },
+      {
+        "t": 7.78,
+        "end": 15.43,
+        "chars": [
+          3
+        ],
+        "who": "Paragus",
+        "text": "*Shocked* It can't be. What King Vegeta said might- might actually have been the truth.",
+        "de": "*Geschockt* Das kann nicht sein. Was König Vegeta gesagt hat, könnte tatsächlich wahr gewesen sein.",
+        "orig": "scenes/broly/lines/04.mp3"
+      },
+      {
+        "t": 15.43,
+        "end": 18.02,
+        "chars": [
+          3
+        ],
+        "who": "Paragus",
+        "text": "Broly's a danger to us all.",
+        "de": "Broly ist eine Gefahr für uns alle.",
+        "orig": "scenes/broly/lines/05.mp3"
+      },
+      {
+        "t": 18.02,
+        "end": 18.65,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "Huuhn!",
+        "de": "Huuh!",
+        "orig": "scenes/broly/lines/06.mp3"
+      },
+      {
+        "t": 18.65,
+        "end": 19.13,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*Pained growl*",
+        "de": "*Schmerzvolles Knurren*",
+        "orig": "scenes/broly/lines/07.mp3"
+      },
+      {
+        "t": 19.13,
+        "end": 19.13,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "*Clashing grunts*",
+        "de": "*Aufeinanderprallende Grunzer*",
+        "orig": "scenes/broly/lines/08.mp3"
+      },
+      {
+        "t": 19.13,
+        "end": 21.35,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*Clashing grunts*",
+        "de": "*Aufeinanderprallende Grunzer*",
+        "orig": "scenes/broly/lines/09.mp3"
+      },
+      {
+        "t": 21.35,
+        "end": 22.15,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*Pained growl* (bro idk)",
+        "de": "*Schmerzvolles Knurren*",
+        "orig": "scenes/broly/lines/10.mp3"
+      },
+      {
+        "t": 22.15,
+        "end": 22.2,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "Huah *Yell*",
+        "de": "Huah *Schrei*",
+        "orig": "scenes/broly/lines/11.mp3"
+      },
+      {
+        "t": 22.2,
+        "end": 27.95,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "*Grunts followed by HURAHHHHH*",
+        "de": "*Grunzer, gefolgt von HURAAA*",
+        "orig": "scenes/broly/lines/12.mp3"
+      },
+      {
+        "t": 27.95,
+        "end": 31.3,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*Usual Broly Super yell*",
+        "de": "*Typischer Broly-Super-Schrei*",
+        "orig": "scenes/broly/lines/13.mp3"
+      },
+      {
+        "t": 31.3,
+        "end": 33.58,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "This doesn't look good.",
+        "de": "Das sieht nicht gut aus.",
+        "orig": "scenes/broly/lines/14.mp3"
+      },
+      {
+        "t": 33.58,
+        "end": 35.88,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "Do you think he's really finished this time?",
+        "de": "Glaubst du, er ist diesmal wirklich am Ende?",
+        "orig": "scenes/broly/lines/15.mp3"
+      },
+      {
+        "t": 35.88,
+        "end": 37.3,
+        "chars": [
+          3
+        ],
+        "who": "Paragus",
+        "text": "I'm afraid so.",
+        "de": "Ich fürchte schon.",
+        "orig": "scenes/broly/lines/16.mp3"
+      },
+      {
+        "t": 37.3,
+        "end": 39.21,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "I'm not so sure.",
+        "de": "Da bin ich mir nicht so sicher.",
+        "orig": "scenes/broly/lines/17.mp3"
+      },
+      {
+        "t": 39.21,
+        "end": 42.7,
+        "chars": [
+          5
+        ],
+        "who": "Krillin",
+        "text": "GOKU- AHHHHH",
+        "de": "GOKU— AAAHHH",
+        "orig": "scenes/broly/lines/18.mp3"
+      },
+      {
+        "t": 42.7,
+        "end": 46.59,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "Shall we put him to a little test?",
+        "de": "Sollen wir ihn mal ein bisschen testen?",
+        "orig": "scenes/broly/lines/19.mp3"
+      },
+      {
+        "t": 46.59,
+        "end": 49.04,
+        "chars": [
+          3
+        ],
+        "who": "Paragus",
+        "text": "*Confused/scared huhs*",
+        "de": "*Verwirrtes, verängstigtes Huh*",
+        "orig": "scenes/broly/lines/20.mp3"
+      },
+      {
+        "t": 49.04,
+        "end": 50.41,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "Heh.",
+        "de": "Heh.",
+        "orig": "scenes/broly/lines/21.mp3"
+      },
+      {
+        "t": 50.41,
+        "end": 53.11,
+        "chars": [
+          3
+        ],
+        "who": "Paragus",
+        "text": "*Grunt and fading groan*",
+        "de": "*Grunzen und verklingendes Stöhnen*",
+        "orig": "scenes/broly/lines/22.mp3"
+      },
+      {
+        "t": 53.11,
+        "end": 58.55,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "*Clears throat* Broly look! It's such a tragedy!",
+        "de": "*Räuspert sich* Broly, schau! So eine Tragödie!",
+        "orig": "scenes/broly/lines/23.mp3"
+      },
+      {
+        "t": 58.55,
+        "end": 58.55,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "*Clashing sounds*",
+        "de": "*Aufeinanderprallende Geräusche*",
+        "orig": "scenes/broly/lines/24.mp3"
+      },
+      {
+        "t": 58.55,
+        "end": 59.45,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*Clashing sounds*",
+        "de": "*Aufeinanderprallende Geräusche*",
+        "orig": "scenes/broly/lines/25.mp3"
+      },
+      {
+        "t": 59.45,
+        "end": 60.91,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "Do you hear me?!",
+        "de": "Hörst du mich?!",
+        "orig": "scenes/broly/lines/26.mp3"
+      },
+      {
+        "t": 60.91,
+        "end": 61.66,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "HUH?",
+        "de": "HUH?",
+        "orig": "scenes/broly/lines/27.mp3"
+      },
+      {
+        "t": 61.66,
+        "end": 66.11,
+        "chars": [
+          3
+        ],
+        "who": "Paragus",
+        "text": "It's your father! He was killed by a stray energy blast!",
+        "de": "Es war dein Vater! Er wurde von einem verirrten Energieblitz getötet!",
+        "orig": "scenes/broly/lines/28.mp3"
+      },
+      {
+        "t": 66.11,
+        "end": 69.68,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*Gasp*",
+        "de": "*Keucht*",
+        "orig": "scenes/broly/lines/29.mp3"
+      },
+      {
+        "t": 69.68,
+        "end": 75.18,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*Gruff whimpering* AHHHHHHHHHHHHHH!",
+        "de": "*Grobes Wimmern* AAAAAAHHHHH!",
+        "orig": "scenes/broly/lines/30.mp3"
+      },
+      {
+        "t": 75.18,
+        "end": 85.98,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*Heavy breath* RAHHH- AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH!!!",
+        "de": "*Schwerer Atem* RAAH— AAAAAAAAAAAAAAAAAAAAAAAAAAA!!!",
+        "orig": "scenes/broly/lines/31.mp3"
+      },
+      {
+        "t": 85.98,
+        "end": 94.84,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "AHHHHHHHHHHHHHHHHHHHH!!! *Grunts*",
+        "de": "AAAAAAAAAAAAAAAA!!! *Grunzt*",
+        "orig": "scenes/broly/lines/32.mp3"
+      },
+      {
+        "t": 94.84,
+        "end": 106.56,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "Hurhn?",
+        "de": "Hurhn?",
+        "orig": "scenes/broly/lines/33.mp3"
+      },
+      {
+        "t": 106.56,
+        "end": 107.12,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "*Small grunt*",
+        "de": "*Kleines Grunzen*",
+        "orig": "scenes/broly/lines/34.mp3"
+      },
+      {
+        "t": 107.12,
+        "end": 117.72,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "HURAHHHHHHHHHH *Vocalized gasp* HURAHHHHHHHHHHHHHH!!!",
+        "de": "HURAAAAAAAAA *Hörbares Keuchen* HURAAAAAAAAAA!!!",
+        "orig": "scenes/broly/lines/35.mp3"
+      },
+      {
+        "t": 117.72,
+        "end": 120.82,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "Yes! There it is! Show me your powahhh!",
+        "de": "Ja! Da ist es! Zeig mir deine Kraaaft!",
+        "orig": "scenes/broly/lines/36.mp3"
+      },
+      {
+        "t": 120.82,
+        "end": 124.3,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*More Broly growl yelling*",
+        "de": "*Noch mehr Broly-Knurr-Geschrei*",
+        "orig": "scenes/broly/lines/37.mp3"
+      },
+      {
+        "t": 124.3,
+        "end": 125.39,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "*Grunt*",
+        "de": "*Grunzt*",
+        "orig": "scenes/broly/lines/38.mp3"
+      },
+      {
+        "t": 125.39,
+        "end": 135.56,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "*Some more HUR followed by RAHHHHHH!!!*",
+        "de": "*Noch mehr HUR gefolgt von RAAAAAA!!!*",
+        "orig": "scenes/broly/lines/39.mp3"
+      },
+      {
+        "t": 135.56,
+        "end": 137.02,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "HUAHHHHHHHHHH!",
+        "de": "HUAAAAAAAAA!",
+        "orig": "scenes/broly/lines/40.mp3"
+      },
+      {
+        "t": 137.02,
+        "end": 145.54,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "*Goku dodging noises*",
+        "de": "*Goku weicht aus, Geräusche*",
+        "orig": "scenes/broly/lines/41.mp3"
+      },
+      {
+        "t": 145.54,
+        "end": 148.44,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "*Light chuckle*",
+        "de": "*Leichtes Kichern*",
+        "orig": "scenes/broly/lines/42.mp3"
+      },
+      {
+        "t": 148.44,
+        "end": 153.47,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "HurrahhhhHHHHHH! *Intense grunting*",
+        "de": "HURAAAAAAHHHH! *Intensives Grunzen*",
+        "orig": "scenes/broly/lines/43.mp3"
+      },
+      {
+        "t": 153.47,
+        "end": 163.22,
+        "chars": [
+          2
+        ],
+        "who": "Broly",
+        "text": "AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH (Does this guy like, do ANYTHING else?)",
+        "de": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA (Kann der Typ eigentlich noch irgendwas anderes?)",
+        "orig": "scenes/broly/lines/44.mp3"
+      },
+      {
+        "t": 163.22,
+        "end": 168.27,
+        "chars": [
+          1
+        ],
+        "who": "Goku",
+        "text": "Heh. *Grunt*",
+        "de": "Heh. *Grunzt*",
+        "orig": "scenes/broly/lines/45.mp3"
+      },
+      {
+        "t": 168.27,
+        "end": 172.93,
+        "chars": [
+          4
+        ],
+        "who": "Frieza",
+        "text": "What a lovely sight. That was the anger I wanted to see.",
+        "de": "Was für ein schöner Anblick. Genau diese Wut wollte ich sehen.",
+        "orig": "scenes/broly/lines/46.mp3"
+      }
+    ]
+  },
+  {
+    "id": "reze",
+    "title": "Chainsaw Man — Reze & Denji im Café (3 Rollen)",
+    "videoUrl": "scenes/reze.mp4",
+    "avatars": {
+      "1": "scenes/reze/reze.png",
+      "2": "scenes/reze/cafeowner.png",
+      "3": "scenes/reze/denji.png"
+    },
+    "roles": [
+      {
+        "id": 1,
+        "name": "Reze",
+        "pan": -0.4,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Cafe Owner",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 3,
+        "name": "Denji",
+        "pan": 0.4,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 2.45,
+        "end": 4.47,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "*Slight exhale*",
+        "de": "*Leichtes Ausatmen*",
+        "orig": "scenes/reze/lines/01.mp3"
+      },
+      {
+        "t": 4.47,
+        "end": 5.53,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "(quite) Yes!",
+        "de": "(leise) Ja!",
+        "orig": "scenes/reze/lines/02.mp3"
+      },
+      {
+        "t": 5.53,
+        "end": 8.34,
+        "chars": [
+          2
+        ],
+        "who": "Cafe Owner",
+        "text": "Bout' time you got here, Im docking your pay for being late",
+        "de": "Wurde aber auch Zeit — ich zieh dir was vom Lohn ab fürs Zuspätkommen.",
+        "orig": "scenes/reze/lines/03.mp3"
+      },
+      {
+        "t": 8.34,
+        "end": 10.22,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "That is soo not cooll.",
+        "de": "Das ist ja sowas von uncool.",
+        "orig": "scenes/reze/lines/04.mp3"
+      },
+      {
+        "t": 10.22,
+        "end": 12.08,
+        "chars": [
+          2
+        ],
+        "who": "Cafe Owner",
+        "text": "Go on, take this to table four",
+        "de": "Los, bring das zu Tisch vier.",
+        "orig": "scenes/reze/lines/05.mp3"
+      },
+      {
+        "t": 12.08,
+        "end": 15.87,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "You wern't so cheap you'd cut you best server some slack",
+        "de": "Wärst du nicht so geizig, könntest du deiner besten Kellnerin auch mal was durchgehen lassen.",
+        "orig": "scenes/reze/lines/06.mp3"
+      },
+      {
+        "t": 15.87,
+        "end": 17.95,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "*Tiny grumble*",
+        "de": "*Kleines Murren*",
+        "orig": "scenes/reze/lines/07.mp3"
+      },
+      {
+        "t": 17.95,
+        "end": 18.6,
+        "chars": [
+          2
+        ],
+        "who": "Cafe Owner",
+        "text": "*hmph*",
+        "de": "*Hmpf*",
+        "orig": "scenes/reze/lines/08.mp3"
+      },
+      {
+        "t": 18.6,
+        "end": 20.24,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "uh!...you.",
+        "de": "Uh!... du.",
+        "orig": "scenes/reze/lines/09.mp3"
+      },
+      {
+        "t": 20.24,
+        "end": 25.07,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "That was fast! You are magic it makes no sense you beat me.",
+        "de": "Das ging aber schnell! Du bist echt wie Zauberei, ergibt keinen Sinn, dass du mich schlägst.",
+        "orig": "scenes/reze/lines/10.mp3"
+      },
+      {
+        "t": 25.07,
+        "end": 28.45,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "It seemed like a good place to dry off",
+        "de": "Schien mir ein guter Ort zum Trockenwerden.",
+        "orig": "scenes/reze/lines/11.mp3"
+      },
+      {
+        "t": 28.45,
+        "end": 31.13,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "So you said you would pay me back",
+        "de": "Du hast doch gesagt, du zahlst es mir zurück.",
+        "orig": "scenes/reze/lines/12.mp3"
+      },
+      {
+        "t": 31.13,
+        "end": 36.3,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "hmm",
+        "de": "Hmm",
+        "orig": "scenes/reze/lines/13.mp3"
+      },
+      {
+        "t": 36.3,
+        "end": 36.32,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "hmmm..How bout we have a drink together",
+        "de": "Hmmm... wie wär's, wir trinken zusammen was?",
+        "orig": "scenes/reze/lines/14.mp3"
+      },
+      {
+        "t": 36.32,
+        "end": 39.0,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "*Suprised noise*",
+        "de": "*Überraschtes Geräusch*",
+        "orig": "scenes/reze/lines/15.mp3"
+      },
+      {
+        "t": 39.0,
+        "end": 43.04,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "Boss man over here! A couple of coffes if you dont mind.",
+        "de": "Chef, hier rüber! Zwei Kaffee, wenn's dir nichts ausmacht.",
+        "orig": "scenes/reze/lines/16.mp3"
+      },
+      {
+        "t": 43.04,
+        "end": 45.31,
+        "chars": [
+          2
+        ],
+        "who": "Cafe Owner",
+        "text": "You're the waitress over here not me",
+        "de": "Du bist hier die Kellnerin, nicht ich.",
+        "orig": "scenes/reze/lines/17.mp3"
+      },
+      {
+        "t": 45.31,
+        "end": 50.11,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "sheesh do be so rudddeee, besides we only ever get customers in the morning",
+        "de": "Puh, sei nicht so unhöflich, außerdem kriegen wir eh nur morgens Kundschaft.",
+        "orig": "scenes/reze/lines/18.mp3"
+      },
+      {
+        "t": 50.11,
+        "end": 52.54,
+        "chars": [
+          2
+        ],
+        "who": "Cafe Owner",
+        "text": "*grunt*",
+        "de": "*Grunzt*",
+        "orig": "scenes/reze/lines/19.mp3"
+      },
+      {
+        "t": 52.54,
+        "end": 54.8,
+        "chars": [
+          2
+        ],
+        "who": "Cafe Owner",
+        "text": "Fine.",
+        "de": "Na gut.",
+        "orig": "scenes/reze/lines/20.mp3"
+      },
+      {
+        "t": 54.8,
+        "end": 57.54,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "My gift to you! Enjoy!",
+        "de": "Mein Geschenk an dich! Genieß es!",
+        "orig": "scenes/reze/lines/21.mp3"
+      },
+      {
+        "t": 57.54,
+        "end": 59.77,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "You like coffee dont you?",
+        "de": "Magst du Kaffee, oder?",
+        "orig": "scenes/reze/lines/22.mp3"
+      },
+      {
+        "t": 59.77,
+        "end": 62.36,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "Ill drink it",
+        "de": "Ich trink ihn.",
+        "orig": "scenes/reze/lines/23.mp3"
+      },
+      {
+        "t": 62.36,
+        "end": 65.57,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "*gulp, gulp* blehh",
+        "de": "*Schluck, schluck* Bähh",
+        "orig": "scenes/reze/lines/24.mp3"
+      },
+      {
+        "t": 65.57,
+        "end": 69.29,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "*Laugh*  Whats that face for. It cant be that bad can it",
+        "de": "*Lacht* Was soll denn dieses Gesicht? Kann doch nicht so schlimm sein.",
+        "orig": "scenes/reze/lines/25.mp3"
+      },
+      {
+        "t": 69.29,
+        "end": 73.47,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "yuh huh. Coffee taste like gutter water, brewed in the crapper",
+        "de": "Doch schon. Kaffee schmeckt wie Gossenwasser, gebraut im Klo.",
+        "orig": "scenes/reze/lines/26.mp3"
+      },
+      {
+        "t": 73.47,
+        "end": 80.32,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "*Long laugh* You sound like a little kid *gasp* even more laughing",
+        "de": "*Langes Lachen* Du klingst wie ein kleines Kind *keucht* — noch mehr Gelächter.",
+        "orig": "scenes/reze/lines/27.mp3"
+      },
+      {
+        "t": 80.32,
+        "end": 85.16,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "She sure is touching me a lot, and laughing at my jokes",
+        "de": "Sie fasst mich echt viel an und lacht über meine Witze.",
+        "orig": "scenes/reze/lines/28.mp3"
+      },
+      {
+        "t": 85.16,
+        "end": 86.05,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "Is it possible that...this girl is into me",
+        "de": "Ist es möglich, dass... dieses Mädchen auf mich steht?",
+        "orig": "scenes/reze/lines/29.mp3"
+      },
+      {
+        "t": 86.05,
+        "end": 94.0,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "*Finshing off the laugh* Im reze by the way and you, Flower boy?",
+        "de": "*Beendet das Lachen* Ich bin übrigens Reze, und du, Blumenjunge?",
+        "orig": "scenes/reze/lines/30.mp3"
+      },
+      {
+        "t": 94.0,
+        "end": 95.42,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "I'm denji",
+        "de": "Ich bin Denji.",
+        "orig": "scenes/reze/lines/31.mp3"
+      },
+      {
+        "t": 95.42,
+        "end": 99.94,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "ohh, denji...name's cute too *sigh*",
+        "de": "Ohh, Denji... der Name ist auch süß *seufzt*",
+        "orig": "scenes/reze/lines/32.mp3"
+      },
+      {
+        "t": 99.94,
+        "end": 103.24,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "hm",
+        "de": "Hm",
+        "orig": "scenes/reze/lines/33.mp3"
+      },
+      {
+        "t": 103.24,
+        "end": 108.31,
+        "chars": [
+          1
+        ],
+        "who": "Reze",
+        "text": "I've never met anyway as intresting as you,i'ts pretty great",
+        "de": "Ich hab noch nie jemanden getroffen, der so interessant ist wie du, ist echt cool.",
+        "orig": "scenes/reze/lines/34.mp3"
+      },
+      {
+        "t": 108.31,
+        "end": 114.41,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "(suprised) huh. Holy hell! She is definitely into me",
+        "de": "(überrascht) Huh. Heilige Scheiße! Sie steht definitiv auf mich.",
+        "orig": "scenes/reze/lines/35.mp3"
+      },
+      {
+        "t": 114.41,
+        "end": 115.83,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "What'd I do",
+        "de": "Was hab ich gemacht?",
+        "orig": "scenes/reze/lines/36.mp3"
+      },
+      {
+        "t": 115.83,
+        "end": 120.28,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "When someone likes me I cant help but like them back",
+        "de": "Wenn mich jemand mag, kann ich nicht anders, als sie auch zu mögen.",
+        "orig": "scenes/reze/lines/37.mp3"
+      },
+      {
+        "t": 120.28,
+        "end": 123.27,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "Save me Ms.Makima, give me strength",
+        "de": "Rette mich, Frau Makima, gib mir Kraft.",
+        "orig": "scenes/reze/lines/38.mp3"
+      },
+      {
+        "t": 123.27,
+        "end": 126.57,
+        "chars": [
+          3
+        ],
+        "who": "Denji",
+        "text": "Otherwise I'm gonna fall for this girl",
+        "de": "Sonst verlieb ich mich noch in dieses Mädchen.",
+        "orig": "scenes/reze/lines/39.mp3"
+      }
+    ]
+  },
+  {
+    "id": "crying",
+    "title": "Jujutsu Kaisen — You Crying? (5 Rollen)",
+    "videoUrl": "scenes/crying.mp4",
+    "avatars": {
+      "1": "scenes/crying/gojo.png",
+      "2": "scenes/crying/utahime.png",
+      "3": "scenes/crying/meimei.png",
+      "4": "scenes/crying/geto.png",
+      "5": "scenes/crying/shoko.png"
+    },
+    "roles": [
+      {
+        "id": 1,
+        "name": "Gojo",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Utahime",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 3,
+        "name": "Mei Mei",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 4,
+        "name": "Geto",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 5,
+        "name": "Shoko",
+        "pan": 0.0,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 0.89,
+        "end": 2.3,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "You cryin'?",
+        "de": "Weinst du?",
+        "orig": "scenes/crying/lines/01.mp3"
+      },
+      {
+        "t": 2.3,
+        "end": 4.96,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "No! I'm not crying. Be more polite!",
+        "de": "Nein! Ich weine nicht. Sei mal höflicher!",
+        "orig": "scenes/crying/lines/02.mp3"
+      },
+      {
+        "t": 4.96,
+        "end": 8.1,
+        "chars": [
+          3
+        ],
+        "who": "Mei Mei",
+        "text": "If I was crying, would you console me?",
+        "de": "Wenn ich weinen würde, würdest du mich trösten?",
+        "orig": "scenes/crying/lines/03.mp3"
+      },
+      {
+        "t": 8.1,
+        "end": 10.35,
+        "chars": [
+          3
+        ],
+        "who": "Mei Mei",
+        "text": "I'd definitely like that.",
+        "de": "Das würde mir echt gefallen.",
+        "orig": "scenes/crying/lines/04.mp3"
+      },
+      {
+        "t": 10.35,
+        "end": 13.91,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "Heh, but you wouldn't cry, Mei. You're strong.",
+        "de": "Heh, aber du würdest nicht weinen, Mei. Du bist stark.",
+        "orig": "scenes/crying/lines/05.mp3"
+      },
+      {
+        "t": 13.91,
+        "end": 15.57,
+        "chars": [
+          3
+        ],
+        "who": "Mei Mei",
+        "text": "*giggle*",
+        "de": "*Kichert*",
+        "orig": "scenes/crying/lines/06.mp3"
+      },
+      {
+        "t": 15.57,
+        "end": 16.26,
+        "chars": [
+          3
+        ],
+        "who": "Mei Mei",
+        "text": "That so?",
+        "de": "Ach ja?",
+        "orig": "scenes/crying/lines/07.mp3"
+      },
+      {
+        "t": 16.26,
+        "end": 17.55,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "*grumpy noises*",
+        "de": "*Mürrische Geräusche*",
+        "orig": "scenes/crying/lines/08.mp3"
+      },
+      {
+        "t": 17.55,
+        "end": 26.17,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "Gojo! You listen to me! I don't need your help!",
+        "de": "Gojo! Hör mir mal zu! Ich brauch deine Hilfe nicht!",
+        "orig": "scenes/crying/lines/09.mp3"
+      },
+      {
+        "t": 26.17,
+        "end": 30.11,
+        "chars": [
+          4
+        ],
+        "who": "Geto",
+        "text": "Don't swallow it. I'll absorb it later.",
+        "de": "Schluck's nicht runter. Ich absorbier's später.",
+        "orig": "scenes/crying/lines/10.mp3"
+      },
+      {
+        "t": 30.11,
+        "end": 33.01,
+        "chars": [
+          4
+        ],
+        "who": "Geto",
+        "text": "Satoru, it's not nice to pick on the weak. You know?",
+        "de": "Satoru, es ist nicht nett, sich mit den Schwachen anzulegen. Weißt du?",
+        "orig": "scenes/crying/lines/11.mp3"
+      },
+      {
+        "t": 33.01,
+        "end": 35.79,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "Okay, but what kind of idiot picks on the strong?",
+        "de": "Okay, aber was für ein Idiot legt sich mit den Starken an?",
+        "orig": "scenes/crying/lines/12.mp3"
+      },
+      {
+        "t": 35.79,
+        "end": 39.92,
+        "chars": [
+          3
+        ],
+        "who": "Mei Mei",
+        "text": "*laughs* You're the one naturally fanning the flames, Geto.",
+        "de": "*Lacht* Du bist doch derjenige, der die Flammen anfacht, Geto.",
+        "orig": "scenes/crying/lines/13.mp3"
+      },
+      {
+        "t": 39.92,
+        "end": 42.26,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "*grumpy noises*",
+        "de": "*Mürrische Geräusche*",
+        "orig": "scenes/crying/lines/14.mp3"
+      },
+      {
+        "t": 42.26,
+        "end": 43.5,
+        "chars": [
+          5
+        ],
+        "who": "Shoko",
+        "text": "Utahime!",
+        "de": "Utahime!",
+        "orig": "scenes/crying/lines/15.mp3"
+      },
+      {
+        "t": 43.5,
+        "end": 44.45,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "Ah!",
+        "de": "Ah!",
+        "orig": "scenes/crying/lines/16.mp3"
+      },
+      {
+        "t": 44.45,
+        "end": 46.28,
+        "chars": [
+          5
+        ],
+        "who": "Shoko",
+        "text": "Are you okay?",
+        "de": "Alles okay bei dir?",
+        "orig": "scenes/crying/lines/17.mp3"
+      },
+      {
+        "t": 46.28,
+        "end": 47.45,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "Shoko!",
+        "de": "Shoko!",
+        "orig": "scenes/crying/lines/18.mp3"
+      },
+      {
+        "t": 47.45,
+        "end": 51.61,
+        "chars": [
+          5
+        ],
+        "who": "Shoko",
+        "text": "I was so worried about you. We hadn't heard from you for two whole days.",
+        "de": "Ich hab mir echt Sorgen um dich gemacht. Wir haben zwei ganze Tage nichts von dir gehört.",
+        "orig": "scenes/crying/lines/19.mp3"
+      },
+      {
+        "t": 51.61,
+        "end": 53.84,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "Shokooo!",
+        "de": "Shokoo!",
+        "orig": "scenes/crying/lines/20.mp3"
+      },
+      {
+        "t": 53.84,
+        "end": 55.35,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "*gasps* Shoko,...",
+        "de": "*Keucht* Shoko,...",
+        "orig": "scenes/crying/lines/21.mp3"
+      },
+      {
+        "t": 55.35,
+        "end": 57.99,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "Don't let yourself turn out like those two!",
+        "de": "Werd bloß nicht wie die beiden da!",
+        "orig": "scenes/crying/lines/22.mp3"
+      },
+      {
+        "t": 57.99,
+        "end": 61.19,
+        "chars": [
+          5
+        ],
+        "who": "Shoko",
+        "text": "*laughs* I'm not trash like they are...",
+        "de": "*Lacht* Ich bin nicht der Abschaum, der die beiden sind...",
+        "orig": "scenes/crying/lines/23.mp3"
+      },
+      {
+        "t": 61.19,
+        "end": 62.46,
+        "chars": [
+          5
+        ],
+        "who": "Shoko",
+        "text": "...and I never will be.",
+        "de": "...und werd's auch nie sein.",
+        "orig": "scenes/crying/lines/24.mp3"
+      },
+      {
+        "t": 62.46,
+        "end": 65.47,
+        "chars": [
+          1
+        ],
+        "who": "Gojo",
+        "text": "Don't let yourself turn out like Utahime.",
+        "de": "Werd bloß nicht wie Utahime.",
+        "orig": "scenes/crying/lines/25.mp3"
+      },
+      {
+        "t": 65.47,
+        "end": 67.69,
+        "chars": [
+          4
+        ],
+        "who": "Geto",
+        "text": "Eh... Shut up.",
+        "de": "Eh... halt die Klappe.",
+        "orig": "scenes/crying/lines/26.mp3"
+      },
+      {
+        "t": 67.69,
+        "end": 70.0,
+        "chars": [
+          2
+        ],
+        "who": "Utahime",
+        "text": "Huh...? Wait, two days?",
+        "de": "Huh...? Moment, zwei Tage?",
+        "orig": "scenes/crying/lines/27.mp3"
+      }
+    ]
+  },
+  {
     "id": "testplace",
     "title": "🧪 Test Place — Verbindungs- & Audio-Check (4 Rollen)",
     "videoUrl": "scenes/testplace.mp4",

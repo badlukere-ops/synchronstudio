@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "8.1";
+const APP_VERSION = "8.2";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -173,6 +173,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "8.2", items: [
+    "🎬 Drei neue Szenen: Dragon Ball Super — Broly Power Up (5 Rollen), Chainsaw Man — Reze & Denji im Café (3 Rollen), Jujutsu Kaisen — You Crying? (5 Rollen)",
+    "🎭 13 neue Profilbilder"
+  ]},
   { v: "8.1", items: [
     "🔥 Szene „Set Your Heart Ablaze“ war zwar hochgeladen, fehlte aber in der scenes.json — jetzt drin (37 Szenen)"
   ]},
@@ -396,6 +400,19 @@ const AVATAR_CHARS = [
   { img: "scenes/yosatarou/kenjaku.png", label: "Kenjaku" },
   { img: "scenes/ablaze/rengoku.png", label: "Rengoku" },
   { img: "scenes/ablaze/tanjiro.png", label: "Tanjiro" },
+  { img: "scenes/broly/goku.png", label: "Goku" },
+  { img: "scenes/broly/broly.png", label: "Broly" },
+  { img: "scenes/broly/paragus.png", label: "Paragus" },
+  { img: "scenes/broly/frieza.png", label: "Frieza" },
+  { img: "scenes/broly/krillin.png", label: "Krillin" },
+  { img: "scenes/reze/reze.png", label: "Reze" },
+  { img: "scenes/reze/cafeowner.png", label: "Café-Chef" },
+  { img: "scenes/reze/denji.png", label: "Denji" },
+  { img: "scenes/crying/gojo.png", label: "Gojo (Crying)" },
+  { img: "scenes/crying/utahime.png", label: "Utahime" },
+  { img: "scenes/crying/meimei.png", label: "Mei Mei" },
+  { img: "scenes/crying/geto.png", label: "Geto" },
+  { img: "scenes/crying/shoko.png", label: "Shoko" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
