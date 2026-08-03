@@ -5,25 +5,22 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "8.2";
+const APP_VERSION = "8.3";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
 // ║  Nötig, wenn "Raum gefunden, aber Verbindung kommt nicht durch"   ║
 // ║  (typisch bei DS-Lite/CGNAT, z. B. Vodafone Kabel oder O2).       ║
 // ║                                                                    ║
-// ║  1. Kostenloses Konto auf https://www.metered.ca/stun-turn        ║
-// ║  2. Im Dashboard die 4 "ICE Server"-Zeilen kopieren               ║
-// ║  3. Die MY_TURN-Zeilen unten damit ersetzen (urls/username/       ║
-// ║     credential) — fertig. 50 GB/Monat gratis, für Audio massig.   ║
+// ║  Anbieter: ExpressTurn — https://www.expressturn.com              ║
+// ║  1 TB/Monat gratis, ohne Kreditkarte (Stand: Umstellung von uns).  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 const MY_TURN = [
-  // Metered-Account "synchronstudio" — exakt aus dem Dashboard (global.relay!)
-  { urls: "stun:stun.relay.metered.ca:80" },
-  { urls: "turn:global.relay.metered.ca:80",                 username: "784a2cacd45f00da0669d578", credential: "ix7IinZzU+ItucbO" },
-  { urls: "turn:global.relay.metered.ca:80?transport=tcp",   username: "784a2cacd45f00da0669d578", credential: "ix7IinZzU+ItucbO" },
-  { urls: "turn:global.relay.metered.ca:443",                username: "784a2cacd45f00da0669d578", credential: "ix7IinZzU+ItucbO" },
-  { urls: "turns:global.relay.metered.ca:443?transport=tcp", username: "784a2cacd45f00da0669d578", credential: "ix7IinZzU+ItucbO" },
+  // ExpressTurn-Account — Freikontingent 1 TB/Monat statt vorher 0,5 GB bei Metered
+  { urls: "stun:stun.expressturn.com:3478" },
+  { urls: "turn:free.expressturn.com:3478?transport=udp", username: "000000002101101430", credential: "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=" },
+  { urls: "turn:free.expressturn.com:3478?transport=tcp", username: "000000002101101430", credential: "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=" },
+  { urls: "turn:free.expressturn.com:443?transport=tcp",  username: "000000002101101430", credential: "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=" },
 ];
 const PEER_CONFIG = { config: { iceServers: [
   { urls: "stun:stun.l.google.com:19302" },
@@ -173,6 +170,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "8.3", items: [
+    "🌐 TURN-Server-Anbieter gewechselt: Metered (0,5 GB/Monat frei) → ExpressTurn (1 TB/Monat frei) — betrifft nur Verbindungen über restriktive Netzwerke, ändert am Spiel selbst nichts"
+  ]},
   { v: "8.2", items: [
     "🎬 Drei neue Szenen: Dragon Ball Super — Broly Power Up (5 Rollen), Chainsaw Man — Reze & Denji im Café (3 Rollen), Jujutsu Kaisen — You Crying? (5 Rollen)",
     "🎭 13 neue Profilbilder"
