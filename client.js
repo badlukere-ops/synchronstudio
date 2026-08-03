@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "8.6";
+const APP_VERSION = "8.7";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -170,6 +170,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "8.7", items: [
+    "🔊 Lautstärke-Regler pro Line: zu leise aufgenommen? Einfach bis auf 400 % hochdrehen — wirkt beim Anhören, in der Premiere und im fertigen Video",
+    "⚠ Warnt automatisch, sobald das Hochdrehen in die Übersteuerung läuft (rechnet den echten Spitzenpegel deiner Aufnahme mit)"
+  ]},
   { v: "8.6", items: [
     "🎙 Studio-Qualität grundlegend überarbeitet: statt simplem Abziehen läuft jetzt ein Wiener-Filter, der die Dämpfung aus dem zeitlichen Verlauf ableitet und glättet — dadurch verschwindet das metallische Gluckern (Restpegel-Schwankung von 0,25 statt vorher unruhig)",
     "🖱 Mausklicks und Tastenanschläge werden jetzt erkannt und gedämpft (rund 10 dB leiser) — kurze breitbandige Knackser, die eine reine Rauschunterdrückung gar nicht erfassen kann",
@@ -1896,6 +1900,7 @@ const EFFECTS = {
 // ── Spieler kann pro Line seinen eigenen Effekt waehlen — ueberschreibt Rollen-/Szenen-Standard NUR fuer diese Line ──
 let myEffectOverrides = {};   // lineIdx -> Effekt-Key (nur gesetzt, wenn vom Standard abweichend)
 let myEffectAmounts = {};     // lineIdx -> Effekt-Staerke 0..1 (nur gesetzt, wenn abweichend von voll)
+let myLineGains = {};        // lineIdx -> Lautstaerke-Faktor (1 = unveraendert)
 // ── Noise Gate NACHTRÄGLICH auf eine fertige Aufnahme anwenden (wie ein Effekt, nicht live eingebrannt) ──
 // ═════════════════════════════════════════════════════════════
 // 🎙 STUDIO-AUFBEREITUNG — echte Rauschunterdrueckung im Frequenzbereich
@@ -2115,7 +2120,12 @@ function myEffectiveRole(l) {
   // Reihenfolge: Spieler-Wahl > Szenen-Autor-Override (l.effect) > Rollen-Standard
   const base = roleOf(myRole()) || { pan: 0, effect: "none", gain: 1 };
   const amt = myEffectAmounts[l.idx];
-  const withAmt = (r) => (amt === undefined ? r : { ...r, fxAmount: amt });
+  const boost = myLineGains[l.idx];
+  const withAmt = (r) => {
+    let o = amt === undefined ? r : { ...r, fxAmount: amt };
+    if (boost !== undefined && boost !== 1) o = { ...o, gain: (o.gain ?? 1) * boost };
+    return o;
+  };
   const chosen = myEffectOverrides[l.idx];
   if (chosen) return withAmt({ ...base, effect: chosen });
   return withAmt(effectiveRole(base, l));
@@ -2571,7 +2581,7 @@ function startBooth() {
     return;
   }
   myLines = scene.lines.map((l, i) => ({ ...l, idx: i })).filter(l => l.chars.includes(rid));
-  curLine = 0; takes = {}; myEffectOverrides = {}; myEffectAmounts = {};
+  curLine = 0; takes = {}; myEffectOverrides = {}; myEffectAmounts = {}; myLineGains = {};
   const r = roleOf(rid);
   $("booth-rolename").textContent = r.name;
   const av = scene.avatars?.[String(rid)];
@@ -2625,6 +2635,7 @@ function renderLine() {
     efSel.value = myEffectOverrides[l.idx] || "";
   }
   syncFxAmountUI(l);
+  syncLineGainUI(l);
   stopFxPreview(); fxPreviewRaw = null; fxPreviewCacheKey = null;
   $("rectime-fill").style.width = "0";
   if (lineHasOrig(l)) previewRefViz(l); else { cancelAnimationFrame(vizRAF); const c = $("viz"); if (c) { const g = c.getContext("2d"); g.clearRect(0,0,c.width,c.height); } }
@@ -2871,6 +2882,31 @@ $("btn-line-play").onclick = async () => {
   src.onended = () => { if (previewSrc === src) previewSrc = null; v.pause(); };
 };
 
+function bufferPeak(buf) {
+  let p = 0;
+  // Jeden Wert pruefen -- kurze Spitzen wuerden beim Ueberspringen sonst untergehen,
+  // und genau die sind es, die beim Lauterdrehen als Erstes uebersteuern.
+  for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < d.length; i++) { const v = d[i] < 0 ? -d[i] : d[i]; if (v > p) p = v; }
+  }
+  return p;
+}
+
+function syncLineGainUI(l) {
+  const sl = $("my-line-gain"), val = $("my-line-gain-val"), warn = $("my-line-gain-warn");
+  if (!sl || !l) return;
+  const g = myLineGains[l.idx];
+  sl.value = g === undefined ? 1 : g;
+  if (val) val.textContent = Math.round(parseFloat(sl.value) * 100) + "%";
+  // Warnen, wenn die Aufnahme durch das Anheben in die Uebersteuerung laeuft (klingt dann kratzig)
+  if (warn) {
+    const t = takes[l.idx];
+    const over = t ? bufferPeak(t) * parseFloat(sl.value) > 0.99 : false;
+    warn.style.display = over ? "" : "none";
+  }
+}
+
 function syncFxAmountUI(l) {
   const sl = $("my-effect-amount"), val = $("my-effect-amount-val");
   if (!sl || !l) return;
@@ -2905,6 +2941,15 @@ $("my-effect-amount") && ($("my-effect-amount").oninput = e => {
   if (fxPreviewSrc) { clearTimeout(fxRestartT); fxRestartT = setTimeout(startFxPreview, 220); }
 });
 let fxRestartT = null;
+
+$("my-line-gain") && ($("my-line-gain").oninput = e => {
+  const l = myLines[curLine];
+  if (!l) return;
+  const v = parseFloat(e.target.value);
+  if (Math.abs(v - 1) < 0.001) delete myLineGains[l.idx]; else myLineGains[l.idx] = v;
+  syncLineGainUI(l);
+  if (fxPreviewSrc) { clearTimeout(fxRestartT); fxRestartT = setTimeout(startFxPreview, 220); }
+});
 
 // 🔊 Vorhoeren: spielt den eigenen Take (oder ersatzweise das Original) durch den aktuell
 // eingestellten Effekt -- damit man Effekt UND Staerke hoert, bevor man sich festlegt.
@@ -3002,7 +3047,7 @@ function finishBooth() {
   show("scr-wait");
   renderBoothPlayers();
   const items = myLines.filter(l => takes[l.idx] && takes[l.idx] !== "SKIP")
-    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: myEffectOverrides[l.idx] || undefined, fxAmount: myEffectAmounts[l.idx], gate: micSettings.gate }));
+    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: myEffectOverrides[l.idx] || undefined, fxAmount: myEffectAmounts[l.idx], boost: myLineGains[l.idx], gate: micSettings.gate }));
   if (match.mode === "duell" && duelInfo) {
     if (isHost) collectDuelSubmit(myId, items);
     else hostConn.send({ t: "duelSubmit", playerId: myId, items });
@@ -3863,7 +3908,7 @@ async function decodeDuelData(data) {
     for (const item of track.items) {
       try {
         const ab = await toArrayBuffer(item.buf);
-        items.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: processTakeBuffer(ctx, await ctx.decodeAudioData(ab), item.gate, item.effect || (roleOf(track.role) || {}).effect, item.fxAmount), effect: item.effect, fxAmount: item.fxAmount });
+        items.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: processTakeBuffer(ctx, await ctx.decodeAudioData(ab), item.gate, item.effect || (roleOf(track.role) || {}).effect, item.fxAmount), effect: item.effect, fxAmount: item.fxAmount, boost: item.boost });
       } catch (e) { console.warn("Duell-Spur kaputt:", e); }
     }
   }
@@ -4023,7 +4068,7 @@ async function loadMix(data) {
     for (const item of track.items) {
       try {
         const ab = await toArrayBuffer(item.buf);
-        mixItems.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: processTakeBuffer(ctx, await ctx.decodeAudioData(ab), item.gate, item.effect || (roleOf(track.role) || {}).effect, item.fxAmount), effect: item.effect, fxAmount: item.fxAmount });
+        mixItems.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: processTakeBuffer(ctx, await ctx.decodeAudioData(ab), item.gate, item.effect || (roleOf(track.role) || {}).effect, item.fxAmount), effect: item.effect, fxAmount: item.fxAmount, boost: item.boost });
         okCount++;
       } catch (e) { failCount++; console.warn("Spur kaputt:", track.role, e); }
     }
@@ -4193,6 +4238,8 @@ async function exportAudioFast() {
       if (scene.lines && item.lineIdx != null) role = effectiveRole(role, scene.lines[item.lineIdx]);
       if (item.effect) role = { ...role, effect: item.effect };
       if (item.fxAmount !== undefined) role = { ...role, fxAmount: item.fxAmount };
+    if (item.boost) role = { ...role, gain: (role.gain ?? 1) * item.boost };
+      if (item.boost) role = { ...role, gain: (role.gain ?? 1) * item.boost };
       const src = offlineCtx.createBufferSource();
       src.buffer = item.buffer;
       src.playbackRate.value = effectPitch(role.effect);
