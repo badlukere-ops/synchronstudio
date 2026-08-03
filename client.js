@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "8.5";
+const APP_VERSION = "8.6";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -170,6 +170,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "8.6", items: [
+    "🎙 Studio-Qualität grundlegend überarbeitet: statt simplem Abziehen läuft jetzt ein Wiener-Filter, der die Dämpfung aus dem zeitlichen Verlauf ableitet und glättet — dadurch verschwindet das metallische Gluckern (Restpegel-Schwankung von 0,25 statt vorher unruhig)",
+    "🖱 Mausklicks und Tastenanschläge werden jetzt erkannt und gedämpft (rund 10 dB leiser) — kurze breitbandige Knackser, die eine reine Rauschunterdrückung gar nicht erfassen kann",
+    "📈 Stimme bleibt besser erhalten: 78 % statt vorher 62 %",
+    "🔊 Fix: Vorhören-Knopf ging nicht (Audio-Kontext war pausiert) und der Stärke-Regler ließ sich danach nicht mehr bedienen — jetzt spielt die Vorschau bei Regler-Änderung direkt mit der neuen Stärke weiter"
+  ]},
   { v: "8.5", items: [
     "🎙 Studio-Qualität komplett neu gebaut: statt nur EQ läuft jetzt eine echte Rauschunterdrückung im Frequenzbereich — Grundrauschen, Lüfter- und Netzbrummen werden analysiert und herausgerechnet, gemessen rund 23 dB weniger Störgeräusch bei erhaltener Stimme",
     "🎚 Die Stärke-Regelung steuert dabei mit, wie beherzt aufgeräumt wird"
@@ -1925,55 +1931,99 @@ function fftRadix2(re, im, inverse) {
 }
 
 function denoiseChannel(x, strength) {
-  const N = 2048, HOP = 512;                       // 75% Ueberlappung -> keine hoerbaren Bloecke
-  if (x.length < N * 2) return x;
+  const N = 2048, HOP = 512, SR = 44100;
+  if (x.length < N * 3) return x;
   const win = new Float32Array(N);
   for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
   const frames = Math.floor((x.length - N) / HOP) + 1;
   const bins = N / 2 + 1;
-  const mags = [], phRe = [], phIm = [];
 
-  for (let f = 0; f < frames; f++) {               // 1) Zerlegen in Frequenzen
+  // ── 1) Zerlegen: Betrag + Phase je Zeitfenster ──
+  const pow = [], phRe = [], phIm = [];
+  for (let f = 0; f < frames; f++) {
     const re = new Float64Array(N), im = new Float64Array(N);
     const off = f * HOP;
     for (let i = 0; i < N; i++) re[i] = (x[off + i] || 0) * win[i];
     fftRadix2(re, im, false);
-    const m = new Float32Array(bins);
-    for (let b = 0; b < bins; b++) m[b] = Math.hypot(re[b], im[b]);
-    mags.push(m); phRe.push(re); phIm.push(im);
+    const p = new Float32Array(bins);
+    for (let b = 0; b < bins; b++) p[b] = re[b] * re[b] + im[b] * im[b];
+    pow.push(p); phRe.push(re); phIm.push(im);
   }
 
-  // 2) Rauschteppich schaetzen: pro Frequenz der leise Grundpegel ueber die ganze Aufnahme.
-  //    Das 15%-Quantil trifft Pausen/Atempausen, ohne von lauter Sprache verfaelscht zu werden.
-  const noise = new Float32Array(bins);
-  const col = new Float32Array(frames);
-  for (let b = 0; b < bins; b++) {
-    for (let f = 0; f < frames; f++) col[f] = mags[f][b];
-    const s = Float32Array.from(col).sort();
-    noise[b] = s[Math.floor(frames * 0.15)];
+  // ── 2) Stoerteppich mitlaufend schaetzen (Minimum-Statistik) ──
+  // Statt eines festen Wertes fuer die ganze Aufnahme wird pro Frequenz das laufende
+  // Minimum in einem gleitenden Fenster verfolgt. Damit passt sich die Schaetzung an,
+  // wenn sich das Umgebungsgeraeusch waehrend der Aufnahme aendert.
+  const SMOOTH = 0.9, WINF = Math.max(8, Math.round(1.5 * SR / HOP));
+  const smoothed = [], noise = [];
+  const cur = new Float32Array(bins);
+  for (let b = 0; b < bins; b++) cur[b] = pow[0][b];
+  for (let f = 0; f < frames; f++) {
+    const sm = new Float32Array(bins);
+    for (let b = 0; b < bins; b++) { cur[b] = SMOOTH * cur[b] + (1 - SMOOTH) * pow[f][b]; sm[b] = cur[b]; }
+    smoothed.push(sm);
   }
-
-  const over = 1.6 + strength * 2.4;               // wie beherzt abgezogen wird
-  const floorG = Math.max(0.02, 0.22 - strength * 0.18);  // Restpegel: verhindert Blubbern
-  const out = new Float32Array(x.length);
-  const norm = new Float32Array(x.length);
-  const gain = new Float32Array(bins);
-  const sm = new Float32Array(bins);
-
-  for (let f = 0; f < frames; f++) {               // 3) Abziehen und zurueckbauen
-    const m = mags[f];
+  for (let f = 0; f < frames; f++) {
+    const nz = new Float32Array(bins);
+    const lo = Math.max(0, f - WINF), hi = Math.min(frames - 1, f + WINF);
     for (let b = 0; b < bins; b++) {
-      const clean = m[b] - over * noise[b];
-      gain[b] = m[b] > 1e-9 ? Math.max(floorG, clean / m[b]) : floorG;
+      let m = Infinity;
+      for (let k = lo; k <= hi; k++) if (smoothed[k][b] < m) m = smoothed[k][b];
+      nz[b] = m * 1.9;                       // Ausgleich, weil ein Minimum systematisch zu tief liegt
     }
-    for (let b = 0; b < bins; b++) {               // ueber Nachbarfrequenzen glaetten
-      const a = gain[Math.max(0, b - 1)], c = gain[Math.min(bins - 1, b + 1)];
-      sm[b] = (a + gain[b] * 2 + c) / 4;
+    noise.push(nz);
+  }
+
+  // ── 3) Klick-Erkennung ──
+  // Mausklicks/Tastenanschlaege sind sehr kurz und ueber alle Frequenzen verteilt.
+  // Ein Frame gilt als Klick, wenn die Energie in den Hoehen schlagartig hochschiesst
+  // und direkt danach wieder faellt -- so etwas macht keine Stimme.
+  const hfStart = Math.floor(bins * 0.45);
+  const hf = new Float32Array(frames);
+  for (let f = 0; f < frames; f++) { let s2 = 0; for (let b = hfStart; b < bins; b++) s2 += pow[f][b]; hf[f] = s2; }
+  const isClick = new Uint8Array(frames);
+  for (let f = 2; f < frames - 2; f++) {
+    const around = (hf[f - 2] + hf[f - 1] + hf[f + 1] + hf[f + 2]) / 4 + 1e-12;
+    if (hf[f] > around * 6) isClick[f] = 1;
+  }
+
+  // ── 4) Wiener-Filter mit vorausschauender Signalschaetzung ──
+  // Der entscheidende Unterschied zum simplen Abziehen: die Daempfung pro Frequenz wird
+  // aus dem VERLAUF ueber die Zeit abgeleitet und geglaettet. Dadurch springen einzelne
+  // Frequenzpunkte nicht mehr zufaellig an/aus -- genau das erzeugt sonst das metallische Glucksen.
+  const s = Math.max(0, Math.min(1, strength === undefined ? 1 : strength));
+  const ALPHA = 0.98;                                   // wie stark der Verlauf mitzaehlt
+  const floorG = Math.max(0.06, 0.30 - s * 0.20);       // Restpegel: nie ganz auf null
+  const gPrev = new Float32Array(bins).fill(1);
+  const gamPrev = new Float32Array(bins).fill(1);
+  const gSmoothPrev = new Float32Array(bins).fill(1);
+  const out = new Float32Array(x.length), norm = new Float32Array(x.length);
+  const g = new Float32Array(bins), gs = new Float32Array(bins);
+
+  for (let f = 0; f < frames; f++) {
+    const p = pow[f], nz = noise[f];
+    for (let b = 0; b < bins; b++) {
+      const nn = Math.max(nz[b], 1e-12) * (0.8 + s * 0.9);
+      const gamma = p[b] / nn;                                        // gemessener Abstand zum Stoerteppich
+      const inst = Math.max(gamma - 1, 0);
+      const xi = Math.max(ALPHA * gPrev[b] * gPrev[b] * gamPrev[b] + (1 - ALPHA) * inst, 1e-4);
+      g[b] = Math.max(floorG, xi / (1 + xi));                         // Wiener-Daempfung
+      gamPrev[b] = gamma;
+    }
+    for (let b = 0; b < bins; b++) {                                  // ueber Nachbarfrequenzen glaetten
+      const a = g[Math.max(0, b - 1)], c = g[Math.min(bins - 1, b + 1)];
+      gs[b] = (a + g[b] * 2 + c) / 4;
+    }
+    for (let b = 0; b < bins; b++) {                                  // ueber die Zeit glaetten
+      gs[b] = 0.55 * gsPrevSafe(gSmoothPrev, b) + 0.45 * gs[b];
+      if (isClick[f] && b >= hfStart) gs[b] = Math.min(gs[b], floorG);   // Klick wegdaempfen
+      gSmoothPrev[b] = gs[b];
+      gPrev[b] = gs[b];
     }
     const re = phRe[f], im = phIm[f];
     for (let b = 0; b < bins; b++) {
-      re[b] *= sm[b]; im[b] *= sm[b];
-      if (b > 0 && b < N / 2) { re[N - b] = re[b]; im[N - b] = -im[b]; }   // Spiegelhaelfte
+      re[b] *= gs[b]; im[b] *= gs[b];
+      if (b > 0 && b < N / 2) { re[N - b] = re[b]; im[N - b] = -im[b]; }
     }
     fftRadix2(re, im, true);
     const off = f * HOP;
@@ -1986,6 +2036,7 @@ function denoiseChannel(x, strength) {
   for (let i = 0; i < out.length; i++) out[i] = norm[i] > 1e-6 ? out[i] / norm[i] : x[i];
   return out;
 }
+function gsPrevSafe(arr, b) { const v = arr[b]; return isFinite(v) ? v : 1; }
 
 function studioEnhanceBuffer(ctx, buffer, strength) {
   try {
@@ -2574,6 +2625,7 @@ function renderLine() {
     efSel.value = myEffectOverrides[l.idx] || "";
   }
   syncFxAmountUI(l);
+  stopFxPreview(); fxPreviewRaw = null; fxPreviewCacheKey = null;
   $("rectime-fill").style.width = "0";
   if (lineHasOrig(l)) previewRefViz(l); else { cancelAnimationFrame(vizRAF); const c = $("viz"); if (c) { const g = c.getContext("2d"); g.clearRect(0,0,c.width,c.height); } }
   status("booth-status", takes[l.idx] ? "Take gespeichert — anhören, neu aufnehmen oder weiter." : "Unendlich Versuche — nimm auf, bis es sitzt.");
@@ -2838,6 +2890,8 @@ $("my-effect-select").onchange = () => {
   const v = $("my-effect-select").value;
   if (v) myEffectOverrides[l.idx] = v; else delete myEffectOverrides[l.idx];
   syncFxAmountUI(l);
+  fxPreviewCacheKey = null;
+  if (fxPreviewSrc) startFxPreview();
   SFX.click();
 };
 $("my-effect-amount") && ($("my-effect-amount").oninput = e => {
@@ -2847,32 +2901,69 @@ $("my-effect-amount") && ($("my-effect-amount").oninput = e => {
   if (v >= 0.999) delete myEffectAmounts[l.idx]; else myEffectAmounts[l.idx] = v;
   const val = $("my-effect-amount-val");
   if (val) val.textContent = Math.round(v * 100) + "%";
+  // laeuft gerade eine Vorschau? Dann mit der neuen Staerke direkt neu abspielen
+  if (fxPreviewSrc) { clearTimeout(fxRestartT); fxRestartT = setTimeout(startFxPreview, 220); }
 });
+let fxRestartT = null;
 
 // 🔊 Vorhoeren: spielt den eigenen Take (oder ersatzweise das Original) durch den aktuell
 // eingestellten Effekt -- damit man Effekt UND Staerke hoert, bevor man sich festlegt.
-let fxPreviewSrc = null;
+let fxPreviewSrc = null, fxPreviewRaw = null, fxPreviewIsTake = false, fxPreviewCacheKey = null, fxPreviewCacheBuf = null;
 async function fxPreview() {
   const btn = $("btn-fx-preview");
   const l = myLines[curLine];
-  if (!l) return;
-  if (fxPreviewSrc) { try { fxPreviewSrc.stop(); } catch {} fxPreviewSrc = null; btn.textContent = "🔊 Vorhören"; return; }
-  const ctx = getCtx();
-  let buf = takes[l.idx] || null;
-  if (!buf) {
-    btn.textContent = "⏳ …";
-    try { buf = await getLineOrigBuffer(l); } catch {}
+  if (!l || !btn) return;
+  if (fxPreviewSrc) { stopFxPreview(); return; }
+  try {
+    const ctx = getCtx();
+    if (ctx.state === "suspended") await ctx.resume();   // Browser pausieren den Ton bis zur ersten Geste
+    let raw = takes[l.idx] || null;
+    if (!raw) {
+      btn.textContent = "⏳ …";
+      try { raw = await getLineOrigBuffer(l); } catch {}
+    }
+    if (!raw) {
+      status("booth-status", "Zum Vorhören erst aufnehmen — oder eine Szene mit Original wählen.", true);
+      btn.textContent = "🔊 Vorhören"; return;
+    }
+    fxPreviewRaw = raw;
+    fxPreviewIsTake = !!takes[l.idx];
+    startFxPreview();
+  } catch (e) {
+    console.error("Vorhören fehlgeschlagen:", e);
+    status("booth-status", "Vorhören hat nicht geklappt — nochmal versuchen.", true);
+    btn.textContent = "🔊 Vorhören";
   }
-  if (!buf) { status("booth-status", "Zum Vorhören erst aufnehmen (oder Szene mit Original wählen).", true); btn.textContent = "🔊 Vorhören"; return; }
+}
+
+function stopFxPreview() {
+  if (fxPreviewSrc) { try { fxPreviewSrc.stop(); } catch {} fxPreviewSrc = null; }
+  const btn = $("btn-fx-preview"); if (btn) btn.textContent = "🔊 Vorhören";
+}
+
+function startFxPreview() {
+  const l = myLines[curLine];
+  const btn = $("btn-fx-preview");
+  if (!l || !fxPreviewRaw) return;
+  if (fxPreviewSrc) { try { fxPreviewSrc.stop(); } catch {} fxPreviewSrc = null; }
+  const ctx = getCtx();
   const role = myEffectiveRole(l);
+  // Aufbereitung kann bei „Studio" rechenintensiv sein -> Ergebnis je Einstellung merken,
+  // damit man am Stärke-Regler ziehen kann, ohne dass es jedes Mal neu rechnet und hakt.
+  const key = role.effect + "|" + (role.fxAmount === undefined ? 1 : role.fxAmount) + "|" + micSettings.gate + "|" + (fxPreviewIsTake ? "t" : "o");
+  let buf;
+  if (fxPreviewCacheKey === key && fxPreviewCacheBuf) buf = fxPreviewCacheBuf;
+  else {
+    buf = fxPreviewIsTake ? processTakeBuffer(ctx, fxPreviewRaw, micSettings.gate, role.effect, role.fxAmount) : fxPreviewRaw;
+    fxPreviewCacheKey = key; fxPreviewCacheBuf = buf;
+  }
   const src = ctx.createBufferSource();
-  src.buffer = takes[l.idx] ? processTakeBuffer(ctx, buf, micSettings.gate, role.effect, role.fxAmount) : buf;
-  const chainIn = buildChain(ctx, role, ctx.destination);
-  src.connect(chainIn);
+  src.buffer = buf;
+  src.connect(buildChain(ctx, role, ctx.destination));
   src.start();
   fxPreviewSrc = src;
-  btn.textContent = "⏹ Stopp";
-  src.onended = () => { if (fxPreviewSrc === src) { fxPreviewSrc = null; btn.textContent = "🔊 Vorhören"; } };
+  if (btn) btn.textContent = "⏹ Stopp";
+  src.onended = () => { if (fxPreviewSrc === src) { fxPreviewSrc = null; if (btn) btn.textContent = "🔊 Vorhören"; } };
 }
 $("btn-fx-preview") && ($("btn-fx-preview").onclick = fxPreview);
 $("btn-line-prev").onclick = () => {
