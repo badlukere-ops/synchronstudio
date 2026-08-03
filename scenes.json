@@ -8249,728 +8249,728 @@
     ]
   },
   {
-  "id": "saevsrin",
-  "title": "Sae Vs Rin Final Matchup",
-  "videoUrl": "scenes/saevsrin.mp4",
-  "roles": [
-    {
-      "id": 1,
-      "name": "Announcer",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 2,
-      "name": "Shidou",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 3,
-      "name": "Reo",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 4,
-      "name": "Hiori",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 5,
-      "name": "Nanase",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 6,
-      "name": "Raichi",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 7,
-      "name": "Niko",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 8,
-      "name": "Otoya",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 9,
-      "name": "Chigiri",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 10,
-      "name": "Isagi",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 11,
-      "name": "Barou",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 12,
-      "name": "Nagi",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 13,
-      "name": "Karasu",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 14,
-      "name": "Rin",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 15,
-      "name": "Sae",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 16,
-      "name": "Young Sae",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 17,
-      "name": "Kid",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    }
-  ],
-  "lines": [
-    {
-      "t": 8.152,
-      "end": 11.335,
-      "chars": [
-        1
-      ],
-      "who": "Announcer",
-      "text": "“With one minute of additional time sae itoshi has the ball!”",
-      "de": "Mit einer minute nachspielzeit Sae Itoshi Hat Den Ball!",
-      "effect": "hall"
-    },
-    {
-      "t": 11.335,
-      "end": 15.068,
-      "chars": [
-        1
-      ],
-      "who": "Announcer",
-      "text": "“Theres no time left! Is this the last play?”",
-      "de": "Es ist fast keine zeit mehr übrig! ist das der letzte angriff?!",
-      "effect": "hall"
-    },
-    {
-      "t": 15.068,
-      "end": 17.968,
-      "chars": [
-        2
-      ],
-      "who": "Shidou",
-      "text": "“Yeah, this is gonna be good!”",
-      "de": "Ohja, Das Wird Gut!"
-    },
-    {
-      "t": 17.968,
-      "end": 19.235,
-      "chars": [
-        3
-      ],
-      "who": "Reo",
-      "text": "“No way... Heads up!”",
-      "de": "Niemals... Köpfe Hoch!"
-    },
-    {
-      "t": 19.235,
-      "end": 20.585,
-      "chars": [
-        4
-      ],
-      "who": "Hiori",
-      "text": "“We half to stop them!”",
-      "de": "Wir Müssen sie Stoppen!"
-    },
-    {
-      "t": 20.585,
-      "end": 20.885,
-      "chars": [
-        5
-      ],
-      "who": "Nanase",
-      "text": "“WE CAN'T LET THEM SCORE AGAIN!”",
-      "de": "WIR KÖNNEN SIE NICHT TREFFEN LASSEN!"
-    },
-    {
-      "t": 20.618,
-      "end": 22.385,
-      "chars": [
-        6
-      ],
-      "who": "Raichi",
-      "text": "“*No clue to what he is saying*”",
-      "de": "Keine ahnung was der labert"
-    },
-    {
-      "t": 22.385,
-      "end": 23.035,
-      "chars": [
-        7
-      ],
-      "who": "Niko",
-      "text": "“Hurry!”",
-      "de": "SCHNELL!"
-    },
-    {
-      "t": 23.035,
-      "end": 23.852,
-      "chars": [
-        8
-      ],
-      "who": "Otoya",
-      "text": "“COME ON!”",
-      "de": "KOMM SCHON"
-    },
-    {
-      "t": 23.852,
-      "end": 26.085,
-      "chars": [
-        9
-      ],
-      "who": "Chigiri",
-      "text": "“BLOCK IT EVEN IF IT KILLS YOU!”",
-      "de": "BLOCKT ES SELBST WENN ES EUCHT UMBRINGT!"
-    },
-    {
-      "t": 26.085,
-      "end": 29.218,
-      "chars": [
-        10
-      ],
-      "who": "Isagi",
-      "text": "“If I can steal it, we can still win th-”",
-      "de": "Wenn ich den ball abnehme können wir immernoch gewin---"
-    },
-    {
-      "t": 29.218,
-      "end": 30.518,
-      "chars": [
-        10
-      ],
-      "who": "Isagi",
-      "text": "“*gasp*”",
-      "de": "*shock*"
-    },
-    {
-      "t": 30.518,
-      "end": 33.052,
-      "chars": [
-        11
-      ],
-      "who": "Barou",
-      "text": "“IM NOT DONE YET!”",
-      "de": "ICH BIN NOCH NICHT FERTIG"
-    },
-    {
-      "t": 33.052,
-      "end": 37.102,
-      "chars": [
-        11
-      ],
-      "who": "Barou",
-      "text": "“*Grunt of effort then surprised gasp*”",
-      "de": "„*Anstrengungsstöhnen, dann ein überraschtes Keuchen*“"
-    },
-    {
-      "t": 37.102,
-      "end": 42.402,
-      "chars": [
-        12
-      ],
-      "who": "Nagi",
-      "text": "“There! Its mine!”",
-      "de": "DA ER GEHÖRT MIR!"
-    },
-    {
-      "t": 42.402,
-      "end": 43.802,
-      "chars": [
-        12
-      ],
-      "who": "Nagi",
-      "text": "“Missed by a hair!”",
-      "de": "Um haares breite nicht getroffen!"
-    },
-    {
-      "t": 43.802,
-      "end": 47.085,
-      "chars": [
-        13
-      ],
-      "who": "Karasu",
-      "text": "“DONT JUST CHARGE IN! ILL TRY TO BUY US SOME TIME!”",
-      "de": "„Stürm nicht einfach blindlings los! Ich versuche, uns etwas Zeit zu verschaffen!“"
-    },
-    {
-      "t": 47.085,
-      "end": 50.368,
-      "chars": [
-        13
-      ],
-      "who": "Karasu",
-      "text": "“WE DONT GOT ENOUGH BODYS SO, COVER WHOEVERS FREE!”",
-      "de": "„Wir haben nicht genug Leute – also deckt ab, wer gerade frei ist!“"
-    },
-    {
-      "t": 50.368,
-      "end": 53.885,
-      "chars": [
-        13
-      ],
-      "who": "Karasu",
-      "text": "“IF THEY SCORE NOW ITS GAMEOVER SO PUSH THEM BACK!”",
-      "de": "„Wenn sie jetzt punkten, ist das Spiel vorbei – also drängt sie zurück!“"
-    },
-    {
-      "t": 53.885,
-      "end": 54.202,
-      "chars": [
-        12
-      ],
-      "who": "Nagi",
-      "text": "“On it!”",
-      "de": "Bin Dabei!"
-    },
-    {
-      "t": 54.202,
-      "end": 67.935,
-      "chars": [
-        11
-      ],
-      "who": "Barou",
-      "text": "“*Growl*”",
-      "de": "Brüll?"
-    },
-    {
-      "t": 67.935,
-      "end": 75.102,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“Kill... Mangle... DESTROY”",
-      "de": "Töten... Verschlingen... ZERSTÖREN"
-    },
-    {
-      "t": 75.102,
-      "end": 79.802,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“The fact that you failed to score is proof of your limitations.”",
-      "de": "“Die Tatsache, dass du kein Tor erzielt hast, ist ein Beweis für deine Einschränkungen.”"
-    },
-    {
-      "t": 79.802,
-      "end": 86.952,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“Quit yapping you poor excuse for a big brother! Who the hell do you think you are!”",
-      "de": "“Hör auf zu kläffen, du arme Ausrede für einen großen Bruder! Für wen zum Teufel hältst du dich!”"
-    },
-    {
-      "t": 86.952,
-      "end": 90.385,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“If only you had stayed at home and been a good boy...”",
-      "de": "“Wenn du nur zu Hause geblieben wärst und ein guter Junge gewesen wärst...”"
-    },
-    {
-      "t": 90.385,
-      "end": 92.435,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“You could've lived your life blissfully unaware.”",
-      "de": "“Du hättest dein Leben glückselig ahnungslos leben können.”"
-    },
-    {
-      "t": 92.435,
-      "end": 95.352,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“But then you stuck your nose where it didn't belong.”",
-      "de": "“Aber dann hast du deine Nase dorthin gesteckt, wo sie nicht hingehört.”"
-    },
-    {
-      "t": 95.352,
-      "end": 97.218,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“You asked for this.”",
-      "de": "“Du hast darum gebeten.”"
-    },
-    {
-      "t": 97.218,
-      "end": 101.885,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“SHUT UP STOP TRYING TO BIND MY EGO WITH WORDS.”",
-      "de": "“HALT DIE KLAPPE, HÖR AUF, MEIN EGO MIT WORTEN ZU FESSELN.”"
-    },
-    {
-      "t": 101.885,
-      "end": 104.785,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“Now you know the truth Rin.”",
-      "de": "“Jetzt kennst du die Wahrheit, Rin.”"
-    },
-    {
-      "t": 104.785,
-      "end": 107.218,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“You can't become the best in the world.”",
-      "de": "“Du kannst nicht der Beste der Welt werden.”"
-    },
-    {
-      "t": 107.218,
-      "end": 109.202,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“That's enough STOP!”",
-      "de": "Das reicht... STOP!"
-    },
-    {
-      "t": 109.202,
-      "end": 113.268,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“You can't even play without using me as you excuse.”",
-      "de": "“Du kannst nicht einmal spielen, ohne mich als Ausrede zu benutzen.”"
-    },
-    {
-      "t": 113.268,
-      "end": 121.802,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“The best you can do is live in the shadow of your brother....”",
-      "de": "“Das Beste, was du tun kannst, ist, im Schatten deines Bruders zu leben....”"
-    },
-    {
-      "t": 121.802,
-      "end": 130.752,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“We're half baked... So quit don't use me as an excuse to play soccer.”",
-      "de": "“Wir sind halb gebacken?... Also hör auf... benutze mich nicht als Ausrede, um Fußball zu spielen.”"
-    },
-    {
-      "t": 130.752,
-      "end": 134.918,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“I think I understand what he was trying to tell me that day”",
-      "de": "“Ich glaube, ich verstehe, was er mir an diesem Tag sagen wollte”"
-    },
-    {
-      "t": 134.918,
-      "end": 139.118,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“There was more than cruelty behind those words...”",
-      "de": "“Hinter diesen Worten steckte mehr als nur Grausamkeit...”"
-    },
-    {
-      "t": 139.118,
-      "end": 141.252,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“The half baked one...”",
-      "de": "Der Halb gebackene?"
-    },
-    {
-      "t": 141.252,
-      "end": 143.952,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“The one that makes me wanna puke”",
-      "de": "“Der, der mich zum Kotzen bringt”"
-    },
-    {
-      "t": 143.952,
-      "end": 148.252,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“The one who needs to be destroyed...”",
-      "de": "“Derjenige, der zerstört werden muss...”"
-    },
-    {
-      "t": 148.252,
-      "end": 155.318,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“Was me all along...”",
-      "de": "“War ich die ganze Zeit...”"
-    },
-    {
-      "t": 155.318,
-      "end": 157.818,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“Little brother of a genius...”",
-      "de": "“Kleiner Bruder eines Genies...”"
-    },
-    {
-      "t": 157.818,
-      "end": 164.152,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“Partner... Rivel... Im so sick of these convenient lables”",
-      "de": "“Partner... Rivale... Ich habe diese praktischen Etiketten so satt”"
-    },
-    {
-      "t": 164.152,
-      "end": 172.718,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“They have no place in my life... I don't need them I'm not something to any of you!”",
-      "de": "Sie haben keinen Platz in meinem Leben … Ich brauche sie nicht. Ich bedeute keinem von euch etwas!"
-    },
-    {
-      "t": 172.718,
-      "end": 179.885,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“Sae Itoshi's little brother. I'm done with that!”",
-      "de": "Sae Itoshis Kleiner Bruder..."
-    },
-    {
-      "t": 179.885,
-      "end": 187.168,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“I'll believe in this indignation in my heart. I'll give into these destructive thoughts!”",
-      "de": "Ich vertraue auf diese Wut in meinem Herzen. Ich lasse mich von diesen zerstörerischen Gedanken treiben!"
-    },
-    {
-      "t": 187.168,
-      "end": 195.285,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“I Am ME!”",
-      "de": "Ich Bin.. ICH!"
-    },
-    {
-      "t": 195.285,
-      "end": 200.935,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“Im the egoist... RIN ITOSHI!”",
-      "de": "Ich Bin Der egoist... ITOSHI RIN!"
-    },
-    {
-      "t": 200.935,
-      "end": 202.118,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“*Gasp*”",
-      "de": "*Luft Schnappen*"
-    },
-    {
-      "t": 202.118,
-      "end": 207.718,
-      "chars": [
-        16
-      ],
-      "who": "Young Sae",
-      "text": "“That was awesome. Play soccer with me.”",
-      "de": "„Das war klasse. Spiel Fußball mit mir.“"
-    },
-    {
-      "t": 207.718,
-      "end": 213.052,
-      "chars": [
-        15
-      ],
-      "who": "Sae",
-      "text": "“Will you look at that... I'm surprised you can still make that face.”",
-      "de": "„Sieh mal einer an ... Mich überrascht, dass du dieses Gesicht überhaupt noch machen kannst.“"
-    },
-    {
-      "t": 213.052,
-      "end": 222.085,
-      "chars": [
-        14
-      ],
-      "who": "Rin",
-      "text": "“*Panting*”",
-      "de": "keine ahnung digga hahahhah"
-    },
-    {
-      "t": 222.085,
-      "end": 344.302,
-      "chars": [
-        17
-      ],
-      "who": "Kid",
-      "text": "“LET'S GOOOOOOOOO”",
-      "de": "MACHT SCHON!!!!!!!!!!!!!!!"
-    },
-    {
-      "t": 344.302,
-      "end": 355.285,
-      "chars": [
-        10
-      ],
-      "who": "Isagi",
-      "text": "“*Inhale* GOALLLLLLLLLLLLLLLLLLL!!”",
-      "de": "*Einatmen* TOOOOR“"
-    },
-    {
-      "t": 355.285,
-      "end": 364.335,
-      "chars": [
-        1
-      ],
-      "who": "Announcer",
-      "text": "“BLUE LOCK SCORES AN MASSIVE GOAL!”",
-      "de": "„BLUE LOCK ERZIELT EIN RIESIGES TOR!“",
-      "effect": "hall"
-    },
-    {
-      "t": 364.335,
-      "end": 369.985,
-      "chars": [
-        1
-      ],
-      "who": "Announcer",
-      "text": "“ONLY ONE PLAYER SAVE WITHIN RANGE OF THE GOAL AND IT WAS BLUE LOCKS NUMBER 11”",
-      "de": "„Nur ein Spieler konnte den Ball noch in Tornähe abwehren – und das war Blue Locks Nummer 11.“",
-      "effect": "hall"
-    },
-    {
-      "t": 369.985,
-      "end": 372.985,
-      "chars": [
-        1
-      ],
-      "who": "Announcer",
-      "text": "“YOICHI ISAGI SHOT ROCKETS DIRECTLY INTO THE NET”",
-      "de": "„Yoichi Isagi feuerte Raketen direkt ins Netz.“",
-      "effect": "hall"
-    }
-  ],
-  "voiceTrack": "scenes/saevsrin_voices.mp3",
-  "avatars": {
-    "1": "scenes/meinpack/meinpack_announcer.png",
-    "2": "scenes/meinpack/meinpack_shidou.png",
-    "3": "scenes/meinpack/meinpack_reo.png",
-    "4": "scenes/meinpack/meinpack_hiori.png",
-    "5": "scenes/meinpack/meinpack_nanase.png",
-    "6": "scenes/meinpack/meinpack_raichi.png",
-    "7": "scenes/meinpack/meinpack_niko.png",
-    "8": "scenes/meinpack/meinpack_otoya.png",
-    "9": "scenes/meinpack/meinpack_chigiri.png",
-    "10": "scenes/meinpack/meinpack_isagi.png",
-    "11": "scenes/meinpack/meinpack_barou.png",
-    "12": "scenes/meinpack/meinpack_nagi.png",
-    "13": "scenes/meinpack/meinpack_karasu.png",
-    "14": "scenes/meinpack/meinpack_rin.png",
-    "15": "scenes/meinpack/meinpack_sae.png",
-    "16": "scenes/meinpack/meinpack_youngsae.png",
-    "17": "scenes/meinpack/meinpack_kid.png"
-  },
-  "difficultyOverride": "hard"
+    "id": "saevsrin",
+    "title": "Sae Vs Rin Final Matchup",
+    "videoUrl": "scenes/saevsrin.mp4",
+    "roles": [
+      {
+        "id": 1,
+        "name": "Announcer",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Shidou",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 3,
+        "name": "Reo",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 4,
+        "name": "Hiori",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 5,
+        "name": "Nanase",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 6,
+        "name": "Raichi",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 7,
+        "name": "Niko",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 8,
+        "name": "Otoya",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 9,
+        "name": "Chigiri",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 10,
+        "name": "Isagi",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 11,
+        "name": "Barou",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 12,
+        "name": "Nagi",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 13,
+        "name": "Karasu",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 14,
+        "name": "Rin",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 15,
+        "name": "Sae",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 16,
+        "name": "Young Sae",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 17,
+        "name": "Kid",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 8.152,
+        "end": 11.335,
+        "chars": [
+          1
+        ],
+        "who": "Announcer",
+        "text": "“With one minute of additional time sae itoshi has the ball!”",
+        "de": "Mit einer minute nachspielzeit Sae Itoshi Hat Den Ball!",
+        "effect": "hall"
+      },
+      {
+        "t": 11.335,
+        "end": 15.068,
+        "chars": [
+          1
+        ],
+        "who": "Announcer",
+        "text": "“Theres no time left! Is this the last play?”",
+        "de": "Es ist fast keine zeit mehr übrig! ist das der letzte angriff?!",
+        "effect": "hall"
+      },
+      {
+        "t": 15.068,
+        "end": 17.968,
+        "chars": [
+          2
+        ],
+        "who": "Shidou",
+        "text": "“Yeah, this is gonna be good!”",
+        "de": "Ohja, Das Wird Gut!"
+      },
+      {
+        "t": 17.968,
+        "end": 19.235,
+        "chars": [
+          3
+        ],
+        "who": "Reo",
+        "text": "“No way... Heads up!”",
+        "de": "Niemals... Köpfe Hoch!"
+      },
+      {
+        "t": 19.235,
+        "end": 20.585,
+        "chars": [
+          4
+        ],
+        "who": "Hiori",
+        "text": "“We half to stop them!”",
+        "de": "Wir Müssen sie Stoppen!"
+      },
+      {
+        "t": 20.585,
+        "end": 20.885,
+        "chars": [
+          5
+        ],
+        "who": "Nanase",
+        "text": "“WE CAN'T LET THEM SCORE AGAIN!”",
+        "de": "WIR KÖNNEN SIE NICHT TREFFEN LASSEN!"
+      },
+      {
+        "t": 20.618,
+        "end": 22.385,
+        "chars": [
+          6
+        ],
+        "who": "Raichi",
+        "text": "“*No clue to what he is saying*”",
+        "de": "Keine ahnung was der labert"
+      },
+      {
+        "t": 22.385,
+        "end": 23.035,
+        "chars": [
+          7
+        ],
+        "who": "Niko",
+        "text": "“Hurry!”",
+        "de": "SCHNELL!"
+      },
+      {
+        "t": 23.035,
+        "end": 23.852,
+        "chars": [
+          8
+        ],
+        "who": "Otoya",
+        "text": "“COME ON!”",
+        "de": "KOMM SCHON"
+      },
+      {
+        "t": 23.852,
+        "end": 26.085,
+        "chars": [
+          9
+        ],
+        "who": "Chigiri",
+        "text": "“BLOCK IT EVEN IF IT KILLS YOU!”",
+        "de": "BLOCKT ES SELBST WENN ES EUCHT UMBRINGT!"
+      },
+      {
+        "t": 26.085,
+        "end": 29.218,
+        "chars": [
+          10
+        ],
+        "who": "Isagi",
+        "text": "“If I can steal it, we can still win th-”",
+        "de": "Wenn ich den ball abnehme können wir immernoch gewin---"
+      },
+      {
+        "t": 29.218,
+        "end": 30.518,
+        "chars": [
+          10
+        ],
+        "who": "Isagi",
+        "text": "“*gasp*”",
+        "de": "*shock*"
+      },
+      {
+        "t": 30.518,
+        "end": 33.052,
+        "chars": [
+          11
+        ],
+        "who": "Barou",
+        "text": "“IM NOT DONE YET!”",
+        "de": "ICH BIN NOCH NICHT FERTIG"
+      },
+      {
+        "t": 33.052,
+        "end": 37.102,
+        "chars": [
+          11
+        ],
+        "who": "Barou",
+        "text": "“*Grunt of effort then surprised gasp*”",
+        "de": "„*Anstrengungsstöhnen, dann ein überraschtes Keuchen*“"
+      },
+      {
+        "t": 37.102,
+        "end": 42.402,
+        "chars": [
+          12
+        ],
+        "who": "Nagi",
+        "text": "“There! Its mine!”",
+        "de": "DA ER GEHÖRT MIR!"
+      },
+      {
+        "t": 42.402,
+        "end": 43.802,
+        "chars": [
+          12
+        ],
+        "who": "Nagi",
+        "text": "“Missed by a hair!”",
+        "de": "Um haares breite nicht getroffen!"
+      },
+      {
+        "t": 43.802,
+        "end": 47.085,
+        "chars": [
+          13
+        ],
+        "who": "Karasu",
+        "text": "“DONT JUST CHARGE IN! ILL TRY TO BUY US SOME TIME!”",
+        "de": "„Stürm nicht einfach blindlings los! Ich versuche, uns etwas Zeit zu verschaffen!“"
+      },
+      {
+        "t": 47.085,
+        "end": 50.368,
+        "chars": [
+          13
+        ],
+        "who": "Karasu",
+        "text": "“WE DONT GOT ENOUGH BODYS SO, COVER WHOEVERS FREE!”",
+        "de": "„Wir haben nicht genug Leute – also deckt ab, wer gerade frei ist!“"
+      },
+      {
+        "t": 50.368,
+        "end": 53.885,
+        "chars": [
+          13
+        ],
+        "who": "Karasu",
+        "text": "“IF THEY SCORE NOW ITS GAMEOVER SO PUSH THEM BACK!”",
+        "de": "„Wenn sie jetzt punkten, ist das Spiel vorbei – also drängt sie zurück!“"
+      },
+      {
+        "t": 53.885,
+        "end": 54.202,
+        "chars": [
+          12
+        ],
+        "who": "Nagi",
+        "text": "“On it!”",
+        "de": "Bin Dabei!"
+      },
+      {
+        "t": 54.202,
+        "end": 67.935,
+        "chars": [
+          11
+        ],
+        "who": "Barou",
+        "text": "“*Growl*”",
+        "de": "Brüll?"
+      },
+      {
+        "t": 67.935,
+        "end": 75.102,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“Kill... Mangle... DESTROY”",
+        "de": "Töten... Verschlingen... ZERSTÖREN"
+      },
+      {
+        "t": 75.102,
+        "end": 79.802,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“The fact that you failed to score is proof of your limitations.”",
+        "de": "“Die Tatsache, dass du kein Tor erzielt hast, ist ein Beweis für deine Einschränkungen.”"
+      },
+      {
+        "t": 79.802,
+        "end": 86.952,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“Quit yapping you poor excuse for a big brother! Who the hell do you think you are!”",
+        "de": "“Hör auf zu kläffen, du arme Ausrede für einen großen Bruder! Für wen zum Teufel hältst du dich!”"
+      },
+      {
+        "t": 86.952,
+        "end": 90.385,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“If only you had stayed at home and been a good boy...”",
+        "de": "“Wenn du nur zu Hause geblieben wärst und ein guter Junge gewesen wärst...”"
+      },
+      {
+        "t": 90.385,
+        "end": 92.435,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“You could've lived your life blissfully unaware.”",
+        "de": "“Du hättest dein Leben glückselig ahnungslos leben können.”"
+      },
+      {
+        "t": 92.435,
+        "end": 95.352,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“But then you stuck your nose where it didn't belong.”",
+        "de": "“Aber dann hast du deine Nase dorthin gesteckt, wo sie nicht hingehört.”"
+      },
+      {
+        "t": 95.352,
+        "end": 97.218,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“You asked for this.”",
+        "de": "“Du hast darum gebeten.”"
+      },
+      {
+        "t": 97.218,
+        "end": 101.885,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“SHUT UP STOP TRYING TO BIND MY EGO WITH WORDS.”",
+        "de": "“HALT DIE KLAPPE, HÖR AUF, MEIN EGO MIT WORTEN ZU FESSELN.”"
+      },
+      {
+        "t": 101.885,
+        "end": 104.785,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“Now you know the truth Rin.”",
+        "de": "“Jetzt kennst du die Wahrheit, Rin.”"
+      },
+      {
+        "t": 104.785,
+        "end": 107.218,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“You can't become the best in the world.”",
+        "de": "“Du kannst nicht der Beste der Welt werden.”"
+      },
+      {
+        "t": 107.218,
+        "end": 109.202,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“That's enough STOP!”",
+        "de": "Das reicht... STOP!"
+      },
+      {
+        "t": 109.202,
+        "end": 113.268,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“You can't even play without using me as you excuse.”",
+        "de": "“Du kannst nicht einmal spielen, ohne mich als Ausrede zu benutzen.”"
+      },
+      {
+        "t": 113.268,
+        "end": 121.802,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“The best you can do is live in the shadow of your brother....”",
+        "de": "“Das Beste, was du tun kannst, ist, im Schatten deines Bruders zu leben....”"
+      },
+      {
+        "t": 121.802,
+        "end": 130.752,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“We're half baked... So quit don't use me as an excuse to play soccer.”",
+        "de": "“Wir sind halb gebacken?... Also hör auf... benutze mich nicht als Ausrede, um Fußball zu spielen.”"
+      },
+      {
+        "t": 130.752,
+        "end": 134.918,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“I think I understand what he was trying to tell me that day”",
+        "de": "“Ich glaube, ich verstehe, was er mir an diesem Tag sagen wollte”"
+      },
+      {
+        "t": 134.918,
+        "end": 139.118,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“There was more than cruelty behind those words...”",
+        "de": "“Hinter diesen Worten steckte mehr als nur Grausamkeit...”"
+      },
+      {
+        "t": 139.118,
+        "end": 141.252,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“The half baked one...”",
+        "de": "Der Halb gebackene?"
+      },
+      {
+        "t": 141.252,
+        "end": 143.952,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“The one that makes me wanna puke”",
+        "de": "“Der, der mich zum Kotzen bringt”"
+      },
+      {
+        "t": 143.952,
+        "end": 148.252,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“The one who needs to be destroyed...”",
+        "de": "“Derjenige, der zerstört werden muss...”"
+      },
+      {
+        "t": 148.252,
+        "end": 155.318,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“Was me all along...”",
+        "de": "“War ich die ganze Zeit...”"
+      },
+      {
+        "t": 155.318,
+        "end": 157.818,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“Little brother of a genius...”",
+        "de": "“Kleiner Bruder eines Genies...”"
+      },
+      {
+        "t": 157.818,
+        "end": 164.152,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“Partner... Rivel... Im so sick of these convenient lables”",
+        "de": "“Partner... Rivale... Ich habe diese praktischen Etiketten so satt”"
+      },
+      {
+        "t": 164.152,
+        "end": 172.718,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“They have no place in my life... I don't need them I'm not something to any of you!”",
+        "de": "Sie haben keinen Platz in meinem Leben … Ich brauche sie nicht. Ich bedeute keinem von euch etwas!"
+      },
+      {
+        "t": 172.718,
+        "end": 179.885,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“Sae Itoshi's little brother. I'm done with that!”",
+        "de": "Sae Itoshis Kleiner Bruder..."
+      },
+      {
+        "t": 179.885,
+        "end": 187.168,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“I'll believe in this indignation in my heart. I'll give into these destructive thoughts!”",
+        "de": "Ich vertraue auf diese Wut in meinem Herzen. Ich lasse mich von diesen zerstörerischen Gedanken treiben!"
+      },
+      {
+        "t": 187.168,
+        "end": 195.285,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“I Am ME!”",
+        "de": "Ich Bin.. ICH!"
+      },
+      {
+        "t": 195.285,
+        "end": 200.935,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“Im the egoist... RIN ITOSHI!”",
+        "de": "Ich Bin Der egoist... ITOSHI RIN!"
+      },
+      {
+        "t": 200.935,
+        "end": 202.118,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“*Gasp*”",
+        "de": "*Luft Schnappen*"
+      },
+      {
+        "t": 202.118,
+        "end": 207.718,
+        "chars": [
+          16
+        ],
+        "who": "Young Sae",
+        "text": "“That was awesome. Play soccer with me.”",
+        "de": "„Das war klasse. Spiel Fußball mit mir.“"
+      },
+      {
+        "t": 207.718,
+        "end": 213.052,
+        "chars": [
+          15
+        ],
+        "who": "Sae",
+        "text": "“Will you look at that... I'm surprised you can still make that face.”",
+        "de": "„Sieh mal einer an ... Mich überrascht, dass du dieses Gesicht überhaupt noch machen kannst.“"
+      },
+      {
+        "t": 213.052,
+        "end": 222.085,
+        "chars": [
+          14
+        ],
+        "who": "Rin",
+        "text": "“*Panting*”",
+        "de": "keine ahnung digga hahahhah"
+      },
+      {
+        "t": 222.085,
+        "end": 344.302,
+        "chars": [
+          17
+        ],
+        "who": "Kid",
+        "text": "“LET'S GOOOOOOOOO”",
+        "de": "MACHT SCHON!!!!!!!!!!!!!!!"
+      },
+      {
+        "t": 344.302,
+        "end": 355.285,
+        "chars": [
+          10
+        ],
+        "who": "Isagi",
+        "text": "“*Inhale* GOALLLLLLLLLLLLLLLLLLL!!”",
+        "de": "*Einatmen* TOOOOR“"
+      },
+      {
+        "t": 355.285,
+        "end": 364.335,
+        "chars": [
+          1
+        ],
+        "who": "Announcer",
+        "text": "“BLUE LOCK SCORES AN MASSIVE GOAL!”",
+        "de": "„BLUE LOCK ERZIELT EIN RIESIGES TOR!“",
+        "effect": "hall"
+      },
+      {
+        "t": 364.335,
+        "end": 369.985,
+        "chars": [
+          1
+        ],
+        "who": "Announcer",
+        "text": "“ONLY ONE PLAYER SAVE WITHIN RANGE OF THE GOAL AND IT WAS BLUE LOCKS NUMBER 11”",
+        "de": "„Nur ein Spieler konnte den Ball noch in Tornähe abwehren – und das war Blue Locks Nummer 11.“",
+        "effect": "hall"
+      },
+      {
+        "t": 369.985,
+        "end": 372.985,
+        "chars": [
+          1
+        ],
+        "who": "Announcer",
+        "text": "“YOICHI ISAGI SHOT ROCKETS DIRECTLY INTO THE NET”",
+        "de": "„Yoichi Isagi feuerte Raketen direkt ins Netz.“",
+        "effect": "hall"
+      }
+    ],
+    "voiceTrack": "scenes/saevsrin_voices.mp3",
+    "avatars": {
+      "1": "scenes/meinpack/meinpack_announcer.png",
+      "2": "scenes/meinpack/meinpack_shidou.png",
+      "3": "scenes/meinpack/meinpack_reo.png",
+      "4": "scenes/meinpack/meinpack_hiori.png",
+      "5": "scenes/meinpack/meinpack_nanase.png",
+      "6": "scenes/meinpack/meinpack_raichi.png",
+      "7": "scenes/meinpack/meinpack_niko.png",
+      "8": "scenes/meinpack/meinpack_otoya.png",
+      "9": "scenes/meinpack/meinpack_chigiri.png",
+      "10": "scenes/meinpack/meinpack_isagi.png",
+      "11": "scenes/meinpack/meinpack_barou.png",
+      "12": "scenes/meinpack/meinpack_nagi.png",
+      "13": "scenes/meinpack/meinpack_karasu.png",
+      "14": "scenes/meinpack/meinpack_rin.png",
+      "15": "scenes/meinpack/meinpack_sae.png",
+      "16": "scenes/meinpack/meinpack_youngsae.png",
+      "17": "scenes/meinpack/meinpack_kid.png"
+    },
+    "difficultyOverride": "hard"
   },
   {
     "id": "crying",
@@ -9321,389 +9321,1725 @@
     ]
   },
   {
-  "id": "akaza_backstory",
-  "title": "Hakuji x Koyuki Szene",
-  "videoUrl": "scenes/akaza_backstory.mp4",
-  "roles": [
-    {
-      "id": 1,
-      "name": "Akaza/Hakuji",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
+    "id": "akaza_backstory",
+    "title": "Hakuji x Koyuki Szene",
+    "videoUrl": "scenes/akaza_backstory.mp4",
+    "roles": [
+      {
+        "id": 1,
+        "name": "Akaza/Hakuji",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Tanjiro",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 3,
+        "name": "Giyu",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 4,
+        "name": "Koyuki",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 5,
+        "name": "Muzan",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 6,
+        "name": "Hakuji's Vater",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 7,
+        "name": "Keizo",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 2.61,
+        "end": 5.36,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Zerstörerischer Tod... Vernichtungs Stil!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 6.29,
+        "end": 8.22,
+        "chars": [
+          2
+        ],
+        "who": "Tanjiro",
+        "text": "HÖR AUFFFF!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 8.43,
+        "end": 11.22,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Was soll das?! Er Kann sich noch Bewegen?!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 11.26,
+        "end": 16.29,
+        "chars": [
+          2
+        ],
+        "who": "Tanjiro",
+        "text": "Dann schlag ich ihn eben wieder Ab! wir besiegen ihn! Giyu Und Ich! ZUSAMMEN!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 20.21,
+        "end": 22.44,
+        "chars": [
+          2
+        ],
+        "who": "Tanjiro",
+        "text": "Mein Katana!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 23.61,
+        "end": 25.81,
+        "chars": [
+          3
+        ],
+        "who": "Giyu",
+        "text": "Es ist ihm aus der Hand Gerutscht?!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 26.85,
+        "end": 32.87,
+        "chars": [
+          2
+        ],
+        "who": "Tanjiro",
+        "text": "Meine hände gehorchen mir nicht mehr... Grzzzz...(ausholen zum schlag) GRRRR",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 37.41,
+        "end": 43.01,
+        "chars": [
+          7
+        ],
+        "who": "Keizo",
+        "text": "Du Kriegst Jetzt Ein Neues Leben! (warten bis schwarz bild) Bereit Kleiner?",
+        "de": "Original Ist Deutsch!",
+        "effect": "hall"
+      },
+      {
+        "t": 44.61,
+        "end": 55.99,
+        "chars": [
+          7
+        ],
+        "who": "Keizo",
+        "text": "Sei Unbesorgt... Ganz gleich was auch aus dir werden mag... du bleibst mein sohn... und auch mein schüler... ich werde stets zu dir halten!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 56.49,
+        "end": 61.56,
+        "chars": [
+          7
+        ],
+        "who": "Keizo",
+        "text": "Nur kann ich dich leider... nicht in den himmel mitnehmen...",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 63.12,
+        "end": 65.04,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Meister...",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 66.27,
+        "end": 67.22,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "HNGH?",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 67.82,
+        "end": 71.24,
+        "chars": [
+          5
+        ],
+        "who": "Muzan",
+        "text": "Hattest du denn nicht immer das ziel stärker zu werden?",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 71.69,
+        "end": 77.41,
+        "chars": [
+          5
+        ],
+        "who": "Muzan",
+        "text": "Ich gestatte nicht das du hier dein ende findest... hast du mich verstanden?",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 78.6,
+        "end": 84.35,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Ja Richtig... Ich Muss Stark werden... Noch VIEL Stärker Werden!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 84.48,
+        "end": 92.98,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Dann hat er mir eben den kopf abgeschlagen... und wenn schon?! der kampf ist noch nicht entschieden! ich Metzle euch alle Nieder!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 93.1,
+        "end": 96.75,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Und Dann Werde ich noch viel stärker sein!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 98.78,
+        "end": 103.42,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Ich habe keine Wahl! Ich Muss Doch Mein Wort halten!!!",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 106.58,
+        "end": 111.47,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Hngh?... (erleichtertes Atmen (lange)",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 112.75,
+        "end": 120.12,
+        "chars": [
+          4
+        ],
+        "who": "Koyuki",
+        "text": "Hakuji Liebster... Ich Danke dir für alles... aber du hast jetzt genug getan...",
+        "de": "Original Ist Deutsch!",
+        "effect": "hall"
+      },
+      {
+        "t": 123.35,
+        "end": 127.96,
+        "chars": [
+          4
+        ],
+        "who": "Koyuki",
+        "text": "Du Darfst Loslassen... Und Endlich zur ruhe kommen...",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 127.96,
+        "end": 130.22,
+        "chars": [
+          5
+        ],
+        "who": "Muzan",
+        "text": "AKAZAAAAAA!",
+        "de": "Original Ist Deutsch!",
+        "effect": "hall"
+      },
+      {
+        "t": 131.25,
+        "end": 139.5,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "(Wein geräusche) Bei Umarmung Noch stärkere wein geräusche",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 139.54,
+        "end": 147.57,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Entschuldige... Entschuldige... Ich wollte dich beschützen... ich konnte dich nie retten als du mich gebraucht hast...(während er weiter weint)",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 147.61,
+        "end": 160.4,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Ich Konnte keines meiner versprechen halten.. Verzeih mir... Ich Flehe dich an... bitte vergib mir... es tut mir so l-leidddd (weint sehr stark weiter)",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 161.71,
+        "end": 167.07,
+        "chars": [
+          4
+        ],
+        "who": "Koyuki",
+        "text": "Ich dachte schon ich hätte dich verloren... danke. das du dich wieder an uns errinert hast...",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 167.66,
+        "end": 173.82,
+        "chars": [
+          4
+        ],
+        "who": "Koyuki",
+        "text": "Ich bin so froh... das ich dich endlich wieder zurück habe... ich danke dir",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 180.71,
+        "end": 184.23,
+        "chars": [
+          6
+        ],
+        "who": "Hakuji's Vater",
+        "text": "Ich habe auf dich gewartet... Mein Hakuji...",
+        "de": "Original Ist Deutsch!",
+        "effect": "hall"
+      },
+      {
+        "t": 186.04,
+        "end": 192.21,
+        "chars": [
+          7
+        ],
+        "who": "Keizo",
+        "text": "(oh, Optional) Ahhh Hakuji... Du Bist Zurück!",
+        "de": "Original Ist Deutsch!",
+        "effect": "hall"
+      },
+      {
+        "t": 200.1,
+        "end": 206.23,
+        "chars": [
+          1
+        ],
+        "who": "Akaza/Hakuji",
+        "text": "Ich Bin Zurück... Ich Bin Wieder Zuhause...",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 207.75,
+        "end": 213.36,
+        "chars": [
+          4
+        ],
+        "who": "Koyuki",
+        "text": "Willkommen Zurück... Mein liebster...",
+        "de": "Original Ist Deutsch!"
+      },
+      {
+        "t": 216.07,
+        "end": 219.02,
+        "chars": [
+          2
+        ],
+        "who": "Tanjiro",
+        "text": "Huh?",
+        "de": "Original Ist Deutsch!"
+      }
+    ],
+    "voiceTrack": "scenes/akaza_backstory_voices.mp3",
+    "difficultyOverride": "medium"
+  },
+  {
+    "id": "entdistrict",
+    "title": "Demon Slayer — Entertainment District Finale (6 Rollen)",
+    "videoUrl": "scenes/entdistrict.mp4",
+    "avatars": {
+      "1": "scenes/entdistrict/tanjiro.png",
+      "2": "scenes/entdistrict/gyutaro.png",
+      "3": "scenes/entdistrict/daki.png",
+      "4": "scenes/entdistrict/tengen.png",
+      "5": "scenes/entdistrict/zenitsu.png",
+      "6": "scenes/entdistrict/inosuke.png"
     },
-    {
-      "id": 2,
-      "name": "Tanjiro",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 3,
-      "name": "Giyu",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 4,
-      "name": "Koyuki",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 5,
-      "name": "Muzan",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 6,
-      "name": "Hakuji's Vater",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    },
-    {
-      "id": 7,
-      "name": "Keizo",
-      "pan": 0,
-      "effect": "none",
-      "gain": 1
-    }
-  ],
-  "lines": [
-    {
-      "t": 2.61,
-      "end": 5.36,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Zerstörerischer Tod... Vernichtungs Stil!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 6.29,
-      "end": 8.22,
-      "chars": [
-        2
-      ],
-      "who": "Tanjiro",
-      "text": "HÖR AUFFFF!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 8.43,
-      "end": 11.22,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Was soll das?! Er Kann sich noch Bewegen?!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 11.26,
-      "end": 16.29,
-      "chars": [
-        2
-      ],
-      "who": "Tanjiro",
-      "text": "Dann schlag ich ihn eben wieder Ab! wir besiegen ihn! Giyu Und Ich! ZUSAMMEN!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 20.21,
-      "end": 22.44,
-      "chars": [
-        2
-      ],
-      "who": "Tanjiro",
-      "text": "Mein Katana!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 23.61,
-      "end": 25.81,
-      "chars": [
-        3
-      ],
-      "who": "Giyu",
-      "text": "Es ist ihm aus der Hand Gerutscht?!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 26.85,
-      "end": 32.87,
-      "chars": [
-        2
-      ],
-      "who": "Tanjiro",
-      "text": "Meine hände gehorchen mir nicht mehr... Grzzzz...(ausholen zum schlag) GRRRR",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 37.41,
-      "end": 43.01,
-      "chars": [
-        7
-      ],
-      "who": "Keizo",
-      "text": "Du Kriegst Jetzt Ein Neues Leben! (warten bis schwarz bild) Bereit Kleiner?",
-      "de": "Original Ist Deutsch!",
-      "effect": "hall"
-    },
-    {
-      "t": 44.61,
-      "end": 55.99,
-      "chars": [
-        7
-      ],
-      "who": "Keizo",
-      "text": "Sei Unbesorgt... Ganz gleich was auch aus dir werden mag... du bleibst mein sohn... und auch mein schüler... ich werde stets zu dir halten!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 56.49,
-      "end": 61.56,
-      "chars": [
-        7
-      ],
-      "who": "Keizo",
-      "text": "Nur kann ich dich leider... nicht in den himmel mitnehmen...",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 63.12,
-      "end": 65.04,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Meister...",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 66.27,
-      "end": 67.22,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "HNGH?",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 67.82,
-      "end": 71.24,
-      "chars": [
-        5
-      ],
-      "who": "Muzan",
-      "text": "Hattest du denn nicht immer das ziel stärker zu werden?",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 71.69,
-      "end": 77.41,
-      "chars": [
-        5
-      ],
-      "who": "Muzan",
-      "text": "Ich gestatte nicht das du hier dein ende findest... hast du mich verstanden?",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 78.6,
-      "end": 84.35,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Ja Richtig... Ich Muss Stark werden... Noch VIEL Stärker Werden!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 84.48,
-      "end": 92.98,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Dann hat er mir eben den kopf abgeschlagen... und wenn schon?! der kampf ist noch nicht entschieden! ich Metzle euch alle Nieder!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 93.1,
-      "end": 96.75,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Und Dann Werde ich noch viel stärker sein!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 98.78,
-      "end": 103.42,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Ich habe keine Wahl! Ich Muss Doch Mein Wort halten!!!",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 106.58,
-      "end": 111.47,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Hngh?... (erleichtertes Atmen (lange)",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 112.75,
-      "end": 120.12,
-      "chars": [
-        4
-      ],
-      "who": "Koyuki",
-      "text": "Hakuji Liebster... Ich Danke dir für alles... aber du hast jetzt genug getan...",
-      "de": "Original Ist Deutsch!",
-      "effect": "hall"
-    },
-    {
-      "t": 123.35,
-      "end": 127.96,
-      "chars": [
-        4
-      ],
-      "who": "Koyuki",
-      "text": "Du Darfst Loslassen... Und Endlich zur ruhe kommen...",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 127.96,
-      "end": 130.22,
-      "chars": [
-        5
-      ],
-      "who": "Muzan",
-      "text": "AKAZAAAAAA!",
-      "de": "Original Ist Deutsch!",
-      "effect": "hall"
-    },
-    {
-      "t": 131.25,
-      "end": 139.5,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "(Wein geräusche) Bei Umarmung Noch stärkere wein geräusche",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 139.54,
-      "end": 147.57,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Entschuldige... Entschuldige... Ich wollte dich beschützen... ich konnte dich nie retten als du mich gebraucht hast...(während er weiter weint)",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 147.61,
-      "end": 160.4,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Ich Konnte keines meiner versprechen halten.. Verzeih mir... Ich Flehe dich an... bitte vergib mir... es tut mir so l-leidddd (weint sehr stark weiter)",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 161.71,
-      "end": 167.07,
-      "chars": [
-        4
-      ],
-      "who": "Koyuki",
-      "text": "Ich dachte schon ich hätte dich verloren... danke. das du dich wieder an uns errinert hast...",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 167.66,
-      "end": 173.82,
-      "chars": [
-        4
-      ],
-      "who": "Koyuki",
-      "text": "Ich bin so froh... das ich dich endlich wieder zurück habe... ich danke dir",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 180.71,
-      "end": 184.23,
-      "chars": [
-        6
-      ],
-      "who": "Hakuji's Vater",
-      "text": "Ich habe auf dich gewartet... Mein Hakuji...",
-      "de": "Original Ist Deutsch!",
-      "effect": "hall"
-    },
-    {
-      "t": 186.04,
-      "end": 192.21,
-      "chars": [
-        7
-      ],
-      "who": "Keizo",
-      "text": "(oh, Optional) Ahhh Hakuji... Du Bist Zurück!",
-      "de": "Original Ist Deutsch!",
-      "effect": "hall"
-    },
-    {
-      "t": 200.1,
-      "end": 206.23,
-      "chars": [
-        1
-      ],
-      "who": "Akaza/Hakuji",
-      "text": "Ich Bin Zurück... Ich Bin Wieder Zuhause...",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 207.75,
-      "end": 213.36,
-      "chars": [
-        4
-      ],
-      "who": "Koyuki",
-      "text": "Willkommen Zurück... Mein liebster...",
-      "de": "Original Ist Deutsch!"
-    },
-    {
-      "t": 216.07,
-      "end": 219.02,
-      "chars": [
-        2
-      ],
-      "who": "Tanjiro",
-      "text": "Huh?",
-      "de": "Original Ist Deutsch!"
-    }
-  ],
-  "voiceTrack": "scenes/akaza_backstory_voices.mp3",
-  "difficultyOverride": "medium"
+    "roles": [
+      {
+        "id": 1,
+        "name": "Tanjiro",
+        "pan": -0.4,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Gyutaro",
+        "pan": 0.4,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 3,
+        "name": "Daki",
+        "pan": 0.5,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 4,
+        "name": "Tengen",
+        "pan": -0.5,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 5,
+        "name": "Zenitsu",
+        "pan": -0.2,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 6,
+        "name": "Inosuke",
+        "pan": 0.2,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 1.58,
+        "end": 13.06,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "This whole time, this whole time, ive been waiting for this. eugh",
+        "de": "Die ganze Zeit, die ganze Zeit hab ich darauf gewartet. Ugh",
+        "orig": "scenes/entdistrict/lines/001.mp3"
+      },
+      {
+        "t": 13.06,
+        "end": 18.79,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "you've been waiting for a pathetic last ditch headbutt?",
+        "de": "Du hast auf einen erbärmlichen Verzweiflungs-Kopfstoß gewartet?",
+        "orig": "scenes/entdistrict/lines/002.mp3"
+      },
+      {
+        "t": 18.79,
+        "end": 21.94,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "uhuhuhuhuh m-my body wont-",
+        "de": "Uhuhuhuh m-mein Körper will nicht—",
+        "orig": "scenes/entdistrict/lines/003.mp3"
+      },
+      {
+        "t": 21.94,
+        "end": 25.15,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "What are you doing brother get back up on your feet",
+        "de": "Was machst du da, Bruder? Steh wieder auf!",
+        "orig": "scenes/entdistrict/lines/004.mp3"
+      },
+      {
+        "t": 25.15,
+        "end": 31.37,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "Somethings wrong, what's going on, somethings wrong all he did was use a lame headbutt",
+        "de": "Irgendwas stimmt nicht, was ist los, irgendwas stimmt nicht — er hat nur einen lahmen Kopfstoß gemacht",
+        "orig": "scenes/entdistrict/lines/005.mp3"
+      },
+      {
+        "t": 31.37,
+        "end": 36.44,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "eugh uh",
+        "de": "Ugh uh",
+        "orig": "scenes/entdistrict/lines/006.mp3"
+      },
+      {
+        "t": 36.44,
+        "end": 40.03,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "A kunai? i got stabbed when he head butted me",
+        "de": "Ein Kunai? Ich wurde beim Kopfstoß aufgespießt",
+        "orig": "scenes/entdistrict/lines/007.mp3"
+      },
+      {
+        "t": 40.03,
+        "end": 45.65,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "Damn you, damn you. youre still a rotten weakling of a human",
+        "de": "Verdammt sollst du sein. Du bist immer noch ein mieser, schwächlicher Mensch",
+        "orig": "scenes/entdistrict/lines/008.mp3"
+      },
+      {
+        "t": 45.65,
+        "end": 51.32,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "look how bruised and battered you are, even after taking me on with 3 others helping you",
+        "de": "Schau doch, wie zerschlagen und verprügelt du bist — und das obwohl drei andere dir geholfen haben",
+        "orig": "scenes/entdistrict/lines/009.mp3"
+      },
+      {
+        "t": 51.32,
+        "end": 55.69,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "but now youre alone so why, why wont you give up",
+        "de": "Aber jetzt bist du allein. Also warum, warum gibst du nicht auf?",
+        "orig": "scenes/entdistrict/lines/010.mp3"
+      },
+      {
+        "t": 55.69,
+        "end": 59.37,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "why is it, youre so damn determined",
+        "de": "Warum bist du nur so verdammt entschlossen",
+        "orig": "scenes/entdistrict/lines/011.mp3"
+      },
+      {
+        "t": 59.37,
+        "end": 62.92,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "TO DECAPITATE ME!",
+        "de": "MIR DEN KOPF ABZUSCHLAGEN!",
+        "orig": "scenes/entdistrict/lines/012.mp3"
+      },
+      {
+        "t": 62.92,
+        "end": 68.03,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "AEUUGHGHGHGH",
+        "de": "AAAARGHHH",
+        "orig": "scenes/entdistrict/lines/013.mp3"
+      },
+      {
+        "t": 68.03,
+        "end": 73.69,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "ueuhgh eueheu eheuhe ooah oooohugh",
+        "de": "Ueuhgh eueheu eheuhe ooah oooohugh",
+        "orig": "scenes/entdistrict/lines/014.mp3"
+      },
+      {
+        "t": 73.69,
+        "end": 76.26,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "the scream in the background not the talking. that is next",
+        "de": "Der Schrei im Hintergrund, nicht das Reden — das kommt als Nächstes",
+        "orig": "scenes/entdistrict/lines/015.mp3"
+      },
+      {
+        "t": 76.26,
+        "end": 84.13,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "Cut through, cut through. win, win not matter what. we're going to win",
+        "de": "Durchschneiden, durchschneiden. Gewinnen, gewinnen, egal was passiert. Wir werden gewinnen",
+        "orig": "scenes/entdistrict/lines/016.mp3"
+      },
+      {
+        "t": 84.13,
+        "end": 86.52,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "Hey, what the hell are you doing?",
+        "de": "Hey, was zur Hölle machst du da?",
+        "orig": "scenes/entdistrict/lines/017.mp3"
+      },
+      {
+        "t": 86.52,
+        "end": 93.06,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "Dont get beheaded by someone like him huuegh",
+        "de": "Lass dich nicht von so einem enthaupten, huuegh",
+        "orig": "scenes/entdistrict/lines/018.mp3"
+      },
+      {
+        "t": 93.06,
+        "end": 95.99,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "uhh eh",
+        "de": "Uhh eh",
+        "orig": "scenes/entdistrict/lines/019.mp3"
+      },
+      {
+        "t": 95.99,
+        "end": 99.18,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "That brat, he pulled himself out of the rubble",
+        "de": "Diese Göre, er hat sich aus dem Schutt gezogen",
+        "orig": "scenes/entdistrict/lines/020.mp3"
+      },
+      {
+        "t": 99.18,
+        "end": 104.28,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "Die you ugly freak",
+        "de": "Stirb, du hässlicher Freak",
+        "orig": "scenes/entdistrict/lines/021.mp3"
+      },
+      {
+        "t": 104.28,
+        "end": 107.44,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "Thunder Breathing : First form",
+        "de": "Donner-Atmung: Erste Form",
+        "orig": "scenes/entdistrict/lines/022.mp3"
+      },
+      {
+        "t": 107.44,
+        "end": 112.52,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "Luckly i know exactly how fast your move is because ive seen it so many times now",
+        "de": "Zum Glück weiß ich genau, wie schnell dein Move ist — ich hab ihn oft genug gesehen",
+        "orig": "scenes/entdistrict/lines/023.mp3"
+      },
+      {
+        "t": 112.52,
+        "end": 119.98,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "Thunderclap and flash, godlike speed",
+        "de": "Donnerschlag und Blitz, göttliche Geschwindigkeit",
+        "orig": "scenes/entdistrict/lines/024.mp3"
+      },
+      {
+        "t": 119.98,
+        "end": 123.23,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "so fast",
+        "de": "So schnell",
+        "orig": "scenes/entdistrict/lines/025.mp3"
+      },
+      {
+        "t": 123.23,
+        "end": 126.28,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "ueh my head is being servered",
+        "de": "Ueh, mein Kopf wird abgetrennt",
+        "orig": "scenes/entdistrict/lines/026.mp3"
+      },
+      {
+        "t": 126.28,
+        "end": 130.34,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "Damn it, i had no idea he could move like this",
+        "de": "Verdammt, ich hatte keine Ahnung, dass er sich so bewegen kann",
+        "orig": "scenes/entdistrict/lines/027.mp3"
+      },
+      {
+        "t": 130.34,
+        "end": 132.91,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "cut through, cut through her",
+        "de": "Durchschneiden, schneid sie durch",
+        "orig": "scenes/entdistrict/lines/028.mp3"
+      },
+      {
+        "t": 132.91,
+        "end": 137.7,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "my body can only handle using thunderclap and flash god like speed twice",
+        "de": "Mein Körper hält Donnerschlag und Blitz nur zweimal aus",
+        "orig": "scenes/entdistrict/lines/029.mp3"
+      },
+      {
+        "t": 137.7,
+        "end": 141.02,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "and i've already used it once to escape the rubble",
+        "de": "Und einmal hab ich's schon gebraucht, um aus dem Schutt zu kommen",
+        "orig": "scenes/entdistrict/lines/030.mp3"
+      },
+      {
+        "t": 141.02,
+        "end": 145.09,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "i wont get another chance to go for her neck, if i dont do it now",
+        "de": "Ich krieg keine zweite Chance auf ihren Hals, wenn ich's jetzt nicht mache",
+        "orig": "scenes/entdistrict/lines/031.mp3"
+      },
+      {
+        "t": 145.09,
+        "end": 147.99,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "tanjiro created this 1 in a million chance",
+        "de": "Tanjiro hat diese Eins-zu-einer-Million-Chance geschaffen",
+        "orig": "scenes/entdistrict/lines/032.mp3"
+      },
+      {
+        "t": 147.99,
+        "end": 150.83,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "im going to slash her for sure, no matter what",
+        "de": "Ich werde sie treffen, ganz sicher, egal was passiert",
+        "orig": "scenes/entdistrict/lines/033.mp3"
+      },
+      {
+        "t": 150.83,
+        "end": 155.79,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "aaaaaaaaghghhghgh aaaaaah",
+        "de": "AAAAAAAAAGHHH AAAAAH",
+        "orig": "scenes/entdistrict/lines/034.mp3"
+      },
+      {
+        "t": 155.79,
+        "end": 161.51,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "damn it, its no use i can't cut through. the poison should've weakened him",
+        "de": "Verdammt, es bringt nichts, ich komm nicht durch. Das Gift hätte ihn schwächen müssen",
+        "orig": "scenes/entdistrict/lines/035.mp3"
+      },
+      {
+        "t": 161.51,
+        "end": 164.01,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "am i still not strong enough",
+        "de": "Bin ich immer noch nicht stark genug?",
+        "orig": "scenes/entdistrict/lines/036.mp3"
+      },
+      {
+        "t": 164.01,
+        "end": 170.26,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "ueh ah uh AHHHHHHHHH",
+        "de": "Ueh ah uh AAAAAHHHH",
+        "orig": "scenes/entdistrict/lines/037.mp3"
+      },
+      {
+        "t": 170.26,
+        "end": 178.56,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "he's recovered from the poison, his blades are englufing me, and my sword it's being repelled",
+        "de": "Er hat sich vom Gift erholt, seine Klingen verschlingen mich, und mein Schwert wird abgewehrt",
+        "orig": "scenes/entdistrict/lines/038.mp3"
+      },
+      {
+        "t": 178.56,
+        "end": 181.85,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "damn it, i almost had him there",
+        "de": "Verdammt, ich hatte ihn fast",
+        "orig": "scenes/entdistrict/lines/039.mp3"
+      },
+      {
+        "t": 181.85,
+        "end": 185.61,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "just a few more seconds and i could've",
+        "de": "Nur ein paar Sekunden mehr und ich hätte—",
+        "orig": "scenes/entdistrict/lines/040.mp3"
+      },
+      {
+        "t": 185.61,
+        "end": 190.32,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "don't give up, don't give up tanjiro, hang on untill the very end",
+        "de": "Gib nicht auf, gib nicht auf, Tanjiro, halt durch bis zum Schluss",
+        "orig": "scenes/entdistrict/lines/041.mp3"
+      },
+      {
+        "t": 190.32,
+        "end": 193.81,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "DIE YOU LITTLE PUNK!",
+        "de": "STIRB, DU KLEINER PUNK!",
+        "orig": "scenes/entdistrict/lines/042.mp3"
+      },
+      {
+        "t": 193.81,
+        "end": 195.11,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "UEHAGRH",
+        "de": "UEHAGRH",
+        "orig": "scenes/entdistrict/lines/043.mp3"
+      },
+      {
+        "t": 195.11,
+        "end": 199.56,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "his attack speed is increasing",
+        "de": "Seine Angriffsgeschwindigkeit steigt",
+        "orig": "scenes/entdistrict/lines/044.mp3"
+      },
+      {
+        "t": 199.56,
+        "end": 205.54,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "he's broken down the poison and fully recovered. but dont give up, dont give up",
+        "de": "Er hat das Gift abgebaut und sich voll erholt. Aber gib nicht auf, gib nicht auf",
+        "orig": "scenes/entdistrict/lines/045.mp3"
+      },
+      {
+        "t": 205.54,
+        "end": 208.55,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "UUUUUEGHARGH",
+        "de": "UUUUUEGHARGH",
+        "orig": "scenes/entdistrict/lines/046.mp3"
+      },
+      {
+        "t": 208.55,
+        "end": 211.15,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "dont give-",
+        "de": "Gib nicht—",
+        "orig": "scenes/entdistrict/lines/047.mp3"
+      },
+      {
+        "t": 211.15,
+        "end": 212.73,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "egh",
+        "de": "Egh",
+        "orig": "scenes/entdistrict/lines/048.mp3"
+      },
+      {
+        "t": 212.73,
+        "end": 213.75,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "ahuegh",
+        "de": "Ahuegh",
+        "orig": "scenes/entdistrict/lines/049.mp3"
+      },
+      {
+        "t": 213.75,
+        "end": 214.75,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "uehgahuh",
+        "de": "Uehgahuh",
+        "orig": "scenes/entdistrict/lines/050.mp3"
+      },
+      {
+        "t": 214.75,
+        "end": 219.26,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "huheuhugrh",
+        "de": "Huheuhugrh",
+        "orig": "scenes/entdistrict/lines/051.mp3"
+      },
+      {
+        "t": 219.26,
+        "end": 225.51,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "he's not dead, but how is that possible, wait his heart i get it",
+        "de": "Er ist nicht tot, aber wie ist das möglich? Moment, sein Herz — ich versteh's",
+        "orig": "scenes/entdistrict/lines/052.mp3"
+      },
+      {
+        "t": 225.51,
+        "end": 232.48,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "he used his muscles to stop his heart, which stopped the poison from circulating",
+        "de": "Er hat seine Muskeln benutzt, um sein Herz anzuhalten, damit das Gift nicht zirkuliert",
+        "orig": "scenes/entdistrict/lines/053.mp3"
+      },
+      {
+        "t": 232.48,
+        "end": 233.84,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "Mr uzui",
+        "de": "Herr Uzui",
+        "orig": "scenes/entdistrict/lines/054.mp3"
+      },
+      {
+        "t": 233.84,
+        "end": 238.85,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "MY MUSICAL SCORE TECHNIQUE WILL TAKE US TO VICTORY",
+        "de": "MEINE NOTENBLATT-TECHNIK FÜHRT UNS ZUM SIEG",
+        "orig": "scenes/entdistrict/lines/055.mp3"
+      },
+      {
+        "t": 238.85,
+        "end": 246.1,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "dont me me LAUGGGHHHH",
+        "de": "Bring mich nicht zum LAAACHEN",
+        "orig": "scenes/entdistrict/lines/056.mp3"
+      },
+      {
+        "t": 246.1,
+        "end": 246.98,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "ICHI, SAN , SHICHI, GO, E, KIN",
+        "de": "ICHI, SAN, SHICHI, GO, E, KIN",
+        "orig": "scenes/entdistrict/lines/057.mp3"
+      },
+      {
+        "t": 246.98,
+        "end": 250.69,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "UEHGH",
+        "de": "UEHGH",
+        "orig": "scenes/entdistrict/lines/058.mp3"
+      },
+      {
+        "t": 250.69,
+        "end": 260.21,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "I CAN READ IT NOW, THAT FILTHY MUSICAL SCORE OF YOURS",
+        "de": "ICH KANN ES JETZT LESEN, DEIN DRECKIGES NOTENBLATT",
+        "orig": "scenes/entdistrict/lines/059.mp3"
+      },
+      {
+        "t": 260.21,
+        "end": 263.28,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "he deflected my rotating circular slashes",
+        "de": "Er hat meine rotierenden Kreisschnitte abgewehrt",
+        "orig": "scenes/entdistrict/lines/060.mp3"
+      },
+      {
+        "t": 263.28,
+        "end": 269.58,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "amazing",
+        "de": "Unglaublich",
+        "orig": "scenes/entdistrict/lines/061.mp3"
+      },
+      {
+        "t": 269.58,
+        "end": 271.85,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "wait did he say score?",
+        "de": "Moment, hat er Notenblatt gesagt?",
+        "orig": "scenes/entdistrict/lines/062.mp3"
+      },
+      {
+        "t": 271.85,
+        "end": 275.51,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "he turned my blood demon art into a song, and deflected it",
+        "de": "Er hat meine Blutdämonenkunst in ein Lied verwandelt und sie abgewehrt",
+        "orig": "scenes/entdistrict/lines/063.mp3"
+      },
+      {
+        "t": 275.51,
+        "end": 281.12,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "and he did it all using only one arm, there's no way that's possible",
+        "de": "Und das alles mit nur einem Arm — das kann unmöglich sein",
+        "orig": "scenes/entdistrict/lines/064.mp3"
+      },
+      {
+        "t": 281.12,
+        "end": 284.94,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "I've had enough of your crap. ueghgrrrr",
+        "de": "Ich hab genug von deinem Mist. Ueghgrrrr",
+        "orig": "scenes/entdistrict/lines/065.mp3"
+      },
+      {
+        "t": 284.94,
+        "end": 288.04,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "te- urgh",
+        "de": "Te— urgh",
+        "orig": "scenes/entdistrict/lines/066.mp3"
+      },
+      {
+        "t": 288.04,
+        "end": 289.12,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "fighting noises",
+        "de": "*Kampfgeräusche*",
+        "orig": "scenes/entdistrict/lines/067.mp3"
+      },
+      {
+        "t": 289.12,
+        "end": 296.15,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "fighting noises",
+        "de": "*Kampfgeräusche*",
+        "orig": "scenes/entdistrict/lines/068.mp3"
+      },
+      {
+        "t": 296.15,
+        "end": 298.8,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "more fighting noises",
+        "de": "*Weitere Kampfgeräusche*",
+        "orig": "scenes/entdistrict/lines/069.mp3"
+      },
+      {
+        "t": 298.8,
+        "end": 299.44,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "charge up rrrr",
+        "de": "*Aufladen, rrrr*",
+        "orig": "scenes/entdistrict/lines/070.mp3"
+      },
+      {
+        "t": 299.44,
+        "end": 302.51,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "uahhhh",
+        "de": "Uaahhhh",
+        "orig": "scenes/entdistrict/lines/071.mp3"
+      },
+      {
+        "t": 302.51,
+        "end": 302.98,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "rrrrrrrrr",
+        "de": "Rrrrrrrrr",
+        "orig": "scenes/entdistrict/lines/072.mp3"
+      },
+      {
+        "t": 302.98,
+        "end": 304.75,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "fight fight noise",
+        "de": "*Kampfgeräusch*",
+        "orig": "scenes/entdistrict/lines/073.mp3"
+      },
+      {
+        "t": 304.75,
+        "end": 306.24,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "SCREAM SCREAM YOU HEART OUT",
+        "de": "SCHREI, SCHREI DIR DIE SEELE AUS DEM LEIB",
+        "orig": "scenes/entdistrict/lines/074.mp3"
+      },
+      {
+        "t": 306.24,
+        "end": 318.11,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "louder and louder fight scream  give it all your all",
+        "de": "*Immer lauterer Kampfschrei, gib alles*",
+        "orig": "scenes/entdistrict/lines/075.mp3"
+      },
+      {
+        "t": 318.11,
+        "end": 318.14,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "and again",
+        "de": "Und nochmal",
+        "orig": "scenes/entdistrict/lines/076.mp3"
+      },
+      {
+        "t": 318.14,
+        "end": 328.35,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "its not over, keep screaming with all your might",
+        "de": "Es ist nicht vorbei, schrei weiter mit aller Kraft",
+        "orig": "scenes/entdistrict/lines/077.mp3"
+      },
+      {
+        "t": 328.35,
+        "end": 334.55,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "he might be holding his own right now, but that's not enough to beat him . mr uzui is going to reach his limit first",
+        "de": "Er hält sich gerade noch, aber das reicht nicht, um ihn zu besiegen. Herr Uzui stößt zuerst an seine Grenze",
+        "orig": "scenes/entdistrict/lines/078.mp3"
+      },
+      {
+        "t": 334.55,
+        "end": 339.91,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "i've got to make a move before that happens. if i can decapitate him, victory is ours",
+        "de": "Ich muss handeln, bevor das passiert. Wenn ich ihn enthaupten kann, gehört uns der Sieg",
+        "orig": "scenes/entdistrict/lines/079.mp3"
+      },
+      {
+        "t": 339.91,
+        "end": 340.99,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "uegghh",
+        "de": "Ueggh",
+        "orig": "scenes/entdistrict/lines/080.mp3"
+      },
+      {
+        "t": 340.99,
+        "end": 341.02,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "fight noise",
+        "de": "*Kampfgeräusch*",
+        "orig": "scenes/entdistrict/lines/081.mp3"
+      },
+      {
+        "t": 341.02,
+        "end": 344.92,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "fight noises",
+        "de": "*Kampfgeräusche*",
+        "orig": "scenes/entdistrict/lines/082.mp3"
+      },
+      {
+        "t": 344.92,
+        "end": 345.45,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "uegh  hit noise",
+        "de": "Uegh *Treffer-Geräusch*",
+        "orig": "scenes/entdistrict/lines/083.mp3"
+      },
+      {
+        "t": 345.45,
+        "end": 347.55,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "fight noise",
+        "de": "*Kampfgeräusch*",
+        "orig": "scenes/entdistrict/lines/084.mp3"
+      },
+      {
+        "t": 347.55,
+        "end": 348.8,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "MR UZUI",
+        "de": "HERR UZUI",
+        "orig": "scenes/entdistrict/lines/085.mp3"
+      },
+      {
+        "t": 348.8,
+        "end": 353.28,
+        "chars": [
+          4
+        ],
+        "who": "Tengen",
+        "text": "DON'T STOP. JJJUUUMMMP",
+        "de": "NICHT AUFHÖREN. SPRIIING!",
+        "orig": "scenes/entdistrict/lines/086.mp3"
+      },
+      {
+        "t": 353.28,
+        "end": 358.09,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "unfortunatly, youre too slow",
+        "de": "Leider bist du zu langsam",
+        "orig": "scenes/entdistrict/lines/087.mp3"
+      },
+      {
+        "t": 358.09,
+        "end": 364.81,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "he paved the way for you, and you still blew your chance. it's over the poison will kill you",
+        "de": "Er hat dir den Weg geebnet, und du hast deine Chance trotzdem vertan. Es ist vorbei, das Gift wird dich töten",
+        "orig": "scenes/entdistrict/lines/088.mp3"
+      },
+      {
+        "t": 364.81,
+        "end": 369.3,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "Even if it cost's my life, i will behead you. i wont give up",
+        "de": "Und wenn es mich das Leben kostet, ich werde dich enthaupten. Ich gebe nicht auf",
+        "orig": "scenes/entdistrict/lines/089.mp3"
+      },
+      {
+        "t": 369.3,
+        "end": 374.39,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "I'm cutting your head off, not matter what",
+        "de": "Ich schlag dir den Kopf ab, egal was passiert",
+        "orig": "scenes/entdistrict/lines/090.mp3"
+      },
+      {
+        "t": 374.39,
+        "end": 378.32,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "damm you, what's it going to take for you to give up",
+        "de": "Verdammt, was braucht es denn, damit du aufgibst?",
+        "orig": "scenes/entdistrict/lines/091.mp3"
+      },
+      {
+        "t": 378.32,
+        "end": 382.55,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "you couldn't behead me before, what makes you think you can now",
+        "de": "Du konntest mich vorher nicht enthaupten — wieso glaubst du, dass es jetzt klappt?",
+        "orig": "scenes/entdistrict/lines/092.mp3"
+      },
+      {
+        "t": 382.55,
+        "end": 386.31,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "i cant just use my arms, ive got to use every ounce of strength i have",
+        "de": "Ich kann nicht nur meine Arme benutzen, ich muss jede Faser meiner Kraft einsetzen",
+        "orig": "scenes/entdistrict/lines/093.mp3"
+      },
+      {
+        "t": 386.31,
+        "end": 391.68,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "from the top of my head, to the tips of my toes. i have to ignore the all pain in my body",
+        "de": "Vom Scheitel bis zu den Zehenspitzen. Ich muss den ganzen Schmerz in meinem Körper ignorieren",
+        "orig": "scenes/entdistrict/lines/094.mp3"
+      },
+      {
+        "t": 391.68,
+        "end": 396.22,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "ENDURE, striking with all my might won't be enough",
+        "de": "DURCHHALTEN — mit voller Wucht zuzuschlagen reicht nicht",
+        "orig": "scenes/entdistrict/lines/095.mp3"
+      },
+      {
+        "t": 396.22,
+        "end": 401.31,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "I NEED 100 TIMES THE FORCE, SUMMON EVERY OUNCE OF STRENGTH LEFT",
+        "de": "ICH BRAUCHE DIE HUNDERTFACHE KRAFT, MOBILISIER JEDE LETZTE FASER",
+        "orig": "scenes/entdistrict/lines/096.mp3"
+      },
+      {
+        "t": 401.31,
+        "end": 408.83,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "AHHHHHHHHHHHHHHHHHHHHH",
+        "de": "AAAAAAAAAAAAAAAAH",
+        "orig": "scenes/entdistrict/lines/097.mp3"
+      },
+      {
+        "t": 408.83,
+        "end": 417.46,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "damn it not by a brat like him, if i dont do something im gonna get beheaded",
+        "de": "Verdammt, nicht von so einer Göre. Wenn ich nichts tue, werde ich enthauptet",
+        "orig": "scenes/entdistrict/lines/098.mp3"
+      },
+      {
+        "t": 417.46,
+        "end": 424.44,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "no its fine, even if i get beheaded, as long as my sisters head is still intact",
+        "de": "Nein, es ist okay. Selbst wenn ich enthauptet werde, solange der Kopf meiner Schwester heil bleibt",
+        "orig": "scenes/entdistrict/lines/099.mp3"
+      },
+      {
+        "t": 424.44,
+        "end": 432.4,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "and i can finish off this stubborn punk",
+        "de": "Und ich diesen sturen Punk erledigen kann",
+        "orig": "scenes/entdistrict/lines/100.mp3"
+      },
+      {
+        "t": 432.4,
+        "end": 435.17,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "damn it im running out of strength",
+        "de": "Verdammt, mir geht die Kraft aus",
+        "orig": "scenes/entdistrict/lines/101.mp3"
+      },
+      {
+        "t": 435.17,
+        "end": 442.98,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "It's too bad you'll never get the chance to decapitate me, because before you do ima tear you to shreds",
+        "de": "Schade, dass du nie die Chance kriegst, mich zu enthaupten — denn vorher zerreiß ich dich in Fetzen",
+        "orig": "scenes/entdistrict/lines/102.mp3"
+      },
+      {
+        "t": 442.98,
+        "end": 445.08,
+        "chars": [
+          6
+        ],
+        "who": "Inosuke",
+        "text": "uaegh",
+        "de": "Uaegh",
+        "orig": "scenes/entdistrict/lines/103.mp3"
+      },
+      {
+        "t": 445.08,
+        "end": 449.27,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "What's he doing here? Didn't brother impale him through the heart?",
+        "de": "Was macht der denn hier? Hat Bruder ihn nicht durchs Herz aufgespießt?",
+        "orig": "scenes/entdistrict/lines/104.mp3"
+      },
+      {
+        "t": 449.27,
+        "end": 453.04,
+        "chars": [
+          6
+        ],
+        "who": "Inosuke",
+        "text": "dont underestimate the sheer flexibility of my body",
+        "de": "Unterschätz nicht die schiere Beweglichkeit meines Körpers",
+        "orig": "scenes/entdistrict/lines/105.mp3"
+      },
+      {
+        "t": 453.04,
+        "end": 457.81,
+        "chars": [
+          6
+        ],
+        "who": "Inosuke",
+        "text": "shifting the postion of my internal organs is nothing but child's play for me",
+        "de": "Die Lage meiner inneren Organe zu verschieben ist für mich ein Kinderspiel",
+        "orig": "scenes/entdistrict/lines/106.mp3"
+      },
+      {
+        "t": 457.81,
+        "end": 460.64,
+        "chars": [
+          6
+        ],
+        "who": "Inosuke",
+        "text": "and since i grew up on the harsh mountain side",
+        "de": "Und da ich in den rauen Bergen aufgewachsen bin",
+        "orig": "scenes/entdistrict/lines/107.mp3"
+      },
+      {
+        "t": 460.64,
+        "end": 463.41,
+        "chars": [
+          6
+        ],
+        "who": "Inosuke",
+        "text": "poison doesnt work on me either",
+        "de": "wirkt Gift bei mir auch nicht",
+        "orig": "scenes/entdistrict/lines/108.mp3"
+      },
+      {
+        "t": 463.41,
+        "end": 467.35,
+        "chars": [
+          6
+        ],
+        "who": "Inosuke",
+        "text": "euaagh",
+        "de": "Euaagh",
+        "orig": "scenes/entdistrict/lines/109.mp3"
+      },
+      {
+        "t": 467.35,
+        "end": 473.63,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "Help me brother, do something before i get decapitated",
+        "de": "Hilf mir, Bruder, tu was, bevor ich enthauptet werde",
+        "orig": "scenes/entdistrict/lines/110.mp3"
+      },
+      {
+        "t": 473.63,
+        "end": 477.42,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "i need to unleash the rotating circulatory slashes",
+        "de": "Ich muss die rotierenden Kreisschnitte loslassen",
+        "orig": "scenes/entdistrict/lines/111.mp3"
+      },
+      {
+        "t": 477.42,
+        "end": 478.79,
+        "chars": [
+          5
+        ],
+        "who": "Zenitsu",
+        "text": "AND AGAIN GIVE IT YOUR ALL",
+        "de": "UND NOCHMAL, GIB ALLES",
+        "orig": "scenes/entdistrict/lines/112.mp3"
+      },
+      {
+        "t": 478.79,
+        "end": 480.31,
+        "chars": [
+          6
+        ],
+        "who": "Inosuke",
+        "text": "another loud scream from the bottom of your heart",
+        "de": "*Noch ein lauter Schrei aus tiefstem Herzen*",
+        "orig": "scenes/entdistrict/lines/113.mp3"
+      },
+      {
+        "t": 480.31,
+        "end": 514.22,
+        "chars": [
+          1
+        ],
+        "who": "Tanjiro",
+        "text": "AND AGAIN AHHHHHHHHHHHHHHHHHHHH",
+        "de": "UND NOCHMAL AAAAAAAAAAAAH",
+        "orig": "scenes/entdistrict/lines/114.mp3"
+      },
+      {
+        "t": 514.22,
+        "end": 515.21,
+        "chars": [
+          2
+        ],
+        "who": "Gyutaro",
+        "text": "death dead noise",
+        "de": "*Todes-Geräusch*",
+        "orig": "scenes/entdistrict/lines/115.mp3"
+      },
+      {
+        "t": 515.21,
+        "end": 518.16,
+        "chars": [
+          3
+        ],
+        "who": "Daki",
+        "text": "dead dying noises",
+        "de": "*Sterbe-Geräusche*",
+        "orig": "scenes/entdistrict/lines/116.mp3"
+      }
+    ],
+    "difficultyOverride": "hard"
   },
   {
     "id": "testplace",

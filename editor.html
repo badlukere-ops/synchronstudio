@@ -41,7 +41,9 @@
   video{width:100%;border-radius:10px;background:#000;margin-bottom:10px}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
   .rolerow,.linerow{display:grid;gap:8px;margin-bottom:8px;align-items:center}
-  .rolerow{grid-template-columns:2fr 90px 130px 40px}
+  .rolerow{grid-template-columns:1.6fr 80px 120px 40px 90px 40px;align-items:center}
+  .avatar-thumb{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#0e0e13;border:1px solid var(--metal);cursor:pointer;display:block}
+  .avatar-thumb.empty{display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--muted)}
   .linerow{grid-template-columns:70px 70px 110px 2fr 2fr 110px 40px}
   .tag{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
   .key{background:#22222c;border:1px solid var(--line);border-radius:5px;padding:1px 7px;font-family:monospace}
@@ -109,7 +111,7 @@
 
   <div class="card">
     <h2>2 · Rollen</h2>
-    <div class="rolerow tag"><span>Name</span><span>Pan L↔R</span><span>Effekt</span><span></span></div>
+    <div class="rolerow tag"><span>Name</span><span>Pan L↔R</span><span>Effekt</span><span>Bild</span><span>Dateiname</span><span></span></div>
     <div id="roles"></div>
     <button id="b-addrole">+ Rolle</button>
   </div>
@@ -142,6 +144,7 @@
       <input type="checkbox" id="usevoice" style="width:17px;height:17px;accent-color:var(--amber)">
       🗣 Ich lade eine <b>Stimmen-Spur</b> hoch (eine lange Datei mit allen Original-Stimmen) — dann gibt's „Original anhören" &amp; Original-Stimmen für unbesetzte Rollen, ohne einzeln zu schneiden
     </label>
+    <div id="avatar-downloads" style="display:none;margin:10px 0"></div>
     <textarea id="out" readonly placeholder="Hier erscheint dein scenes.json-Eintrag …"></textarea>
     <h2 style="margin-top:18px">Und dann?</h2>
     <ol>
@@ -158,7 +161,8 @@ const $ = id => document.getElementById(id);
 const v = $("v");
 const EFFECTS = { none: "Normal", vintage_1990: "Vintage/90er", radio: "Funkgerät", telefon: "Telefon", hall: "Hall",
   megaphone: "Megafon", underwater: "Unter Wasser", helium: "Helium", monster: "Monster", robot: "Roboter",
-  chorus: "Doppelgänger", echo: "Nachschlag-Echo", titan: "Titan (sehr tief)" };
+  chorus: "Doppelgänger", echo: "Nachschlag-Echo", titan: "Titan (sehr tief)",
+  studio: "🎙 Studio-Qualität" };
 let lines = [];
 
 let waveformPeaks = null, waveformDuration = 0;
@@ -261,19 +265,66 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") { e.preventDefault(); v.currentTime += (e.shiftKey ? 0.1 : 1 / fps()); }
 });
 
+function slugify(s) {
+  return (s || "avatar").toLowerCase()
+    .replace(/[äöüß]/g, m => ({ä:"ae",ö:"oe",ü:"ue",ß:"ss"}[m]))
+    .replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "") || "avatar";
+}
+
 function addRole(name = "") {
   const div = document.createElement("div");
   div.className = "rolerow";
+  const thumbId = "th" + Math.random().toString(36).slice(2, 8);
   div.innerHTML = `<input type="text" placeholder="Charakter ${$("roles").children.length + 1}" value="${name}">
     <input type="number" min="-1" max="1" step="0.1" value="0">
     <select>${Object.entries(EFFECTS).map(([k, x]) => `<option value="${k}">${x}</option>`).join("")}</select>
+    <div class="avatar-thumb empty" id="${thumbId}" title="Profilbild hochladen">📷</div>
+    <input type="text" class="avatar-name" placeholder="dateiname" value="">
     <button onclick="this.parentNode.remove();renderLines()">✕</button>`;
-  div.querySelector("input").oninput = renderLines;
+  const nameInput = div.querySelector("input[type=text]:not(.avatar-name)");
+  const avatarNameInput = div.querySelector(".avatar-name");
+  const thumb = div.querySelector("#" + thumbId);
+  const fileInput = document.createElement("input");
+  fileInput.type = "file"; fileInput.accept = "image/png,image/jpeg,image/webp"; fileInput.style.display = "none";
+  div.appendChild(fileInput);
+
+  nameInput.oninput = () => {
+    renderLines();
+    // Solange der Dateiname noch nicht von Hand angepasst wurde, live mitziehen
+    if (!avatarNameInput.dataset.touched) avatarNameInput.value = slugify(nameInput.value);
+  };
+  avatarNameInput.oninput = () => { avatarNameInput.dataset.touched = "1"; };
+  thumb.onclick = () => fileInput.click();
+  fileInput.onchange = () => {
+    const f = fileInput.files[0];
+    if (!f) return;
+    div.avatarFile = f;
+    const url = URL.createObjectURL(f);
+    thumb.innerHTML = `<img src="${url}" class="avatar-thumb" style="border-radius:50%">`;
+    thumb.classList.remove("empty");
+    if (!avatarNameInput.value) avatarNameInput.value = slugify(nameInput.value);
+  };
   $("roles").appendChild(div);
 }
 addRole(); addRole();
 $("b-addrole").onclick = () => addRole();
 const roleNames = () => [...$("roles").children].map(r => r.querySelector("input").value || "?");
+
+// ── Hochgeladene Avatare bei Export auf 160px Breite verkleinern (wie alle anderen Szenen-Avatare) ──
+function resizeAvatarToBlob(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const w = 160, h = Math.round(img.height * (160 / img.width));
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      c.toBlob(b => b ? resolve(b) : reject(new Error("toBlob fehlgeschlagen")), "image/png");
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
 
 // ═════════════════════════════════════════════════════════════
 // 🧩 MOD-PACK-IMPORT: ZIP mit Video + Voicelines + Zeiten + Avataren automatisch auslesen
@@ -637,9 +688,11 @@ $("srtfile").onchange = e => {
   r.readAsText(f, "utf-8");
 };
 
-$("b-export").onclick = () => {
+$("b-export").onclick = async () => {
+  $("b-export").disabled = true;
   const id = $("sid").value || "meine_szene";
-  const roles = [...$("roles").children].map((r, i) => ({
+  const roleRows = [...$("roles").children];
+  const roles = roleRows.map((r, i) => ({
     id: i + 1,
     name: r.querySelector("input").value || "Charakter " + (i + 1),
     pan: parseFloat(r.querySelectorAll("input")[1].value) || 0,
@@ -669,8 +722,28 @@ $("b-export").onclick = () => {
   } else if ($("usevoice").checked) {
     scene.voiceTrack = "scenes/" + id + "_voices.mp3";
   }
+
+  // Von Hand hochgeladene Avatare: auf 160px verkleinern und als Download bereitstellen
+  const avatarRows = $("avatar-downloads");
+  avatarRows.innerHTML = "";
+  const avatars = scene.avatars || {};
+  for (let i = 0; i < roleRows.length; i++) {
+    const row = roleRows[i];
+    if (!row.avatarFile) continue;
+    const nameField = row.querySelector(".avatar-name");
+    const fname = slugify(nameField.value || roles[i].name) + ".png";
+    try {
+      const blob = await resizeAvatarToBlob(row.avatarFile);
+      addDownloadRow(avatarRows, blob, fname);
+      avatars[String(i + 1)] = "scenes/" + id + "/" + fname;
+    } catch (e) { console.error("Avatar-Verkleinerung fehlgeschlagen:", e); }
+  }
+  if (Object.keys(avatars).length) scene.avatars = avatars;
+  avatarRows.style.display = Object.keys(avatars).length ? "" : "none";
+
   if ($("difficulty").value !== "auto") scene.difficultyOverride = $("difficulty").value;
   $("out").value = JSON.stringify(scene, null, 2);
+  $("b-export").disabled = false;
 };
 $("b-copy").onclick = () => { $("out").select(); document.execCommand("copy"); $("b-copy").textContent = "✅ Kopiert!"; setTimeout(() => $("b-copy").textContent = "📋 Kopieren", 1500); };
 </script>

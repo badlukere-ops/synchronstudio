@@ -828,10 +828,16 @@
         <input type="checkbox" id="rec-timer" checked style="accent-color:var(--amber);width:17px;height:17px">
         ⏱ 3-Sek.-Countdown vor der Aufnahme (kein Maus-Klick im Take)
       </label>
-      <label class="tag" style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <label class="tag" style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
         🎚 Dein Effekt für diese Line:
         <select id="my-effect-select" style="flex:1;max-width:260px"></select>
       </label>
+      <div class="row" style="margin:0 0 10px;gap:10px;align-items:center">
+        <span class="tag">Stärke</span>
+        <input type="range" id="my-effect-amount" min="0" max="1" step="0.05" value="1" style="flex:1;max-width:200px">
+        <span class="tag" id="my-effect-amount-val" style="min-width:38px">100%</span>
+        <button class="ghost" id="btn-fx-preview" style="padding:6px 12px;font-size:.82rem">🔊 Vorhören</button>
+      </div>
       <div class="boothbtns">
         <button class="big ghost" id="btn-line-prev">⬅ Vorherige</button>
         <button class="big" id="btn-line-scene">🎬 Szene ansehen</button>

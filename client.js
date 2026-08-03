@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "8.3";
+const APP_VERSION = "8.4";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -170,6 +170,13 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "8.4", items: [
+    "🎙 Neuer Effekt „Studio-Qualität“ — komplette Sende-Kette (Rumpel-Filter, Entmulmung, Präsenz-Anhebung, Zisch-Zähmung, Luft, Kompressor) für alle mit günstigem Mikrofon",
+    "🎚 Effekt-Stärke frei regelbar von 0–100 %, wirkt bei JEDEM Effekt — z. B. Hall nur ganz dezent statt voll",
+    "🔊 Vorhören-Knopf in der Booth: hört sich deinen Take (oder das Original) durch den eingestellten Effekt an, bevor du dich festlegst",
+    "🖼 Editor: Profilbilder pro Rolle direkt hochladen, benennen und mit Vorschau sehen — werden automatisch auf 160px gebracht",
+    "🎬 Neue Szene: Demon Slayer — Entertainment District Finale (6 Rollen, 116 Zeilen, 8:38)"
+  ]},
   { v: "8.3", items: [
     "🌐 TURN-Server-Anbieter gewechselt: Metered (0,5 GB/Monat frei) → ExpressTurn (1 TB/Monat frei) — betrifft nur Verbindungen über restriktive Netzwerke, ändert am Spiel selbst nichts"
   ]},
@@ -1872,11 +1879,13 @@ $("btn-load-scene").onclick = () => {
 const EFFECTS = {
   none: "Normal", vintage_1990: "Vintage / 90er Tape", radio: "Funkgerät", telefon: "Telefon", hall: "Halliger Raum",
   megaphone: "Megafon", underwater: "Unter Wasser", helium: "Helium", monster: "Monster", robot: "Roboter",
-  chorus: "Doppelgänger", echo: "Nachschlag-Echo", titan: "Titan (sehr tief)"
+  chorus: "Doppelgänger", echo: "Nachschlag-Echo", titan: "Titan (sehr tief)",
+  studio: "🎙 Studio-Qualität (rettet schlechte Mikros)"
 };
 
 // ── Spieler kann pro Line seinen eigenen Effekt waehlen — ueberschreibt Rollen-/Szenen-Standard NUR fuer diese Line ──
 let myEffectOverrides = {};   // lineIdx -> Effekt-Key (nur gesetzt, wenn vom Standard abweichend)
+let myEffectAmounts = {};     // lineIdx -> Effekt-Staerke 0..1 (nur gesetzt, wenn abweichend von voll)
 // ── Noise Gate NACHTRÄGLICH auf eine fertige Aufnahme anwenden (wie ein Effekt, nicht live eingebrannt) ──
 function applyGateToBuffer(ctx, buffer, gateAmount) {
   if (!gateAmount || gateAmount <= 0) return buffer;   // Gate aus -> unverändert
@@ -1926,9 +1935,11 @@ function applyGateToBuffer(ctx, buffer, gateAmount) {
 function myEffectiveRole(l) {
   // Reihenfolge: Spieler-Wahl > Szenen-Autor-Override (l.effect) > Rollen-Standard
   const base = roleOf(myRole()) || { pan: 0, effect: "none", gain: 1 };
+  const amt = myEffectAmounts[l.idx];
+  const withAmt = (r) => (amt === undefined ? r : { ...r, fxAmount: amt });
   const chosen = myEffectOverrides[l.idx];
-  if (chosen) return { ...base, effect: chosen };
-  return effectiveRole(base, l);
+  if (chosen) return withAmt({ ...base, effect: chosen });
+  return withAmt(effectiveRole(base, l));
 }
 
 $("file-video").onchange = async (e) => {
@@ -2381,7 +2392,7 @@ function startBooth() {
     return;
   }
   myLines = scene.lines.map((l, i) => ({ ...l, idx: i })).filter(l => l.chars.includes(rid));
-  curLine = 0; takes = {}; myEffectOverrides = {};
+  curLine = 0; takes = {}; myEffectOverrides = {}; myEffectAmounts = {};
   const r = roleOf(rid);
   $("booth-rolename").textContent = r.name;
   const av = scene.avatars?.[String(rid)];
@@ -2434,6 +2445,7 @@ function renderLine() {
       Object.entries(EFFECTS).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
     efSel.value = myEffectOverrides[l.idx] || "";
   }
+  syncFxAmountUI(l);
   $("rectime-fill").style.width = "0";
   if (lineHasOrig(l)) previewRefViz(l); else { cancelAnimationFrame(vizRAF); const c = $("viz"); if (c) { const g = c.getContext("2d"); g.clearRect(0,0,c.width,c.height); } }
   status("booth-status", takes[l.idx] ? "Take gespeichert — anhören, neu aufnehmen oder weiter." : "Unendlich Versuche — nimm auf, bis es sitzt.");
@@ -2678,13 +2690,62 @@ $("btn-line-play").onclick = async () => {
   src.onended = () => { if (previewSrc === src) previewSrc = null; v.pause(); };
 };
 
+function syncFxAmountUI(l) {
+  const sl = $("my-effect-amount"), val = $("my-effect-amount-val");
+  if (!sl || !l) return;
+  const amt = myEffectAmounts[l.idx];
+  sl.value = amt === undefined ? 1 : amt;
+  if (val) val.textContent = Math.round(parseFloat(sl.value) * 100) + "%";
+  // Bei "Normal" bringt der Regler nichts -- dann ausgrauen statt Verwirrung stiften
+  const eff = myEffectiveRole(l).effect;
+  const off = !eff || eff === "none";
+  sl.disabled = off;
+  sl.style.opacity = off ? ".35" : "1";
+}
+
 $("my-effect-select").onchange = () => {
   const l = myLines[curLine];
   if (!l) return;
   const v = $("my-effect-select").value;
   if (v) myEffectOverrides[l.idx] = v; else delete myEffectOverrides[l.idx];
+  syncFxAmountUI(l);
   SFX.click();
 };
+$("my-effect-amount") && ($("my-effect-amount").oninput = e => {
+  const l = myLines[curLine];
+  if (!l) return;
+  const v = parseFloat(e.target.value);
+  if (v >= 0.999) delete myEffectAmounts[l.idx]; else myEffectAmounts[l.idx] = v;
+  const val = $("my-effect-amount-val");
+  if (val) val.textContent = Math.round(v * 100) + "%";
+});
+
+// 🔊 Vorhoeren: spielt den eigenen Take (oder ersatzweise das Original) durch den aktuell
+// eingestellten Effekt -- damit man Effekt UND Staerke hoert, bevor man sich festlegt.
+let fxPreviewSrc = null;
+async function fxPreview() {
+  const btn = $("btn-fx-preview");
+  const l = myLines[curLine];
+  if (!l) return;
+  if (fxPreviewSrc) { try { fxPreviewSrc.stop(); } catch {} fxPreviewSrc = null; btn.textContent = "🔊 Vorhören"; return; }
+  const ctx = getCtx();
+  let buf = takes[l.idx] || null;
+  if (!buf) {
+    btn.textContent = "⏳ …";
+    try { buf = await getLineOrigBuffer(l); } catch {}
+  }
+  if (!buf) { status("booth-status", "Zum Vorhören erst aufnehmen (oder Szene mit Original wählen).", true); btn.textContent = "🔊 Vorhören"; return; }
+  const role = myEffectiveRole(l);
+  const src = ctx.createBufferSource();
+  src.buffer = takes[l.idx] ? applyGateToBuffer(ctx, buf, micSettings.gate) : buf;
+  const chainIn = buildChain(ctx, role, ctx.destination);
+  src.connect(chainIn);
+  src.start();
+  fxPreviewSrc = src;
+  btn.textContent = "⏹ Stopp";
+  src.onended = () => { if (fxPreviewSrc === src) { fxPreviewSrc = null; btn.textContent = "🔊 Vorhören"; } };
+}
+$("btn-fx-preview") && ($("btn-fx-preview").onclick = fxPreview);
 $("btn-line-prev").onclick = () => {
   if (redoMode !== null || curLine <= 0) return;
   curLine--; renderLine(); SFX.click();
@@ -2721,7 +2782,7 @@ function finishBooth() {
   show("scr-wait");
   renderBoothPlayers();
   const items = myLines.filter(l => takes[l.idx] && takes[l.idx] !== "SKIP")
-    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: myEffectOverrides[l.idx] || undefined, gate: micSettings.gate }));
+    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: myEffectOverrides[l.idx] || undefined, fxAmount: myEffectAmounts[l.idx], gate: micSettings.gate }));
   if (match.mode === "duell" && duelInfo) {
     if (isHost) collectDuelSubmit(myId, items);
     else hostConn.send({ t: "duelSubmit", playerId: myId, items });
@@ -3582,7 +3643,7 @@ async function decodeDuelData(data) {
     for (const item of track.items) {
       try {
         const ab = await toArrayBuffer(item.buf);
-        items.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: applyGateToBuffer(ctx, await ctx.decodeAudioData(ab), item.gate), effect: item.effect });
+        items.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: applyGateToBuffer(ctx, await ctx.decodeAudioData(ab), item.gate), effect: item.effect, fxAmount: item.fxAmount });
       } catch (e) { console.warn("Duell-Spur kaputt:", e); }
     }
   }
@@ -3742,7 +3803,7 @@ async function loadMix(data) {
     for (const item of track.items) {
       try {
         const ab = await toArrayBuffer(item.buf);
-        mixItems.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: applyGateToBuffer(ctx, await ctx.decodeAudioData(ab), item.gate), effect: item.effect });
+        mixItems.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: applyGateToBuffer(ctx, await ctx.decodeAudioData(ab), item.gate), effect: item.effect, fxAmount: item.fxAmount });
         okCount++;
       } catch (e) { failCount++; console.warn("Spur kaputt:", track.role, e); }
     }
@@ -3911,6 +3972,7 @@ async function exportAudioFast() {
       let role = item.role != null ? (roleOf(item.role) || { pan: 0, effect: "none", gain: 1 }) : { pan: 0, effect: "none", gain: 1 };
       if (scene.lines && item.lineIdx != null) role = effectiveRole(role, scene.lines[item.lineIdx]);
       if (item.effect) role = { ...role, effect: item.effect };
+      if (item.fxAmount !== undefined) role = { ...role, fxAmount: item.fxAmount };
       const src = offlineCtx.createBufferSource();
       src.buffer = item.buffer;
       src.playbackRate.value = effectPitch(role.effect);
@@ -3991,6 +4053,7 @@ async function playMix(saveFile) {
     let role = item.role != null ? (roleOf(item.role) || { pan: 0, effect: "none", gain: 1 }) : { pan: 0, effect: "none", gain: 1 };
     if (scene.lines && item.lineIdx != null) role = effectiveRole(role, scene.lines[item.lineIdx]);
     if (item.effect) role = { ...role, effect: item.effect };   // Spieler-eigene Wahl übersticht alles andere
+    if (item.fxAmount !== undefined) role = { ...role, fxAmount: item.fxAmount };
     const src = ctx.createBufferSource();
     src.buffer = item.buffer;
     src.playbackRate.value = effectPitch(role.effect);
@@ -4032,7 +4095,20 @@ function buildChain(ctx, role, dest) {
   const pan = ctx.createStereoPanner();
   pan.pan.value = role.pan ?? 0;
 
-  let node = input;
+  // Effekt-Staerke 0..1 -- 0 = aus (nur Originalstimme), 1 = voll.
+  // Umgesetzt als Ueberblendung zwischen unbearbeitetem und bearbeitetem Signal.
+  // Dadurch wirkt der Regler bei JEDEM Effekt gleich, ohne jeden einzeln umbauen zu muessen.
+  let amt = role.fxAmount;
+  amt = (amt === undefined || amt === null) ? 1 : Math.max(0, Math.min(1, amt));
+  const fxIn = ctx.createGain(), fxOut = ctx.createGain();
+  const dryG = ctx.createGain(); dryG.gain.value = 1 - amt;
+  const wetG = ctx.createGain(); wetG.gain.value = amt;
+  input.connect(fxIn);
+  input.connect(dryG); dryG.connect(pan);
+  fxOut.connect(wetG); wetG.connect(pan);
+  pan.connect(dest);
+
+  let node = fxIn;
   const filt = (type, freq, q, gain) => {
     const f = ctx.createBiquadFilter();
     f.type = type; f.frequency.value = freq;
@@ -4116,6 +4192,22 @@ function buildChain(ctx, role, dest) {
       node = merge3;
       break;
     }
+    case "studio": {
+      // Sende-Kette wie im echten Studio -- rettet guenstige Mikrofone.
+      // Reihenfolge ist bewusst gewaehlt: erst aufraeumen, dann formen, dann verdichten.
+      filt("highpass", 85, 0.7);           // Trittschall, Tischklopfen, Klimaanlagen-Brummen raus
+      filt("peaking", 300, 1.1, -3.5);     // "Kistigkeit" -- der typische Pappkarton-Klang billiger Mikros
+      filt("peaking", 3200, 0.9, 4);       // Praesenz -- macht Sprache verstaendlich statt dumpf
+      filt("peaking", 6800, 3.2, -3);      // Zischlaute zaehmen (vereinfachter De-Esser)
+      filt("highshelf", 9000, 0.7, 3);     // "Luft" obenrum -- klingt teuer statt stumpf
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -24; comp.knee.value = 12; comp.ratio.value = 3.5;
+      comp.attack.value = 0.006; comp.release.value = 0.14;   // gleicht laute/leise Stellen aus
+      node.connect(comp); node = comp;
+      const makeup = ctx.createGain(); makeup.gain.value = 1.55;   // Pegel nach der Kompression wieder anheben
+      node.connect(makeup); node = makeup;
+      break;
+    }
     case "titan":
       // Sehr tiefe, bedrohliche Stimme -- staerkerer Bruder von "monster", mit mehr Growl
       filt("lowpass", 1300); filt("peaking", 90, 1.6, 9);
@@ -4127,15 +4219,13 @@ function buildChain(ctx, role, dest) {
       const delay = ctx.createDelay(); delay.delayTime.value = 0.11;
       const fb = ctx.createGain(); fb.gain.value = 0.38;
       const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2400;
-      node.connect(dry); dry.connect(pan);
+      node.connect(dry); dry.connect(fxOut);
       node.connect(delay); delay.connect(lp); lp.connect(fb); fb.connect(delay);
-      lp.connect(wet); wet.connect(pan);
-      pan.connect(dest);
+      lp.connect(wet); wet.connect(fxOut);
       return input;
     }
   }
-  node.connect(pan);
-  pan.connect(dest);
+  node.connect(fxOut);
   return input;
 }
 
