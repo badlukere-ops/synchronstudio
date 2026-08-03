@@ -9321,6 +9321,391 @@
     ]
   },
   {
+  "id": "akaza_backstory",
+  "title": "Hakuji x Koyuki Szene",
+  "videoUrl": "scenes/akaza_backstory.mp4",
+  "roles": [
+    {
+      "id": 1,
+      "name": "Akaza/Hakuji",
+      "pan": 0,
+      "effect": "none",
+      "gain": 1
+    },
+    {
+      "id": 2,
+      "name": "Tanjiro",
+      "pan": 0,
+      "effect": "none",
+      "gain": 1
+    },
+    {
+      "id": 3,
+      "name": "Giyu",
+      "pan": 0,
+      "effect": "none",
+      "gain": 1
+    },
+    {
+      "id": 4,
+      "name": "Koyuki",
+      "pan": 0,
+      "effect": "none",
+      "gain": 1
+    },
+    {
+      "id": 5,
+      "name": "Muzan",
+      "pan": 0,
+      "effect": "none",
+      "gain": 1
+    },
+    {
+      "id": 6,
+      "name": "Hakuji's Vater",
+      "pan": 0,
+      "effect": "none",
+      "gain": 1
+    },
+    {
+      "id": 7,
+      "name": "Keizo",
+      "pan": 0,
+      "effect": "none",
+      "gain": 1
+    }
+  ],
+  "lines": [
+    {
+      "t": 2.61,
+      "end": 5.36,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Zerstörerischer Tod... Vernichtungs Stil!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 6.29,
+      "end": 8.22,
+      "chars": [
+        2
+      ],
+      "who": "Tanjiro",
+      "text": "HÖR AUFFFF!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 8.43,
+      "end": 11.22,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Was soll das?! Er Kann sich noch Bewegen?!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 11.26,
+      "end": 16.29,
+      "chars": [
+        2
+      ],
+      "who": "Tanjiro",
+      "text": "Dann schlag ich ihn eben wieder Ab! wir besiegen ihn! Giyu Und Ich! ZUSAMMEN!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 20.21,
+      "end": 22.44,
+      "chars": [
+        2
+      ],
+      "who": "Tanjiro",
+      "text": "Mein Katana!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 23.61,
+      "end": 25.81,
+      "chars": [
+        3
+      ],
+      "who": "Giyu",
+      "text": "Es ist ihm aus der Hand Gerutscht?!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 26.85,
+      "end": 32.87,
+      "chars": [
+        2
+      ],
+      "who": "Tanjiro",
+      "text": "Meine hände gehorchen mir nicht mehr... Grzzzz...(ausholen zum schlag) GRRRR",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 37.41,
+      "end": 43.01,
+      "chars": [
+        7
+      ],
+      "who": "Keizo",
+      "text": "Du Kriegst Jetzt Ein Neues Leben! (warten bis schwarz bild) Bereit Kleiner?",
+      "de": "Original Ist Deutsch!",
+      "effect": "hall"
+    },
+    {
+      "t": 44.61,
+      "end": 55.99,
+      "chars": [
+        7
+      ],
+      "who": "Keizo",
+      "text": "Sei Unbesorgt... Ganz gleich was auch aus dir werden mag... du bleibst mein sohn... und auch mein schüler... ich werde stets zu dir halten!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 56.49,
+      "end": 61.56,
+      "chars": [
+        7
+      ],
+      "who": "Keizo",
+      "text": "Nur kann ich dich leider... nicht in den himmel mitnehmen...",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 63.12,
+      "end": 65.04,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Meister...",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 66.27,
+      "end": 67.22,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "HNGH?",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 67.82,
+      "end": 71.24,
+      "chars": [
+        5
+      ],
+      "who": "Muzan",
+      "text": "Hattest du denn nicht immer das ziel stärker zu werden?",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 71.69,
+      "end": 77.41,
+      "chars": [
+        5
+      ],
+      "who": "Muzan",
+      "text": "Ich gestatte nicht das du hier dein ende findest... hast du mich verstanden?",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 78.6,
+      "end": 84.35,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Ja Richtig... Ich Muss Stark werden... Noch VIEL Stärker Werden!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 84.48,
+      "end": 92.98,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Dann hat er mir eben den kopf abgeschlagen... und wenn schon?! der kampf ist noch nicht entschieden! ich Metzle euch alle Nieder!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 93.1,
+      "end": 96.75,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Und Dann Werde ich noch viel stärker sein!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 98.78,
+      "end": 103.42,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Ich habe keine Wahl! Ich Muss Doch Mein Wort halten!!!",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 106.58,
+      "end": 111.47,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Hngh?... (erleichtertes Atmen (lange)",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 112.75,
+      "end": 120.12,
+      "chars": [
+        4
+      ],
+      "who": "Koyuki",
+      "text": "Hakuji Liebster... Ich Danke dir für alles... aber du hast jetzt genug getan...",
+      "de": "Original Ist Deutsch!",
+      "effect": "hall"
+    },
+    {
+      "t": 123.35,
+      "end": 127.96,
+      "chars": [
+        4
+      ],
+      "who": "Koyuki",
+      "text": "Du Darfst Loslassen... Und Endlich zur ruhe kommen...",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 127.96,
+      "end": 130.22,
+      "chars": [
+        5
+      ],
+      "who": "Muzan",
+      "text": "AKAZAAAAAA!",
+      "de": "Original Ist Deutsch!",
+      "effect": "hall"
+    },
+    {
+      "t": 131.25,
+      "end": 139.5,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "(Wein geräusche) Bei Umarmung Noch stärkere wein geräusche",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 139.54,
+      "end": 147.57,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Entschuldige... Entschuldige... Ich wollte dich beschützen... ich konnte dich nie retten als du mich gebraucht hast...(während er weiter weint)",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 147.61,
+      "end": 160.4,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Ich Konnte keines meiner versprechen halten.. Verzeih mir... Ich Flehe dich an... bitte vergib mir... es tut mir so l-leidddd (weint sehr stark weiter)",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 161.71,
+      "end": 167.07,
+      "chars": [
+        4
+      ],
+      "who": "Koyuki",
+      "text": "Ich dachte schon ich hätte dich verloren... danke. das du dich wieder an uns errinert hast...",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 167.66,
+      "end": 173.82,
+      "chars": [
+        4
+      ],
+      "who": "Koyuki",
+      "text": "Ich bin so froh... das ich dich endlich wieder zurück habe... ich danke dir",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 180.71,
+      "end": 184.23,
+      "chars": [
+        6
+      ],
+      "who": "Hakuji's Vater",
+      "text": "Ich habe auf dich gewartet... Mein Hakuji...",
+      "de": "Original Ist Deutsch!",
+      "effect": "hall"
+    },
+    {
+      "t": 186.04,
+      "end": 192.21,
+      "chars": [
+        7
+      ],
+      "who": "Keizo",
+      "text": "(oh, Optional) Ahhh Hakuji... Du Bist Zurück!",
+      "de": "Original Ist Deutsch!",
+      "effect": "hall"
+    },
+    {
+      "t": 200.1,
+      "end": 206.23,
+      "chars": [
+        1
+      ],
+      "who": "Akaza/Hakuji",
+      "text": "Ich Bin Zurück... Ich Bin Wieder Zuhause...",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 207.75,
+      "end": 213.36,
+      "chars": [
+        4
+      ],
+      "who": "Koyuki",
+      "text": "Willkommen Zurück... Mein liebster...",
+      "de": "Original Ist Deutsch!"
+    },
+    {
+      "t": 216.07,
+      "end": 219.02,
+      "chars": [
+        2
+      ],
+      "who": "Tanjiro",
+      "text": "Huh?",
+      "de": "Original Ist Deutsch!"
+    }
+  ],
+  "voiceTrack": "scenes/akaza_backstory_voices.mp3",
+  "difficultyOverride": "medium"
+  },
+  {
     "id": "testplace",
     "title": "🧪 Test Place — Verbindungs- & Audio-Check (4 Rollen)",
     "videoUrl": "scenes/testplace.mp4",
