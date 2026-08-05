@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.3";
+const APP_VERSION = "9.4";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -225,6 +225,14 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.4", items: [
+    "💥 Neue Szene: „My Hero Academia — All Might vs. Nomu“ (8 Rollen)",
+    "🏰 Neue Szene: „Attack on Titan — Ihr Verräter“ (6 Rollen)",
+    "🔇 Neue Szene: „A Silent Voice — Mutter und Shouya“ (2 Rollen)",
+    "⚖ Neue Szene: „Jujutsu Kaisen — Higurumas erstes Urteil“ (4 Rollen, lange Gerichtsszene)",
+    "🪄 Neue Szene: „Harry Potter — Mein Junge“ (5 Rollen)",
+    "⚡ Neue Szene: „Jujutsu Kaisen — Todos Black Flash“ (3 Rollen)"
+  ]},
   { v: "9.3", items: [
     "🎲 Fix Rollen-Roulette: Bei vielen Rollen und wenigen Spielern kamen immer nur die obersten Rollen dran. Jetzt werden die Rollen wirklich zufällig gemischt",
     "⌨️ Leertaste in der Booth = Aufnehmen / Stoppen — Maus muss nicht mehr ran"
@@ -521,6 +529,31 @@ const AVATAR_CHARS = [
   { img: "scenes/edgerunnerscar/david.png", label: "David" },
   { img: "scenes/edgerunnerscar/lucy.png", label: "Lucy" },
   { img: "scenes/edgerunnerscar/wachmann.png", label: "Wachmann" },
+  { img: "scenes/allmightnomu/allmight.png", label: "All Might" },
+  { img: "scenes/allmightnomu/shigaraki.png", label: "Shigaraki" },
+  { img: "scenes/allmightnomu/kirishima.png", label: "Kirishima" },
+  { img: "scenes/allmightnomu/nomu.png", label: "Nomu" },
+  { img: "scenes/allmightnomu/kurogiri.png", label: "Kurogiri" },
+  { img: "scenes/allmightnomu/tokoyami.png", label: "Tokoyami" },
+  { img: "scenes/allmightnomu/ojiro.png", label: "Ojiro" },
+  { img: "scenes/aottraitor/reiner.png", label: "Reiner" },
+  { img: "scenes/aottraitor/eren.png", label: "Eren" },
+  { img: "scenes/aottraitor/bertolt.png", label: "Bertolt" },
+  { img: "scenes/aottraitor/mikasa.png", label: "Mikasa" },
+  { img: "scenes/aottraitor/armin.png", label: "Armin" },
+  { img: "scenes/aottraitor/historia.png", label: "Historia" },
+  { img: "scenes/silentvoice/shouya.png", label: "Shouya" },
+  { img: "scenes/silentvoice/mutter.png", label: "Mutter (Silent Voice)" },
+  { img: "scenes/higurumatrial/higuruma.png", label: "Higuruma" },
+  { img: "scenes/higurumatrial/yuji.png", label: "Yuji" },
+  { img: "scenes/higurumatrial/judgeman.png", label: "Judgeman" },
+  { img: "scenes/higurumatrial/tengen.png", label: "Tengen" },
+  { img: "scenes/harrycedric/harry.png", label: "Harry" },
+  { img: "scenes/harrycedric/dumbledore.png", label: "Dumbledore" },
+  { img: "scenes/harrycedric/molly.png", label: "Molly" },
+  { img: "scenes/harrycedric/amos.png", label: "Amos Diggory" },
+  { img: "scenes/todoflash/todo.png", label: "Todo" },
+  { img: "scenes/todoflash/takada.png", label: "Takada" },
   { img: "scenes/tojigojo/gojo.png", label: "Gojo (Toji-Kampf)" },
   { img: "scenes/whodecided/escanor.png", label: "Escanor" },
   { img: "scenes/whodecided/estarossa.png", label: "Estarossa" },

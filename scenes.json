@@ -11706,990 +11706,3590 @@
  }
  ]
  },
+ {
+ "id": "supersuit",
+ "title": "The Incredibles — Wo ist mein Superanzug? (2 Rollen)",
+ "videoUrl": "scenes/supersuit.mp4",
+ "avatars": {
+ "0": "scenes/supersuit/frozone.png",
+ "1": "scenes/supersuit/honey.png"
+ },
+ "roles": [
+ {
+ "id": 0,
+ "name": "Frozone",
+ "pan": -0.25,
+ "effect": "none",
+ "gain": 1.0
+ },
+ {
+ "id": 1,
+ "name": "Honey",
+ "pan": 0.25,
+ "effect": "none",
+ "gain": 1.0
+ }
+ ],
+ "lines": [
+ {
+ "t": 9.564,
+ "end": 10.687,
+ "chars": [
+ 0
+ ],
+ "who": "Frozone",
+ "text": "Hoooneyyyy...!",
+ "de": "Schääätziii…!",
+ "orig": "scenes/supersuit/lines/01.mp3"
+ },
+ {
+ "t": 10.635,
+ "end": 11.419,
+ "chars": [
+ 1
+ ],
+ "who": "Honey",
+ "text": "Whaaaat?",
+ "de": "Waaaaas?",
+ "orig": "scenes/supersuit/lines/02.mp3"
+ },
+ {
+ "t": 11.366,
+ "end": 13.012,
+ "chars": [
+ 0
+ ],
+ "who": "Frozone",
+ "text": "Where's my super suit...?",
+ "de": "Wo ist mein Superanzug…?",
+ "orig": "scenes/supersuit/lines/03.mp3"
+ },
+ {
+ "t": 12.943,
+ "end": 13.753,
+ "chars": [
+ 1
+ ],
+ "who": "Honey",
+ "text": "Whaaaat?",
+ "de": "Waaaaas?",
+ "orig": "scenes/supersuit/lines/04.mp3"
+ },
+ {
+ "t": 13.68,
+ "end": 17.102,
+ "chars": [
+ 0
+ ],
+ "who": "Frozone",
+ "text": "WHERE... IS... MY... SUPER SUIT!?",
+ "de": "WO… IST… MEIN… SUPERANZUG!?",
+ "orig": "scenes/supersuit/lines/05.mp3"
+ },
+ {
+ "t": 17.039,
+ "end": 19.233,
+ "chars": [
+ 1
+ ],
+ "who": "Honey",
+ "text": "I uhhhhh... put it away!",
+ "de": "Ich ähhhh… hab ihn weggepackt!",
+ "orig": "scenes/supersuit/lines/06.mp3"
+ },
+ {
+ "t": 19.157,
+ "end": 20.254,
+ "chars": [
+ 0
+ ],
+ "who": "Frozone",
+ "text": "WHEEEEERE?",
+ "de": "WOOOO?",
+ "orig": "scenes/supersuit/lines/07.mp3"
+ },
+ {
+ "t": 20.2,
+ "end": 22.551,
+ "chars": [
+ 1
+ ],
+ "who": "Honey",
+ "text": "Whyyyy do you neeeeeed to know?",
+ "de": "Waruuum musst du daaas wissen?",
+ "orig": "scenes/supersuit/lines/08.mp3"
+ },
+ {
+ "t": 22.409,
+ "end": 23.167,
+ "chars": [
+ 0
+ ],
+ "who": "Frozone",
+ "text": "I need it!",
+ "de": "Ich brauch ihn!",
+ "orig": "scenes/supersuit/lines/09.mp3"
+ },
+ {
+ "t": 23.099,
+ "end": 28.977,
+ "chars": [
+ 1
+ ],
+ "who": "Honey",
+ "text": "Uh-uh! Don't you think about runnin' off to doin' no Darin' Do - we've been planning this dinner for two months!",
+ "de": "Äh-äh! Denk gar nicht dran, wieder irgendwelchen Heldentaten hinterherzujagen — wir planen dieses Dinner seit zwei Monaten!",
+ "orig": "scenes/supersuit/lines/10.mp3"
+ },
+ {
+ "t": 28.695,
+ "end": 30.419,
+ "chars": [
+ 0
+ ],
+ "who": "Frozone",
+ "text": "The public is in danger!",
+ "de": "Die Leute sind in Gefahr!",
+ "orig": "scenes/supersuit/lines/11.mp3"
+ },
+ {
+ "t": 30.365,
+ "end": 32.272,
+ "chars": [
+ 1
+ ],
+ "who": "Honey",
+ "text": "My EVENING'S in danger!",
+ "de": "Mein ABEND ist in Gefahr!",
+ "orig": "scenes/supersuit/lines/12.mp3"
+ },
+ {
+ "t": 32.199,
+ "end": 35.778,
+ "chars": [
+ 0
+ ],
+ "who": "Frozone",
+ "text": "YOU TELL ME WHERE MY SUIT IS, WOMAN! WE ARE TALKING ABOUT THE GREATER GOOD!!",
+ "de": "SAG MIR WO MEIN ANZUG IST, FRAU! ES GEHT UM DAS GRÖSSERE GANZE!!",
+ "orig": "scenes/supersuit/lines/13.mp3"
+ },
+ {
+ "t": 35.723,
+ "end": 41.183,
+ "chars": [
+ 1
+ ],
+ "who": "Honey",
+ "text": "Greater good? I am your WIFE! I'm the greatest GOOD you are EVER gonna get!!!",
+ "de": "Größeres Ganzes? Ich bin deine FRAU! Ich bin das beste GUTE, das du JE kriegen wirst!!!",
+ "orig": "scenes/supersuit/lines/14.mp3"
+ },
+ {
+ "t": 40.039,
+ "end": 40.222,
+ "chars": [
+ 0
+ ],
+ "who": "Frozone",
+ "text": "*ugh*",
+ "de": "*ächz*",
+ "orig": "scenes/supersuit/lines/15.mp3"
+ }
+ ]
+ },
+ {
+ "id": "tojidomain",
+ "title": "Jujutsu Kaisen — Tojis Auftritt (4 Rollen)",
+ "videoUrl": "scenes/tojidomain.mp4",
+ "avatars": {
+ "0": "scenes/tojidomain/nanami.png",
+ "1": "scenes/tojidomain/maki.png",
+ "2": "scenes/tojidomain/dagon.png",
+ "3": "scenes/tojidomain/erzahler.png"
+ },
+ "roles": [
+ {
+ "id": 0,
+ "name": "Nanami",
+ "pan": -0.35,
+ "effect": "none",
+ "gain": 1.0
+ },
+ {
+ "id": 1,
+ "name": "Maki",
+ "pan": 0.35,
+ "effect": "none",
+ "gain": 1.0
+ },
+ {
+ "id": 2,
+ "name": "Dagon",
+ "pan": 0.0,
+ "effect": "monster",
+ "gain": 1.0
+ },
+ {
+ "id": 3,
+ "name": "Erzähler",
+ "pan": 0.0,
+ "effect": "radio",
+ "gain": 1.0
+ }
+ ],
+ "lines": [
+ {
+ "t": 4.694,
+ "end": 6.375,
+ "chars": [
+ 0
+ ],
+ "who": "Nanami",
+ "text": "You two come here!",
+ "de": "Ihr beiden, herkommen!",
+ "orig": "scenes/tojidomain/lines/01.mp3"
+ },
+ {
+ "t": 6.118,
+ "end": 6.678,
+ "chars": [
+ 1
+ ],
+ "who": "Maki",
+ "text": "hmm?",
+ "de": "Hmm?",
+ "orig": "scenes/tojidomain/lines/02.mp3"
+ },
+ {
+ "t": 6.646,
+ "end": 7.301,
+ "chars": [
+ 2
+ ],
+ "who": "Dagon",
+ "text": "mmmhh?",
+ "de": "Mmmhh?",
+ "orig": "scenes/tojidomain/lines/03.mp3"
+ },
+ {
+ "t": 9.119,
+ "end": 11.812,
+ "chars": [
+ 0
+ ],
+ "who": "Nanami",
+ "text": "Now!",
+ "de": "Sofort!",
+ "orig": "scenes/tojidomain/lines/04.mp3"
+ },
+ {
+ "t": 14.007,
+ "end": 16.519,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "They faced an enemy that understood language.",
+ "de": "Sie standen einem Gegner gegenüber, der Sprache verstand.",
+ "orig": "scenes/tojidomain/lines/05.mp3"
+ },
+ {
+ "t": 17.15,
+ "end": 20.221,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "So he conveyed his intent in an indirect way",
+ "de": "Also vermittelte er seine Absicht auf indirekte Weise",
+ "orig": "scenes/tojidomain/lines/06.mp3"
+ },
+ {
+ "t": 20.368,
+ "end": 23.049,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "and they put their trust in the grade 1 sorcerer.",
+ "de": "und sie vertrauten dem Grade-1-Zauberer.",
+ "orig": "scenes/tojidomain/lines/07.mp3"
+ },
+ {
+ "t": 23.852,
+ "end": 30.609,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "The previously excluded possibility of escaping the domain became an option once more.",
+ "de": "Die zuvor ausgeschlossene Möglichkeit, der Domäne zu entkommen, war wieder eine Option.",
+ "orig": "scenes/tojidomain/lines/08.mp3"
+ },
+ {
+ "t": 31.223,
+ "end": 34.066,
+ "chars": [
+ 2
+ ],
+ "who": "Dagon",
+ "text": "They're bolstering their defense of the boy?",
+ "de": "They're bolstering their defense of the boy?",
+ "orig": "scenes/tojidomain/lines/09.mp3"
+ },
+ {
+ "t": 34.423,
+ "end": 37.137,
+ "chars": [
+ 2
+ ],
+ "who": "Dagon",
+ "text": "That just groups them up for me to... [gahh]",
+ "de": "Dann stehen sie doch schön zusammen für mich, um… [gahh]",
+ "orig": "scenes/tojidomain/lines/10.mp3"
+ },
+ {
+ "t": 37.452,
+ "end": 38.638,
+ "chars": [
+ 2
+ ],
+ "who": "Dagon",
+ "text": "Nooo!",
+ "de": "Neeein!",
+ "orig": "scenes/tojidomain/lines/11.mp3"
+ },
+ {
+ "t": 38.774,
+ "end": 43.074,
+ "chars": [
+ 0
+ ],
+ "who": "Nanami",
+ "text": "He figured it out, but it's too late! Get to Fushiguro's feet now!",
+ "de": "Er hat's kapiert, aber zu spät! Sofort zu Fushiguros Füßen!",
+ "orig": "scenes/tojidomain/lines/12.mp3"
+ },
+ {
+ "t": 58.423,
+ "end": 62.437,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "The one who had inherited the curse of the Zen'in clan from birth..",
+ "de": "Derjenige, der den Fluch des Zen'in-Clans von Geburt an geerbt hatte…",
+ "orig": "scenes/tojidomain/lines/13.mp3"
+ },
+ {
+ "t": 64.552,
+ "end": 68.123,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "and the one who could not completely cast off that curse.",
+ "de": "und derjenige, der diesen Fluch nie ganz abschütteln konnte.",
+ "orig": "scenes/tojidomain/lines/14.mp3"
+ },
+ {
+ "t": 68.552,
+ "end": 70.823,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "They both stood in witness...",
+ "de": "Beide waren Zeugen…",
+ "orig": "scenes/tojidomain/lines/15.mp3"
+ },
+ {
+ "t": 73.566,
+ "end": 76.437,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "to the one who left it all behind,",
+ "de": "dessen, der alles hinter sich gelassen hatte,",
+ "orig": "scenes/tojidomain/lines/16.mp3"
+ },
+ {
+ "t": 76.482,
+ "end": 79.139,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "now manifested in raw flesh,",
+ "de": "jetzt in rohem Fleisch erschienen,",
+ "orig": "scenes/tojidomain/lines/17.mp3"
+ },
+ {
+ "t": 80.238,
+ "end": 82.024,
+ "chars": [
+ 3
+ ],
+ "who": "Erzähler",
+ "text": "and taking action",
+ "de": "und zur Tat schritt.",
+ "orig": "scenes/tojidomain/lines/18.mp3"
+ }
+ ]
+ },
+ {
+ "id": "edgerunnerscar",
+ "title": "Cyberpunk Edgerunners — Autoklau (6 Rollen)",
+ "videoUrl": "scenes/edgerunnerscar.mp4",
+ "avatars": {
+ "0": "scenes/edgerunnerscar/maine.png",
+ "1": "scenes/edgerunnerscar/kiwi.png",
+ "2": "scenes/edgerunnerscar/rebecca.png",
+ "3": "scenes/edgerunnerscar/david.png",
+ "4": "scenes/edgerunnerscar/lucy.png",
+ "5": "scenes/edgerunnerscar/wachmann.png"
+ },
+ "roles": [
+ {
+ "id": 0,
+ "name": "Maine",
+ "pan": -0.2,
+ "effect": "none",
+ "gain": 1.0
+ },
+ {
+ "id": 1,
+ "name": "Kiwi",
+ "pan": 0.35,
+ "effect": "none",
+ "gain": 1.0
+ },
+ {
+ "id": 2,
+ "name": "Rebecca",
+ "pan": 0.45,
+ "effect": "none",
+ "gain": 1.0
+ },
+ {
+ "id": 3,
+ "name": "David",
+ "pan": -0.4,
+ "effect": "none",
+ "gain": 1.0
+ },
+ {
+ "id": 4,
+ "name": "Lucy",
+ "pan": 0.2,
+ "effect": "none",
+ "gain": 1.0
+ },
+ {
+ "id": 5,
+ "name": "Wachmann",
+ "pan": 0.0,
+ "effect": "megaphone",
+ "gain": 1.0
+ }
+ ],
+ "lines": [
+ {
+ "t": 0,
+ "end": 2.193,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Wchodzisz ty",
+ "de": "Du gehst rein.",
+ "orig": "scenes/edgerunnerscar/lines/01.mp3"
+ },
+ {
+ "t": 7.427,
+ "end": 11.992,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Bierzesz klucz i przekazujesz dorio ona go skopiuje",
+ "de": "Du nimmst den Schlüssel und gibst ihn Dorio — sie kopiert ihn.",
+ "orig": "scenes/edgerunnerscar/lines/02.mp3"
+ },
+ {
+ "t": 12.426,
+ "end": 20.614,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Następnie wchodzimy i bierzemy dane nawigacyjne póki maxim nie dojdzie do siebie, ale tym zajmiemy się my",
+ "de": "Dann gehen wir rein und holen uns die Navigationsdaten, solange Maxim noch außer Gefecht ist. Den Rest übernehmen wir.",
+ "orig": "scenes/edgerunnerscar/lines/03.mp3"
+ },
+ {
+ "t": 20.831,
+ "end": 27.606,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Ty musisz tylko oddać mu klucz zanim się nie zorientuje to wszystko, bułka z masłem",
+ "de": "Du musst ihm nur den Schlüssel zurückgeben, bevor er's merkt. Stück Kuchen.",
+ "orig": "scenes/edgerunnerscar/lines/04.mp3"
+ },
+ {
+ "t": 27.606,
+ "end": 30.396,
+ "chars": [
+ 1
+ ],
+ "who": "Kiwi",
+ "text": "Chwila, szef do niego dzwoni",
+ "de": "Moment, Boss — er ruft ihn an.",
+ "orig": "scenes/edgerunnerscar/lines/05.mp3"
+ },
+ {
+ "t": 30.758,
+ "end": 35.939,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Cholera nie może nawet spokojnie poleżeć odpocznie dopiero jak wykituje",
+ "de": "Verdammt, der kann nicht mal in Ruhe liegen. Ruhe kriegt der erst, wenn er abkratzt.",
+ "orig": "scenes/edgerunnerscar/lines/06.mp3"
+ },
+ {
+ "t": 36.156,
+ "end": 37.823,
+ "chars": [
+ 1
+ ],
+ "who": "Kiwi",
+ "text": "Niedobrze wzywa go",
+ "de": "Schlecht — er ruft ihn.",
+ "orig": "scenes/edgerunnerscar/lines/07.mp3"
+ },
+ {
+ "t": 37.677,
+ "end": 39.416,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Przecież miał mieć wolne",
+ "de": "Dabei sollte der frei haben.",
+ "orig": "scenes/edgerunnerscar/lines/08.mp3"
+ },
+ {
+ "t": 39.416,
+ "end": 40.938,
+ "chars": [
+ 1
+ ],
+ "who": "Kiwi",
+ "text": "Jeszcze nie skończyłam kopiować",
+ "de": "Ich bin noch nicht fertig mit dem Kopieren.",
+ "orig": "scenes/edgerunnerscar/lines/09.mp3"
+ },
+ {
+ "t": 40.938,
+ "end": 47.785,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Kurwa zmiana planów młody odpalaj wóz becca załatw to",
+ "de": "Scheiße, Planänderung. Junge, start den Wagen — Becca, erledig das.",
+ "orig": "scenes/edgerunnerscar/lines/10.mp3"
+ },
+ {
+ "t": 48.292,
+ "end": 50.067,
+ "chars": [
+ 1
+ ],
+ "who": "Kiwi",
+ "text": "Byle szybko",
+ "de": "Aber fix.",
+ "orig": "scenes/edgerunnerscar/lines/11.mp3"
+ },
+ {
+ "t": 52.821,
+ "end": 59.523,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "Hej uważaj! następnym ra-oooooouu",
+ "de": "Hey, pass auf! Beim nächsten Ma—ooooouu",
+ "orig": "scenes/edgerunnerscar/lines/12.mp3"
+ },
+ {
+ "t": 52.821,
+ "end": 59.523,
+ "chars": [
+ 2
+ ],
+ "who": "Rebecca",
+ "text": "Oooooo oj przepraszam oooeeuu",
+ "de": "Oooooo — oh, sorry — oooeeuu",
+ "orig": "scenes/edgerunnerscar/lines/13.mp3"
+ },
+ {
+ "t": 60.03,
+ "end": 63.182,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Wsiadaj sciągnij dane zanim się zjawi",
+ "de": "Steig ein, zieh die Daten, bevor er auftaucht.",
+ "orig": "scenes/edgerunnerscar/lines/14.mp3"
+ },
+ {
+ "t": 63.762,
+ "end": 64.849,
+ "chars": [
+ 3
+ ],
+ "who": "David",
+ "text": "Ale jak?",
+ "de": "Aber wie?",
+ "orig": "scenes/edgerunnerscar/lines/15.mp3"
+ },
+ {
+ "t": 64.849,
+ "end": 68.52,
+ "chars": [
+ 4
+ ],
+ "who": "Lucy",
+ "text": "Ja się tym zajme, już wsiadaj",
+ "de": "Ich mach das. Steig schon ein.",
+ "orig": "scenes/edgerunnerscar/lines/16.mp3"
+ },
+ {
+ "t": 70.247,
+ "end": 80.415,
+ "chars": [
+ 3
+ ],
+ "who": "David",
+ "text": "Wooooo ho- woooou, i jak",
+ "de": "Wooooo — ho — woooou, und? Wie sieht's aus?",
+ "orig": "scenes/edgerunnerscar/lines/17.mp3"
+ },
+ {
+ "t": 80.5,
+ "end": 85.648,
+ "chars": [
+ 4
+ ],
+ "who": "Lucy",
+ "text": "Cicho nie przeszkadzaj zabezpieczenia LOD są takie upierdliwe",
+ "de": "Psst, nicht stören — die ICE-Sicherungen sind echt nervig.",
+ "orig": "scenes/edgerunnerscar/lines/18.mp3"
+ },
+ {
+ "t": 86.015,
+ "end": 88.169,
+ "chars": [
+ 2
+ ],
+ "who": "Rebecca",
+ "text": "Przepraszam przystojniaczku",
+ "de": "Sorry, hübscher.",
+ "orig": "scenes/edgerunnerscar/lines/19.mp3"
+ },
+ {
+ "t": 88.298,
+ "end": 90.388,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "He nie ma problemu słonko",
+ "de": "Hey, kein Problem, Süße.",
+ "orig": "scenes/edgerunnerscar/lines/20.mp3"
+ },
+ {
+ "t": 90.129,
+ "end": 93.037,
+ "chars": [
+ 2
+ ],
+ "who": "Rebecca",
+ "text": "Następnym razem to wynagrodze!",
+ "de": "Beim nächsten Mal mach ich's wett!",
+ "orig": "scenes/edgerunnerscar/lines/21.mp3"
+ },
+ {
+ "t": 93.49,
+ "end": 95.967,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "Ty suko!",
+ "de": "Du Schlampe!",
+ "orig": "scenes/edgerunnerscar/lines/22.mp3"
+ },
+ {
+ "t": 95.364,
+ "end": 99.586,
+ "chars": [
+ 2
+ ],
+ "who": "Rebecca",
+ "text": "Aa nie krzycz na mnie jestem wrażliwą osobą",
+ "de": "Aa, schrei mich nicht an, ich bin 'ne sensible Person!",
+ "orig": "scenes/edgerunnerscar/lines/23.mp3"
+ },
+ {
+ "t": 99.585,
+ "end": 101.631,
+ "chars": [
+ 1
+ ],
+ "who": "Kiwi",
+ "text": "Wpadliśmy kończy nam się czas",
+ "de": "Wir sind aufgeflogen — uns läuft die Zeit weg.",
+ "orig": "scenes/edgerunnerscar/lines/24.mp3"
+ },
+ {
+ "t": 101.331,
+ "end": 102.516,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Jak idzie?",
+ "de": "Wie weit?",
+ "orig": "scenes/edgerunnerscar/lines/25.mp3"
+ },
+ {
+ "t": 102.516,
+ "end": 103.55,
+ "chars": [
+ 4
+ ],
+ "who": "Lucy",
+ "text": "Pół minuty",
+ "de": "Halbe Minute.",
+ "orig": "scenes/edgerunnerscar/lines/26.mp3"
+ },
+ {
+ "t": 103.55,
+ "end": 105.209,
+ "chars": [
+ 1
+ ],
+ "who": "Kiwi",
+ "text": "Nie ma czasu, kończcie",
+ "de": "Keine Zeit, macht fertig.",
+ "orig": "scenes/edgerunnerscar/lines/27.mp3"
+ },
+ {
+ "t": 105.295,
+ "end": 107.902,
+ "chars": [
+ 4
+ ],
+ "who": "Lucy",
+ "text": "Dobra, zrobione",
+ "de": "Okay, fertig.",
+ "orig": "scenes/edgerunnerscar/lines/28.mp3"
+ },
+ {
+ "t": 108.397,
+ "end": 110.702,
+ "chars": [
+ 3
+ ],
+ "who": "David",
+ "text": "Zamknięte",
+ "de": "Zu.",
+ "orig": "scenes/edgerunnerscar/lines/29.mp3"
+ },
+ {
+ "t": 110.163,
+ "end": 111.692,
+ "chars": [
+ 4
+ ],
+ "who": "Lucy",
+ "text": "Przywrócił zabezpieczenia?",
+ "de": "Hast du die Sicherungen wieder aktiviert?",
+ "orig": "scenes/edgerunnerscar/lines/30.mp3"
+ },
+ {
+ "t": 111.692,
+ "end": 113.76,
+ "chars": [
+ 1
+ ],
+ "who": "Kiwi",
+ "text": "Jak mówiłam czas minął",
+ "de": "Wie gesagt — Zeit um.",
+ "orig": "scenes/edgerunnerscar/lines/31.mp3"
+ },
+ {
+ "t": 113.373,
+ "end": 116.97,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "OTWIERAJ PIEPRZONY SZCZYLU",
+ "de": "MACH AUF, VERDAMMTER SCHLÜSSEL!",
+ "orig": "scenes/edgerunnerscar/lines/32.mp3"
+ },
+ {
+ "t": 117.379,
+ "end": 120.632,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "OTWIERAJ DO KURWY NĘDZY",
+ "de": "MACH AUF, ZUM TEUFEL!",
+ "orig": "scenes/edgerunnerscar/lines/33.mp3"
+ },
+ {
+ "t": 118.047,
+ "end": 120.632,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Chuj nie ma wyjścia odpalaj",
+ "de": "Scheiße, kein Ausweg — leg los!",
+ "orig": "scenes/edgerunnerscar/lines/34.mp3"
+ },
+ {
+ "t": 120.46,
+ "end": 121.149,
+ "chars": [
+ 3
+ ],
+ "who": "David",
+ "text": "Co!?",
+ "de": "Was!?",
+ "orig": "scenes/edgerunnerscar/lines/35.mp3"
+ },
+ {
+ "t": 120.58,
+ "end": 129.097,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "(Wymyśl wyzwiska), NIE ŻYJESZ TY KURWO",
+ "de": "DU BIST TODESKANDIDAT, VERDAMMTE SCHEISSE!",
+ "orig": "scenes/edgerunnerscar/lines/36.mp3"
+ },
+ {
+ "t": 121.58,
+ "end": 122.872,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Ruszaj mały",
+ "de": "Fahr, Kleiner!",
+ "orig": "scenes/edgerunnerscar/lines/37.mp3"
+ },
+ {
+ "t": 122.743,
+ "end": 124.682,
+ "chars": [
+ 3
+ ],
+ "who": "David",
+ "text": "Ale ja nie umiem jeździć",
+ "de": "Aber ich kann nicht fahren!",
+ "orig": "scenes/edgerunnerscar/lines/38.mp3"
+ },
+ {
+ "t": 125.027,
+ "end": 126.427,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Nauczysz się",
+ "de": "Wirst du lernen.",
+ "orig": "scenes/edgerunnerscar/lines/39.mp3"
+ },
+ {
+ "t": 129.766,
+ "end": 135.496,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "SŁYSZYSZ MNIE?! KURWA NIE ŻYJESZ, EJJ",
+ "de": "HÖRST DU MICH?! VERDAMMT, DU BIST TOT — HEEEY!",
+ "orig": "scenes/edgerunnerscar/lines/40.mp3"
+ },
+ {
+ "t": 131.597,
+ "end": 135.345,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Pokaż mi, że się nadajesz",
+ "de": "Zeig mir, dass du taugst.",
+ "orig": "scenes/edgerunnerscar/lines/41.mp3"
+ },
+ {
+ "t": 136.077,
+ "end": 140.73,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "NIE ŻYJESZ DO KURWY NĘDZY, (wymyśl wyzwiska)",
+ "de": "DU BIST TOT, ZUM TEUFEL!",
+ "orig": "scenes/edgerunnerscar/lines/42.mp3"
+ },
+ {
+ "t": 140.989,
+ "end": 148.033,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "AA STÓÓÓJ MOJA FURA STÓJ CHUJU OAAAA KURWA",
+ "de": "AA STOPP — MEIN AUTO, STOPP DU SCHWEIN — OAAAA SCHEISSE!",
+ "orig": "scenes/edgerunnerscar/lines/43.mp3"
+ },
+ {
+ "t": 148.14,
+ "end": 154.301,
+ "chars": [
+ 5
+ ],
+ "who": "Wachmann",
+ "text": "HEEEJ MÓWIE DO CIEBIE KURWO STÓÓJ STÓJ",
+ "de": "HEEEEY ICH RED MIT DIR, SCHLAMPE — STOPP, STOPP!",
+ "orig": "scenes/edgerunnerscar/lines/44.mp3"
+ },
+ {
+ "t": 154.991,
+ "end": 161.863,
+ "chars": [
+ 0
+ ],
+ "who": "Maine",
+ "text": "Hahahaha dobrze, że to nie moja bryka, zawieź ją prosto do Aldo's GPS włączony",
+ "de": "Hahahaha gut, dass das nicht meine Karre ist. Fahr direkt zu Aldo — GPS ist an.",
+ "orig": "scenes/edgerunnerscar/lines/45.mp3"
+ }
+ ]
+ },
   {
-    "id": "supersuit",
-    "title": "The Incredibles — Wo ist mein Superanzug? (2 Rollen)",
-    "videoUrl": "scenes/supersuit.mp4",
+    "id": "allmightnomu",
+    "title": "My Hero Academia — All Might vs. Nomu (8 Rollen)",
+    "videoUrl": "scenes/allmightnomu.mp4",
     "avatars": {
-      "0": "scenes/supersuit/frozone.png",
-      "1": "scenes/supersuit/honey.png"
+      "0": "scenes/allmightnomu/allmight.png",
+      "1": "scenes/allmightnomu/shigaraki.png",
+      "2": "scenes/allmightnomu/kirishima.png",
+      "3": "scenes/allmightnomu/deku.png",
+      "4": "scenes/allmightnomu/nomu.png",
+      "5": "scenes/allmightnomu/kurogiri.png",
+      "6": "scenes/allmightnomu/tokoyami.png",
+      "7": "scenes/allmightnomu/ojiro.png"
     },
     "roles": [
       {
         "id": 0,
-        "name": "Frozone",
+        "name": "All Might",
+        "pan": 0.0,
+        "effect": "megaphone",
+        "gain": 1.0
+      },
+      {
+        "id": 1,
+        "name": "Shigaraki",
+        "pan": 0.4,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Kirishima",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 3,
+        "name": "Deku",
+        "pan": -0.2,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 4,
+        "name": "Nomu",
+        "pan": 0.2,
+        "effect": "monster",
+        "gain": 1.0
+      },
+      {
+        "id": 5,
+        "name": "Kurogiri",
+        "pan": 0.35,
+        "effect": "radio",
+        "gain": 1.0
+      },
+      {
+        "id": 6,
+        "name": "Tokoyami",
+        "pan": -0.45,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 7,
+        "name": "Ojiro",
+        "pan": 0.45,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 2.327,
+        "end": 5.66,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "I'm afraid that I barely have a minute left in this form",
+        "de": "Ich fürchte, in dieser Form bleibt mir kaum noch eine Minute.",
+        "orig": "scenes/allmightnomu/lines/01.mp3"
+      },
+      {
+        "t": 5.814,
+        "end": 8.981,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "My power's declining faster than I thought it would",
+        "de": "Meine Kraft schwindet schneller, als ich dachte.",
+        "orig": "scenes/allmightnomu/lines/02.mp3"
+      },
+      {
+        "t": 9.873,
+        "end": 12.373,
+        "chars": [
+          1
+        ],
+        "who": "Shigaraki",
+        "text": "Let's clear this level and go home...",
+        "de": "Lass uns dieses Level clearen und nach Hause gehen…",
+        "orig": "scenes/allmightnomu/lines/03.mp3"
+      },
+      {
+        "t": 13.175,
+        "end": 16.958,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "Even so... I have to stop these villains",
+        "de": "Trotzdem… ich muss diese Schurken aufhalten.",
+        "orig": "scenes/allmightnomu/lines/04.mp3"
+      },
+      {
+        "t": 18.114,
+        "end": 20.464,
+        "chars": [
+          2
+        ],
+        "who": "Kirishima",
+        "text": "Head's up, we're fighting after all",
+        "de": "Achtung — wir kämpfen also doch!",
+        "orig": "scenes/allmightnomu/lines/05.mp3"
+      },
+      {
+        "t": 21.128,
+        "end": 23.145,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "Because I am...",
+        "de": "Denn ich bin…",
+        "orig": "scenes/allmightnomu/lines/06.mp3"
+      },
+      {
+        "t": 28.356,
+        "end": 31.889,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "The worlds symbol of peach and justice!",
+        "de": "Das Symbol für Frieden und Gerechtigkeit!",
+        "orig": "scenes/allmightnomu/lines/07.mp3"
+      },
+      {
+        "t": 31.782,
+        "end": 32.665,
+        "chars": [
+          1
+        ],
+        "who": "Shigaraki",
+        "text": "*grunt*",
+        "de": "*Grunz*",
+        "orig": "scenes/allmightnomu/lines/08.mp3"
+      },
+      {
+        "t": 32.221,
+        "end": 33.238,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "*Gasp*",
+        "de": "*Keucht*",
+        "orig": "scenes/allmightnomu/lines/09.mp3"
+      },
+      {
+        "t": 35.265,
+        "end": 36.632,
+        "chars": [
+          4
+        ],
+        "who": "Nomu",
+        "text": "*Wreeehhhhhhckk*",
+        "de": "*Wreeehhhhhhckk*",
+        "orig": "scenes/allmightnomu/lines/10.mp3"
+      },
+      {
+        "t": 36.125,
+        "end": 38.458,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "*Grunty yell*",
+        "de": "*Kampfschrei*",
+        "orig": "scenes/allmightnomu/lines/11.mp3"
+      },
+      {
+        "t": 42.88,
+        "end": 46.88,
+        "chars": [
+          1
+        ],
+        "who": "Shigaraki",
+        "text": "Weren't you listening... one of his powers is shock absorption",
+        "de": "Hast du nicht zugehört… eine seiner Kräfte ist Schockabsorption.",
+        "orig": "scenes/allmightnomu/lines/12.mp3"
+      },
+      {
+        "t": 46.805,
+        "end": 48.905,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "Yeah? What about it!",
+        "de": "Ja? Und weiter!",
+        "orig": "scenes/allmightnomu/lines/13.mp3"
+      },
+      {
+        "t": 49.036,
+        "end": 51.519,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "*Hnnnnng haaaaaaaa*",
+        "de": "*Hnnnnng haaaaaaaa*",
+        "orig": "scenes/allmightnomu/lines/14.mp3"
+      },
+      {
+        "t": 51.938,
+        "end": 53.338,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "*Punch* *Punch*",
+        "de": "*Schlag* *Schlag*",
+        "orig": "scenes/allmightnomu/lines/15.mp3"
+      },
+      {
+        "t": 53.402,
+        "end": 55.969,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "*Punch yelling*",
+        "de": "*Schlag mit Schrei*",
+        "orig": "scenes/allmightnomu/lines/16.mp3"
+      },
+      {
+        "t": 56.333,
+        "end": 58.85,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "*More grunting*",
+        "de": "*Mehr Grunzen*",
+        "orig": "scenes/allmightnomu/lines/17.mp3"
+      },
+      {
+        "t": 59.498,
+        "end": 61.831,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "He's gonna fight that brain guy head on?",
+        "de": "Er will den Hirn-Typ direkt angreifen?",
+        "orig": "scenes/allmightnomu/lines/18.mp3"
+      },
+      {
+        "t": 61.939,
+        "end": 64.872,
+        "chars": [
+          2
+        ],
+        "who": "Kirishima",
+        "text": "Woahh.. they're... fast!",
+        "de": "Wow… die sind… schnell!",
+        "orig": "scenes/allmightnomu/lines/19.mp3"
+      },
+      {
+        "t": 65.527,
+        "end": 67.777,
+        "chars": [
+          5
+        ],
+        "who": "Kurogiri",
+        "text": "No... I can't get near them",
+        "de": "Nein… ich komm nicht an sie ran.",
+        "orig": "scenes/allmightnomu/lines/20.mp3"
+      },
+      {
+        "t": 67.766,
+        "end": 72.599,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "*Grunt* He said your quirk was Shock Absorption not Nullification",
+        "de": "*Grunz* Du hast gesagt, seine Quirk ist Schockabsorption — nicht Aufhebung.",
+        "orig": "scenes/allmightnomu/lines/21.mp3"
+      },
+      {
+        "t": 72.945,
+        "end": 75.912,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "That means there's a limit to what you can take right?",
+        "de": "Das heißt, es gibt ein Limit, was er aushält, oder?",
+        "orig": "scenes/allmightnomu/lines/22.mp3"
+      },
+      {
+        "t": 78.069,
+        "end": 81.452,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "*Guururrhh* *Gahhhh* *Hrrruuuumm*",
+        "de": "*Guururrhh* *Gahhhh* *Hrrruuuumm*",
+        "orig": "scenes/allmightnomu/lines/23.mp3"
+      },
+      {
+        "t": 82.426,
+        "end": 85.109,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "So you were made to fight me big guy",
+        "de": "Also wurdest du gemacht, um gegen mich zu kämpfen, Großer.",
+        "orig": "scenes/allmightnomu/lines/24.mp3"
+      },
+      {
+        "t": 85.318,
+        "end": 89.068,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "If you can really withstand me firing at 100% of my power",
+        "de": "Wenn du mich wirklich bei 100 Prozent aushalten kannst…",
+        "orig": "scenes/allmightnomu/lines/25.mp3"
+      },
+      {
+        "t": 89.782,
+        "end": 93.349,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "Then i'll have to go beyond that and force you to surrender",
+        "de": "Dann muss ich darüber hinausgehen und dich zur Aufgabe zwingen!",
+        "orig": "scenes/allmightnomu/lines/26.mp3"
+      },
+      {
+        "t": 97.995,
+        "end": 99.995,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "He's giving it his all",
+        "de": "Er gibt alles.",
+        "orig": "scenes/allmightnomu/lines/27.mp3"
+      },
+      {
+        "t": 100.102,
+        "end": 101.585,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "Even though he's injured",
+        "de": "Obwohl er verletzt ist.",
+        "orig": "scenes/allmightnomu/lines/28.mp3"
+      },
+      {
+        "t": 104.15,
+        "end": 106.7,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "Those aren't just random punches either...",
+        "de": "Das sind auch keine wilden Schläge…",
+        "orig": "scenes/allmightnomu/lines/29.mp3"
+      },
+      {
+        "t": 106.87,
+        "end": 109.87,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "They're targeted and every single one of them",
+        "de": "Die sitzen gezielt — und jeder einzelne…",
+        "orig": "scenes/allmightnomu/lines/30.mp3"
+      },
+      {
+        "t": 113.536,
+        "end": 116.353,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "Is more than a 100% of his power",
+        "de": "ist mehr als 100 Prozent seiner Kraft.",
+        "orig": "scenes/allmightnomu/lines/31.mp3"
+      },
+      {
+        "t": 116.481,
+        "end": 118.914,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "*HrrrruuugghAAAAA*",
+        "de": "*HrrrruuugghAAAAA*",
+        "orig": "scenes/allmightnomu/lines/32.mp3"
+      },
+      {
+        "t": 122.871,
+        "end": 124.604,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "A real hero",
+        "de": "Ein echter Held…",
+        "orig": "scenes/allmightnomu/lines/33.mp3"
+      },
+      {
+        "t": 128.851,
+        "end": 132.584,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "Will always find a way for justice to be served",
+        "de": "findet immer einen Weg, dass Gerechtigkeit siegt.",
+        "orig": "scenes/allmightnomu/lines/34.mp3"
+      },
+      {
+        "t": 138.328,
+        "end": 139.528,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "*Hrraaa*",
+        "de": "*Hrraaa*",
+        "orig": "scenes/allmightnomu/lines/35.mp3"
+      },
+      {
+        "t": 139.597,
+        "end": 144.014,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "*Big yell bozo*",
+        "de": "*Großer Schrei*",
+        "orig": "scenes/allmightnomu/lines/36.mp3"
+      },
+      {
+        "t": 147.62,
+        "end": 148.653,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "*Guhhh*",
+        "de": "*Guhhh*",
+        "orig": "scenes/allmightnomu/lines/37.mp3"
+      },
+      {
+        "t": 151.577,
+        "end": 153.11,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "Now for a lesson",
+        "de": "Und jetzt die Lektion.",
+        "orig": "scenes/allmightnomu/lines/38.mp3"
+      },
+      {
+        "t": 153.5,
+        "end": 155.183,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "You may have heard these words before",
+        "de": "Diese Worte hast du vielleicht schon gehört…",
+        "orig": "scenes/allmightnomu/lines/39.mp3"
+      },
+      {
+        "t": 155.494,
+        "end": 157.694,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "But I'll teach you what they really mean!",
+        "de": "Aber ich zeig dir, was sie wirklich bedeuten!",
+        "orig": "scenes/allmightnomu/lines/40.mp3"
+      },
+      {
+        "t": 158.372,
+        "end": 159.772,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "GO BEYOND",
+        "de": "GO BEYOND!",
+        "orig": "scenes/allmightnomu/lines/41.mp3"
+      },
+      {
+        "t": 160.952,
+        "end": 166.485,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "PLUS ULTRAAAAAAAA",
+        "de": "PLUS ULTRAAAAAAAA!",
+        "orig": "scenes/allmightnomu/lines/42.mp3"
+      },
+      {
+        "t": 174.701,
+        "end": 176.751,
+        "chars": [
+          6
+        ],
+        "who": "Tokoyami",
+        "text": "What's happening everything is shaking",
+        "de": "Was ist los — alles wackelt!",
+        "orig": "scenes/allmightnomu/lines/43.mp3"
+      },
+      {
+        "t": 179.166,
+        "end": 180.533,
+        "chars": [
+          7
+        ],
+        "who": "Ojiro",
+        "text": "What was that",
+        "de": "Was war das?",
+        "orig": "scenes/allmightnomu/lines/44.mp3"
+      },
+      {
+        "t": 188.751,
+        "end": 190.151,
+        "chars": [
+          3
+        ],
+        "who": "Deku",
+        "text": "He did it...",
+        "de": "Er hat's geschafft…",
+        "orig": "scenes/allmightnomu/lines/45.mp3"
+      },
+      {
+        "t": 192.668,
+        "end": 194.801,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "I really have gotten weaker...",
+        "de": "Ich bin wirklich schwächer geworden…",
+        "orig": "scenes/allmightnomu/lines/46.mp3"
+      },
+      {
+        "t": 195.156,
+        "end": 199.839,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "Back in my hayday... 5 hits would have been enough to knock that guy out",
+        "de": "Früher… fünf Schläge hätten gereicht, den Typen auszuschalten.",
+        "orig": "scenes/allmightnomu/lines/47.mp3"
+      },
+      {
+        "t": 202.904,
+        "end": 206.171,
+        "chars": [
+          0
+        ],
+        "who": "All Might",
+        "text": "But today it took more than 300 mighty blows",
+        "de": "Heute brauchte ich mehr als 300 mächtige Schläge.",
+        "orig": "scenes/allmightnomu/lines/48.mp3"
+      }
+    ]
+  },
+  {
+    "id": "aottraitor",
+    "title": "Attack on Titan — Ihr Verräter (6 Rollen)",
+    "videoUrl": "scenes/aottraitor.mp4",
+    "avatars": {
+      "0": "scenes/aottraitor/reiner.png",
+      "1": "scenes/aottraitor/eren.png",
+      "2": "scenes/aottraitor/bertolt.png",
+      "3": "scenes/aottraitor/mikasa.png",
+      "4": "scenes/aottraitor/armin.png",
+      "5": "scenes/aottraitor/historia.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Reiner",
         "pan": -0.25,
         "effect": "none",
         "gain": 1.0
       },
       {
         "id": 1,
-        "name": "Honey",
+        "name": "Eren",
         "pan": 0.25,
         "effect": "none",
         "gain": 1.0
-      }
-    ],
-    "lines": [
-      {
-        "t": 9.564,
-        "end": 10.687,
-        "chars": [
-          0
-        ],
-        "who": "Frozone",
-        "text": "Hoooneyyyy...!",
-        "de": "Schääätziii…!",
-        "orig": "scenes/supersuit/lines/01.mp3"
-      },
-      {
-        "t": 10.635,
-        "end": 11.419,
-        "chars": [
-          1
-        ],
-        "who": "Honey",
-        "text": "Whaaaat?",
-        "de": "Waaaaas?",
-        "orig": "scenes/supersuit/lines/02.mp3"
-      },
-      {
-        "t": 11.366,
-        "end": 13.012,
-        "chars": [
-          0
-        ],
-        "who": "Frozone",
-        "text": "Where's my super suit...?",
-        "de": "Wo ist mein Superanzug…?",
-        "orig": "scenes/supersuit/lines/03.mp3"
-      },
-      {
-        "t": 12.943,
-        "end": 13.753,
-        "chars": [
-          1
-        ],
-        "who": "Honey",
-        "text": "Whaaaat?",
-        "de": "Waaaaas?",
-        "orig": "scenes/supersuit/lines/04.mp3"
-      },
-      {
-        "t": 13.68,
-        "end": 17.102,
-        "chars": [
-          0
-        ],
-        "who": "Frozone",
-        "text": "WHERE... IS... MY... SUPER SUIT!?",
-        "de": "WO… IST… MEIN… SUPERANZUG!?",
-        "orig": "scenes/supersuit/lines/05.mp3"
-      },
-      {
-        "t": 17.039,
-        "end": 19.233,
-        "chars": [
-          1
-        ],
-        "who": "Honey",
-        "text": "I uhhhhh... put it away!",
-        "de": "Ich ähhhh… hab ihn weggepackt!",
-        "orig": "scenes/supersuit/lines/06.mp3"
-      },
-      {
-        "t": 19.157,
-        "end": 20.254,
-        "chars": [
-          0
-        ],
-        "who": "Frozone",
-        "text": "WHEEEEERE?",
-        "de": "WOOOO?",
-        "orig": "scenes/supersuit/lines/07.mp3"
-      },
-      {
-        "t": 20.2,
-        "end": 22.551,
-        "chars": [
-          1
-        ],
-        "who": "Honey",
-        "text": "Whyyyy do you neeeeeed to know?",
-        "de": "Waruuum musst du daaas wissen?",
-        "orig": "scenes/supersuit/lines/08.mp3"
-      },
-      {
-        "t": 22.409,
-        "end": 23.167,
-        "chars": [
-          0
-        ],
-        "who": "Frozone",
-        "text": "I need it!",
-        "de": "Ich brauch ihn!",
-        "orig": "scenes/supersuit/lines/09.mp3"
-      },
-      {
-        "t": 23.099,
-        "end": 28.977,
-        "chars": [
-          1
-        ],
-        "who": "Honey",
-        "text": "Uh-uh! Don't you think about runnin' off to doin' no Darin' Do - we've been planning this dinner for two months!",
-        "de": "Äh-äh! Denk gar nicht dran, wieder irgendwelchen Heldentaten hinterherzujagen — wir planen dieses Dinner seit zwei Monaten!",
-        "orig": "scenes/supersuit/lines/10.mp3"
-      },
-      {
-        "t": 28.695,
-        "end": 30.419,
-        "chars": [
-          0
-        ],
-        "who": "Frozone",
-        "text": "The public is in danger!",
-        "de": "Die Leute sind in Gefahr!",
-        "orig": "scenes/supersuit/lines/11.mp3"
-      },
-      {
-        "t": 30.365,
-        "end": 32.272,
-        "chars": [
-          1
-        ],
-        "who": "Honey",
-        "text": "My EVENING'S in danger!",
-        "de": "Mein ABEND ist in Gefahr!",
-        "orig": "scenes/supersuit/lines/12.mp3"
-      },
-      {
-        "t": 32.199,
-        "end": 35.778,
-        "chars": [
-          0
-        ],
-        "who": "Frozone",
-        "text": "YOU TELL ME WHERE MY SUIT IS, WOMAN! WE ARE TALKING ABOUT THE GREATER GOOD!!",
-        "de": "SAG MIR WO MEIN ANZUG IST, FRAU! ES GEHT UM DAS GRÖSSERE GANZE!!",
-        "orig": "scenes/supersuit/lines/13.mp3"
-      },
-      {
-        "t": 35.723,
-        "end": 41.183,
-        "chars": [
-          1
-        ],
-        "who": "Honey",
-        "text": "Greater good? I am your WIFE! I'm the greatest GOOD you are EVER gonna get!!!",
-        "de": "Größeres Ganzes? Ich bin deine FRAU! Ich bin das beste GUTE, das du JE kriegen wirst!!!",
-        "orig": "scenes/supersuit/lines/14.mp3"
-      },
-      {
-        "t": 40.039,
-        "end": 40.222,
-        "chars": [
-          0
-        ],
-        "who": "Frozone",
-        "text": "*ugh*",
-        "de": "*ächz*",
-        "orig": "scenes/supersuit/lines/15.mp3"
-      }
-    ]
-  },
-  {
-    "id": "tojidomain",
-    "title": "Jujutsu Kaisen — Tojis Auftritt (4 Rollen)",
-    "videoUrl": "scenes/tojidomain.mp4",
-    "avatars": {
-      "0": "scenes/tojidomain/nanami.png",
-      "1": "scenes/tojidomain/maki.png",
-      "2": "scenes/tojidomain/dagon.png",
-      "3": "scenes/tojidomain/erzahler.png"
-    },
-    "roles": [
-      {
-        "id": 0,
-        "name": "Nanami",
-        "pan": -0.35,
-        "effect": "none",
-        "gain": 1.0
-      },
-      {
-        "id": 1,
-        "name": "Maki",
-        "pan": 0.35,
-        "effect": "none",
-        "gain": 1.0
       },
       {
         "id": 2,
-        "name": "Dagon",
+        "name": "Bertolt",
         "pan": 0.0,
-        "effect": "monster",
-        "gain": 1.0
-      },
-      {
-        "id": 3,
-        "name": "Erzähler",
-        "pan": 0.0,
-        "effect": "radio",
-        "gain": 1.0
-      }
-    ],
-    "lines": [
-      {
-        "t": 4.694,
-        "end": 6.375,
-        "chars": [
-          0
-        ],
-        "who": "Nanami",
-        "text": "You two come here!",
-        "de": "Ihr beiden, herkommen!",
-        "orig": "scenes/tojidomain/lines/01.mp3"
-      },
-      {
-        "t": 6.118,
-        "end": 6.678,
-        "chars": [
-          1
-        ],
-        "who": "Maki",
-        "text": "hmm?",
-        "de": "Hmm?",
-        "orig": "scenes/tojidomain/lines/02.mp3"
-      },
-      {
-        "t": 6.646,
-        "end": 7.301,
-        "chars": [
-          2
-        ],
-        "who": "Dagon",
-        "text": "mmmhh?",
-        "de": "Mmmhh?",
-        "orig": "scenes/tojidomain/lines/03.mp3"
-      },
-      {
-        "t": 9.119,
-        "end": 11.812,
-        "chars": [
-          0
-        ],
-        "who": "Nanami",
-        "text": "Now!",
-        "de": "Sofort!",
-        "orig": "scenes/tojidomain/lines/04.mp3"
-      },
-      {
-        "t": 14.007,
-        "end": 16.519,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "They faced an enemy that understood language.",
-        "de": "Sie standen einem Gegner gegenüber, der Sprache verstand.",
-        "orig": "scenes/tojidomain/lines/05.mp3"
-      },
-      {
-        "t": 17.15,
-        "end": 20.221,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "So he conveyed his intent in an indirect way",
-        "de": "Also vermittelte er seine Absicht auf indirekte Weise",
-        "orig": "scenes/tojidomain/lines/06.mp3"
-      },
-      {
-        "t": 20.368,
-        "end": 23.049,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "and they put their trust in the grade 1 sorcerer.",
-        "de": "und sie vertrauten dem Grade-1-Zauberer.",
-        "orig": "scenes/tojidomain/lines/07.mp3"
-      },
-      {
-        "t": 23.852,
-        "end": 30.609,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "The previously excluded possibility of escaping the domain became an option once more.",
-        "de": "Die zuvor ausgeschlossene Möglichkeit, der Domäne zu entkommen, war wieder eine Option.",
-        "orig": "scenes/tojidomain/lines/08.mp3"
-      },
-      {
-        "t": 31.223,
-        "end": 34.066,
-        "chars": [
-          2
-        ],
-        "who": "Dagon",
-        "text": "They're bolstering their defense of the boy?",
-        "de": "They're bolstering their defense of the boy?",
-        "orig": "scenes/tojidomain/lines/09.mp3"
-      },
-      {
-        "t": 34.423,
-        "end": 37.137,
-        "chars": [
-          2
-        ],
-        "who": "Dagon",
-        "text": "That just groups them up for me to... [gahh]",
-        "de": "Dann stehen sie doch schön zusammen für mich, um… [gahh]",
-        "orig": "scenes/tojidomain/lines/10.mp3"
-      },
-      {
-        "t": 37.452,
-        "end": 38.638,
-        "chars": [
-          2
-        ],
-        "who": "Dagon",
-        "text": "Nooo!",
-        "de": "Neeein!",
-        "orig": "scenes/tojidomain/lines/11.mp3"
-      },
-      {
-        "t": 38.774,
-        "end": 43.074,
-        "chars": [
-          0
-        ],
-        "who": "Nanami",
-        "text": "He figured it out, but it's too late! Get to Fushiguro's feet now!",
-        "de": "Er hat's kapiert, aber zu spät! Sofort zu Fushiguros Füßen!",
-        "orig": "scenes/tojidomain/lines/12.mp3"
-      },
-      {
-        "t": 58.423,
-        "end": 62.437,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "The one who had inherited the curse of the Zen'in clan from birth..",
-        "de": "Derjenige, der den Fluch des Zen'in-Clans von Geburt an geerbt hatte…",
-        "orig": "scenes/tojidomain/lines/13.mp3"
-      },
-      {
-        "t": 64.552,
-        "end": 68.123,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "and the one who could not completely cast off that curse.",
-        "de": "und derjenige, der diesen Fluch nie ganz abschütteln konnte.",
-        "orig": "scenes/tojidomain/lines/14.mp3"
-      },
-      {
-        "t": 68.552,
-        "end": 70.823,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "They both stood in witness...",
-        "de": "Beide waren Zeugen…",
-        "orig": "scenes/tojidomain/lines/15.mp3"
-      },
-      {
-        "t": 73.566,
-        "end": 76.437,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "to the one who left it all behind,",
-        "de": "dessen, der alles hinter sich gelassen hatte,",
-        "orig": "scenes/tojidomain/lines/16.mp3"
-      },
-      {
-        "t": 76.482,
-        "end": 79.139,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "now manifested in raw flesh,",
-        "de": "jetzt in rohem Fleisch erschienen,",
-        "orig": "scenes/tojidomain/lines/17.mp3"
-      },
-      {
-        "t": 80.238,
-        "end": 82.024,
-        "chars": [
-          3
-        ],
-        "who": "Erzähler",
-        "text": "and taking action",
-        "de": "und zur Tat schritt.",
-        "orig": "scenes/tojidomain/lines/18.mp3"
-      }
-    ]
-  },
-  {
-    "id": "edgerunnerscar",
-    "title": "Cyberpunk Edgerunners — Autoklau (6 Rollen)",
-    "videoUrl": "scenes/edgerunnerscar.mp4",
-    "avatars": {
-      "0": "scenes/edgerunnerscar/maine.png",
-      "1": "scenes/edgerunnerscar/kiwi.png",
-      "2": "scenes/edgerunnerscar/rebecca.png",
-      "3": "scenes/edgerunnerscar/david.png",
-      "4": "scenes/edgerunnerscar/lucy.png",
-      "5": "scenes/edgerunnerscar/wachmann.png"
-    },
-    "roles": [
-      {
-        "id": 0,
-        "name": "Maine",
-        "pan": -0.2,
-        "effect": "none",
-        "gain": 1.0
-      },
-      {
-        "id": 1,
-        "name": "Kiwi",
-        "pan": 0.35,
-        "effect": "none",
-        "gain": 1.0
-      },
-      {
-        "id": 2,
-        "name": "Rebecca",
-        "pan": 0.45,
         "effect": "none",
         "gain": 1.0
       },
       {
         "id": 3,
-        "name": "David",
+        "name": "Mikasa",
         "pan": -0.4,
         "effect": "none",
         "gain": 1.0
       },
       {
         "id": 4,
-        "name": "Lucy",
-        "pan": 0.2,
+        "name": "Armin",
+        "pan": 0.4,
         "effect": "none",
         "gain": 1.0
       },
       {
         "id": 5,
-        "name": "Wachmann",
-        "pan": 0.0,
-        "effect": "megaphone",
+        "name": "Historia",
+        "pan": 0.15,
+        "effect": "none",
         "gain": 1.0
       }
     ],
     "lines": [
       {
         "t": 0,
-        "end": 2.193,
+        "end": 5.89,
         "chars": [
           0
         ],
-        "who": "Maine",
-        "text": "Wchodzisz ty",
-        "de": "Du gehst rein.",
-        "orig": "scenes/edgerunnerscar/lines/01.mp3"
+        "who": "Reiner",
+        "text": "Who cares, it is what it is, no choice but to face what i have done.",
+        "de": "Wen interessiert's — es ist, wie es ist. Bleibt nur, sich dem zu stellen, was ich getan habe.",
+        "orig": "scenes/aottraitor/lines/01.mp3"
       },
       {
-        "t": 7.427,
-        "end": 11.992,
+        "t": 7.795,
+        "end": 13.547,
         "chars": [
           0
         ],
-        "who": "Maine",
-        "text": "Bierzesz klucz i przekazujesz dorio ona go skopiuje",
-        "de": "Du nimmst den Schlüssel und gibst ihn Dorio — sie kopiert ihn.",
-        "orig": "scenes/edgerunnerscar/lines/02.mp3"
+        "who": "Reiner",
+        "text": "As a warrior, no road left but the one that leads to the end!",
+        "de": "Als Krieger bleibt nur der Weg, der zum Ende führt!",
+        "orig": "scenes/aottraitor/lines/02.mp3"
       },
       {
-        "t": 12.426,
-        "end": 20.614,
-        "chars": [
-          0
-        ],
-        "who": "Maine",
-        "text": "Następnie wchodzimy i bierzemy dane nawigacyjne póki maxim nie dojdzie do siebie, ale tym zajmiemy się my",
-        "de": "Dann gehen wir rein und holen uns die Navigationsdaten, solange Maxim noch außer Gefecht ist. Den Rest übernehmen wir.",
-        "orig": "scenes/edgerunnerscar/lines/03.mp3"
-      },
-      {
-        "t": 20.831,
-        "end": 27.606,
-        "chars": [
-          0
-        ],
-        "who": "Maine",
-        "text": "Ty musisz tylko oddać mu klucz zanim się nie zorientuje to wszystko, bułka z masłem",
-        "de": "Du musst ihm nur den Schlüssel zurückgeben, bevor er's merkt. Stück Kuchen.",
-        "orig": "scenes/edgerunnerscar/lines/04.mp3"
-      },
-      {
-        "t": 27.606,
-        "end": 30.396,
+        "t": 13.82,
+        "end": 18.528,
         "chars": [
           1
         ],
-        "who": "Kiwi",
-        "text": "Chwila, szef do niego dzwoni",
-        "de": "Moment, Boss — er ruft ihn an.",
-        "orig": "scenes/edgerunnerscar/lines/05.mp3"
+        "who": "Eren",
+        "text": "*Shocked*",
+        "de": "*Schock*",
+        "orig": "scenes/aottraitor/lines/03.mp3"
       },
       {
-        "t": 30.758,
-        "end": 35.939,
-        "chars": [
-          0
-        ],
-        "who": "Maine",
-        "text": "Cholera nie może nawet spokojnie poleżeć odpocznie dopiero jak wykituje",
-        "de": "Verdammt, der kann nicht mal in Ruhe liegen. Ruhe kriegt der erst, wenn er abkratzt.",
-        "orig": "scenes/edgerunnerscar/lines/06.mp3"
-      },
-      {
-        "t": 36.156,
-        "end": 37.823,
-        "chars": [
-          1
-        ],
-        "who": "Kiwi",
-        "text": "Niedobrze wzywa go",
-        "de": "Schlecht — er ruft ihn.",
-        "orig": "scenes/edgerunnerscar/lines/07.mp3"
-      },
-      {
-        "t": 37.677,
-        "end": 39.416,
-        "chars": [
-          0
-        ],
-        "who": "Maine",
-        "text": "Przecież miał mieć wolne",
-        "de": "Dabei sollte der frei haben.",
-        "orig": "scenes/edgerunnerscar/lines/08.mp3"
-      },
-      {
-        "t": 39.416,
-        "end": 40.938,
-        "chars": [
-          1
-        ],
-        "who": "Kiwi",
-        "text": "Jeszcze nie skończyłam kopiować",
-        "de": "Ich bin noch nicht fertig mit dem Kopieren.",
-        "orig": "scenes/edgerunnerscar/lines/09.mp3"
-      },
-      {
-        "t": 40.938,
-        "end": 47.785,
-        "chars": [
-          0
-        ],
-        "who": "Maine",
-        "text": "Kurwa zmiana planów młody odpalaj wóz becca załatw to",
-        "de": "Scheiße, Planänderung. Junge, start den Wagen — Becca, erledig das.",
-        "orig": "scenes/edgerunnerscar/lines/10.mp3"
-      },
-      {
-        "t": 48.292,
-        "end": 50.067,
-        "chars": [
-          1
-        ],
-        "who": "Kiwi",
-        "text": "Byle szybko",
-        "de": "Aber fix.",
-        "orig": "scenes/edgerunnerscar/lines/11.mp3"
-      },
-      {
-        "t": 52.821,
-        "end": 59.523,
-        "chars": [
-          5
-        ],
-        "who": "Wachmann",
-        "text": "Hej uważaj! następnym ra-oooooouu",
-        "de": "Hey, pass auf! Beim nächsten Ma—ooooouu",
-        "orig": "scenes/edgerunnerscar/lines/12.mp3"
-      },
-      {
-        "t": 52.821,
-        "end": 59.523,
+        "t": 18.57,
+        "end": 22.817,
         "chars": [
           2
         ],
-        "who": "Rebecca",
-        "text": "Oooooo oj przepraszam oooeeuu",
-        "de": "Oooooo — oh, sorry — oooeeuu",
-        "orig": "scenes/edgerunnerscar/lines/13.mp3"
+        "who": "Bertolt",
+        "text": "Reiner, right now, here, were doing this?",
+        "de": "Reiner… genau jetzt, genau hier — machen wir das?",
+        "orig": "scenes/aottraitor/lines/04.mp3"
       },
       {
-        "t": 60.03,
-        "end": 63.182,
+        "t": 22.892,
+        "end": 27.643,
         "chars": [
           0
         ],
-        "who": "Maine",
-        "text": "Wsiadaj sciągnij dane zanim się zjawi",
-        "de": "Steig ein, zieh die Daten, bevor er auftaucht.",
-        "orig": "scenes/edgerunnerscar/lines/14.mp3"
+        "who": "Reiner",
+        "text": "Yes, right here right now, we're settling this once and for all",
+        "de": "Ja. Genau hier, genau jetzt. Wir machen das ein für alle Mal klar.",
+        "orig": "scenes/aottraitor/lines/05.mp3"
       },
       {
-        "t": 63.762,
-        "end": 64.849,
+        "t": 27.676,
+        "end": 28.205,
         "chars": [
           3
         ],
-        "who": "David",
-        "text": "Ale jak?",
-        "de": "Aber wie?",
-        "orig": "scenes/edgerunnerscar/lines/15.mp3"
+        "who": "Mikasa",
+        "text": "*Gasp*",
+        "de": "*Keucht*",
+        "orig": "scenes/aottraitor/lines/06.mp3"
       },
       {
-        "t": 64.849,
-        "end": 68.52,
+        "t": 28.72,
+        "end": 29.149,
         "chars": [
-          4
+          0
         ],
-        "who": "Lucy",
-        "text": "Ja się tym zajme, już wsiadaj",
-        "de": "Ich mach das. Steig schon ein.",
-        "orig": "scenes/edgerunnerscar/lines/16.mp3"
+        "who": "Reiner",
+        "text": "Huh",
+        "de": "Hä?",
+        "orig": "scenes/aottraitor/lines/07.mp3"
       },
       {
-        "t": 70.247,
-        "end": 80.415,
+        "t": 29.417,
+        "end": 30.836,
         "chars": [
           3
         ],
-        "who": "David",
-        "text": "Wooooo  ho-  woooou, i jak",
-        "de": "Wooooo — ho — woooou, und? Wie sieht's aus?",
-        "orig": "scenes/edgerunnerscar/lines/17.mp3"
+        "who": "Mikasa",
+        "text": "*Grunts* HAAH",
+        "de": "*Grunz* HAAH!",
+        "orig": "scenes/aottraitor/lines/08.mp3"
       },
       {
-        "t": 80.5,
-        "end": 85.648,
+        "t": 30.847,
+        "end": 31.635,
         "chars": [
-          4
+          0
         ],
-        "who": "Lucy",
-        "text": "Cicho nie przeszkadzaj zabezpieczenia LOD są takie upierdliwe",
-        "de": "Psst, nicht stören — die ICE-Sicherungen sind echt nervig.",
-        "orig": "scenes/edgerunnerscar/lines/18.mp3"
+        "who": "Reiner",
+        "text": "*Pain*",
+        "de": "*Schmerz*",
+        "orig": "scenes/aottraitor/lines/09.mp3"
       },
       {
-        "t": 86.015,
-        "end": 88.169,
+        "t": 31.802,
+        "end": 32.347,
+        "chars": [
+          3
+        ],
+        "who": "Mikasa",
+        "text": "*Grunts*",
+        "de": "*Grunz*",
+        "orig": "scenes/aottraitor/lines/10.mp3"
+      },
+      {
+        "t": 31.802,
+        "end": 32.341,
+        "chars": [
+          3
+        ],
+        "who": "Mikasa",
+        "text": "*Grunts*",
+        "de": "*Grunz*",
+        "orig": "scenes/aottraitor/lines/11.mp3"
+      },
+      {
+        "t": 32.675,
+        "end": 35.069,
         "chars": [
           2
         ],
-        "who": "Rebecca",
-        "text": "Przepraszam przystojniaczku",
-        "de": "Sorry, hübscher.",
-        "orig": "scenes/edgerunnerscar/lines/19.mp3"
+        "who": "Bertolt",
+        "text": "*Pain*",
+        "de": "*Schmerz*",
+        "orig": "scenes/aottraitor/lines/12.mp3"
       },
       {
-        "t": 88.298,
-        "end": 90.388,
-        "chars": [
-          5
-        ],
-        "who": "Wachmann",
-        "text": "He nie ma problemu słonko",
-        "de": "Hey, kein Problem, Süße.",
-        "orig": "scenes/edgerunnerscar/lines/20.mp3"
-      },
-      {
-        "t": 90.129,
-        "end": 93.037,
+        "t": 38.15,
+        "end": 38.846,
         "chars": [
           2
         ],
-        "who": "Rebecca",
-        "text": "Następnym razem to wynagrodze!",
-        "de": "Beim nächsten Mal mach ich's wett!",
-        "orig": "scenes/edgerunnerscar/lines/21.mp3"
+        "who": "Bertolt",
+        "text": "*Pain*",
+        "de": "*Schmerz*",
+        "orig": "scenes/aottraitor/lines/13.mp3"
       },
       {
-        "t": 93.49,
-        "end": 95.967,
+        "t": 40.14,
+        "end": 42.368,
         "chars": [
-          5
+          3
         ],
-        "who": "Wachmann",
-        "text": "Ty suko!",
-        "de": "Du Schlampe!",
-        "orig": "scenes/edgerunnerscar/lines/22.mp3"
+        "who": "Mikasa",
+        "text": "Eren! Get out of here!",
+        "de": "Eren! Verschwind hier!",
+        "orig": "scenes/aottraitor/lines/14.mp3"
       },
       {
-        "t": 95.364,
-        "end": 99.586,
+        "t": 42.9,
+        "end": 44.586,
+        "chars": [
+          3
+        ],
+        "who": "Mikasa",
+        "text": "*Pain*",
+        "de": "*Schmerz*",
+        "orig": "scenes/aottraitor/lines/15.mp3"
+      },
+      {
+        "t": 45.55,
+        "end": 46.318,
+        "chars": [
+          0
+        ],
+        "who": "Reiner",
+        "text": "BERTHOLD!",
+        "de": "BERTOLT!",
+        "orig": "scenes/aottraitor/lines/16.mp3"
+      },
+      {
+        "t": 46.59,
+        "end": 51.559,
+        "chars": [
+          1
+        ],
+        "who": "Eren",
+        "text": "*Grunts*",
+        "de": "*Grunz*",
+        "orig": "scenes/aottraitor/lines/17.mp3"
+      },
+      {
+        "t": 52.195,
+        "end": 55.569,
+        "chars": [
+          4
+        ],
+        "who": "Armin",
+        "text": "Eren! RUN AWAY!",
+        "de": "Eren! LAUF WEG!",
+        "orig": "scenes/aottraitor/lines/18.mp3"
+      },
+      {
+        "t": 71.24,
+        "end": 74.52,
         "chars": [
           2
         ],
-        "who": "Rebecca",
-        "text": "Aa nie krzycz na mnie jestem wrażliwą osobą",
-        "de": "Aa, schrei mich nicht an, ich bin 'ne sensible Person!",
-        "orig": "scenes/edgerunnerscar/lines/23.mp3"
+        "who": "Bertolt",
+        "text": "*Growl*",
+        "de": "*Knurrt*",
+        "orig": "scenes/aottraitor/lines/19.mp3"
       },
       {
-        "t": 99.585,
-        "end": 101.631,
+        "t": 75.28,
+        "end": 76.986,
         "chars": [
           1
         ],
-        "who": "Kiwi",
-        "text": "Wpadliśmy kończy nam się czas",
-        "de": "Wir sind aufgeflogen — uns läuft die Zeit weg.",
-        "orig": "scenes/edgerunnerscar/lines/24.mp3"
+        "who": "Eren",
+        "text": "*Grunts*",
+        "de": "*Grunz*",
+        "orig": "scenes/aottraitor/lines/20.mp3"
       },
       {
-        "t": 101.331,
-        "end": 102.516,
+        "t": 92.393,
+        "end": 94.476,
         "chars": [
-          0
+          5
         ],
-        "who": "Maine",
-        "text": "Jak idzie?",
-        "de": "Wie weit?",
-        "orig": "scenes/edgerunnerscar/lines/25.mp3"
+        "who": "Historia",
+        "text": "Huh, EMIR!",
+        "de": "Hä — YMIR!",
+        "orig": "scenes/aottraitor/lines/21.mp3"
       },
       {
-        "t": 102.516,
-        "end": 103.55,
+        "t": 99.977,
+        "end": 100.577,
         "chars": [
           4
         ],
-        "who": "Lucy",
-        "text": "Pół minuty",
-        "de": "Halbe Minute.",
-        "orig": "scenes/edgerunnerscar/lines/26.mp3"
+        "who": "Armin",
+        "text": "No!",
+        "de": "Nein!",
+        "orig": "scenes/aottraitor/lines/22.mp3"
       },
       {
-        "t": 103.55,
-        "end": 105.209,
+        "t": 110.23,
+        "end": 114.199,
         "chars": [
           1
         ],
-        "who": "Kiwi",
-        "text": "Nie ma czasu, kończcie",
-        "de": "Keine Zeit, macht fertig.",
-        "orig": "scenes/edgerunnerscar/lines/27.mp3"
+        "who": "Eren",
+        "text": "*Crying*",
+        "de": "*Weint*",
+        "orig": "scenes/aottraitor/lines/23.mp3"
       },
       {
-        "t": 105.295,
-        "end": 107.902,
+        "t": 114.32,
+        "end": 116.938,
         "chars": [
-          4
+          0
         ],
-        "who": "Lucy",
-        "text": "Dobra, zrobione",
-        "de": "Okay, fertig.",
-        "orig": "scenes/edgerunnerscar/lines/28.mp3"
+        "who": "Reiner",
+        "text": "I'm going to return to the home that was taken from me.",
+        "de": "Ich werde nach Hause zurückkehren, das mir genommen wurde.",
+        "orig": "scenes/aottraitor/lines/24.mp3"
       },
       {
-        "t": 108.397,
-        "end": 110.702,
+        "t": 117.841,
+        "end": 120.645,
         "chars": [
-          3
+          0
         ],
-        "who": "David",
-        "text": "Zamknięte",
-        "de": "Zu.",
-        "orig": "scenes/edgerunnerscar/lines/29.mp3"
+        "who": "Reiner",
+        "text": "I will do it, no matter what.",
+        "de": "Ich werde es tun — koste es, was es wolle.",
+        "orig": "scenes/aottraitor/lines/25.mp3"
       },
       {
-        "t": 110.163,
-        "end": 111.692,
-        "chars": [
-          4
-        ],
-        "who": "Lucy",
-        "text": "Przywrócił zabezpieczenia?",
-        "de": "Hast du die Sicherungen wieder aktiviert?",
-        "orig": "scenes/edgerunnerscar/lines/30.mp3"
-      },
-      {
-        "t": 111.692,
-        "end": 113.76,
+        "t": 127.65,
+        "end": 132.931,
         "chars": [
           1
         ],
-        "who": "Kiwi",
-        "text": "Jak mówiłam czas minął",
-        "de": "Wie gesagt — Zeit um.",
-        "orig": "scenes/edgerunnerscar/lines/31.mp3"
+        "who": "Eren",
+        "text": "Berthold, Reiner *Wailing*",
+        "de": "Bertolt… Reiner… *schluchzt*",
+        "orig": "scenes/aottraitor/lines/26.mp3"
       },
       {
-        "t": 113.373,
-        "end": 116.97,
+        "t": 136.425,
+        "end": 141.1,
         "chars": [
-          5
+          1
         ],
-        "who": "Wachmann",
-        "text": "OTWIERAJ PIEPRZONY SZCZYLU",
-        "de": "MACH AUF, VERDAMMTER SCHLÜSSEL!",
-        "orig": "scenes/edgerunnerscar/lines/32.mp3"
+        "who": "Eren",
+        "text": "*Grunts* Damn you, YOU TRAITORS!",
+        "de": "*Grunz* Verdammt noch mal — IHR VERRÄTER!",
+        "orig": "scenes/aottraitor/lines/27.mp3"
       },
       {
-        "t": 117.379,
-        "end": 120.632,
+        "t": 141.515,
+        "end": 147.433,
         "chars": [
-          5
+          1
         ],
-        "who": "Wachmann",
-        "text": "OTWIERAJ DO KURWY NĘDZY",
-        "de": "MACH AUF, ZUM TEUFEL!",
-        "orig": "scenes/edgerunnerscar/lines/33.mp3"
+        "who": "Eren",
+        "text": "*Growls*",
+        "de": "*Knurrt*",
+        "orig": "scenes/aottraitor/lines/28.mp3"
+      }
+    ]
+  },
+  {
+    "id": "silentvoice",
+    "title": "A Silent Voice — Mutter und Shouya (2 Rollen)",
+    "videoUrl": "scenes/silentvoice.mp4",
+    "avatars": {
+      "0": "scenes/silentvoice/mutter.png",
+      "1": "scenes/silentvoice/shouya.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Mutter",
+        "pan": -0.2,
+        "effect": "none",
+        "gain": 1.0
       },
       {
-        "t": 118.047,
-        "end": 120.632,
+        "id": 1,
+        "name": "Shouya",
+        "pan": 0.2,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 8.442,
+        "end": 10.859,
         "chars": [
           0
         ],
-        "who": "Maine",
-        "text": "Chuj nie ma wyjścia odpalaj",
-        "de": "Scheiße, kein Ausweg — leg los!",
-        "orig": "scenes/edgerunnerscar/lines/34.mp3"
+        "who": "Mutter",
+        "text": "*",
+        "de": "*spricht leise*",
+        "orig": "scenes/silentvoice/lines/01.mp3"
       },
       {
-        "t": 120.46,
-        "end": 121.149,
+        "t": 11.378,
+        "end": 13.719,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*antwortet*",
+        "orig": "scenes/silentvoice/lines/02.mp3"
+      },
+      {
+        "t": 13.409,
+        "end": 16.091,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*weiter*",
+        "orig": "scenes/silentvoice/lines/03.mp3"
+      },
+      {
+        "t": 21.304,
+        "end": 24.055,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*hm*",
+        "orig": "scenes/silentvoice/lines/04.mp3"
+      },
+      {
+        "t": 23.937,
+        "end": 27.446,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "* hehehe *   because..  *breathe in*",
+        "de": "*hehehe* …weil… *atmet ein*",
+        "orig": "scenes/silentvoice/lines/05.mp3"
+      },
+      {
+        "t": 27.876,
+        "end": 32.577,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*lacht leise*",
+        "orig": "scenes/silentvoice/lines/06.mp3"
+      },
+      {
+        "t": 29.226,
+        "end": 30.285,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*…*",
+        "orig": "scenes/silentvoice/lines/07.mp3"
+      },
+      {
+        "t": 32.521,
+        "end": 36.391,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*erzählt*",
+        "orig": "scenes/silentvoice/lines/08.mp3"
+      },
+      {
+        "t": 37.25,
+        "end": 40.786,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*weiter*",
+        "orig": "scenes/silentvoice/lines/09.mp3"
+      },
+      {
+        "t": 43.208,
+        "end": 48.832,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*fast weinend*",
+        "orig": "scenes/silentvoice/lines/10.mp3"
+      },
+      {
+        "t": 51.64,
+        "end": 55.613,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*schluck*",
+        "orig": "scenes/silentvoice/lines/11.mp3"
+      },
+      {
+        "t": 55.812,
+        "end": 58.494,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*leise*",
+        "orig": "scenes/silentvoice/lines/12.mp3"
+      },
+      {
+        "t": 57.991,
+        "end": 59.132,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*beruhigt*",
+        "orig": "scenes/silentvoice/lines/13.mp3"
+      },
+      {
+        "t": 59.52,
+        "end": 61.242,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*ja*",
+        "orig": "scenes/silentvoice/lines/14.mp3"
+      },
+      {
+        "t": 61.248,
+        "end": 63.42,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*weiter*",
+        "orig": "scenes/silentvoice/lines/15.mp3"
+      },
+      {
+        "t": 63.225,
+        "end": 72.607,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*Stimme bricht*",
+        "orig": "scenes/silentvoice/lines/16.mp3"
+      },
+      {
+        "t": 72.829,
+        "end": 76.142,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*drückt nach*",
+        "orig": "scenes/silentvoice/lines/17.mp3"
+      },
+      {
+        "t": 76.421,
+        "end": 79.706,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*fast schreiend*",
+        "orig": "scenes/silentvoice/lines/18.mp3"
+      },
+      {
+        "t": 79.845,
+        "end": 83.743,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*atmet*",
+        "orig": "scenes/silentvoice/lines/19.mp3"
+      },
+      {
+        "t": 85.831,
+        "end": 88.392,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*weint*",
+        "orig": "scenes/silentvoice/lines/20.mp3"
+      },
+      {
+        "t": 88.794,
+        "end": 92.072,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*Mama…*",
+        "orig": "scenes/silentvoice/lines/21.mp3"
+      },
+      {
+        "t": 91.677,
+        "end": 94.377,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*umarmung*",
+        "orig": "scenes/silentvoice/lines/22.mp3"
+      },
+      {
+        "t": 95.316,
+        "end": 101.01,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*schluchzt*",
+        "orig": "scenes/silentvoice/lines/23.mp3"
+      },
+      {
+        "t": 100.445,
+        "end": 103.122,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*hält ihn*",
+        "orig": "scenes/silentvoice/lines/24.mp3"
+      },
+      {
+        "t": 102.931,
+        "end": 107.831,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*tut mir leid*",
+        "orig": "scenes/silentvoice/lines/25.mp3"
+      },
+      {
+        "t": 107.925,
+        "end": 109.342,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*bleibt*",
+        "orig": "scenes/silentvoice/lines/26.mp3"
+      },
+      {
+        "t": 109.851,
+        "end": 111.208,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*hält fest*",
+        "orig": "scenes/silentvoice/lines/27.mp3"
+      },
+      {
+        "t": 111.765,
+        "end": 115.183,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "*",
+        "de": "*shh*",
+        "orig": "scenes/silentvoice/lines/28.mp3"
+      },
+      {
+        "t": 115.479,
+        "end": 116.538,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*weint*",
+        "orig": "scenes/silentvoice/lines/29.mp3"
+      },
+      {
+        "t": 118.226,
+        "end": 118.788,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "* ahhh *",
+        "de": "*ahhh*",
+        "orig": "scenes/silentvoice/lines/30.mp3"
+      },
+      {
+        "t": 118.723,
+        "end": 121.736,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*Mama*",
+        "orig": "scenes/silentvoice/lines/31.mp3"
+      },
+      {
+        "t": 121.968,
+        "end": 128.225,
+        "chars": [
+          1
+        ],
+        "who": "Shouya",
+        "text": "*",
+        "de": "*hält sie*",
+        "orig": "scenes/silentvoice/lines/32.mp3"
+      },
+      {
+        "t": 123.236,
+        "end": 123.938,
+        "chars": [
+          0
+        ],
+        "who": "Mutter",
+        "text": "* yahh *",
+        "de": "*yahh*",
+        "orig": "scenes/silentvoice/lines/33.mp3"
+      }
+    ]
+  },
+  {
+    "id": "higurumatrial",
+    "title": "Jujutsu Kaisen — Higurumas erstes Urteil (4 Rollen)",
+    "videoUrl": "scenes/higurumatrial.mp4",
+    "avatars": {
+      "0": "scenes/higurumatrial/higuruma.png",
+      "1": "scenes/higurumatrial/yuji.png",
+      "2": "scenes/higurumatrial/judgeman.png",
+      "3": "scenes/higurumatrial/tengen.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Higuruma",
+        "pan": -0.2,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 1,
+        "name": "Yuji",
+        "pan": 0.25,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Judgeman",
+        "pan": 0.0,
+        "effect": "radio",
+        "gain": 1.0
+      },
+      {
+        "id": 3,
+        "name": "Tengen",
+        "pan": 0.35,
+        "effect": "echo",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 0.167,
+        "end": 4.067,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Domain expansion, deadly sentencing.",
+        "de": "Domain Expansion — Tödliche Verurteilung.",
+        "orig": "scenes/higurumatrial/lines/01.mp3"
+      },
+      {
+        "t": 4.982,
+        "end": 6.432,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "A domain?",
+        "de": "Eine Domäne?",
+        "orig": "scenes/higurumatrial/lines/02.mp3"
+      },
+      {
+        "t": 6.753,
+        "end": 10.803,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "Before he can activate his technique, I have to beat him!",
+        "de": "Bevor er seine Technik aktiviert, muss ich ihn besiegen!",
+        "orig": "scenes/higurumatrial/lines/03.mp3"
+      },
+      {
+        "t": 20.13,
+        "end": 26.713,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Sorry But all acts of violence are indefinitely prohibited in this space. For both of us.",
+        "de": "Tut mir leid — aber jede Form von Gewalt ist in diesem Raum auf unbestimmte Zeit verboten. Für uns beide.",
+        "orig": "scenes/higurumatrial/lines/04.mp3"
+      },
+      {
+        "t": 26.23,
+        "end": 29.08,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "Both of us?    *Grunt*",
+        "de": "Für uns beide? *Grunz*",
+        "orig": "scenes/higurumatrial/lines/05.mp3"
+      },
+      {
+        "t": 31.61,
+        "end": 35.377,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "However, harmful remarks are the exception.",
+        "de": "Beleidigungen sind allerdings die Ausnahme.",
+        "orig": "scenes/higurumatrial/lines/06.mp3"
+      },
+      {
+        "t": 36.114,
+        "end": 38.864,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Judgeman, please begin",
+        "de": "Judgeman, bitte beginnen.",
+        "orig": "scenes/higurumatrial/lines/07.mp3"
+      },
+      {
+        "t": 42.364,
+        "end": 47.697,
+        "chars": [
+          2
+        ],
+        "who": "Judgeman",
+        "text": "The defendant Yuji Itadori stands accused of committing the following crime",
+        "de": "Der Angeklagte Yuji Itadori steht unter Anklage wegen folgender Straftat.",
+        "orig": "scenes/higurumatrial/lines/08.mp3"
+      },
+      {
+        "t": 47.897,
+        "end": 55.08,
+        "chars": [
+          2
+        ],
+        "who": "Judgeman",
+        "text": "On July 16th, 2017, the defendant entered Maji Vagas pachinko parlor Sendai city, Miyagi Prefecture.",
+        "de": "Am 16. Juli 2017 betrat der Angeklagte den Pachinko-Salon Maji Vegas in Sendai, Präfektur Miyagi.",
+        "orig": "scenes/higurumatrial/lines/09.mp3"
+      },
+      {
+        "t": 55.13,
+        "end": 58.38,
+        "chars": [
+          2
+        ],
+        "who": "Judgeman",
+        "text": "Despite being under the legal age of 18 at the time.",
+        "de": "Obwohl er damals noch nicht volljährig war — unter 18.",
+        "orig": "scenes/higurumatrial/lines/10.mp3"
+      },
+      {
+        "t": 58.58,
+        "end": 61.363,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "Wha? Oh!",
+        "de": "Was? Oh!",
+        "orig": "scenes/higurumatrial/lines/11.mp3"
+      },
+      {
+        "t": 65.63,
+        "end": 69.997,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Within this domain Judgeman knows all who've entered and everything they've done.",
+        "de": "In dieser Domäne kennt Judgeman alle, die eingetreten sind, und alles, was sie getan haben.",
+        "orig": "scenes/higurumatrial/lines/12.mp3"
+      },
+      {
+        "t": 70.214,
+        "end": 75.347,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "But don't worry yourself to much, that information has never been shared with me.",
+        "de": "Aber mach dir nicht zu viele Sorgen — diese Informationen werden mir nie mitgeteilt.",
+        "orig": "scenes/higurumatrial/lines/13.mp3"
+      },
+      {
+        "t": 75.43,
+        "end": 79.597,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "The verdict will be decided solely by the augments we present today.",
+        "de": "Das Urteil fällt allein aufgrund der Argumente, die wir heute vorbringen.",
+        "orig": "scenes/higurumatrial/lines/14.mp3"
+      },
+      {
+        "t": 80.28,
+        "end": 83.013,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "With the exception of this evidence.",
+        "de": "Mit Ausnahme dieses Beweismittels.",
+        "orig": "scenes/higurumatrial/lines/15.mp3"
+      },
+      {
+        "t": 83.664,
+        "end": 86.531,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "Huh? Where did you get that from!?",
+        "de": "Hä? Woher hast du das!?",
+        "orig": "scenes/higurumatrial/lines/16.mp3"
+      },
+      {
+        "t": 86.664,
+        "end": 90.797,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "This is the evidence Judgeman provided and submitted for this case.",
+        "de": "Das ist das Beweismittel, das Judgeman für diesen Fall bereitgestellt hat.",
+        "orig": "scenes/higurumatrial/lines/17.mp3"
+      },
+      {
+        "t": 90.847,
+        "end": 95.297,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "There is no guaranty that this will confirm the charges alleged against you today.",
+        "de": "Es gibt keine Garantie, dass es die Anklage gegen dich heute bestätigt.",
+        "orig": "scenes/higurumatrial/lines/18.mp3"
+      },
+      {
+        "t": 95.547,
+        "end": 98.197,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Nevertheless, it will remain a secret to you",
+        "de": "Trotzdem bleibt es für dich ein Geheimnis.",
+        "orig": "scenes/higurumatrial/lines/19.mp3"
+      },
+      {
+        "t": 98.682,
+        "end": 101.132,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Knowing that you must now present your argument.",
+        "de": "Und trotzdem musst du jetzt dein Plädoyer halten.",
+        "orig": "scenes/higurumatrial/lines/20.mp3"
+      },
+      {
+        "t": 101.459,
+        "end": 105.659,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Your goal is too clear suspicion and win an innocent verdict from Judgeman.",
+        "de": "Dein Ziel: den Verdacht ausräumen und von Judgeman einen Freispruch bekommen.",
+        "orig": "scenes/higurumatrial/lines/21.mp3"
+      },
+      {
+        "t": 107.13,
+        "end": 109.247,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "A court trial technique?",
+        "de": "Eine Gerichts-Technik?",
+        "orig": "scenes/higurumatrial/lines/22.mp3"
+      },
+      {
+        "t": 111.347,
+        "end": 117.997,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "That badge! so he really was a defense lawyer... but isn't he acting like a prosecutor here?",
+        "de": "Dieses Abzeichen… er war wirklich Verteidiger… aber hier spielt er den Ankläger?",
+        "orig": "scenes/higurumatrial/lines/23.mp3"
+      },
+      {
+        "t": 118.48,
+        "end": 123.513,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "Higaruma is a modern sorcer, but this domain is like what Tengen talked about",
+        "de": "Higuruma ist ein moderner Zauberer — aber diese Domäne klingt nach dem, wovon Tengen gesprochen hat.",
+        "orig": "scenes/higurumatrial/lines/24.mp3"
+      },
+      {
+        "t": 125.03,
+        "end": 131.28,
         "chars": [
           3
         ],
-        "who": "David",
-        "text": "Co!?",
-        "de": "Was!?",
-        "orig": "scenes/edgerunnerscar/lines/35.mp3"
+        "who": "Tengen",
+        "text": "Domains used to be a much more standard skill set for sorcers to use against their enemies in the past.",
+        "de": "Domänen waren früher ein viel üblicheres Werkzeug gegen Feinde.",
+        "orig": "scenes/higurumatrial/lines/25.mp3"
       },
       {
-        "t": 120.58,
-        "end": 129.097,
-        "chars": [
-          5
-        ],
-        "who": "Wachmann",
-        "text": "(Wymyśl wyzwiska), NIE ŻYJESZ TY KURWO",
-        "de": "DU BIST TODESKANDIDAT, VERDAMMTE SCHEISSE!",
-        "orig": "scenes/edgerunnerscar/lines/36.mp3"
-      },
-      {
-        "t": 121.58,
-        "end": 122.872,
-        "chars": [
-          0
-        ],
-        "who": "Maine",
-        "text": "Ruszaj mały",
-        "de": "Fahr, Kleiner!",
-        "orig": "scenes/edgerunnerscar/lines/37.mp3"
-      },
-      {
-        "t": 122.743,
-        "end": 124.682,
+        "t": 132.11,
+        "end": 137.343,
         "chars": [
           3
         ],
-        "who": "David",
-        "text": "Ale ja nie umiem jeździć",
-        "de": "Aber ich kann nicht fahren!",
-        "orig": "scenes/edgerunnerscar/lines/38.mp3"
+        "who": "Tengen",
+        "text": "That's because they lacked the garented kill element that applies to today's attacks.",
+        "de": "Weil ihnen das Element des garantierten Treffers fehlte, das heutige Angriffe haben.",
+        "orig": "scenes/higurumatrial/lines/26.mp3"
       },
       {
-        "t": 125.027,
-        "end": 126.427,
+        "t": 137.452,
+        "end": 140.719,
+        "chars": [
+          3
+        ],
+        "who": "Tengen",
+        "text": "Modern domains become garented to be deadlier.",
+        "de": "Moderne Domänen wurden tödlicher — mit Garantie.",
+        "orig": "scenes/higurumatrial/lines/27.mp3"
+      },
+      {
+        "t": 141.149,
+        "end": 146.532,
+        "chars": [
+          3
+        ],
+        "who": "Tengen",
+        "text": "The garented was that user's techniques would, without a question hit their target Within the domain,",
+        "de": "Die Garantie war: Die Technik des Nutzers trifft innerhalb der Domäne zweifellos.",
+        "orig": "scenes/higurumatrial/lines/28.mp3"
+      },
+      {
+        "t": 146.863,
+        "end": 150.496,
+        "chars": [
+          3
+        ],
+        "who": "Tengen",
+        "text": "That used to be the common placed functions of domains in the past",
+        "de": "Das war früher die normale Funktion von Domänen.",
+        "orig": "scenes/higurumatrial/lines/29.mp3"
+      },
+      {
+        "t": 151.097,
+        "end": 157.98,
+        "chars": [
+          3
+        ],
+        "who": "Tengen",
+        "text": "By Focusing too hard on the garented kill aspect sorcers raised the bar on requirements for constructing a domain.",
+        "de": "Weil Zauberer sich zu sehr auf den garantierten Kill konzentrierten, stiegen die Anforderungen.",
+        "orig": "scenes/higurumatrial/lines/30.mp3"
+      },
+      {
+        "t": 158.005,
+        "end": 160.422,
+        "chars": [
+          3
+        ],
+        "who": "Tengen",
+        "text": "Making it a more advanced skill",
+        "de": "Dadurch wurde es zu einer fortgeschrittenen Fähigkeit…",
+        "orig": "scenes/higurumatrial/lines/31.mp3"
+      },
+      {
+        "t": 160.849,
+        "end": 163.166,
+        "chars": [
+          3
+        ],
+        "who": "Tengen",
+        "text": "With fewer practitioners every day.",
+        "de": "mit immer weniger Anwendern.",
+        "orig": "scenes/higurumatrial/lines/32.mp3"
+      },
+      {
+        "t": 163.935,
+        "end": 167.268,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "That mean's this domain... is founded on pacts.",
+        "de": "Das heißt… diese Domäne basiert auf Pakten.",
+        "orig": "scenes/higurumatrial/lines/33.mp3"
+      },
+      {
+        "t": 167.497,
+        "end": 173.914,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "It prevents lethal use, prohibits physical harm, and... it requires some explanation of its rules!",
+        "de": "Sie verhindert tödlichen Einsatz, verbietet körperlichen Schaden — und verlangt eine Erklärung der Regeln!",
+        "orig": "scenes/higurumatrial/lines/34.mp3"
+      },
+      {
+        "t": 176.699,
+        "end": 180.882,
         "chars": [
           0
         ],
-        "who": "Maine",
-        "text": "Nauczysz się",
-        "de": "Wirst du lernen.",
-        "orig": "scenes/edgerunnerscar/lines/39.mp3"
+        "who": "Higuruma",
+        "text": "You get one chance to make a statement, same goes for me.",
+        "de": "Du bekommst eine Chance für eine Aussage. Ich auch.",
+        "orig": "scenes/higurumatrial/lines/35.mp3"
       },
       {
-        "t": 129.766,
-        "end": 135.496,
-        "chars": [
-          5
-        ],
-        "who": "Wachmann",
-        "text": "SŁYSZYSZ MNIE?! KURWA NIE ŻYJESZ, EJJ",
-        "de": "HÖRST DU MICH?! VERDAMMT, DU BIST TOT — HEEEY!",
-        "orig": "scenes/edgerunnerscar/lines/40.mp3"
-      },
-      {
-        "t": 131.597,
-        "end": 135.345,
+        "t": 181.402,
+        "end": 186.052,
         "chars": [
           0
         ],
-        "who": "Maine",
-        "text": "Pokaż mi, że się nadajesz",
-        "de": "Zeig mir, dass du taugst.",
-        "orig": "scenes/edgerunnerscar/lines/41.mp3"
+        "who": "Higuruma",
+        "text": "after your statement I will get to make my rebuttal using this evidence",
+        "de": "Nach deiner Aussage darf ich mit diesem Beweismittel widerlegen.",
+        "orig": "scenes/higurumatrial/lines/36.mp3"
       },
       {
-        "t": 136.077,
-        "end": 140.73,
-        "chars": [
-          5
-        ],
-        "who": "Wachmann",
-        "text": "NIE ŻYJESZ DO KURWY NĘDZY, (wymyśl wyzwiska)",
-        "de": "DU BIST TOT, ZUM TEUFEL!",
-        "orig": "scenes/edgerunnerscar/lines/42.mp3"
-      },
-      {
-        "t": 140.989,
-        "end": 148.033,
-        "chars": [
-          5
-        ],
-        "who": "Wachmann",
-        "text": "AA STÓÓÓJ MOJA FURA STÓJ CHUJU OAAAA KURWA",
-        "de": "AA STOPP — MEIN AUTO, STOPP DU SCHWEIN — OAAAA SCHEISSE!",
-        "orig": "scenes/edgerunnerscar/lines/43.mp3"
-      },
-      {
-        "t": 148.14,
-        "end": 154.301,
-        "chars": [
-          5
-        ],
-        "who": "Wachmann",
-        "text": "HEEEJ MÓWIE DO CIEBIE KURWO STÓÓJ STÓJ",
-        "de": "HEEEEY ICH RED MIT DIR, SCHLAMPE — STOPP, STOPP!",
-        "orig": "scenes/edgerunnerscar/lines/44.mp3"
-      },
-      {
-        "t": 154.991,
-        "end": 161.863,
+        "t": 186.397,
+        "end": 192.08,
         "chars": [
           0
         ],
-        "who": "Maine",
-        "text": "Hahahaha dobrze, że to nie moja bryka, zawieź ją prosto do Aldo's GPS włączony",
-        "de": "Hahahaha gut, dass das nicht meine Karre ist. Fahr direkt zu Aldo — GPS ist an.",
-        "orig": "scenes/edgerunnerscar/lines/45.mp3"
+        "who": "Higuruma",
+        "text": "and then, Judgeman will announce his verdict, in accordance with the six codes.",
+        "de": "Dann verkündet Judgeman das Urteil gemäß den sechs Gesetzbüchern.",
+        "orig": "scenes/higurumatrial/lines/37.mp3"
+      },
+      {
+        "t": 192.697,
+        "end": 194.98,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "What happens if I'm found guilty?",
+        "de": "Was passiert, wenn ich schuldig bin?",
+        "orig": "scenes/higurumatrial/lines/38.mp3"
+      },
+      {
+        "t": 195.214,
+        "end": 200.981,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Unfortunately, I am under no obligation to answer that question, but I will at least tell you this.",
+        "de": "Leider muss ich das nicht beantworten — aber so viel sage ich dir.",
+        "orig": "scenes/higurumatrial/lines/39.mp3"
+      },
+      {
+        "t": 201.28,
+        "end": 202.847,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "after all you have rights",
+        "de": "Immerhin hast du Rechte.",
+        "orig": "scenes/higurumatrial/lines/40.mp3"
+      },
+      {
+        "t": 203.936,
+        "end": 206.069,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "If guilty you have 3 options,",
+        "de": "Bei Schuld hast du drei Optionen:",
+        "orig": "scenes/higurumatrial/lines/41.mp3"
+      },
+      {
+        "t": 206.764,
+        "end": 212.281,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Silence, confession, or denial. your denial may include false statements.",
+        "de": "Schweigen, Geständnis oder Leugnen. Beim Leugnen darfst du auch falsche Angaben machen.",
+        "orig": "scenes/higurumatrial/lines/42.mp3"
+      },
+      {
+        "t": 213.73,
+        "end": 217.33,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "You mean I can lie? in a court of law?",
+        "de": "Ich darf lügen? Vor Gericht?",
+        "orig": "scenes/higurumatrial/lines/43.mp3"
+      },
+      {
+        "t": 218.08,
+        "end": 222.68,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "If everyone told the truth in court, there would be no need for trials",
+        "de": "Wenn vor Gericht jeder die Wahrheit sagten würde, bräuchte man keine Prozesse.",
+        "orig": "scenes/higurumatrial/lines/44.mp3"
+      },
+      {
+        "t": 224.13,
+        "end": 228.147,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Now, make your argument. Judgeman is not very patient.",
+        "de": "Also — mach dein Plädoyer. Judgeman ist nicht besonders geduldig.",
+        "orig": "scenes/higurumatrial/lines/45.mp3"
+      },
+      {
+        "t": 231.13,
+        "end": 237.23,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "I did go to that pachinko parlor... I totally played some games, think I even won some...",
+        "de": "Ich war in dem Pachinko-Salon… hab auch gespielt, glaub ich sogar gewonnen…",
+        "orig": "scenes/higurumatrial/lines/46.mp3"
+      },
+      {
+        "t": 237.747,
+        "end": 246.947,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "I can't afford lying if I still want to claim my innocence... so naturally what I need to consider is... what could be in that evidence?!",
+        "de": "Ich kann nicht lügen, wenn ich unschuldig bleiben will… also muss ich überlegen: Was steckt in dem Beweis!?",
+        "orig": "scenes/higurumatrial/lines/47.mp3"
+      },
+      {
+        "t": 247.564,
+        "end": 252.164,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "There is no guarantee that that this confirms the charges a ledged against you today.",
+        "de": "Es gibt keine Garantie, dass das die Anklage gegen dich bestätigt.",
+        "orig": "scenes/higurumatrial/lines/48.mp3"
+      },
+      {
+        "t": 253.232,
+        "end": 259.165,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "1, if that evidence doesn't prove I entered the pachinko parlor I just need to deny it or remain silent.",
+        "de": "Eins: Wenn der Beweis nicht zeigt, dass ich den Salon betreten habe — leugnen oder schweigen.",
+        "orig": "scenes/higurumatrial/lines/49.mp3"
+      },
+      {
+        "t": 259.447,
+        "end": 260.73,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "No!",
+        "de": "Nein!",
+        "orig": "scenes/higurumatrial/lines/50.mp3"
+      },
+      {
+        "t": 260.93,
+        "end": 265.83,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "2, if the evidence proves I entered the parlor can I say it was for another reason?",
+        "de": "Zwei: Wenn er beweist, dass ich drin war — kann ich einen anderen Grund nennen?",
+        "orig": "scenes/higurumatrial/lines/51.mp3"
+      },
+      {
+        "t": 266.029,
+        "end": 268.062,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "I just went in to use their bathroom!",
+        "de": "Ich wollte nur aufs Klo!",
+        "orig": "scenes/higurumatrial/lines/52.mp3"
+      },
+      {
+        "t": 268.114,
+        "end": 274.347,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "But if the evidence Turns out to be a bust... then I might be digging my own grave by admitting I defiantly entered the parlor.",
+        "de": "Aber wenn der Beweis schwach ist… grab ich mir selbst das Grab, indem ich zugeben, dass ich definitiv drin war.",
+        "orig": "scenes/higurumatrial/lines/53.mp3"
+      },
+      {
+        "t": 275.097,
+        "end": 281.564,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "3, if the evidence proves I not only entered the parlor but also played the games I'm basically screwed!",
+        "de": "Drei: Wenn er beweist, dass ich nicht nur drin war, sondern auch gespielt hab — bin ich erledigt!",
+        "orig": "scenes/higurumatrial/lines/54.mp3"
+      },
+      {
+        "t": 282.17,
+        "end": 283.52,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "I regret it!",
+        "de": "Ich bereue es!",
+        "orig": "scenes/higurumatrial/lines/55.mp3"
+      },
+      {
+        "t": 283.548,
+        "end": 289.198,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "But if confessing lightens my sentence.... wait, does this court even offer lighter punishments?",
+        "de": "Aber wenn ein Geständnis die Strafe mildert… wartet — gibt's hier überhaupt mildere Strafen?",
+        "orig": "scenes/higurumatrial/lines/56.mp3"
+      },
+      {
+        "t": 290.764,
+        "end": 300.297,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "I confess the fact is I entered the pachinko parlor, but it was only because I needed to poop, then I had to use their bathroom!",
+        "de": "Ich gestehe: Ich war im Pachinko-Salon — aber nur, weil ich aufs Klo musste!",
+        "orig": "scenes/higurumatrial/lines/57.mp3"
+      },
+      {
+        "t": 301.18,
+        "end": 302.647,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Is that so?",
+        "de": "Ach so?",
+        "orig": "scenes/higurumatrial/lines/58.mp3"
+      },
+      {
+        "t": 302.664,
+        "end": 309.864,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "I'm going with option 2, I don't know if this court accepts extenuating circumstances, but this excuse is the most relatable!",
+        "de": "Ich geh mit Option zwei. Ob mildernde Umstände zählen, weiß ich nicht — aber die Ausrede ist am nachvollziehbarsten!",
+        "orig": "scenes/higurumatrial/lines/59.mp3"
+      },
+      {
+        "t": 310.38,
+        "end": 311.797,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "Let's hope...",
+        "de": "Hoffentlich…",
+        "orig": "scenes/higurumatrial/lines/60.mp3"
+      },
+      {
+        "t": 312.48,
+        "end": 316.113,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Now it's my turn, let's take a look at the evidence",
+        "de": "Jetzt bin ich dran. Schauen wir uns den Beweis an.",
+        "orig": "scenes/higurumatrial/lines/61.mp3"
+      },
+      {
+        "t": 318.77,
+        "end": 323.703,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "This is security camera footage from the antic shop near Monty Vegas",
+        "de": "Das ist Überwachungsvideo vom Antiquitätenladen neben Monty Vegas.",
+        "orig": "scenes/higurumatrial/lines/62.mp3"
+      },
+      {
+        "t": 322.897,
+        "end": 324.097,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "Huh!",
+        "de": "Hä!",
+        "orig": "scenes/higurumatrial/lines/63.mp3"
+      },
+      {
+        "t": 324.297,
+        "end": 328.464,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "The store has an atm which captured this image on the day of question",
+        "de": "Der Laden hat einen Geldautomaten, der an dem Tag dieses Bild gemacht hat.",
+        "orig": "scenes/higurumatrial/lines/64.mp3"
+      },
+      {
+        "t": 329.58,
+        "end": 332.047,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "uh",
+        "de": "Äh…",
+        "orig": "scenes/higurumatrial/lines/65.mp3"
+      },
+      {
+        "t": 332.251,
+        "end": 337.601,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Note how striking the resemblance both face and build are a perfect match to Yuji Itadori.",
+        "de": "Beachte die Ähnlichkeit — Gesicht und Statur passen perfekt zu Yuji Itadori.",
+        "orig": "scenes/higurumatrial/lines/66.mp3"
+      },
+      {
+        "t": 338.714,
+        "end": 341.097,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "uh ah uh... hahaha...",
+        "de": "Äh… ah… hahaha…",
+        "orig": "scenes/higurumatrial/lines/67.mp3"
+      },
+      {
+        "t": 341.424,
+        "end": 349.621,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "and since he just admitted to entering the parlor, this photo makes it clear that his excuse about needing the bathroom isn't worth a roll of toilet paper.",
+        "de": "Und da er gerade zugegeben hat, den Salon betreten zu haben, ist seine Klo-Ausrede keinen Pups wert.",
+        "orig": "scenes/higurumatrial/lines/68.mp3"
+      },
+      {
+        "t": 349.752,
+        "end": 356.922,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "One can thus reason that despite being underage Itadori entered the parlor with the intent to play pachinko",
+        "de": "Man kann also folgern: Obwohl minderjährig, betrat Itadori den Salon mit Absicht zu spielen.",
+        "orig": "scenes/higurumatrial/lines/69.mp3"
+      },
+      {
+        "t": 356.874,
+        "end": 360.953,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "so, then you're saying... that's a crime?",
+        "de": "Also… sagst du… das ist ein Verbrechen?",
+        "orig": "scenes/higurumatrial/lines/70.mp3"
+      },
+      {
+        "t": 360.942,
+        "end": 365.99,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "The parlor had clear posted signs explicitly prohibiting minors from entering the premises",
+        "de": "Der Salon hatte klar ausgeschildert: Minderjährige haben keinen Zutritt.",
+        "orig": "scenes/higurumatrial/lines/71.mp3"
+      },
+      {
+        "t": 366.116,
+        "end": 375.983,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "you are charged with criminal trespassing, article 130 of the penal code the business is affecting public morals regulation act, but it doesn't punish minors.",
+        "de": "Du bist angeklagt wegen Hausfriedensbruchs, Artikel 130 — das Gesetz bestraft Minderjährige dabei allerdings nicht.",
+        "orig": "scenes/higurumatrial/lines/72.mp3"
+      },
+      {
+        "t": 376.442,
+        "end": 383.551,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "No fair you set me up! there was no way for me to talk my way out of it. Should I have gone with option 3?",
+        "de": "Unfair! Du hast mich reingelegt! Da kam ich mit Reden nicht raus. Hätte ich Option drei nehmen sollen?",
+        "orig": "scenes/higurumatrial/lines/73.mp3"
+      },
+      {
+        "t": 383.207,
+        "end": 390.589,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "What are you talking about? Japan prohibits gambling so, parlors and atm's are separate legal entity's.",
+        "de": "Wovon redest du? Glücksspiel ist in Japan verboten — Salons und Automaten sind getrennte Firmen.",
+        "orig": "scenes/higurumatrial/lines/74.mp3"
+      },
+      {
+        "t": 390.216,
+        "end": 391.537,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "Gh...",
+        "de": "*Gh…*",
+        "orig": "scenes/higurumatrial/lines/75.mp3"
+      },
+      {
+        "t": 391.086,
+        "end": 405.347,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Sometimes multiple parlors share atm's you were only on trial for entering into Maji Vegas, all you needed to say was",
+        "de": "Manchmal teilen sich mehrere Salons Automaten. Du standest nur wegen Maji Vegas vor Gericht — alles, was du sagen musstest, war…",
+        "orig": "scenes/higurumatrial/lines/76.mp3"
+      },
+      {
+        "t": 406.237,
+        "end": 409.134,
+        "chars": [
+          0
+        ],
+        "who": "Higuruma",
+        "text": "Wait, we haven't heard the verdict yet.",
+        "de": "Moment — wir haben das Urteil noch nicht gehört.",
+        "orig": "scenes/higurumatrial/lines/77.mp3"
+      },
+      {
+        "t": 414.904,
+        "end": 417.892,
+        "chars": [
+          2
+        ],
+        "who": "Judgeman",
+        "text": "Guilty, confiscation.",
+        "de": "Schuldig. Einziehung.",
+        "orig": "scenes/higurumatrial/lines/78.mp3"
+      },
+      {
+        "t": 420.874,
+        "end": 422.529,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "We're back where we started?",
+        "de": "Wir sind wieder am Anfang?",
+        "orig": "scenes/higurumatrial/lines/79.mp3"
+      },
+      {
+        "t": 422.92,
+        "end": 426.332,
+        "chars": [
+          1
+        ],
+        "who": "Yuji",
+        "text": "now I've been declared guilty, I don't feel any different...",
+        "de": "Jetzt bin ich schuldig… und fühle mich trotzdem nicht anders…",
+        "orig": "scenes/higurumatrial/lines/80.mp3"
+      }
+    ]
+  },
+  {
+    "id": "harrycedric",
+    "title": "Harry Potter — Mein Junge (5 Rollen)",
+    "videoUrl": "scenes/harrycedric.mp4",
+    "avatars": {
+      "0": "scenes/harrycedric/ansagerin.png",
+      "1": "scenes/harrycedric/dumbledore.png",
+      "2": "scenes/harrycedric/molly.png",
+      "3": "scenes/harrycedric/harry.png",
+      "4": "scenes/harrycedric/amos.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Ansagerin",
+        "pan": 0.0,
+        "effect": "megaphone",
+        "gain": 1.0
+      },
+      {
+        "id": 1,
+        "name": "Dumbledore",
+        "pan": -0.2,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Molly",
+        "pan": 0.25,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 3,
+        "name": "Harry",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 4,
+        "name": "Amos Diggory",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 13.818,
+        "end": 15.018,
+        "chars": [
+          0
+        ],
+        "who": "Ansagerin",
+        "text": "*",
+        "de": "*durchsagt*",
+        "orig": "scenes/harrycedric/lines/01.mp3"
+      },
+      {
+        "t": 19,
+        "end": 19.425,
+        "chars": [
+          1
+        ],
+        "who": "Dumbledore",
+        "text": "Harry!",
+        "de": "Harry!",
+        "orig": "scenes/harrycedric/lines/02.mp3"
+      },
+      {
+        "t": 25.24,
+        "end": 27.06,
+        "chars": [
+          2
+        ],
+        "who": "Molly",
+        "text": "for gods sake Dumbledore what's happened",
+        "de": "Um Himmels willen, Dumbledore — was ist passiert?",
+        "orig": "scenes/harrycedric/lines/03.mp3"
+      },
+      {
+        "t": 27.178,
+        "end": 31.355,
+        "chars": [
+          3
+        ],
+        "who": "Harry",
+        "text": "hes back, hes back, Voldemort's back!",
+        "de": "Er ist zurück — er ist zurück — Voldemort ist zurück!",
+        "orig": "scenes/harrycedric/lines/04.mp3"
+      },
+      {
+        "t": 31.481,
+        "end": 36.674,
+        "chars": [
+          3
+        ],
+        "who": "Harry",
+        "text": "Cedrick he asked me to bring his body back, i couldn't leave him not there.",
+        "de": "Cedric… er hat mich gebeten, seinen Körper mitzubringen. Ich konnte ihn nicht dort lassen.",
+        "orig": "scenes/harrycedric/lines/05.mp3"
+      },
+      {
+        "t": 36.815,
+        "end": 42.178,
+        "chars": [
+          1
+        ],
+        "who": "Dumbledore",
+        "text": "its alright harry, its alright. Hes home you bothe are",
+        "de": "Alles gut, Harry. Alles gut. Er ist zu Hause — ihr beide seid es.",
+        "orig": "scenes/harrycedric/lines/06.mp3"
+      },
+      {
+        "t": 42.089,
+        "end": 45.637,
+        "chars": [
+          2
+        ],
+        "who": "Molly",
+        "text": "keep everybody in there seats, a boys just been killed.",
+        "de": "Haltet alle auf ihren Plätzen — ein Junge wurde gerade getötet.",
+        "orig": "scenes/harrycedric/lines/07.mp3"
+      },
+      {
+        "t": 48.481,
+        "end": 52.074,
+        "chars": [
+          2
+        ],
+        "who": "Molly",
+        "text": "the body must be moved Dumbledore to many people.",
+        "de": "Der Körper muss weg, Dumbledore — zu viele Leute.",
+        "orig": "scenes/harrycedric/lines/08.mp3"
+      },
+      {
+        "t": 52.156,
+        "end": 55.237,
+        "chars": [
+          4
+        ],
+        "who": "Amos Diggory",
+        "text": "let me through....",
+        "de": "Lasst mich durch…",
+        "orig": "scenes/harrycedric/lines/09.mp3"
+      },
+      {
+        "t": 58.489,
+        "end": 63.282,
+        "chars": [
+          4
+        ],
+        "who": "Amos Diggory",
+        "text": "*",
+        "de": "*atmet schwer*",
+        "orig": "scenes/harrycedric/lines/10.mp3"
+      },
+      {
+        "t": 65.304,
+        "end": 67.134,
+        "chars": [
+          4
+        ],
+        "who": "Amos Diggory",
+        "text": "MY BOY!!",
+        "de": "MEIN JUNGE!!",
+        "orig": "scenes/harrycedric/lines/11.mp3"
+      },
+      {
+        "t": 75.763,
+        "end": 79.563,
+        "chars": [
+          4
+        ],
+        "who": "Amos Diggory",
+        "text": "NO NO NOOOOOOOOO",
+        "de": "NEIN NEIN NEEEEEIN!",
+        "orig": "scenes/harrycedric/lines/12.mp3"
+      },
+      {
+        "t": 88.133,
+        "end": 90.237,
+        "chars": [
+          4
+        ],
+        "who": "Amos Diggory",
+        "text": "*",
+        "de": "*schluchzt*",
+        "orig": "scenes/harrycedric/lines/13.mp3"
+      }
+    ]
+  },
+  {
+    "id": "todoflash",
+    "title": "Jujutsu Kaisen — Todos Black Flash (3 Rollen)",
+    "videoUrl": "scenes/todoflash.mp4",
+    "avatars": {
+      "0": "scenes/todoflash/todo.png",
+      "1": "scenes/todoflash/itadori.png",
+      "2": "scenes/todoflash/takada.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Todo",
+        "pan": -0.2,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 1,
+        "name": "Itadori",
+        "pan": 0.25,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 2,
+        "name": "Takada",
+        "pan": 0.4,
+        "effect": "helium",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 1.394,
+        "end": 2.827,
+        "chars": [
+          0
+        ],
+        "who": "Todo",
+        "text": "Brother!",
+        "de": "Bruder!",
+        "orig": "scenes/todoflash/lines/01.mp3"
+      },
+      {
+        "t": 4.097,
+        "end": 6.164,
+        "chars": [
+          1
+        ],
+        "who": "Itadori",
+        "text": "*charging grunt throw sound*",
+        "de": "*Anlauf-Grunz / Wurf*",
+        "orig": "scenes/todoflash/lines/02.mp3"
+      },
+      {
+        "t": 7.303,
+        "end": 12.936,
+        "chars": [
+          0
+        ],
+        "who": "Todo",
+        "text": "And if your satisfied staying on that level, then sadly you and I cant possibly stay best friends",
+        "de": "Und wenn du dich mit diesem Level zufrieden gibst — dann können wir leider unmöglich beste Freunde bleiben.",
+        "orig": "scenes/todoflash/lines/03.mp3"
+      },
+      {
+        "t": 13.011,
+        "end": 15.611,
+        "chars": [
+          0
+        ],
+        "who": "Todo",
+        "text": "Youve grown strong brother!",
+        "de": "Du bist stark geworden, Bruder!",
+        "orig": "scenes/todoflash/lines/04.mp3"
+      },
+      {
+        "t": 15.67,
+        "end": 19.253,
+        "chars": [
+          0
+        ],
+        "who": "Todo",
+        "text": "Are you just gonna sit still, Aoi Todo!",
+        "de": "Willst du etwa stillsitzen, Aoi Todo!?",
+        "orig": "scenes/todoflash/lines/05.mp3"
+      },
+      {
+        "t": 19.36,
+        "end": 24.772,
+        "chars": [
+          0
+        ],
+        "who": "Todo",
+        "text": "Are you planning to leave your brother alone once again, AOI TODO!?",
+        "de": "Willst du deinen Bruder schon wieder allein lassen, AOI TODO!?",
+        "orig": "scenes/todoflash/lines/06.mp3"
+      },
+      {
+        "t": 34.777,
+        "end": 38.25,
+        "chars": [
+          2
+        ],
+        "who": "Takada",
+        "text": "Tan Taka Tan!!!",
+        "de": "Tan Taka Tan!!!",
+        "orig": "scenes/todoflash/lines/07.mp3"
+      },
+      {
+        "t": 38.383,
+        "end": 41.25,
+        "chars": [
+          0
+        ],
+        "who": "Todo",
+        "text": "BLACK FLASH!!!!",
+        "de": "BLACK FLASH!!!!",
+        "orig": "scenes/todoflash/lines/08.mp3"
       }
     ]
   }
