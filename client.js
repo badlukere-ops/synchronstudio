@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.2";
+const APP_VERSION = "9.2.1";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -112,19 +112,23 @@ document.addEventListener("visibilitychange", () => {
   }, { capture: true, passive: true });
 });
 
-// Datei speichern — auf dem Handy oft nur über die Teilen-Funktion möglich
-// (der klassische Download-Link wird dort stillschweigend ignoriert).
+// Datei speichern — am PC immer echter Download in den Downloads-Ordner.
+// Teilen-Menü nur auf iPhone/iPad, weil dort der normale Download oft gar nicht geht.
 async function saveBlob(blob, dateiname) {
-  try {
-    if (navigator.canShare) {
-      const datei = new File([blob], dateiname, { type: blob.type || "application/octet-stream" });
-      if (navigator.canShare({ files: [datei] })) {
-        await navigator.share({ files: [datei], title: dateiname });
-        return "share";
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (ios) {
+    try {
+      if (navigator.canShare) {
+        const datei = new File([blob], dateiname, { type: blob.type || "application/octet-stream" });
+        if (navigator.canShare({ files: [datei] })) {
+          await navigator.share({ files: [datei], title: dateiname });
+          return "share";
+        }
       }
+    } catch (e) {
+      if (e && e.name === "AbortError") return "abort";
     }
-  } catch (e) {
-    if (e && e.name === "AbortError") return "abort";
   }
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -221,6 +225,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.2.1", items: [
+    "⬇ Fix: „Video speichern“ öffnet am PC nicht mehr das Windows-Freigeben-Menü, sondern lädt die Datei ganz normal in den Downloads-Ordner"
+  ]},
   { v: "9.2", items: [
     "🎬 Neue Szene: „The Incredibles — Wo ist mein Superanzug?“ (2 Rollen: Frozone, Honey)",
     "👁 Neue Szene: „Jujutsu Kaisen — Tojis Auftritt“ (4 Rollen: Nanami, Maki, Dagon, Erzähler)",
