@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.1";
+const APP_VERSION = "9.2";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -221,6 +221,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.2", items: [
+    "🎬 Neue Szene: „The Incredibles — Wo ist mein Superanzug?“ (2 Rollen: Frozone, Honey)",
+    "👁 Neue Szene: „Jujutsu Kaisen — Tojis Auftritt“ (4 Rollen: Nanami, Maki, Dagon, Erzähler)",
+    "🚗 Neue Szene: „Cyberpunk Edgerunners — Autoklau“ (6 Rollen: Maine, Kiwi, Rebecca, David, Lucy, Wachmann)",
+    "⚡ Video speichern ohne zweites Durchschauen: Beim ersten Anschauen der Premiere wird das fertige Video schon mitgeschnitten. Danach ist „Speichern“ sofort fertig. Falls du die Lautstärke noch änderst, wird einmal im Hintergrund neu geschnitten — zuschauen musst du trotzdem nicht"
+  ]},
   { v: "9.1", items: [
     "📱 Handy tauglicher: größere Knöpfe, sichere Ränder (nicht unter der Home-Leiste), kein versehentliches Zoomen beim Tippen, Textfelder zoomen auf dem iPhone nicht mehr rein",
     "🎬 Speichern als MP4, wenn der Browser das kann — direkt für TikTok, Insta und WhatsApp, ohne CapCut. Sonst weiterhin WebM mit Hinweis",
@@ -493,6 +499,17 @@ const AVATAR_CHARS = [
   { img: "scenes/mayonnaise/krabs.png", label: "Mr. Krabs" },
   { img: "scenes/mayonnaise/plankton.png", label: "Plankton" },
   { img: "scenes/mayonnaise/larry.png", label: "Larry der Hummer" },
+  { img: "scenes/supersuit/frozone.png", label: "Frozone" },
+  { img: "scenes/supersuit/honey.png", label: "Honey" },
+  { img: "scenes/tojidomain/nanami.png", label: "Nanami" },
+  { img: "scenes/tojidomain/maki.png", label: "Maki" },
+  { img: "scenes/tojidomain/dagon.png", label: "Dagon" },
+  { img: "scenes/edgerunnerscar/maine.png", label: "Maine" },
+  { img: "scenes/edgerunnerscar/kiwi.png", label: "Kiwi" },
+  { img: "scenes/edgerunnerscar/rebecca.png", label: "Rebecca" },
+  { img: "scenes/edgerunnerscar/david.png", label: "David" },
+  { img: "scenes/edgerunnerscar/lucy.png", label: "Lucy" },
+  { img: "scenes/edgerunnerscar/wachmann.png", label: "Wachmann" },
   { img: "scenes/tojigojo/gojo.png", label: "Gojo (Toji-Kampf)" },
   { img: "scenes/whodecided/escanor.png", label: "Escanor" },
   { img: "scenes/whodecided/estarossa.png", label: "Estarossa" },
@@ -4830,6 +4847,7 @@ async function toArrayBuffer(x) {
 async function loadMix(data) {
   show("scr-playback");
   status("play-status", "Dekodiere Spuren …");
+  invalidatePremCache();
   const ctx = getCtx();
   mixItems = [];
   let okCount = 0, failCount = 0;
@@ -4913,8 +4931,8 @@ $("btn-prem-start").onclick = () => {
   broadcast({ t: "premGo" });
   premStart();
 };
-$("btn-replay").onclick = () => playMix(false);
-$("btn-download").onclick = () => playMix(true);
+$("btn-replay").onclick = () => { invalidatePremCache(); playMix(false); };
+$("btn-download").onclick = () => downloadPremiere();
 $("btn-download-audio").onclick = () => exportAudioFast();
 
 const elemSrcMap = new Map();
@@ -5082,7 +5100,57 @@ function frameSource(v) {
   };
 }
 
-async function playMix(saveFile) {
+// Beim ersten Anschauen der Premiere wird das fertige Video schon mitgeschnitten.
+// Danach ist „Speichern“ sofort fertig — niemand muss die Szene nochmal durchsitzen.
+let premCache = null;          // { blob, endung, volSig, fps }
+let premCachePending = null;   // Promise → premCache, solange gerade mitgeschnitten wird
+function premVolSig() { return JSON.stringify(premVol) + "|" + syncOffsetMs; }
+function invalidatePremCache() { premCache = null; premCachePending = null; }
+
+async function downloadPremiere() {
+  const nameBase = (scene?.id || "synchro") + "_dub.";
+  // Schon fertig vom ersten Anschauen? Sofort speichern.
+  if (premCache && premCache.volSig === premVolSig()) {
+    const wie = await saveBlob(premCache.blob, nameBase + premCache.endung);
+    if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
+    if (premCache.fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein. Bitte Fenster im Vordergrund lassen und nochmal die Premiere anschauen.", true);
+    else status("play-status", premCache.endung === "mp4"
+      ? "✅ Sofort gespeichert als MP4 — kein zweites Durchschauen nötig."
+      : "✅ Sofort gespeichert! Dein Browser kann nur .webm — für TikTok/Insta ggf. einmal in CapCut zu MP4.");
+    SFX.done();
+    return;
+  }
+  // Premiere läuft noch / Schnitt noch nicht fertig → darauf warten
+  if (premCachePending) {
+    status("play-status", "⏳ Video wird noch fertiggeschnitten (vom ersten Anschauen) — einen Moment …");
+    $("dl-progress").style.display = "";
+    try {
+      const c = await premCachePending;
+      $("dl-progress").style.display = "none";
+      if (!c) throw new Error("leer");
+      const wie = await saveBlob(c.blob, nameBase + c.endung);
+      if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
+      status("play-status", c.endung === "mp4"
+        ? "✅ Gespeichert als MP4 — kein zweites Durchschauen nötig."
+        : "✅ Gespeichert!");
+      SFX.done();
+    } catch {
+      $("dl-progress").style.display = "none";
+      status("play-status", "Schnitt hat nicht geklappt — starte neuen Durchlauf im Hintergrund …", true);
+      await playMix({ save: true, quiet: true });
+    }
+    return;
+  }
+  // Noch nie angeschaut / Lautstärke geändert → einmal im Hintergrund durchlaufen
+  status("play-status", "🎬 Schneide Video im Hintergrund — musst nicht zuschauen, Fenster aber bitte offen lassen …");
+  await playMix({ save: true, quiet: true });
+}
+
+async function playMix(opts) {
+  // opts: true/false (alt) oder { save, quiet, cache }
+  const saveFile = opts === true || !!(opts && opts.save);
+  const quiet = !!(opts && opts.quiet);
+  const auchCachen = !saveFile;   // normale Premiere: still mitschneiden für späteren Sofort-Download
   const ctx = getCtx();
   const v = $("play-video");
   playNodes.forEach(n => { try { n.stop(); } catch {} });
@@ -5093,7 +5161,8 @@ async function playMix(saveFile) {
   v.playbackRate = 1;
 
   let fileRec = null;
-  if (saveFile) {
+  let cacheResolve = null;
+  if (saveFile || auchCachen) {
     const dest = ctx.createMediaStreamDestination();
     g.masterGain.connect(dest);
 
@@ -5109,27 +5178,40 @@ async function playMix(saveFile) {
     fileRec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 4_000_000 });
     const chunks = [];
     fileRec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    const volSig = premVolSig();
+    premCachePending = new Promise(res => { cacheResolve = res; });
     fileRec.onstop = () => {
       try { g.masterGain.disconnect(dest); } catch {}
       frames.stop();
       const blob = new Blob(chunks, { type: mime.split(";")[0] });
-      const name = (scene?.id || "synchro") + "_dub." + endung;
-      // Zu wenige Bilder heißt fast immer: Tab war im Hintergrund, der Browser hat das
-      // Zeichnen gedrosselt. Dann lieber sagen als den Nutzer rätseln lassen.
       const sek = Math.max(1, v.duration || 1), fps = frames.count() / sek;
-      saveBlob(blob, name).then(wie => {
-        if (wie === "abort") { status("play-status", "Speichern abgebrochen."); return; }
-        if (fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein (nur " + fps.toFixed(1) + " Bilder/Sek.). Der Browser drosselt das Aufnehmen, wenn das Fenster im Hintergrund ist — bitte nochmal speichern und das Fenster dabei offen im Vordergrund lassen.", true);
-        else {
-          status("play-status", endung === "mp4"
-            ? "✅ Gespeichert als MP4 — kann direkt bei TikTok, Insta oder WhatsApp hochgeladen werden."
-            : "✅ Gespeichert! Dein Browser kann nur .webm — für TikTok/Insta einmal in CapCut o. Ä. zu MP4 exportieren.");
-          SFX.done();
-        }
-      });
+      premCache = { blob, endung, volSig, fps };
+      premCachePending = null;
+      if (cacheResolve) cacheResolve(premCache);
+      if (saveFile) {
+        const name = (scene?.id || "synchro") + "_dub." + endung;
+        saveBlob(blob, name).then(wie => {
+          if (wie === "abort") { status("play-status", "Speichern abgebrochen."); return; }
+          if (fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein (nur " + fps.toFixed(1) + " Bilder/Sek.). Der Browser drosselt das Aufnehmen, wenn das Fenster im Hintergrund ist — bitte nochmal speichern und das Fenster dabei offen im Vordergrund lassen.", true);
+          else {
+            status("play-status", endung === "mp4"
+              ? "✅ Gespeichert als MP4 — kann direkt bei TikTok, Insta oder WhatsApp hochgeladen werden."
+              : "✅ Gespeichert! Dein Browser kann nur .webm — für TikTok/Insta einmal in CapCut o. Ä. zu MP4 exportieren.");
+            SFX.done();
+          }
+        });
+      } else if (!quiet) {
+        // Stiller Mitschnitt der Premiere ist fertig — Download-Knopf kann sofort liefern
+        const btn = $("btn-download");
+        if (btn && !btn.disabled) btn.title = "Sofort speichern (schon fertiggeschnitten)";
+      }
     };
-    status("play-status", "🔴 Nimmt Video auf — läuft einmal in Originallänge durch. Fenster bitte im Vordergrund lassen, sonst wird das Bild schwarz!");
-    $("dl-progress").style.display = "";
+    if (saveFile) {
+      status("play-status", quiet
+        ? "🎬 Schneide im Hintergrund — musst nicht zuschauen, Fenster bitte offen lassen …"
+        : "🔴 Nimmt Video auf — Fenster bitte im Vordergrund lassen, sonst wird das Bild schwarz!");
+      $("dl-progress").style.display = "";
+    }
   }
 
   v.pause(); v.currentTime = 0;
@@ -5138,11 +5220,11 @@ async function playMix(saveFile) {
     fileRec.start();
     const progInterval = setInterval(() => {
       const pct = v.duration ? Math.round((v.currentTime / v.duration) * 100) : 0;
-      $("dl-progress-bar").style.width = pct + "%";
-      $("dl-progress-label").textContent = pct + "%";
+      if ($("dl-progress-bar")) $("dl-progress-bar").style.width = pct + "%";
+      if ($("dl-progress-label")) $("dl-progress-label").textContent = pct + "%";
       if (v.ended || fileRec.state === "inactive") clearInterval(progInterval);
     }, 200);
-    v.addEventListener("ended", () => { clearInterval(progInterval); $("dl-progress").style.display = "none"; }, { once: true });
+    v.addEventListener("ended", () => { clearInterval(progInterval); if (saveFile) $("dl-progress").style.display = "none"; }, { once: true });
   }
   const t0 = ctx.currentTime;
   const off = syncOffsetMs / 1000;
@@ -5178,9 +5260,9 @@ async function playMix(saveFile) {
 }
 
 
-$("vol-master").oninput = e => { premVol.master = parseFloat(e.target.value); applyPremVol(); };
-$("vol-voice").oninput  = e => { premVol.voice  = parseFloat(e.target.value); applyPremVol(); };
-$("vol-video").oninput  = e => { premVol.video  = parseFloat(e.target.value); applyPremVol(); };
+$("vol-master").oninput = e => { premVol.master = parseFloat(e.target.value); applyPremVol(); invalidatePremCache(); };
+$("vol-voice").oninput  = e => { premVol.voice  = parseFloat(e.target.value); applyPremVol(); invalidatePremCache(); };
+$("vol-video").oninput  = e => { premVol.video  = parseFloat(e.target.value); applyPremVol(); invalidatePremCache(); };
 let boothVol = 0.55;
 $("booth-vol").oninput = e => { boothVol = parseFloat(e.target.value); $("booth-video").volume = boothVol; };
 
@@ -5407,6 +5489,7 @@ $("btn-back").onclick = () => {
 function resetForNewRound() {
   players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; });
   mixItems = []; collected.clear(); takes = {};
+  invalidatePremCache();
   finalTracksData = null; premiereLocked = false; redoMode = null;
   pendingRate = false; rateSent = false; allRatings.clear(); myStars = {};
   $("rate-card").style.display = "none";
