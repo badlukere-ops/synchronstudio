@@ -1856,9 +1856,21 @@ function bgStop(showResult) {
 }
 
 document.addEventListener("keydown", e => {
-  if (!BG.running) return;
   const tag = (e.target && e.target.tagName) || "";
-  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || e.target.isContentEditable) return;
+
+  // Leertaste in der Booth = Aufnehmen / Stoppen (wie der große Aufnahme-Knopf)
+  if ((e.code === "Space" || e.key === " ") && document.querySelector("#scr-booth.active")) {
+    const btn = $("btn-line-rec");
+    if (btn && !btn.disabled) {
+      e.preventDefault();
+      if (e.repeat) return;   // gedrückt halten nicht als Dauerfeuer
+      btn.click();
+    }
+    return;
+  }
+
+  if (!BG.running) return;
   const lane = BG_KEYS[e.key.toLowerCase()];
   if (lane === undefined || BG.keyDown[lane]) return;
   e.preventDefault();
@@ -2996,12 +3008,26 @@ function pickRole(roleId) {
 }
 
 
+// Echter Zufallsmix (Fisher-Yates) — Math.random()-0.5 ist ungleichmäßig und ließ
+// bei vielen Rollen oft immer dieselben oberen Rollen übrig.
+function mischen(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 $("btn-roulette").onclick = () => {
   if (!isHost || !scene) return;
-  const shuffled = [...players].sort(() => Math.random() - 0.5);
-  const roleIds = scene.roles.map(r => r.id);
+  const shuffledPlayers = mischen(players);
+  // WICHTIG: auch die Rollen mischen — sonst kriegen 4 Spieler bei 20 Rollen
+  // immer nur Rolle 1–4 („die obersten“), nie die weiter hinten.
+  const roleIds = mischen(scene.roles.map(r => r.id));
+  const n = Math.min(roleIds.length, shuffledPlayers.length);
   players.forEach(p => { p.role = null; p.ready = false; });
-  shuffled.slice(0, roleIds.length).forEach((p, i) => { p.role = roleIds[i]; });
+  for (let i = 0; i < n; i++) shuffledPlayers[i].role = roleIds[i];
   broadcastState(); renderRoles();
   status("lobby-status", "🎲 Rollen ausgewürfelt! Wer keine hat, ist Zuschauer. Jetzt alle „Bin bereit“.");
   SFX.done();
@@ -3188,7 +3214,9 @@ async function pickRandomScene() {
 // ── FAIRE Rollenverteilung: wer schon (öfter) Zuschauer war, ist garantiert bevorzugt dran.
 // Bei exakt gleichem Zuschauer-Stand entscheidet der Zufall — sonst nie.
 function rouletteRoles() {
-  const roleIds = scene.roles.map(r => r.id);
+  // Auch hier Rollen mischen — sonst landen bei wenigen Spielern und vielen Rollen
+  // immer nur die ersten Einträge aus scenes.json.
+  const roleIds = mischen(scene.roles.map(r => r.id));
   const eligible = players.filter(p => !p.eliminated);   // Eliminierte sind für IMMER Zuschauer (Battle Royale)
   const n = Math.min(roleIds.length, eligible.length);
 
@@ -3199,7 +3227,7 @@ function rouletteRoles() {
   const spectating = ranked.slice(n).map(x => x.p);
 
   players.forEach(p => { p.role = null; p.ready = false; });
-  const shuffledPlaying = [...playing].sort(() => Math.random() - 0.5);
+  const shuffledPlaying = mischen(playing);
   shuffledPlaying.forEach((p, i) => { p.role = roleIds[i]; });
 
   // Fairness-Zähler fortschreiben: Bank-Zeit steigt, Spielzeit steigt — Grundlage für die nächste Runde
