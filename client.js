@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "8.9";
+const APP_VERSION = "9.0";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -170,6 +170,17 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.0", items: [
+    "🎬 Neue Szene: „Dragon Ball Z — Gokus erste Super-Saiyajin-Verwandlung“ (3 Rollen: Son Goku, Freezer, Son Gohan)",
+    "🍔 Neue Szene: „SpongeBob — Ist Mayonnaise ein Instrument?“ (7 Rollen: Thaddäus, Patrick, Sandy, SpongeBob, Mr. Krabs, Plankton, Larry der Hummer)",
+    "🖤 Schwarzbild-Fehler beim Speichern behoben: Bei manchen Rechnern kam nur Ton und ein schwarzes Video heraus. Das Bild wurde direkt vom Videoplayer abgegriffen, und je nach Grafikkarte kommen da schwarze Bilder an. Jetzt wird jedes Bild einzeln auf eine Zeichenfläche gemalt und DIESE aufgenommen",
+    "🖤 Dazu eine Warnung: Wenn das Fenster beim Speichern in den Hintergrund rutscht, bremst der Browser die Aufnahme aus. Das wird jetzt erkannt und gesagt, statt dass du ein kaputtes Video bekommst",
+    "🎙 „Studio-Qualität“ klingt endlich gut. Vorher hob der Effekt die Höhen an — und damit genau das Rauschen und Zischeln, das billige Mikrofone zu viel haben. Danach kam noch 55 % Extra-Pegel ohne Bremse obendrauf, das hat schlicht übersteuert",
+    "🎙 Neu in der Kette: Höhen werden zurückgenommen statt angehoben, es gibt einen echten Zischlaut-Dämpfer, der nur eingreift wenn es nötig ist, eine sanfte zweistufige Verdichtung mit Limiter als Deckel und einen Ausgleich auf gleiche Lautheit statt auf die lauteste Spitze",
+    "🎙 Die Rauschunterdrückung rechnete das Störgeräusch dreifach überhöht heraus — davon kam der dumpfe, gluckernde Klang. Jetzt sanfter und ruhiger, dafür sauber. Nebenbei läuft sie deutlich schneller",
+    "📊 Der Visualizer beim Aufnehmen einer Line ist neu: Das Original liegt jetzt OBEN, deine Stimme UNTEN, auf einer gemeinsamen Zeitachse mit Sekunden-Markierungen. So siehst du sofort, ob du zu früh oder zu spät dran bist, statt zwei Wellen übereinander zu entwirren",
+    "📊 Dazu eine gestrichelte Linie, wo das Original fertig ist, plus Hinweise „zu leise“ und „zu laut“ direkt im Bild"
+  ]},
   { v: "8.9", items: [
     "🔗 Einladungs-Link: In der Lobby gibt's einen Knopf, der einen Link kopiert. Wer draufklickt, hat den Raumcode schon eingetragen — kein Vorlesen und Vertippen mehr",
     "🎞 Szenen-Auswahl komplett neu: statt einer langen Klappliste jetzt ein Raster mit echtem Bild aus jeder Szene und dem Namen clean darunter. Dazu eine Suche über Titel UND Rollennamen",
@@ -416,6 +427,14 @@ const AVATAR_CHARS = [
   { img: "scenes/chickenjockey/garret.png", label: "Garret" },
   { img: "scenes/chickenjockey/jockey.png", label: "Chicken Jockey" },
   { img: "scenes/tojigojo/toji.png", label: "Toji" },
+  { img: "scenes/gokussj/goku.png", label: "Son Goku" },
+  { img: "scenes/gokussj/freezer.png", label: "Freezer" },
+  { img: "scenes/gokussj/gohan.png", label: "Son Gohan" },
+  { img: "scenes/mayonnaise/thaddaeus.png", label: "Thaddäus" },
+  { img: "scenes/mayonnaise/sandy.png", label: "Sandy" },
+  { img: "scenes/mayonnaise/krabs.png", label: "Mr. Krabs" },
+  { img: "scenes/mayonnaise/plankton.png", label: "Plankton" },
+  { img: "scenes/mayonnaise/larry.png", label: "Larry der Hummer" },
   { img: "scenes/tojigojo/gojo.png", label: "Gojo (Toji-Kampf)" },
   { img: "scenes/whodecided/escanor.png", label: "Escanor" },
   { img: "scenes/whodecided/estarossa.png", label: "Estarossa" },
@@ -727,115 +746,172 @@ async function getRefPeaks(l, cols) {
   } catch { return null; }
 }
 
-let liveVoicePeaks = null, liveVoiceIdx = 0, currentRefPeaks = null, recording = false, livePeakHold = null;
-function startDualViz(canvasId, l, recMaxSec) {
-  const canvas = $(canvasId), g = canvas.getContext("2d");
-  const dpr = window.devicePixelRatio || 1;
-  const wave = new Float32Array(vizAn.fftSize);
-  const COLS = 176;   // feinere Aufloesung fuer mehr Detail in der Wellenform
-  liveVoicePeaks = new Float32Array(COLS);
-  livePeakHold = new Float32Array(COLS);
-  liveVoiceIdx = 0;
-  currentRefPeaks = null;
-  getRefPeaks(l, COLS).then(r => { currentRefPeaks = r; });
-  cancelAnimationFrame(vizRAF);
-  const t0 = performance.now();
-  (function draw() {
-    vizRAF = requestAnimationFrame(draw);
-    const W = canvas.clientWidth * dpr, H = canvas.clientHeight * dpr;
-    if (canvas.width !== W) { canvas.width = W; canvas.height = H; }
-    g.clearRect(0, 0, W, H);
-    const mid = H / 2, colW = W / COLS;
+// ═════════════════════════════════════════════════════════════
+// TAKE-ANSICHT — Original oben, eigene Stimme unten, gemeinsame Zeitachse
+// Getrennt statt übereinander: so sieht man mit einem Blick, ob man zu früh
+// oder zu spät dran ist, statt zwei ineinanderliegende Wellen zu entwirren.
+// ═════════════════════════════════════════════════════════════
+const VIZ_COLS = 176;
+let liveVoicePeaks = null, liveVoiceIdx = -1, currentRefPeaks = null, recording = false;
+let vizWindowSec = 3, vizElapsed = 0, vizLoudest = 0, vizClip = 0;
 
-    // Feine Mittellinie als Referenz
-    g.fillStyle = "rgba(255,255,255,.08)";
-    g.fillRect(0, mid - dpr * 0.4, W, dpr * 0.8);
-
-    // Lila Hintergrund: Original-Referenz, gestaucht auf ihre eigene Dauer relativ zu recMaxSec
-    if (currentRefPeaks) {
-      const refGrad = g.createLinearGradient(0, mid - H * 0.42, 0, mid + H * 0.42);
-      refGrad.addColorStop(0, "rgba(232,150,255,.65)"); refGrad.addColorStop(1, "rgba(160,50,220,.5)");
-      const refCols = Math.max(1, Math.round(COLS * Math.min(1, currentRefPeaks.duration / recMaxSec)));
-      for (let i = 0; i < refCols; i++) {
-        const srcI = Math.floor(i * currentRefPeaks.peaks.length / refCols);
-        const h = Math.max(1 * dpr, currentRefPeaks.peaks[srcI] * H * 0.85);
-        g.fillStyle = refGrad;
-        g.fillRect(i * colW, mid - h / 2, Math.max(1, colW - dpr * 0.3), h);
-      }
-    }
-
-    // Blaue Live-Aufnahme: aktueller Mikro-Pegel wird fortlaufend als eigener Balken angehängt
-    if (recording) {
-      // Lautstärke aus dem Zeitsignal (RMS) statt aus einzelnen Frequenzbändern:
-      // misst die tatsächlich gesprochene Lautheit und bleibt unabhängig von der FFT-Größe.
-      vizAn.getFloatTimeDomainData(wave);
-      let sq = 0;
-      for (let i = 0; i < wave.length; i++) sq += wave[i] * wave[i];
-      const level = Math.min(1, Math.sqrt(sq / wave.length) * 4.2);
-      const elapsed = (performance.now() - t0) / 1000;
-      const col = Math.min(COLS - 1, Math.floor((elapsed / recMaxSec) * COLS));
-      liveVoicePeaks[col] = Math.max(liveVoicePeaks[col], level);
-      liveVoiceIdx = col;
-    }
-    const liveGrad = g.createLinearGradient(0, mid - H * 0.42, 0, mid + H * 0.42);
-    liveGrad.addColorStop(0, "rgba(140,200,255,.95)"); liveGrad.addColorStop(1, "rgba(60,130,240,.85)");
-    for (let i = 0; i <= liveVoiceIdx; i++) {
-      const h = Math.max(1 * dpr, liveVoicePeaks[i] * H * 0.85);
-      g.fillStyle = liveGrad;
-      g.shadowColor = "rgba(90,170,255,.5)"; g.shadowBlur = 3 * dpr;
-      g.fillRect(i * colW, mid - h / 2, Math.max(1, colW - dpr * 0.3), h);
-      g.shadowBlur = 0;
-      // Peak-Hold: langsam abklingender heller Strich am bisher lautesten Punkt dieser Spalte
-      livePeakHold[i] = Math.max(liveVoicePeaks[i] * 0.999, (livePeakHold[i] || 0) * 0.985);
-      const ph = livePeakHold[i] * H * 0.85;
-      if (ph > h) {
-        g.fillStyle = "rgba(220,240,255,.9)";
-        g.fillRect(i * colW, mid - ph / 2, Math.max(1, colW - dpr * 0.3), Math.max(1, dpr * 0.8));
-        g.fillRect(i * colW, mid + ph / 2 - dpr * 0.8, Math.max(1, colW - dpr * 0.3), Math.max(1, dpr * 0.8));
-      }
-    }
-    // Fortschritts-Linie
-    if (recording) {
-      const elapsed = Math.min(recMaxSec, (performance.now() - t0) / 1000);
-      const px = (elapsed / recMaxSec) * W;
-      g.fillStyle = "#f0f0f5";
-      g.fillRect(px, 0, Math.max(1, 1.5 * dpr), H);
-    }
-  })();
+// Wie viel Zeit zeigt die Ansicht? Genau so viel, wie die Aufnahme später läuft —
+// dadurch stimmt die Vorschau vor dem Aufnehmen mit dem Ergebnis überein.
+function recWindowFor(l) {
+  const nextL = (scene && scene.lines) ? scene.lines[l.idx + 1] : null;
+  const room = nextL ? Math.max(0.3, nextL.t - l.end) : 1.2;
+  return Math.min(20, Math.max(2.5, lineSpeakSeconds(l) + Math.min(1.2, room)));
 }
 
+// Gefüllte Wellenform als Treppenzug — liest sich als zusammenhängende Welle
+// statt als lose Striche.
+function fillWave(g, farbe, mid, richtung, hoehe, W, spalten, bis, amp) {
+  const colW = W / spalten;
+  g.beginPath();
+  g.moveTo(0, mid);
+  for (let i = 0; i <= bis; i++) {
+    const y = mid + richtung * Math.max(0.008, Math.min(1, amp(i))) * hoehe;
+    g.lineTo(i * colW, y);
+    g.lineTo((i + 1) * colW, y);
+  }
+  g.lineTo((bis + 1) * colW, mid);
+  g.closePath();
+  g.fillStyle = farbe;
+  g.fill();
+}
 
-// ── Statische Vorschau der Original-Wellenform, bevor man überhaupt aufnimmt ──
-function drawStaticRefViz() {
+function drawTakeViz() {
   const canvas = $("viz");
   if (!canvas) return;
   const g = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
-  const W = canvas.clientWidth * dpr, H = canvas.clientHeight * dpr;
-  if (canvas.width !== W) { canvas.width = W; canvas.height = H; }
+  const W = Math.round(canvas.clientWidth * dpr), H = Math.round(canvas.clientHeight * dpr);
+  if (!W || !H) return;
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
   g.clearRect(0, 0, W, H);
-  const mid = H / 2;
-  g.fillStyle = "rgba(255,255,255,.08)";
-  g.fillRect(0, mid - dpr * 0.4, W, dpr * 0.8);
-  if (!currentRefPeaks) return;
-  const COLS = currentRefPeaks.peaks.length, colW = W / COLS;
-  const grad = g.createLinearGradient(0, mid - H * 0.42, 0, mid + H * 0.42);
-  grad.addColorStop(0, "rgba(232,150,255,.65)"); grad.addColorStop(1, "rgba(160,50,220,.5)");
-  for (let i = 0; i < COLS; i++) {
-    const h = Math.max(1 * dpr, currentRefPeaks.peaks[i] * H * 0.85);
-    g.fillStyle = grad;
-    g.fillRect(i * colW, mid - h / 2, Math.max(1, colW - dpr * 0.3), h);
+
+  const fenster = Math.max(0.5, vizWindowSec);
+  const padY = 5 * dpr;
+  const mid = Math.round(H * 0.52);          // etwas unter der Mitte: das Original bekommt mehr Platz
+  const obenH = mid - padY, untenH = H - padY - mid;
+
+  // ── Zeitraster mit Sekunden ──
+  const schritt = fenster > 12 ? 5 : fenster > 6 ? 2 : 1;
+  g.font = "700 " + (9 * dpr) + "px ui-monospace, monospace";
+  g.textBaseline = "top";
+  for (let s = schritt; s < fenster; s += schritt) {
+    const x = (s / fenster) * W;
+    g.fillStyle = "rgba(255,255,255,.1)";
+    g.fillRect(x, padY, Math.max(1, dpr), H - padY * 2);
+    g.fillStyle = "rgba(255,255,255,.45)";
+    g.fillText(s + "s", x + 4 * dpr, mid + 3 * dpr);
+  }
+
+  // ── Wo das Original zu Ende ist: bis hierhin musst du fertig sein ──
+  if (currentRefPeaks && currentRefPeaks.duration < fenster) {
+    const x = (currentRefPeaks.duration / fenster) * W;
+    g.fillStyle = "rgba(226,150,255,.45)";
+    for (let y = padY; y < H - padY; y += 6 * dpr) g.fillRect(x, y, Math.max(1, dpr), 3 * dpr);
+  }
+
+  // ── Original nach oben ──
+  if (currentRefPeaks && currentRefPeaks.peaks.length) {
+    const p = currentRefPeaks.peaks, dur = currentRefPeaks.duration || fenster;
+    const bis = Math.max(0, Math.min(VIZ_COLS - 1, Math.round((dur / fenster) * VIZ_COLS) - 1));
+    const grad = g.createLinearGradient(0, mid, 0, padY);
+    grad.addColorStop(0, "rgba(150,60,220,.5)"); grad.addColorStop(1, "rgba(240,170,255,.95)");
+    fillWave(g, grad, mid, -1, obenH, W, VIZ_COLS, bis, i => {
+      const t = (i / VIZ_COLS) * fenster;
+      return p[Math.min(p.length - 1, Math.floor((t / dur) * p.length))];
+    });
+  }
+
+  // ── Eigene Stimme nach unten ──
+  if (liveVoicePeaks && liveVoiceIdx >= 0) {
+    const grad = g.createLinearGradient(0, mid, 0, H - padY);
+    grad.addColorStop(0, "rgba(60,130,240,.55)"); grad.addColorStop(1, "rgba(150,215,255,.95)");
+    fillWave(g, grad, mid, 1, untenH, W, VIZ_COLS, liveVoiceIdx, i => liveVoicePeaks[i]);
+  }
+
+  // ── Mittellinie ganz oben drüber, damit die Trennung klar bleibt ──
+  g.fillStyle = "rgba(255,255,255,.22)";
+  g.fillRect(0, mid - dpr * 0.5, W, Math.max(1, dpr));
+
+  // ── Beschriftung der beiden Hälften ──
+  g.font = "700 " + (9 * dpr) + "px ui-monospace, monospace";
+  g.fillStyle = "rgba(240,180,255,.95)";
+  g.textBaseline = "top"; g.fillText("ORIGINAL", 6 * dpr, padY + dpr);
+  g.fillStyle = "rgba(170,225,255,.95)";
+  g.textBaseline = "bottom"; g.fillText("DU", 6 * dpr, H - padY);
+
+  // ── Laufmarke + Hinweise während der Aufnahme ──
+  if (recording) {
+    const x = (Math.min(fenster, vizElapsed) / fenster) * W;
+    g.fillStyle = "rgba(255,255,255,.25)";
+    g.fillRect(x, padY, Math.max(1, 3 * dpr), H - padY * 2);
+    g.fillStyle = "#fff";
+    g.fillRect(x, padY, Math.max(1, 1.4 * dpr), H - padY * 2);
+
+    let hinweis = null, farbe = null;
+    if (vizClip > 0) { hinweis = "ZU LAUT"; farbe = "#e63946"; }
+    else if (vizElapsed > 0.7 && vizLoudest < 0.1) { hinweis = "ZU LEISE — NÄHER RAN"; farbe = "#f0a830"; }
+    if (hinweis) {
+      g.font = "700 " + (8 * dpr) + "px ui-monospace, monospace";
+      const b = g.measureText(hinweis).width + 10 * dpr;
+      g.fillStyle = "rgba(8,8,12,.85)";
+      g.fillRect(W - b - 5 * dpr, padY + dpr, b, 12 * dpr);
+      g.fillStyle = farbe;
+      g.textBaseline = "middle";
+      g.fillText(hinweis, W - b, padY + 7 * dpr);
+    }
   }
 }
+
+function startDualViz(canvasId, l, recMaxSec) {
+  vizWindowSec = recMaxSec;
+  vizElapsed = 0; vizLoudest = 0; vizClip = 0;
+  liveVoicePeaks = new Float32Array(VIZ_COLS);
+  liveVoiceIdx = -1;
+  currentRefPeaks = null;
+  getRefPeaks(l, VIZ_COLS).then(r => { currentRefPeaks = r; });
+  const wave = new Float32Array(vizAn.fftSize);
+  cancelAnimationFrame(vizRAF);
+  const t0 = performance.now();
+  (function draw() {
+    vizRAF = requestAnimationFrame(draw);
+    if (recording) {
+      // Lautstärke aus dem Zeitsignal (RMS) statt aus einzelnen Frequenzbändern:
+      // misst die tatsächlich gesprochene Lautheit und bleibt unabhängig von der FFT-Größe.
+      vizAn.getFloatTimeDomainData(wave);
+      let sq = 0, spitze = 0;
+      for (let i = 0; i < wave.length; i++) { const a = wave[i]; sq += a * a; const b = Math.abs(a); if (b > spitze) spitze = b; }
+      const level = Math.min(1, Math.sqrt(sq / wave.length) * 4.2);
+      vizElapsed = (performance.now() - t0) / 1000;
+      vizClip = spitze > 0.985 ? 1.2 : Math.max(0, vizClip - 0.016);
+      if (level > vizLoudest) vizLoudest = level;
+      const col = Math.min(VIZ_COLS - 1, Math.floor((vizElapsed / vizWindowSec) * VIZ_COLS));
+      liveVoicePeaks[col] = Math.max(liveVoicePeaks[col], level);
+      // Übersprungene Spalten auffüllen, damit keine Löcher entstehen, wenn ein Bild ausfällt
+      for (let i = Math.max(0, liveVoiceIdx); i < col; i++) if (!liveVoicePeaks[i]) liveVoicePeaks[i] = level * 0.7;
+      liveVoiceIdx = Math.max(liveVoiceIdx, col);
+    }
+    drawTakeViz();
+  })();
+}
+
+// ── Vorschau, bevor man überhaupt aufnimmt: nur das Original, gleiche Zeitachse ──
+function drawStaticRefViz() { drawTakeViz(); }
 function previewRefViz(l) {
   cancelAnimationFrame(vizRAF);
   currentRefPeaks = null; recording = false;
-  const canvas = $("viz");
-  if (canvas) { const g = canvas.getContext("2d"); g.clearRect(0, 0, canvas.width, canvas.height); }
-  getRefPeaks(l, 176).then(r => {
+  liveVoicePeaks = null; liveVoiceIdx = -1;
+  vizElapsed = 0; vizLoudest = 0; vizClip = 0;
+  vizWindowSec = recWindowFor(l);
+  drawTakeViz();
+  getRefPeaks(l, VIZ_COLS).then(r => {
     currentRefPeaks = r;
-    drawStaticRefViz();
-    if (myLines[curLine] === l) showLineDuration(l);   // Anzeige auf die echte Original-Länge korrigieren
+    if (myLines[curLine] === l) { vizWindowSec = recWindowFor(l); showLineDuration(l); }
+    drawTakeViz();
   });
 }
 
@@ -2203,8 +2279,8 @@ function fftRadix2(re, im, inverse) {
   if (inverse) for (let i = 0; i < n; i++) { re[i] /= n; im[i] /= n; }
 }
 
-function denoiseChannel(x, strength) {
-  const N = 2048, HOP = 512, SR = 44100;
+function denoiseChannel(x, strength, sampleRate) {
+  const N = 2048, HOP = 512, SR = sampleRate || 44100;
   if (x.length < N * 3) return x;
   const win = new Float32Array(N);
   for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
@@ -2224,11 +2300,12 @@ function denoiseChannel(x, strength) {
   }
 
   // ── 2) Stoerteppich mitlaufend schaetzen (Minimum-Statistik) ──
-  // Statt eines festen Wertes fuer die ganze Aufnahme wird pro Frequenz das laufende
-  // Minimum in einem gleitenden Fenster verfolgt. Damit passt sich die Schaetzung an,
-  // wenn sich das Umgebungsgeraeusch waehrend der Aufnahme aendert.
-  const SMOOTH = 0.9, WINF = Math.max(8, Math.round(1.5 * SR / HOP));
-  const smoothed = [], noise = [];
+  // Pro Frequenz wird das Minimum in einem Zeitfenster verfolgt: waehrend einer Sprechpause
+  // bleibt nur das Stoergeraeusch uebrig, und das ist die Schaetzung. Berechnet in Bloecken
+  // und danach ueber die Nachbarbloecke -- gleiches Ergebnis wie ein gleitendes Fenster,
+  // aber ein Vielfaches schneller (vorher lief das bei jeder Aufnahme spuerbar lange).
+  const SMOOTH = 0.9;
+  const smoothed = [];
   const cur = new Float32Array(bins);
   for (let b = 0; b < bins; b++) cur[b] = pow[0][b];
   for (let f = 0; f < frames; f++) {
@@ -2236,16 +2313,47 @@ function denoiseChannel(x, strength) {
     for (let b = 0; b < bins; b++) { cur[b] = SMOOTH * cur[b] + (1 - SMOOTH) * pow[f][b]; sm[b] = cur[b]; }
     smoothed.push(sm);
   }
-  for (let f = 0; f < frames; f++) {
-    const nz = new Float32Array(bins);
-    const lo = Math.max(0, f - WINF), hi = Math.min(frames - 1, f + WINF);
-    for (let b = 0; b < bins; b++) {
-      let m = Infinity;
-      for (let k = lo; k <= hi; k++) if (smoothed[k][b] < m) m = smoothed[k][b];
-      nz[b] = m * 1.9;                       // Ausgleich, weil ein Minimum systematisch zu tief liegt
-    }
-    noise.push(nz);
+  const BLK = Math.max(4, Math.round(0.7 * SR / HOP));
+  const nblk = Math.max(1, Math.ceil(frames / BLK));
+  const blkMin = [];
+  for (let k = 0; k < nblk; k++) {
+    const m = new Float32Array(bins).fill(Infinity);
+    const hi = Math.min(frames, (k + 1) * BLK);
+    for (let f = k * BLK; f < hi; f++) { const sm = smoothed[f]; for (let b = 0; b < bins; b++) if (sm[b] < m[b]) m[b] = sm[b]; }
+    blkMin.push(m);
   }
+  const noiseBlk = [];
+  for (let k = 0; k < nblk; k++) {
+    const nz = new Float32Array(bins);
+    const a = blkMin[Math.max(0, k - 1)], c = blkMin[Math.min(nblk - 1, k + 1)], m = blkMin[k];
+    // Faktor 1.5, weil ein Minimum den Stoerteppich systematisch etwas zu tief schaetzt.
+    // Vorher stand hier 1.9 und spaeter noch ein zweiter Faktor -- zusammen wurde damit rund
+    // das Dreifache abgezogen, und genau davon kam der dumpfe, gluckernde Klang.
+    for (let b = 0; b < bins; b++) nz[b] = Math.min(a[b], Math.min(m[b], c[b])) * 1.5;
+    noiseBlk.push(nz);
+  }
+
+  // ── 2b) Zwei Bremsen gegen "die ganze Aufnahme ist Rauschen" ──
+  // Die Minimum-Statistik setzt voraus, dass es zwischendurch Sprechpausen gibt. Bei einem
+  // lang gehaltenen Laut -- Schrei, gehaltener Vokal, in Anime-Szenen ständig -- gibt es die
+  // nicht. Dann haelt sie den Laut selbst fuer Rauschen und saugt die Stimme weg.
+  // Bremse 1: die Schaetzung darf nur einen kleinen Teil der Gesamtenergie erklaeren.
+  let gesamtE = 0, geschaetztE = 0;
+  for (let f = 0; f < frames; f++) { const p = pow[f]; for (let b = 0; b < bins; b++) gesamtE += p[b]; }
+  for (let f = 0; f < frames; f++) { const nz = noiseBlk[Math.min(nblk - 1, Math.floor(f / BLK))]; for (let b = 0; b < bins; b++) geschaetztE += nz[b]; }
+  const OBERGRENZE = 0.12;
+  if (geschaetztE > gesamtE * OBERGRENZE && geschaetztE > 0) {
+    const k = (gesamtE * OBERGRENZE) / geschaetztE;
+    for (const nz of noiseBlk) for (let b = 0; b < bins; b++) nz[b] *= k;
+  }
+  // Bremse 2: je deutlicher ein Zeitfenster ueber der ruhigsten Stelle der Aufnahme liegt,
+  // desto weniger wird darin eingegriffen -- laute Stellen sind mit Sicherheit Stimme.
+  const rahmenE = new Float32Array(frames);
+  for (let f = 0; f < frames; f++) { let s2 = 0; const p = pow[f]; for (let b = 0; b < bins; b++) s2 += p[b]; rahmenE[f] = s2; }
+  const sortiert = Float32Array.from(rahmenE).sort();
+  const ruheE = Math.max(sortiert[Math.floor(frames * 0.15)], 1e-12);
+  const sicherStimme = new Float32Array(frames);
+  for (let f = 0; f < frames; f++) sicherStimme[f] = Math.max(0, Math.min(1, (10 * Math.log10(rahmenE[f] / ruheE)) / 20));
 
   // ── 3) Klick-Erkennung ──
   // Mausklicks/Tastenanschlaege sind sehr kurz und ueber alle Frequenzen verteilt.
@@ -2260,13 +2368,38 @@ function denoiseChannel(x, strength) {
     if (hf[f] > around * 6) isClick[f] = 1;
   }
 
-  // ── 4) Wiener-Filter mit vorausschauender Signalschaetzung ──
+  // ── 4) Zischlaut-Daempfer (De-Esser) ──
+  // Billige Mikrofone uebertreiben S-, Z- und T-Laute. Pro Zeitfenster wird verglichen,
+  // wie viel Energie im Zischbereich sitzt im Verhaeltnis zum Stimmkoerper. Nur wenn das
+  // Verhaeltnis aus dem Ruder laeuft, wird der Zischbereich fuer dieses Fenster leiser
+  // gemacht -- ein fester Filter wuerde dagegen die ganze Aufnahme dumpf machen.
+  const binHz = SR / N;
+  const sbLo = Math.min(bins - 1, Math.round(4800 / binHz)), sbHi = Math.min(bins - 1, Math.round(9800 / binHz));
+  const bdLo = Math.min(bins - 1, Math.round(250 / binHz)), bdHi = Math.min(bins - 1, Math.round(3400 / binHz));
+  const sibG = new Float32Array(frames).fill(1);
+  let sibPrev = 1;
+  for (let f = 0; f < frames; f++) {
+    const p = pow[f];
+    let sib = 0, body = 0;
+    for (let b = sbLo; b <= sbHi; b++) sib += p[b];
+    for (let b = bdLo; b <= bdHi; b++) body += p[b];
+    const verhaeltnis = sib / (body + 1e-12);
+    const GRENZE = 0.32;
+    let dg = verhaeltnis > GRENZE ? Math.sqrt(GRENZE / verhaeltnis) : 1;
+    dg = Math.max(0.42, dg);                    // maximal rund 7 dB -- mehr klingt gelispelt
+    sibPrev = dg < sibPrev ? 0.4 * sibPrev + 0.6 * dg : 0.75 * sibPrev + 0.25 * dg;   // schnell zu, langsam auf
+    sibG[f] = sibPrev;
+  }
+
+  // ── 5) Wiener-Filter mit vorausschauender Signalschaetzung ──
   // Der entscheidende Unterschied zum simplen Abziehen: die Daempfung pro Frequenz wird
   // aus dem VERLAUF ueber die Zeit abgeleitet und geglaettet. Dadurch springen einzelne
   // Frequenzpunkte nicht mehr zufaellig an/aus -- genau das erzeugt sonst das metallische Glucksen.
   const s = Math.max(0, Math.min(1, strength === undefined ? 1 : strength));
   const ALPHA = 0.98;                                   // wie stark der Verlauf mitzaehlt
-  const floorG = Math.max(0.06, 0.30 - s * 0.20);       // Restpegel: nie ganz auf null
+  // Untergrenze der Daempfung. Bewusst hoch angesetzt: 15 dB saubere, ruhige Absenkung
+  // klingen deutlich besser als 25 dB, die dabei pumpen und zirpen.
+  const floorG = Math.max(0.15, 0.34 - s * 0.19);
   const gPrev = new Float32Array(bins).fill(1);
   const gamPrev = new Float32Array(bins).fill(1);
   const gSmoothPrev = new Float32Array(bins).fill(1);
@@ -2274,9 +2407,9 @@ function denoiseChannel(x, strength) {
   const g = new Float32Array(bins), gs = new Float32Array(bins);
 
   for (let f = 0; f < frames; f++) {
-    const p = pow[f], nz = noise[f];
+    const p = pow[f], nz = noiseBlk[Math.min(nblk - 1, Math.floor(f / BLK))];
     for (let b = 0; b < bins; b++) {
-      const nn = Math.max(nz[b], 1e-12) * (0.8 + s * 0.9);
+      const nn = Math.max(nz[b], 1e-12) * (0.9 + s * 0.5);
       const gamma = p[b] / nn;                                        // gemessener Abstand zum Stoerteppich
       const inst = Math.max(gamma - 1, 0);
       const xi = Math.max(ALPHA * gPrev[b] * gPrev[b] * gamPrev[b] + (1 - ALPHA) * inst, 1e-4);
@@ -2284,14 +2417,21 @@ function denoiseChannel(x, strength) {
       gamPrev[b] = gamma;
     }
     for (let b = 0; b < bins; b++) {                                  // ueber Nachbarfrequenzen glaetten
-      const a = g[Math.max(0, b - 1)], c = g[Math.min(bins - 1, b + 1)];
-      gs[b] = (a + g[b] * 2 + c) / 4;
+      const a = g[Math.max(0, b - 2)], b1 = g[Math.max(0, b - 1)];
+      const c1 = g[Math.min(bins - 1, b + 1)], c = g[Math.min(bins - 1, b + 2)];
+      gs[b] = (a + b1 * 2 + g[b] * 3 + c1 * 2 + c) / 9;
     }
+    const sg = sibG[f];
+    // Bei sicherer Sprache nur noch ein Viertel der Daempfung anwenden. Die Schaetzung selbst
+    // laeuft unveraendert weiter (gPrev/gSmoothPrev), damit der Verlauf nicht durcheinandergeraet.
+    const nachlass = 1 - 0.75 * sicherStimme[f];
     for (let b = 0; b < bins; b++) {                                  // ueber die Zeit glaetten
-      gs[b] = 0.55 * gsPrevSafe(gSmoothPrev, b) + 0.45 * gs[b];
+      gs[b] = 0.7 * gsPrevSafe(gSmoothPrev, b) + 0.3 * gs[b];
       if (isClick[f] && b >= hfStart) gs[b] = Math.min(gs[b], floorG);   // Klick wegdaempfen
       gSmoothPrev[b] = gs[b];
       gPrev[b] = gs[b];
+      gs[b] = 1 - (1 - gs[b]) * nachlass;
+      if (b >= sbLo && b <= sbHi) gs[b] *= sg;                        // Zischlaut-Daempfung obendrauf
     }
     const re = phRe[f], im = phIm[f];
     for (let b = 0; b < bins; b++) {
@@ -2317,15 +2457,36 @@ function studioEnhanceBuffer(ctx, buffer, strength) {
     const out = ctx.createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
     let peak = 0;
     for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
-      const d = denoiseChannel(buffer.getChannelData(ch), s);
+      // Gleichspannungs-Versatz abziehen. Viele billige Mikros liefern eine leicht
+      // verschobene Nulllinie -- das kostet Pegel und macht den Klang matschig.
+      // Auf einer Kopie, damit die Rohaufnahme unberuehrt bleibt (die wird noch gebraucht,
+      // wenn man den Effekt wieder abwaehlt).
+      const roh = Float32Array.from(buffer.getChannelData(ch));
+      let mittel = 0;
+      for (let i = 0; i < roh.length; i++) mittel += roh[i];
+      mittel /= Math.max(1, roh.length);
+      if (Math.abs(mittel) > 0.0008) for (let i = 0; i < roh.length; i++) roh[i] -= mittel;
+
+      const d = denoiseChannel(roh, s, buffer.sampleRate);
       out.copyToChannel(d, ch);
       for (let i = 0; i < d.length; i++) { const v = Math.abs(d[i]); if (v > peak) peak = v; }
     }
-    if (peak > 0.001 && peak < 0.85) {             // auf einheitliche Lautheit bringen
-      const g = Math.min(3.2, 0.85 / peak);
+
+    // Lautheit statt Spitzenwert angleichen: ein einzelnes Knacken oder Atmen setzt sonst
+    // den Spitzenwert, und die eigentliche Stimme bleibt zu leise. Gemessen wird deshalb
+    // der Mittelwert der wirklich gesprochenen Stellen.
+    const d0 = out.getChannelData(0);
+    const schwelle = peak * 0.16;
+    let sq = 0, n = 0;
+    for (let i = 0; i < d0.length; i++) { const a = Math.abs(d0[i]); if (a > schwelle) { sq += d0[i] * d0[i]; n++; } }
+    const rms = n > 64 ? Math.sqrt(sq / n) : 0;
+    let gain = rms > 0.0005 ? 0.13 / rms : (peak > 0.001 ? 0.7 / peak : 1);
+    gain = Math.max(1, Math.min(4, gain));
+    if (peak * gain > 0.94) gain = 0.94 / Math.max(peak, 1e-6);   // nichts uebersteuern lassen
+    if (gain !== 1) {
       for (let ch = 0; ch < out.numberOfChannels; ch++) {
         const d = out.getChannelData(ch);
-        for (let i = 0; i < d.length; i++) d[i] *= g;
+        for (let i = 0; i < d.length; i++) d[i] *= gain;
       }
     }
     return out;
@@ -3046,9 +3207,7 @@ $("btn-line-rec").onclick = async () => {
     if ($("rec-timer").checked) await recCountdown();
     const l = myLines[curLine];
     // Adaptiver Puffer: nicht in die nächste Line reinlaufen
-    const nextL = scene.lines[l.idx + 1];
-    const room = nextL ? Math.max(0.3, nextL.t - l.end) : 1.2;
-    recMax = Math.min(20, Math.max(2.5, lineSpeakSeconds(l) + Math.min(1.2, room)));
+    recMax = recWindowFor(l);
     const v = $("booth-video");
     v.pause(); v.currentTime = l.t; v.volume = boothVol; v.playbackRate = 1;
     await new Promise(res => {
@@ -4603,6 +4762,39 @@ async function exportAudioFast() {
   }
 }
 
+// Malt das laufende Video fortlaufend auf eine Leinwand und gibt einen Bildstrom davon
+// zurück. requestVideoFrameCallback trifft genau die echten Videobilder; wo es das nicht
+// gibt, springt die normale Bildschleife ein.
+function frameSource(v) {
+  const c = document.createElement("canvas");
+  c.width = v.videoWidth || 1280;
+  c.height = v.videoHeight || 720;
+  const g2 = c.getContext("2d", { alpha: false });
+  let laeuft = true, bilder = 0, rafId = null;
+
+  const malen = () => {
+    if (!laeuft) return;
+    if (v.videoWidth && (c.width !== v.videoWidth || c.height !== v.videoHeight)) {
+      c.width = v.videoWidth; c.height = v.videoHeight;
+    }
+    try { g2.drawImage(v, 0, 0, c.width, c.height); bilder++; } catch {}
+  };
+  if (typeof v.requestVideoFrameCallback === "function") {
+    const schritt = () => { if (!laeuft) return; malen(); v.requestVideoFrameCallback(schritt); };
+    v.requestVideoFrameCallback(schritt);
+  } else {
+    const schritt = () => { if (!laeuft) return; malen(); rafId = requestAnimationFrame(schritt); };
+    rafId = requestAnimationFrame(schritt);
+  }
+  malen();   // erstes Bild sofort, damit der Strom nicht schwarz anfängt
+
+  return {
+    stream: c.captureStream(30),
+    count: () => bilder,
+    stop: () => { laeuft = false; if (rafId) cancelAnimationFrame(rafId); }
+  };
+}
+
 async function playMix(saveFile) {
   const ctx = getCtx();
   const v = $("play-video");
@@ -4617,22 +4809,30 @@ async function playMix(saveFile) {
   if (saveFile) {
     const dest = ctx.createMediaStreamDestination();
     g.masterGain.connect(dest);
-    const capture = (v.captureStream || v.mozCaptureStream).call(v);
-    const stream = new MediaStream([...capture.getVideoTracks(), ...dest.stream.getAudioTracks()]);
+
+    // Bildquelle: Video Bild für Bild auf eine Leinwand malen und DIESE aufnehmen.
+    // Der direkte Weg über video.captureStream() liefert auf manchen Rechnern nur
+    // Schwarzbild (Hardware-Dekoder/Grafiktreiber) — der Ton war dann da, das Bild fehlte.
+    const frames = frameSource(v);
+    const stream = new MediaStream([...frames.stream.getVideoTracks(), ...dest.stream.getAudioTracks()]);
     const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus") ? "video/webm;codecs=vp9,opus" : "video/webm";
     fileRec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 4_000_000 });
     const chunks = [];
     fileRec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
     fileRec.onstop = () => {
       try { g.masterGain.disconnect(dest); } catch {}
+      frames.stop();
       const url = URL.createObjectURL(new Blob(chunks, { type: "video/webm" }));
       const a = document.createElement("a");
       a.href = url; a.download = (scene?.id || "synchro") + "_dub.webm";
       a.click();
-      status("play-status", "✅ Gespeichert! Für TikTok/Insta die .webm in CapCut o. Ä. zu MP4 exportieren.");
-      SFX.done();
+      // Zu wenige Bilder heißt fast immer: Tab war im Hintergrund, der Browser hat das
+      // Zeichnen gedrosselt. Dann lieber sagen als den Nutzer rätseln lassen.
+      const sek = Math.max(1, v.duration || 1), fps = frames.count() / sek;
+      if (fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein (nur " + fps.toFixed(1) + " Bilder/Sek.). Der Browser drosselt das Aufnehmen, wenn das Fenster im Hintergrund ist — bitte nochmal speichern und das Fenster dabei offen im Vordergrund lassen.", true);
+      else { status("play-status", "✅ Gespeichert! Für TikTok/Insta die .webm in CapCut o. Ä. zu MP4 exportieren."); SFX.done(); }
     };
-    status("play-status", "🔴 Nimmt Video auf — läuft einmal in Originallänge durch. Tab kann im Hintergrund bleiben.");
+    status("play-status", "🔴 Nimmt Video auf — läuft einmal in Originallänge durch. Fenster bitte im Vordergrund lassen, sonst wird das Bild schwarz!");
     $("dl-progress").style.display = "";
   }
 
@@ -4795,19 +4995,35 @@ function buildChain(ctx, role, dest) {
       break;
     }
     case "studio": {
-      // Sende-Kette wie im echten Studio -- rettet guenstige Mikrofone.
-      // Reihenfolge ist bewusst gewaehlt: erst aufraeumen, dann formen, dann verdichten.
-      filt("highpass", 85, 0.7);           // Trittschall, Tischklopfen, Klimaanlagen-Brummen raus
-      filt("peaking", 300, 1.1, -3.5);     // "Kistigkeit" -- der typische Pappkarton-Klang billiger Mikros
-      filt("peaking", 3200, 0.9, 4);       // Praesenz -- macht Sprache verstaendlich statt dumpf
-      filt("peaking", 6800, 3.2, -3);      // Zischlaute zaehmen (vereinfachter De-Esser)
-      filt("highshelf", 9000, 0.7, 3);     // "Luft" obenrum -- klingt teuer statt stumpf
-      const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -24; comp.knee.value = 12; comp.ratio.value = 3.5;
-      comp.attack.value = 0.006; comp.release.value = 0.14;   // gleicht laute/leise Stellen aus
-      node.connect(comp); node = comp;
-      const makeup = ctx.createGain(); makeup.gain.value = 1.55;   // Pegel nach der Kompression wieder anheben
+      // Rettet guenstige Mikrofone. Leitgedanke: aufraeumen und glaetten statt aufbohren.
+      // Billige Mikros klingen schlecht, WEIL obenrum zu viel Zischeln und Rauschen sitzt --
+      // ein Hoehen-Boost macht genau das lauter. Deshalb hier gezielte Korrekturen,
+      // sanfte Verdichtung in zwei Stufen und am Ende ein Limiter, damit nichts uebersteuert.
+      filt("highpass", 80, 0.7);           // Trittschall, Tischklopfen, Klima-Brummen
+      filt("peaking", 175, 0.9, 2);        // etwas Koerper -- duenne Stimmen wirken sonst schmal
+      filt("peaking", 400, 1.0, -3);       // Pappkarton-Klang der billigen Kapsel
+      filt("peaking", 1050, 1.5, -1.5);    // Naeselndes/Quaekiges rausnehmen
+      filt("peaking", 2700, 1.2, 3);       // Praesenz fuer Verstaendlichkeit -- bewusst moderat
+      filt("peaking", 5200, 2.4, -2);      // Haerte/Schaerfe
+      filt("peaking", 7400, 2.6, -3);      // Zischeln
+      filt("highshelf", 11000, 0.7, -3.5); // ganz oben zurueck: da sitzt fast nur Rauschen
+
+      // Erste Stufe: sanft und langsam -- gleicht nur laute und leise Stellen aus,
+      // ohne die Stimme zusammenzupressen.
+      const lev = ctx.createDynamicsCompressor();
+      lev.threshold.value = -22; lev.knee.value = 20; lev.ratio.value = 2.2;
+      lev.attack.value = 0.015; lev.release.value = 0.25;
+      node.connect(lev); node = lev;
+
+      const makeup = ctx.createGain(); makeup.gain.value = 1.35;
       node.connect(makeup); node = makeup;
+
+      // Zweite Stufe: schneller Limiter als Deckel. Ohne den knallte die Kette vorher
+      // ins Maximum und klang dadurch hart und verzerrt.
+      const lim = ctx.createDynamicsCompressor();
+      lim.threshold.value = -3; lim.knee.value = 0; lim.ratio.value = 20;
+      lim.attack.value = 0.001; lim.release.value = 0.08;
+      node.connect(lim); node = lim;
       break;
     }
     case "titan":

@@ -1,0 +1,24 @@
+---
+description: Regeln für Synchronstudio-Entwicklung
+globs: **/*
+alwaysApply: true
+---
+
+# Synchronstudio
+
+Lies `PROJECT.md` für Kontext. Das ist ein privates Browser-Dubbing-Spiel (kein Roblox).
+
+## Pflicht-Regeln
+
+- `scenes.json` nie aus dem Gedächtnis neu bauen — immer zuerst die Live-Version von GitHub laden
+- Studio-Equipment-Design beibehalten (Gaffer-Tape, Flightcase, Hardware-Buttons)
+- Nach Code-Änderungen: `APP_VERSION` in `client.js` hochzählen UND `client.js?v=…` im Script-Tag von `index.html` auf dieselbe Zahl setzen (sonst liefert der Browser alten Code zur neuen Seite)
+- Elias ist nicht sehr technisch — einfach erklären, nicht mit Git/Jargon überfordern
+
+## Szenen hinzufügen
+
+1. Mod-Pack entpacken, Metadaten aus `.ini`/`.txt` lesen
+2. Video mit `_backing_track.mp3` mergen (nie Original-Stimmen)
+3. Avatare skalieren, Voicelines als Mono-MP3
+4. Deutsche Übersetzung natürlich/idiomatisch
+5. `scenes.json`-Eintrag bauen, Dateien prüfen, `AVATAR_CHARS` aktualisieren

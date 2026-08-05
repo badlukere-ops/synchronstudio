@@ -379,7 +379,7 @@
   .lineplate .lcap{font-size:1.35rem;font-weight:700;line-height:1.35}
   .lineplate .ldur{position:absolute;top:16px;right:18px;font-size:.75rem;color:var(--muted)}
 
-  canvas.viz{width:100%;height:118px;display:block;background:radial-gradient(120% 140% at 50% 0%,#101017,#08080c 70%);border:1px solid var(--line);border-radius:12px;margin:12px 0 4px;box-shadow:inset 0 2px 10px rgba(0,0,0,.65)}
+  canvas.viz{width:100%;height:150px;display:block;background:radial-gradient(120% 140% at 50% 0%,#101017,#08080c 70%);border:1px solid var(--line);border-radius:12px;margin:12px 0 4px;box-shadow:inset 0 2px 10px rgba(0,0,0,.65)}
   /* 🎞 Szenen-Auswahl: jede Szene als Dia auf dem Leuchttisch — Bild oben, Name clean darunter */
   .scene-grid{
     display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;
@@ -849,7 +849,7 @@
       <video id="booth-video" playsinline preload="auto" style="max-height:260px"></video>
       <div class="bar" id="booth-bar" style="display:none"><i></i></div>
       <canvas class="viz" id="viz"></canvas>
-      <p class="tag" style="margin:2px 0 0"><span style="color:#c84bff">■ Original</span> &nbsp; <span style="color:#5aaaff">■ Deine Stimme</span></p>
+      <p class="tag" style="margin:2px 0 0"><span style="color:#c84bff">■ Original oben</span> &nbsp; <span style="color:#5aaaff">■ Deine Stimme unten</span> &nbsp; <span style="opacity:.65">gestrichelt = hier ist das Original fertig</span></p>
       <label class="tag" style="display:flex;gap:8px;align-items:center;margin-top:8px">
         🎚 Noise Gate live nachjustieren: <span id="booth-gate-val">50%</span>
         <input type="range" id="booth-gate" min="0" max="1" step="0.05" value="0.5" style="flex:1;max-width:220px;accent-color:var(--amber)">
@@ -1138,6 +1138,6 @@
 <!-- ?v= muss bei jeder Version mitgezählt werden (gleiche Zahl wie APP_VERSION in client.js).
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
-<script src="client.js?v=8.9"></script>
+  <script src="client.js?v=9.0"></script>
 </body>
 </html>
