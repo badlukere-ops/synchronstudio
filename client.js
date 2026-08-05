@@ -363,10 +363,17 @@ let vizAn = null, vizRAF = null;
 let micReturnScreen = "scr-start";
 
 
+// Läuft sofort, wenn die Seite schon fertig geladen ist — sonst greift ein
+// DOMContentLoaded-Listener zu spät und das Feld bleibt leer.
+function whenReady(fn) {
+  if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", fn);
+  else fn();
+}
+
 // Name & Mikro-Einstellungen merken (bleibt im Browser gespeichert)
 try {
   const savedName = localStorage.getItem("ss_name");
-  if (savedName) window.addEventListener("DOMContentLoaded", () => { $("in-name").value = savedName; });
+  if (savedName) whenReady(() => { $("in-name").value = savedName; });
   const savedMic = JSON.parse(localStorage.getItem("ss_mic") || "null");
   if (savedMic) Object.assign(micSettings, savedMic);
 } catch {}
@@ -1781,7 +1788,7 @@ const invitedCode = (() => {
   const m = /^\d{4}$/.exec(new URLSearchParams(location.search).get("raum") || "");
   return m ? m[0] : null;
 })();
-if (invitedCode) window.addEventListener("DOMContentLoaded", () => {
+if (invitedCode) whenReady(() => {
   $("in-code").value = invitedCode;
   const note = $("invite-note");
   if (note) { note.textContent = "🎬 Du wurdest in Raum " + invitedCode + " eingeladen — Code steht schon drin, einfach auf „Beitreten“."; note.style.display = ""; }
