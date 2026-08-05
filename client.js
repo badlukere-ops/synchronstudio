@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.0";
+const APP_VERSION = "9.1";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -34,6 +34,23 @@ let peer = null, isHost = false, myName = "", myId = "";
 let hostConn = null;
 const conns = new Map();
 let players = [];                 // [{id,name,role,ready,done,total}]
+
+// ── Wiedererkennung über Verbindungsabbrüche hinweg ──────────
+// Die Peer-Adresse (myId) ist nach einem Abbruch eine andere. Damit der Host trotzdem
+// weiß, WER da wieder anklopft, hat jeder Spieler einen eigenen Schlüssel, der im
+// Browser gespeichert bleibt. Nur so kann jemand seine Rolle und seine schon
+// aufgenommenen Lines behalten.
+let myKey = null;
+try { myKey = localStorage.getItem("ss_key"); } catch {}
+if (!myKey) {
+  myKey = Math.random().toString(36).slice(2) + "-" + Date.now().toString(36);
+  try { localStorage.setItem("ss_key", myKey); } catch {}
+}
+let raumCode = null;              // aktueller Raum, für den Wiederverbindungs-Versuch
+let absichtlichWeg = false;       // per Knopf verlassen → nicht wieder reinversuchen
+let wvVersuch = 0, wvTimer = null;
+const GNADENFRIST_MS = 120000;    // so lange hält der Host einen Platz frei
+const rueckkehrTimer = new Map(); // Host: Schlüssel → Timeout bis der Platz freigegeben wird
 let scene = null;
 let localVideoBuf = null, videoBlobUrl = null;
 let micStream = null;
@@ -81,6 +98,40 @@ function getCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === "suspended") audioCtx.resume();
   return audioCtx;
+}
+// Handy (vor allem iOS) pausiert den Ton, sobald die App kurz im Hintergrund war.
+// Beim Zurückkommen und bei der nächsten Berührung wieder anstoßen.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && audioCtx && audioCtx.state === "suspended") {
+    try { audioCtx.resume(); } catch {}
+  }
+});
+["pointerdown", "touchstart", "click"].forEach(ev => {
+  document.addEventListener(ev, () => {
+    if (audioCtx && audioCtx.state === "suspended") { try { audioCtx.resume(); } catch {} }
+  }, { capture: true, passive: true });
+});
+
+// Datei speichern — auf dem Handy oft nur über die Teilen-Funktion möglich
+// (der klassische Download-Link wird dort stillschweigend ignoriert).
+async function saveBlob(blob, dateiname) {
+  try {
+    if (navigator.canShare) {
+      const datei = new File([blob], dateiname, { type: blob.type || "application/octet-stream" });
+      if (navigator.canShare({ files: [datei] })) {
+        await navigator.share({ files: [datei], title: dateiname });
+        return "share";
+      }
+    }
+  } catch (e) {
+    if (e && e.name === "AbortError") return "abort";
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = dateiname;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  return "download";
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -170,6 +221,13 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.1", items: [
+    "📱 Handy tauglicher: größere Knöpfe, sichere Ränder (nicht unter der Home-Leiste), kein versehentliches Zoomen beim Tippen, Textfelder zoomen auf dem iPhone nicht mehr rein",
+    "🎬 Speichern als MP4, wenn der Browser das kann — direkt für TikTok, Insta und WhatsApp, ohne CapCut. Sonst weiterhin WebM mit Hinweis",
+    "🔌 Wieder rein kommen: fliegst du kurz raus (WLAN-Zucken, App-Wechsel), bleibt dein Platz 2 Minuten frei. Du kommst automatisch zurück — mit Rolle und allem, was du schon aufgenommen hast",
+    "🔌 Wer bewusst auf „Raum verlassen“ drückt, räumt den Platz sofort. Alle anderen sehen währenddessen „Verbindung weg“ mit Restzeit",
+    "🎞 „testplace“ steht in der Szenen-Auswahl immer ganz hinten — nie wieder dazwischen"
+  ]},
   { v: "9.0", items: [
     "🎬 Neue Szene: „Dragon Ball Z — Gokus erste Super-Saiyajin-Verwandlung“ (3 Rollen: Son Goku, Freezer, Son Gohan)",
     "🍔 Neue Szene: „SpongeBob — Ist Mayonnaise ein Instrument?“ (7 Rollen: Thaddäus, Patrick, Sandy, SpongeBob, Mr. Krabs, Plankton, Larry der Hummer)",
@@ -1120,7 +1178,9 @@ $("btn-create").onclick = () => {
   if (!myName) return status("start-status", "Erst Namen eingeben, digga 😄", true), SFX.err();
   saveName();
   isHost = true;
+  absichtlichWeg = false;
   const code = randCode();
+  raumCode = code;
   status("start-status", "① Verbinde zum Vermittlungsserver …");
   let opened = false;
   setTimeout(() => {
@@ -1130,11 +1190,19 @@ $("btn-create").onclick = () => {
   peer.on("open", () => {
     opened = true;
     myId = peer.id;
-    players = [{ id: myId, name: myName + " (Host)", avatar: myAvatar, accessory: myAccessory, role: null, ready: false, done: 0, total: 0 }];
+    players = [{ id: myId, key: myKey, name: myName + " (Host)", avatar: myAvatar, accessory: myAccessory, role: null, ready: false, done: 0, total: 0 }];
     enterLobby(code);
     loadSceneList();
   });
   peer.on("connection", (conn) => setupHostConn(conn));
+  // Verliert der Host kurz die Leitung zum Vermittlungsserver, könnte danach niemand
+  // mehr beitreten oder zurückkommen. Deshalb sofort wieder anmelden.
+  peer.on("disconnected", () => {
+    if (absichtlichWeg || !peer || peer.destroyed) return;
+    wvBanner("📴 Leitung zum Vermittlungsserver weg — melde neu an …");
+    try { peer.reconnect(); } catch {}
+    setTimeout(() => { if (peer && !peer.disconnected) wvBannerAus(); }, 2500);
+  });
   peer.on("error", (e) => {
     if (e.type === "unavailable-id") { peer.destroy(); $("btn-create").click(); }
     else status("start-status", "Verbindungsfehler: " + e.type, true);
@@ -1147,47 +1215,110 @@ $("btn-join").onclick = () => {
   if (!myName) return status("start-status", "Erst Namen eingeben 🙂", true), SFX.err();
   if (!/^\d{4}$/.test(code)) return status("start-status", "Der Raumcode hat 4 Ziffern.", true), SFX.err();
   saveName();
+  absichtlichWeg = false; wvVersuch = 0; warSchonDrin = false;
+  gastBeitreten(code, false);
+};
+let warSchonDrin = false;   // erst nach einem geglückten Beitritt automatisch nachfassen
+
+// Verbindet als Gast mit einem Raum. Wird auch für jeden Wiederverbindungs-Versuch
+// benutzt — bei einer Wiederkehr bleibt der aktuelle Bildschirm dabei unangetastet,
+// damit schon aufgenommene Lines und die Stelle in der Szene erhalten bleiben.
+function gastBeitreten(code, wiederkehr) {
   isHost = false;
-  status("start-status", "① Verbinde zum Vermittlungsserver …");
+  raumCode = code;
+  if (peer) { try { peer.destroy(); } catch {} }
   let opened = false, joined = false;
+  const melde = (msg, err) => { if (!wiederkehr) status("start-status", msg, err); };
+  melde("① Verbinde zum Vermittlungsserver …");
   peer = new Peer(PEER_CONFIG);
 
   // Schritt 1 hängt → Server nicht erreichbar (Brave-Shields, Adblocker, Firewall)
   setTimeout(() => {
-    if (!opened) status("start-status", "❌ Kein Kontakt zum Vermittlungsserver. Fast immer: Brave-Shields / Adblocker blockt — Schild-Icon anklicken, für diese Seite ausschalten, neu laden. Oder kurz in Chrome/Firefox testen.", true);
+    if (!opened) melde("❌ Kein Kontakt zum Vermittlungsserver. Fast immer: Brave-Shields / Adblocker blockt — Schild-Icon anklicken, für diese Seite ausschalten, neu laden. Oder kurz in Chrome/Firefox testen.", true);
   }, 10000);
 
   peer.on("open", () => {
     opened = true;
     myId = peer.id;
-    status("start-status", "② Server OK — suche Raum " + code + " …");
+    melde("② Server OK — suche Raum " + code + " …");
     hostConn = peer.connect(PEER_PREFIX + code, { reliable: true });
 
     // Schritt 2 hängt → Raum existiert, aber Peer-Verbindung kommt nicht durch (NAT/Firewall)
     setTimeout(() => {
-      if (!joined) status("start-status", "❌ Raum gefunden, aber die Verbindung zum Host kommt nicht durch. Beide mal: anderes Netz testen (z. B. Handy-Hotspot), VPN aus, Brave-Shields aus.", true);
+      if (!joined) {
+        melde("❌ Raum gefunden, aber die Verbindung zum Host kommt nicht durch. Beide mal: anderes Netz testen (z. B. Handy-Hotspot), VPN aus, Brave-Shields aus.", true);
+        if (wiederkehr) planeWiederverbindung();
+      }
     }, 15000);
 
-    hostConn.on("open", () => { joined = true; hostConn.send({ t: "hello", name: myName, avatar: myAvatar, accessory: myAccessory }); enterLobby(code); });
+    hostConn.on("open", () => {
+      joined = true;
+      warSchonDrin = true;
+      hostConn.send({ t: "hello", name: myName, avatar: myAvatar, accessory: myAccessory, key: myKey });
+      if (wiederkehr) {
+        // Der Host antwortet mit "rejoined" und sagt darin, wie es weitergeht.
+        // Bis dahin nichts anfassen.
+        wvBanner("🔌 Wieder verbunden — hole den Stand …");
+      } else {
+        wvVersuch = 0; wvBannerAus();
+        enterLobby(code);
+      }
+    });
     // Debug: ICE-Status in der Console (F12) verfolgen
     const watchIce = setInterval(() => {
       const pc = hostConn.peerConnection;
       if (!pc) return;
-      console.log("ICE:", pc.iceConnectionState, "| Gathering:", pc.iceGatheringState);
       if (joined || pc.iceConnectionState === "failed") clearInterval(watchIce);
-      if (pc.iceConnectionState === "failed")
-        status("start-status", "❌ ICE failed — Direktverbindung UND TURN-Relay fehlgeschlagen. Jetzt hilft: eigener TURN-Zugang (steht in client.js ganz oben, 5 Min, gratis).", true);
+      if (pc.iceConnectionState === "failed") {
+        melde("❌ ICE failed — Direktverbindung UND TURN-Relay fehlgeschlagen. Jetzt hilft: eigener TURN-Zugang (steht in client.js ganz oben, 5 Min, gratis).", true);
+        if (wiederkehr) planeWiederverbindung();
+      }
     }, 2000);
     hostConn.on("data", (msg) => handleMsg(msg, hostConn));
-    hostConn.on("close", () => status("lobby-status", "Verbindung zum Host weg 😬 Seite neu laden.", true));
-    hostConn.on("error", (e) => { console.error("conn error", e); status("start-status", "Verbindungsfehler zum Host: " + (e.type || e), true); });
+    hostConn.on("close", verbindungWeg);
+    hostConn.on("error", (e) => { console.error("conn error", e); melde("Verbindungsfehler zum Host: " + (e.type || e), true); verbindungWeg(); });
+  });
+  peer.on("disconnected", () => {
+    // Nur die Leitung zum Vermittlungsserver ist weg — die lässt sich direkt wiederholen
+    if (!absichtlichWeg && peer && !peer.destroyed) { try { peer.reconnect(); } catch {} }
   });
   peer.on("error", (e) => {
     console.error("peer error", e);
-    if (e.type === "peer-unavailable") status("start-status", "Raum " + code + " nicht gefunden. Läuft der Host noch? Code richtig?", true);
-    else status("start-status", "Verbindungsfehler: " + e.type + " — F12 → Console für Details.", true);
+    if (e.type === "peer-unavailable") melde("Raum " + code + " nicht gefunden. Läuft der Host noch? Code richtig?", true);
+    else melde("Verbindungsfehler: " + e.type + " — F12 → Console für Details.", true);
+    if (wiederkehr || raumCode) planeWiederverbindung();
   });
-};
+}
+
+// ── Automatisch wieder reinkommen ────────────────────────────
+function verbindungWeg() {
+  if (isHost || absichtlichWeg || !raumCode) return;
+  planeWiederverbindung();
+}
+
+function planeWiederverbindung() {
+  if (isHost || absichtlichWeg || !raumCode || !warSchonDrin) return;
+  if (wvVersuch >= 15) {
+    wvBanner("❌ Komme nicht mehr rein. Läuft der Host noch?", true);
+    return;
+  }
+  clearTimeout(wvTimer);
+  wvVersuch++;
+  // Erst schnell probieren, dann in immer größeren Abständen — so ist ein kurzes
+  // WLAN-Zucken sofort überbrückt, ohne den Host mit Anfragen zu überschütten.
+  const warten = Math.min(6000, Math.round(600 * Math.pow(1.5, wvVersuch - 1)));
+  wvBanner("📴 Verbindung weg — versuche wieder reinzukommen … (" + wvVersuch + "/15)");
+  wvTimer = setTimeout(() => gastBeitreten(raumCode, true), warten);
+}
+
+function wvBanner(text, dauerhaft) {
+  const el = $("wv-banner");
+  if (!el) return;
+  el.textContent = text;
+  el.style.display = "";
+  el.style.background = dauerhaft ? "var(--hot)" : "#c9821f";
+}
+function wvBannerAus() { const el = $("wv-banner"); if (el) el.style.display = "none"; }
 
 
 
@@ -1789,6 +1920,13 @@ const duelVotes = {};         // Host: voterId -> "a" | "b"
 // RAUM VERLASSEN — sauberer Reset ohne Seiten-Reload
 // ═════════════════════════════════════════════════════════════
 function leaveRoom() {
+  // Bewusst gegangen: kein Wiederverbinden versuchen, und der Host soll den Platz
+  // sofort räumen statt ihn zwei Minuten freizuhalten.
+  absichtlichWeg = true;
+  raumCode = null;
+  clearTimeout(wvTimer); wvVersuch = 0; wvBannerAus();
+  if (!isHost && hostConn && hostConn.open) { try { hostConn.send({ t: "bye" }); } catch {} }
+  rueckkehrTimer.forEach(t => clearTimeout(t)); rueckkehrTimer.clear();
   try { if (lineRec && lineRec.state === "recording") lineRec.stop(); } catch {}
   clearInterval(recTimer); clearInterval(cbTimer);
   playNodes.forEach(n => { try { n.stop(); } catch {} }); playNodes = [];
@@ -1813,7 +1951,8 @@ function leaveRoom() {
   SFX.stop();
 }
 document.body.insertAdjacentHTML("beforeend",
-  `<button id="leave-btn" style="position:fixed;right:12px;bottom:10px;z-index:98;display:none;padding:8px 14px;font-size:.82rem;background:#1f1f28;border:1px solid var(--line);border-radius:8px;color:var(--muted)">🚪 Raum verlassen</button>
+  `<div id="wv-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:250;background:#c9821f;color:#12120f;font-family:var(--font-mono);font-size:.8rem;font-weight:700;text-align:center;padding:7px 12px;letter-spacing:.04em;box-shadow:0 2px 12px rgba(0,0,0,.5)"></div>
+   <button id="leave-btn" style="position:fixed;right:12px;bottom:10px;z-index:98;display:none;padding:8px 14px;font-size:.82rem;background:#1f1f28;border:1px solid var(--line);border-radius:8px;color:var(--muted)">🚪 Raum verlassen</button>
    <div id="leave-confirm-overlay" style="display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px">
      <div style="max-width:340px;width:100%;background:#14141b;border:1px solid var(--line);border-radius:16px;padding:22px;text-align:center">
        <p style="margin:0 0 18px;font-size:1rem" id="leave-confirm-text">Raum wirklich verlassen?</p>
@@ -1896,20 +2035,67 @@ function setupHostConn(conn) {
   conn.on("open", () => conns.set(conn.peer, conn));
   conn.on("data", (msg) => handleMsg(msg, conn));
   conn.on("close", () => {
-    const gone = players.find(p => p.id === conn.peer);
-    const goneName = gone ? gone.name : "Jemand";
     conns.delete(conn.peer);
-    players = players.filter(p => p.id !== conn.peer);
-    broadcast({ t: "playerLeft", name: goneName });
-    showToast("👋 " + goneName + " hat den Raum verlassen", "leave");
+    const gone = players.find(p => p.id === conn.peer);
+    if (!gone) { broadcastState(); return; }
+    if (gone.gehtFreiwillig || !gone.key) { endgueltigWeg(gone); return; }
+
+    // Platz NICHT sofort löschen. Bei einem kurzen WLAN-Zucken soll die Person mit ihrer
+    // Rolle und den schon aufgenommenen Lines zurückkommen können, statt als neuer
+    // Spieler von vorne anzufangen.
+    gone.offline = true;
+    gone.offlineBis = Date.now() + GNADENFRIST_MS;
+    showToast("📴 " + gone.name + " ist rausgeflogen — Platz bleibt " + Math.round(GNADENFRIST_MS / 60000) + " Min. frei", "leave");
     SFX.leave();
+    broadcast({ t: "playerOffline", name: gone.name });
+    clearTimeout(rueckkehrTimer.get(gone.key));
+    rueckkehrTimer.set(gone.key, setTimeout(() => endgueltigWeg(gone), GNADENFRIST_MS));
     broadcastState();
-    // Auf wen auch immer gerade gewartet wird: derjenige ist jetzt vielleicht weg.
-    // Ohne diese Prüfung bleibt die Runde für alle anderen ewig hängen.
+    // Notausgang-Knopf für den Host neu bewerten, falls gerade auf diese Spur gewartet wird
     maybeFinishTracks();
-    if (duelInfo && document.querySelector("#scr-duel-vote.active")) maybeFinishDuelVote();
     syncForceMixBtn();
   });
+}
+
+// Gnadenfrist abgelaufen oder freiwillig gegangen: Platz endgültig räumen. Erst ab hier
+// darf die Runde ohne diese Person weiterlaufen.
+function endgueltigWeg(p) {
+  if (!p || !players.includes(p)) return;
+  if (p.key) { clearTimeout(rueckkehrTimer.get(p.key)); rueckkehrTimer.delete(p.key); }
+  players = players.filter(x => x !== p);
+  conns.delete(p.id);
+  broadcast({ t: "playerLeft", name: p.name });
+  showToast("👋 " + p.name + " hat den Raum verlassen", "leave");
+  SFX.leave();
+  broadcastState();
+  maybeFinishTracks();
+  if (duelInfo && document.querySelector("#scr-duel-vote.active")) maybeFinishDuelVote();
+  if (document.querySelector("#scr-rate.active")) updateRateProgress();
+  syncForceMixBtn();
+}
+
+// Beim Wiederkommen hat die Person eine neue Peer-Adresse. Alles, was noch unter der
+// alten Adresse abgelegt ist, muss mitwandern — sonst könnte sie z. B. zweimal abstimmen.
+function idUmschreiben(alt, neu) {
+  if (!alt || alt === neu) return;
+  const ausMap = (m) => { if (m && m.has && m.has(alt)) { m.set(neu, m.get(alt)); m.delete(alt); } };
+  const ausObj = (o) => { if (o && Object.prototype.hasOwnProperty.call(o, alt)) { o[neu] = o[alt]; delete o[alt]; } };
+  const ausListe = (a) => Array.isArray(a) ? a.map(id => id === alt ? neu : id) : a;
+
+  ausMap(allRatings); ausMap(cbScores);
+  ausObj(duelVotes); ausObj(duelSubs); ausObj(mgWins);
+  if (match && match.totals) ausObj(match.totals);
+  if (duelInfo) { if (duelInfo.aId === alt) duelInfo.aId = neu; if (duelInfo.bId === alt) duelInfo.bId = neu; }
+  if (ttt) ttt.p = ausListe(ttt.p);
+  if (rps) { rps.p = ausListe(rps.p); ausObj(rps.picks); ausObj(rps.wins); }
+  if (dice) { dice.p = ausListe(dice.p); ausObj(dice.rolls); }
+}
+
+// In welcher Phase steckt die Runde gerade? Braucht ein Wiederkehrer, der die Seite
+// zwischendurch neu geladen hat und deshalb nichts mehr weiß.
+function aktuellePhase() {
+  const aktiv = document.querySelector(".screen.active");
+  return aktiv ? aktiv.id : "scr-lobby";
 }
 function broadcast(msg) { conns.forEach(c => { if (c.open) c.send(msg); }); }
 function broadcastState() { renderPlayers(); renderBoothPlayers(); broadcast({ t: "state", players }); checkStartable(); checkAllDone(); if (isHost) renderPremState(); }
@@ -1918,11 +2104,44 @@ function handleMsg(msg, conn) {
   switch (msg.t) {
     // — beim Host —
     case "hello": {
+      // Kommt jemand zurück, dessen Platz noch freigehalten wird? Dann alten Platz
+      // übernehmen — mit Rolle, Fortschritt und allem, was schon abgegeben wurde.
+      const rueck = msg.key ? players.find(p => p.key === msg.key && p.offline) : null;
+      if (rueck) {
+        const alteId = rueck.id;
+        clearTimeout(rueckkehrTimer.get(msg.key)); rueckkehrTimer.delete(msg.key);
+        rueck.id = conn.peer;
+        rueck.offline = false; delete rueck.offlineBis;
+        if (msg.name) rueck.name = msg.name;
+        if (msg.avatar) rueck.avatar = msg.avatar;
+        if (msg.accessory) rueck.accessory = msg.accessory;
+        idUmschreiben(alteId, conn.peer);
+        conn.send({
+          t: "rejoined", phase: aktuellePhase(), role: rueck.role,
+          scene: (scene && !localVideoBuf) ? scene : null,
+          hatVideoUebertragung: !!(scene && localVideoBuf),
+          match: { mode: match.mode, rounds: match.rounds, round: match.round, autoRoulette: match.autoRoulette },
+          duelInfo, mix: finalTracksData,
+        });
+        if (scene && localVideoBuf) sendLocalVideo(conn);
+        conn.send({ t: "drawState", drawBoard });
+        showToast("🔌 " + rueck.name + " ist wieder da!", "join");
+        SFX.ok();
+        broadcast({ t: "playerBack", name: rueck.name });
+        broadcastState();
+        syncForceMixBtn();
+        break;
+      }
       if (players.length >= 8) { conn.send({ t: "full", cap: 8 }); setTimeout(() => conn.close(), 500); break; }
-      players.push({ id: conn.peer, name: msg.name, avatar: msg.avatar || null, accessory: msg.accessory || null, role: null, ready: false, done: 0, total: 0 });
+      players.push({ id: conn.peer, key: msg.key || null, name: msg.name, avatar: msg.avatar || null, accessory: msg.accessory || null, role: null, ready: false, done: 0, total: 0 });
       if (scene) { if (localVideoBuf) sendLocalVideo(conn); else conn.send({ t: "scene", scene }); }
       conn.send({ t: "drawState", drawBoard });   // aktuellen Kritzel-Board-Stand mitschicken, sonst sieht der/die Neue nur leere Leinwand
       broadcastState();
+      break;
+    }
+    case "bye": {   // sauberes Verlassen per Knopf → Platz nicht freihalten
+      const p = players.find(p => p.id === conn.peer);
+      if (p) { p.gehtFreiwillig = true; endgueltigWeg(p); }
       break;
     }
     case "pickRole": {
@@ -1958,6 +2177,40 @@ function handleMsg(msg, conn) {
     case "state": players = msg.players; renderPlayers(); renderRoles(); renderBoothPlayers(); if (document.querySelector("#scr-playback.active")) renderPremStateGuest(); break;
     case "scene": scene = msg.scene; videoBlobUrl = null; showScene(scene.videoUrl); break;
     case "playerLeft": showToast("👋 " + msg.name + " hat den Raum verlassen", "leave"); SFX.leave(); break;
+    case "playerOffline": showToast("📴 " + msg.name + " ist rausgeflogen — Platz bleibt frei", "leave"); break;
+    case "playerBack": showToast("🔌 " + msg.name + " ist wieder da!", "join"); SFX.ok(); break;
+
+    // Der Host hat uns als Wiederkehrer erkannt und sagt, wie es weitergeht.
+    case "rejoined": {
+      wvVersuch = 0; clearTimeout(wvTimer); wvBannerAus();
+      if (msg.match) { match.mode = msg.match.mode; match.rounds = msg.match.rounds; match.round = msg.match.round; match.autoRoulette = msg.match.autoRoulette; renderSettingsView(msg.match); }
+      if (msg.duelInfo) duelInfo = msg.duelInfo;
+      if (msg.scene) { scene = msg.scene; videoBlobUrl = null; showScene(scene.videoUrl); }
+
+      // Steht die Seite noch offen, sind Rolle, Stelle in der Szene und alle schon
+      // aufgenommenen Lines noch im Speicher — dann einfach genau da weitermachen.
+      // Nach einem Seiten-Neuladen ist der Speicher leer, dann auf den Stand des
+      // Hosts springen.
+      const meine = aktuellePhase();
+      const vorSpiel = ["scr-mic", "scr-avatar", "scr-start", "scr-lobby"].includes(meine);
+      const habeStand = myLines.length > 0 || mixItems.length > 0;
+      const hostSchonWeiter = ["scr-playback", "scr-final", "scr-duel-vote"].includes(msg.phase) && meine !== msg.phase;
+
+      if (habeStand && !vorSpiel && !hostSchonWeiter) {
+        showToast("🔌 Wieder drin — mach einfach weiter!", "join");
+        SFX.ok();
+        break;
+      }
+      // Seite wurde zwischendurch neu geladen (oder die Runde ist weitergelaufen):
+      // auf den Stand des Hosts springen.
+      $("leave-btn").style.display = "";
+      if (msg.phase === "scr-playback" && msg.mix) loadMix(msg.mix);
+      else if (msg.phase === "scr-booth" && msg.role != null && scene) { startBooth(); showToast("🔌 Wieder drin — deine Rolle hast du zurück", "join"); }
+      else if (msg.phase === "scr-wait") { show("scr-wait"); status("wait-status", "🔌 Wieder drin — warte auf die anderen …"); }
+      else enterLobby(raumCode);
+      SFX.ok();
+      break;
+    }
     case "settings": match.mode = msg.mode; match.rounds = msg.rounds; match.round = msg.round; match.autoRoulette = msg.autoRoulette; renderSettingsView(msg); break;
     case "sceneReset":
       scene = null; videoBlobUrl = null;
@@ -2025,6 +2278,8 @@ function sceneDifficulty(s) {
   return { label: "Zungenbrecher", emoji: "🔴" };
 }
 
+const HINTEN_ANSTELLEN = new Set(["testplace"]);
+
 async function loadSceneList() {
   const sel = $("scene-select");
   if (!sel) return;
@@ -2035,6 +2290,9 @@ async function loadSceneList() {
     console.error("scenes.json laden fehlgeschlagen:", e);
     sceneList = [];
   }
+  // Test-Szenen gehören ans Ende: sie sind nur zum Ausprobieren da und sollen beim
+  // Durchschauen nicht im Weg stehen. Alles andere behält seine Reihenfolge.
+  sceneList = [...sceneList.filter(s => !HINTEN_ANSTELLEN.has(s.id)), ...sceneList.filter(s => HINTEN_ANSTELLEN.has(s.id))];
   sel.innerHTML = sceneList.length
     ? sceneList.map((s, i) => {
         const d = sceneDifficulty(s);
@@ -2659,16 +2917,28 @@ function playerCard(p) {
   const role = p.role != null && scene ? (scene.roles.find(r => r.id === p.role)?.name || "?") : null;
   const prog = p.total > 0 ? `<div class="pbar"><i style="width:${Math.round(p.done / p.total * 100)}%"></i></div><span class="tag">${p.done}/${p.total} Lines</span>` : "";
   const micDot = p.id === myId ? `<span id="mic-live-dot" title="Dein Mikro — leuchtet, wenn gerade Ton ankommt" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3a3a46;margin-left:6px"></span>` : "";
-  return `<div class="player ${p.ready ? "ready" : ""}" data-pid="${p.id}" style="${p.eliminated ? "opacity:.5" : ""}">
+  // Wer rausgeflogen ist, behält seinen Platz — das muss man sehen, damit niemand denkt
+  // die Runde hängt. Mit Restzeit, bis der Platz freigegeben wird.
+  const restSek = p.offline && p.offlineBis ? Math.max(0, Math.round((p.offlineBis - Date.now()) / 1000)) : 0;
+  const wegTag = p.offline
+    ? `<span class="tag" style="color:#e8a33d">📴 Verbindung weg${restSek ? " · kommt hoffentlich zurück (" + Math.floor(restSek / 60) + ":" + String(restSek % 60).padStart(2, "0") + ")" : ""}</span>`
+    : "";
+  return `<div class="player ${p.ready ? "ready" : ""}" data-pid="${p.id}" style="${p.eliminated ? "opacity:.5" : p.offline ? "opacity:.55" : ""}">
     ${avatarHTML(p)}
     <div class="pinfo">
       <span class="pname">${esc(p.name)}${micDot}</span>
       ${p.eliminated ? '<span class="prole" style="color:var(--hot)">🔪 eliminiert</span>' : `<span class="prole ${role ? "" : "empty"}">${role ? "🎭 " + esc(role) : "noch keine Rolle"}</span>`}
-      ${p.ready && !p.total ? '<span class="tag" style="color:var(--ok)">bereit</span>' : ""}${prog}
+      ${wegTag}${p.ready && !p.total ? '<span class="tag" style="color:var(--ok)">bereit</span>' : ""}${prog}
     </div>
   </div>`;
 }
 function renderPlayers() { $("player-list").innerHTML = players.map(playerCard).join(""); }
+// Solange jemand rausgeflogen ist, läuft die Restzeit sichtbar runter. Ohne jemanden
+// Offline macht der Takt nichts.
+setInterval(() => {
+  if (!players.some(p => p.offline)) return;
+  renderPlayers(); renderBoothPlayers();
+}, 1000);
 function renderBoothPlayers() {
   const html = players.map(playerCard).join("");
   $("booth-players").innerHTML = html;
@@ -2823,11 +3093,16 @@ function checkStartable() {
   }
   $("btn-start").textContent = "🔴 Session starten";
   const speakers = players.filter(p => p.role != null);
-  const ok = speakers.length >= 1 && speakers.every(p => p.ready);
+  // Wer gerade rausgeflogen ist, darf den Start nicht blockieren — sein Platz bleibt
+  // ja trotzdem frei, er kann jederzeit zurückkommen.
+  const anwesend = speakers.filter(p => !p.offline);
+  const weg = speakers.filter(p => p.offline);
+  const ok = anwesend.length >= 1 && anwesend.every(p => p.ready);
   const spectators = players.length - speakers.length;
   $("btn-start").disabled = !ok;
   $("start-hint").textContent = ok
-    ? "Los geht's! " + (spectators ? spectators + " Zuschauer gucken zu." : "Unbesetzte Rollen sprechen original.")
+    ? "Los geht's! " + (spectators ? spectators + " Zuschauer gucken zu. " : "Unbesetzte Rollen sprechen original. ")
+      + (weg.length ? "⚠ " + weg.map(p => p.name).join(", ") + " hat gerade keine Verbindung — Platz bleibt frei." : "")
     : "Warte, bis alle Sprecher „bereit“ sind …";
 }
 
@@ -4750,16 +5025,28 @@ async function exportAudioFast() {
 
     const rendered = await offlineCtx.startRendering();
     const blob = audioBufferToWav(rendered);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = (scene?.id || "synchro") + "_ton.wav";
-    a.click();
+    const wie = await saveBlob(blob, (scene?.id || "synchro") + "_ton.wav");
+    if (wie === "abort") { status("play-status", "Speichern abgebrochen."); return; }
     status("play-status", "✅ Ton gespeichert (WAV, sofort)! Einfach auf die Videospur in CapCut/Premiere/AE ziehen.");
     SFX.done();
   } catch (e) {
     console.error("Schneller Ton-Export fehlgeschlagen:", e);
     status("play-status", "❌ Ton-Export hat nicht geklappt — F12-Konsole für Details.", true);
   }
+}
+
+// Bestes Videoformat, das dieser Browser aufnehmen kann. MP4 hat Vorrang, weil man das
+// ohne Umwandeln bei TikTok, Insta und WhatsApp hochladen kann.
+function videoMime() {
+  const kandidaten = [
+    "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+    "video/mp4",
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm",
+  ];
+  for (const m of kandidaten) if (MediaRecorder.isTypeSupported(m)) return m;
+  return "video/webm";
 }
 
 // Malt das laufende Video fortlaufend auf eine Leinwand und gibt einen Bildstrom davon
@@ -4815,22 +5102,31 @@ async function playMix(saveFile) {
     // Schwarzbild (Hardware-Dekoder/Grafiktreiber) — der Ton war dann da, das Bild fehlte.
     const frames = frameSource(v);
     const stream = new MediaStream([...frames.stream.getVideoTracks(), ...dest.stream.getAudioTracks()]);
-    const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus") ? "video/webm;codecs=vp9,opus" : "video/webm";
+    // MP4 wenn der Browser es kann: das laesst sich direkt bei TikTok/Insta hochladen,
+    // ohne vorher in CapCut umgewandelt zu werden. WebM nur noch als Rueckfalloption.
+    const mime = videoMime();
+    const endung = mime.startsWith("video/mp4") ? "mp4" : "webm";
     fileRec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 4_000_000 });
     const chunks = [];
     fileRec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
     fileRec.onstop = () => {
       try { g.masterGain.disconnect(dest); } catch {}
       frames.stop();
-      const url = URL.createObjectURL(new Blob(chunks, { type: "video/webm" }));
-      const a = document.createElement("a");
-      a.href = url; a.download = (scene?.id || "synchro") + "_dub.webm";
-      a.click();
+      const blob = new Blob(chunks, { type: mime.split(";")[0] });
+      const name = (scene?.id || "synchro") + "_dub." + endung;
       // Zu wenige Bilder heißt fast immer: Tab war im Hintergrund, der Browser hat das
       // Zeichnen gedrosselt. Dann lieber sagen als den Nutzer rätseln lassen.
       const sek = Math.max(1, v.duration || 1), fps = frames.count() / sek;
-      if (fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein (nur " + fps.toFixed(1) + " Bilder/Sek.). Der Browser drosselt das Aufnehmen, wenn das Fenster im Hintergrund ist — bitte nochmal speichern und das Fenster dabei offen im Vordergrund lassen.", true);
-      else { status("play-status", "✅ Gespeichert! Für TikTok/Insta die .webm in CapCut o. Ä. zu MP4 exportieren."); SFX.done(); }
+      saveBlob(blob, name).then(wie => {
+        if (wie === "abort") { status("play-status", "Speichern abgebrochen."); return; }
+        if (fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein (nur " + fps.toFixed(1) + " Bilder/Sek.). Der Browser drosselt das Aufnehmen, wenn das Fenster im Hintergrund ist — bitte nochmal speichern und das Fenster dabei offen im Vordergrund lassen.", true);
+        else {
+          status("play-status", endung === "mp4"
+            ? "✅ Gespeichert als MP4 — kann direkt bei TikTok, Insta oder WhatsApp hochgeladen werden."
+            : "✅ Gespeichert! Dein Browser kann nur .webm — für TikTok/Insta einmal in CapCut o. Ä. zu MP4 exportieren.");
+          SFX.done();
+        }
+      });
     };
     status("play-status", "🔴 Nimmt Video auf — läuft einmal in Originallänge durch. Fenster bitte im Vordergrund lassen, sonst wird das Bild schwarz!");
     $("dl-progress").style.display = "";

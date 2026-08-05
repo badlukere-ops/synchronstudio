@@ -2,7 +2,9 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Synchronstudio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -417,6 +419,25 @@
   }
   .st-meta{padding:0 9px 9px;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;color:var(--muted)}
   @media(max-width:600px){.scene-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));max-height:330px}}
+
+  /* Handy: größere Trefferflächen, sichere Ränder, kein versehentliches Zoomen auf Knöpfen */
+  @media(max-width:700px){
+    body{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px));font-size:16px}
+    .wrap{padding:0 12px}
+    header{padding:14px 14px;margin:10px 0 16px;flex-wrap:wrap}
+    .logo{font-size:1.45rem}
+    button{min-height:44px;padding:12px 16px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    button.big{min-height:52px;width:100%}
+    .boothbtns button{flex:1 1 140px}
+    .lineplate{padding:16px 14px}
+    .lineplate .lcap{font-size:1.15rem}
+    canvas.viz{height:130px;touch-action:none}
+    #leave-btn{bottom:calc(10px + env(safe-area-inset-bottom,0px));right:max(12px,env(safe-area-inset-right,0px))}
+    #patchnotes-btn{bottom:calc(10px + env(safe-area-inset-bottom,0px));left:max(12px,env(safe-area-inset-left,0px))}
+    #wv-banner{padding-top:calc(7px + env(safe-area-inset-top,0px))}
+    .card{padding:16px 14px}
+    input[type=text],select{font-size:16px} /* verhindert Auto-Zoom in iOS Safari */
+  }
 
   .rectime{height:6px;background:#1c1c25;border-radius:99px;overflow:hidden;margin-bottom:14px}
   .rectime i{display:block;height:100%;width:0;background:var(--grad)}
@@ -1138,6 +1159,6 @@
 <!-- ?v= muss bei jeder Version mitgezählt werden (gleiche Zahl wie APP_VERSION in client.js).
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
-  <script src="client.js?v=9.0"></script>
+  <script src="client.js?v=9.1"></script>
 </body>
 </html>
