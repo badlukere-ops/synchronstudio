@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.2.1";
+const APP_VERSION = "9.3";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -225,6 +225,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.3", items: [
+    "🎲 Fix Rollen-Roulette: Bei vielen Rollen und wenigen Spielern kamen immer nur die obersten Rollen dran. Jetzt werden die Rollen wirklich zufällig gemischt",
+    "⌨️ Leertaste in der Booth = Aufnehmen / Stoppen — Maus muss nicht mehr ran"
+  ]},
   { v: "9.2.1", items: [
     "⬇ Fix: „Video speichern“ öffnet am PC nicht mehr das Windows-Freigeben-Menü, sondern lädt die Datei ganz normal in den Downloads-Ordner"
   ]},
