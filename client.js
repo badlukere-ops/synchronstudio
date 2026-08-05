@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "8.7";
+const APP_VERSION = "8.9";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -170,6 +170,22 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "8.9", items: [
+    "🔗 Einladungs-Link: In der Lobby gibt's einen Knopf, der einen Link kopiert. Wer draufklickt, hat den Raumcode schon eingetragen — kein Vorlesen und Vertippen mehr",
+    "🎞 Szenen-Auswahl komplett neu: statt einer langen Klappliste jetzt ein Raster mit echtem Bild aus jeder Szene und dem Namen clean darunter. Dazu eine Suche über Titel UND Rollennamen",
+    "🎚 Neuer Studio-Visualizer beim Sprechen: LED-Ketten wie am Rack-Analyzer, mit nachfallenden Peak-Marken und Übersteuerungs-Lampe. Eingemessen, damit normales Sprechen in der Mitte liegt",
+    "🖼 Kaputte Profilbilder raus: „Peter“ und „Lois“ zeigten nur ein leeres Kästchen. Wer eines davon ausgewählt hatte, bekommt automatisch die Auswahl zurückgesetzt",
+    "⏱ Timing-Fehler korrigiert: Bei „Sae Vs Rin“ spielte „Original anhören“ ganze 2 Minuten statt eines Rufs, bei „Entertainment District“ war es an zwei Stellen praktisch stumm. Bei „Broly“ hatten zwei Lines gar keine Länge, bei „A Haunted House“ war die Reihenfolge vertauscht",
+    "⏱ Aufnahmezeit richtet sich jetzt nach der echten Länge des Originals statt nach der Angabe in den Szenen-Daten — falsche Zeiten bremsen dich damit nicht mehr aus, und die „~X Sek.“-Anzeige stimmt",
+    "🩹 Absturz behoben: Zuschauer (ohne Rolle) flogen bei Szenen ohne Line-Timings aus dem Spiel",
+    "🩹 Hänger behoben: Ein Duell mit genau 2 Spielern blieb für immer im Abstimm-Screen stehen — jetzt stimmen die beiden selbst ab",
+    "🩹 Hänger behoben: Verlor jemand mitten in der Aufnahme die Verbindung, wartete die Runde endlos auf seine Spur. Jetzt startet die Premiere mit dem Rest — und der Host hat zusätzlich einen Notausgang-Knopf"
+  ]},
+  { v: "8.8", items: [
+    "🐛 Fix: „Original anhören“ spielte manchmal die Stimmen einer VORHERIGEN Szene ab — im Match-Modus bei jeder neuen Runde und bei Szenen, die der Host als eigenes Video überträgt",
+    "🔧 Ursache endgültig behoben: die Stimmen-Spur wird jetzt pro Datei gemerkt statt in einer gemeinsamen Variable, die man bei jedem Szenenwechsel von Hand leeren musste (genau das wurde 3× vergessen)",
+    "⚡ Nebeneffekt: schon geladene Szenen laden beim Zurückwechseln nicht neu, doppelte Klicks lösen nur einen Download aus, und ein fehlgeschlagener Download blockiert den Knopf nicht mehr dauerhaft"
+  ]},
   { v: "8.7", items: [
     "🔊 Lautstärke-Regler pro Line: zu leise aufgenommen? Einfach bis auf 400 % hochdrehen — wirkt beim Anhören, in der Premiere und im fertigen Video",
     "⚠ Warnt automatisch, sobald das Hochdrehen in die Übersteuerung läuft (rechnet den echten Spitzenpegel deiner Aufnahme mit)"
@@ -392,8 +408,6 @@ const AVATAR_CHARS = [
   { img: "scenes/chickenjockey/steve.png", label: "Steve" },
   { img: "scenes/chickenjockey/garret.png", label: "Garret" },
   { img: "scenes/chickenjockey/jockey.png", label: "Chicken Jockey" },
-  { img: "scenes/godfather/peter.png", label: "Peter" },
-  { img: "scenes/godfather/familie.png", label: "Lois" },
   { img: "scenes/tojigojo/toji.png", label: "Toji" },
   { img: "scenes/tojigojo/gojo.png", label: "Gojo (Toji-Kampf)" },
   { img: "scenes/whodecided/escanor.png", label: "Escanor" },
@@ -462,6 +476,12 @@ const AVATAR_CHARS = [
 })();
 let myAvatar = null;
 try { const a = localStorage.getItem("ss_avatar"); if (a) myAvatar = JSON.parse(a); } catch {}
+// Ein gespeichertes Charakterbild kann auf eine Datei zeigen, die es nicht mehr gibt
+// (Szene entfernt oder umbenannt) — sonst schleppt man ein kaputtes Bild dauerhaft mit.
+if (myAvatar && myAvatar.img && !AVATAR_CHARS.some(c => c.img === myAvatar.img)) {
+  myAvatar = null;
+  try { localStorage.removeItem("ss_avatar"); } catch {}
+}
 
 // ── Profil-Accessoires: selbst gezeichnete SVGs, überlagern den Avatar (kein externes Bildmaterial nötig) ──
 const ACCESSORIES = {
@@ -568,7 +588,10 @@ async function buildMic() {
       micHP = ctx.createBiquadFilter(); micHP.type = "highpass";
       micGateNode = ctx.createGain();   // wird NICHT mehr ins Signal eingebunden — nur noch Analyse-Wert fürs Lämpchen
       micGain = ctx.createGain();
-      vizAn = ctx.createAnalyser(); vizAn.fftSize = 256;
+      vizAn = ctx.createAnalyser(); vizAn.fftSize = 1024; vizAn.smoothingTimeConstant = 0.75;
+      // Wie ein Pegelmesser im Rack einmessen: normales Sprechen soll in der Mitte
+      // landen, damit oben noch Luft ist und Rot wirklich „zu laut“ bedeutet.
+      vizAn.minDecibels = -85; vizAn.maxDecibels = -20;
       gateAn = ctx.createAnalyser(); gateAn.fftSize = 512;
       micHP.connect(gateAn);                       // Pegel-Analyse fürs Gate-Lämpchen (rein visuell)
       micHP.connect(micGain);                       // Aufgenommenes Signal bleibt roh/ungegatet!
@@ -701,7 +724,7 @@ let liveVoicePeaks = null, liveVoiceIdx = 0, currentRefPeaks = null, recording =
 function startDualViz(canvasId, l, recMaxSec) {
   const canvas = $(canvasId), g = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
-  const data = new Uint8Array(vizAn.frequencyBinCount);
+  const wave = new Float32Array(vizAn.fftSize);
   const COLS = 176;   // feinere Aufloesung fuer mehr Detail in der Wellenform
   liveVoicePeaks = new Float32Array(COLS);
   livePeakHold = new Float32Array(COLS);
@@ -736,9 +759,12 @@ function startDualViz(canvasId, l, recMaxSec) {
 
     // Blaue Live-Aufnahme: aktueller Mikro-Pegel wird fortlaufend als eigener Balken angehängt
     if (recording) {
-      vizAn.getByteFrequencyData(data);
-      let sum = 0; for (let i = 0; i < 24; i++) sum += data[i];
-      const level = Math.min(1, (sum / 24 / 255) * 1.6);
+      // Lautstärke aus dem Zeitsignal (RMS) statt aus einzelnen Frequenzbändern:
+      // misst die tatsächlich gesprochene Lautheit und bleibt unabhängig von der FFT-Größe.
+      vizAn.getFloatTimeDomainData(wave);
+      let sq = 0;
+      for (let i = 0; i < wave.length; i++) sq += wave[i] * wave[i];
+      const level = Math.min(1, Math.sqrt(sq / wave.length) * 4.2);
       const elapsed = (performance.now() - t0) / 1000;
       const col = Math.min(COLS - 1, Math.floor((elapsed / recMaxSec) * COLS));
       liveVoicePeaks[col] = Math.max(liveVoicePeaks[col], level);
@@ -799,28 +825,122 @@ function previewRefViz(l) {
   currentRefPeaks = null; recording = false;
   const canvas = $("viz");
   if (canvas) { const g = canvas.getContext("2d"); g.clearRect(0, 0, canvas.width, canvas.height); }
-  getRefPeaks(l, 176).then(r => { currentRefPeaks = r; drawStaticRefViz(); });
+  getRefPeaks(l, 176).then(r => {
+    currentRefPeaks = r;
+    drawStaticRefViz();
+    if (myLines[curLine] === l) showLineDuration(l);   // Anzeige auf die echte Original-Länge korrigieren
+  });
 }
 
+// Wie lange dauert diese Line wirklich? Das Zeitfenster in scenes.json ist nur eine
+// Schätzung und stellenweise falsch (Timing-Fehler aus den Mod-Packs). Wenn das Original
+// als eigene Datei vorliegt, ist dessen Länge die verlässlichere Angabe.
+function lineSpeakSeconds(l) {
+  const win = l.end - l.t;
+  const ref = currentRefPeaks && currentRefPeaks.duration || 0;
+  if (!ref) return win;
+  return Math.max(ref, Math.min(win, ref + 3));
+}
+function showLineDuration(l) {
+  const el = $("line-dur");
+  if (el) el.textContent = "~" + Math.max(1, Math.round(lineSpeakSeconds(l))) + " Sek.";
+}
+
+// ── Studio-Spektrum: logarithmisch verteilte Bänder als LED-Ketten ──
+// Wie an einem echten Analyzer im Rack: unten grün, oben Bernstein/Rot, dazu
+// Peak-Haltemarken, die langsam nachfallen, und eine Übersteuerungs-Lampe.
+const VIZ_BANDS = 30;
+const VIZ_SEGMENTS = 15;
+function bandEdges(bands, sampleRate, fftSize) {
+  const lo = 55, hi = Math.min(15000, sampleRate / 2);
+  const binOf = f => Math.max(0, Math.min(fftSize / 2 - 1, Math.round(f / (sampleRate / fftSize))));
+  const out = [];
+  for (let i = 0; i < bands; i++) {
+    const f0 = lo * Math.pow(hi / lo, i / bands);
+    const f1 = lo * Math.pow(hi / lo, (i + 1) / bands);
+    const b0 = binOf(f0);
+    out.push([b0, Math.max(b0 + 1, binOf(f1))]);
+  }
+  return out;
+}
 function startVizOn(canvasId) {
-  const canvas = $(canvasId), g = canvas.getContext("2d");
+  const canvas = $(canvasId);
+  if (!canvas || !vizAn) return;
+  const g = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
-  const data = new Uint8Array(vizAn.frequencyBinCount);
+  const freq = new Uint8Array(vizAn.frequencyBinCount);
+  const wave = new Float32Array(vizAn.fftSize);
+  const edges = bandEdges(VIZ_BANDS, getCtx().sampleRate, vizAn.fftSize);
+  const level = new Float32Array(VIZ_BANDS);      // geglätteter Pegel je Band
+  const hold = new Float32Array(VIZ_BANDS);       // Peak-Haltemarke
+  let clipFlash = 0, last = performance.now();
   cancelAnimationFrame(vizRAF);
-  (function draw() {
+  (function draw(now) {
     vizRAF = requestAnimationFrame(draw);
+    const dt = Math.min(0.1, ((now || performance.now()) - last) / 1000);
+    last = now || performance.now();
     const W = canvas.clientWidth * dpr, H = canvas.clientHeight * dpr;
-    if (canvas.width !== W) { canvas.width = W; canvas.height = H; }
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
     g.clearRect(0, 0, W, H);
-    vizAn.getByteFrequencyData(data);
-    const bars = 48, bw = W / bars;
-    for (let i = 0; i < bars; i++) {
-      const v = data[Math.floor(i * data.length / bars / 1.6)] / 255;
-      const h = Math.max(2 * dpr, v * H * 0.95);
-      const grad = g.createLinearGradient(0, H, 0, H - h);
-      grad.addColorStop(0, "#ffc95c"); grad.addColorStop(0.6, "#ff4d55"); grad.addColorStop(1, "#c84bff");
-      g.fillStyle = grad;
-      g.fillRect(i * bw + bw * 0.18, H - h, bw * 0.64, h);
+
+    vizAn.getByteFrequencyData(freq);
+    vizAn.getFloatTimeDomainData(wave);
+
+    // Übersteuerung erkennen (Zeitsignal, nicht Spektrum — nur so sieht man echtes Clipping)
+    let peak = 0;
+    for (let i = 0; i < wave.length; i++) { const a = Math.abs(wave[i]); if (a > peak) peak = a; }
+    if (peak > 0.985) clipFlash = 1.4;
+    else clipFlash = Math.max(0, clipFlash - dt);
+
+    const pad = 6 * dpr;
+    const gridTop = pad, gridH = H - pad * 2;
+    const segGap = Math.max(1, 1.2 * dpr);
+    const segH = (gridH - segGap * (VIZ_SEGMENTS - 1)) / VIZ_SEGMENTS;
+    const colW = (W - pad * 2) / VIZ_BANDS;
+    const barW = Math.max(2 * dpr, colW * 0.68);
+
+    // Dezente Skalenlinien als Rack-Referenz
+    g.fillStyle = "rgba(255,255,255,.045)";
+    for (let s = 0; s <= 3; s++) g.fillRect(pad, gridTop + (gridH / 3) * s - dpr * 0.4, W - pad * 2, dpr * 0.8);
+
+    for (let b = 0; b < VIZ_BANDS; b++) {
+      const [b0, b1] = edges[b];
+      let m = 0;
+      for (let i = b0; i < b1; i++) if (freq[i] > m) m = freq[i];
+      // Höhere Frequenzen sind von Natur aus schwächer — leicht anheben, damit die
+      // Kette über die ganze Breite lebt und nicht nur links ausschlägt.
+      const tilt = 1 + (b / VIZ_BANDS) * 0.6;
+      const v = Math.min(1, (m / 255) * tilt);
+      // Schneller Anstieg, träges Abfallen — so liest man Sprache angenehm mit
+      level[b] = v > level[b] ? level[b] + (v - level[b]) * 0.55 : level[b] + (v - level[b]) * 0.14;
+      hold[b] = Math.max(level[b], hold[b] - dt * 0.55);
+
+      const x = pad + b * colW + (colW - barW) / 2;
+      const lit = Math.round(level[b] * VIZ_SEGMENTS);
+      for (let s = 0; s < VIZ_SEGMENTS; s++) {
+        const y = gridTop + gridH - (s + 1) * segH - s * segGap;
+        const frac = s / (VIZ_SEGMENTS - 1);
+        const on = s < lit;
+        if (on) g.fillStyle = frac > 0.86 ? "#e63946" : frac > 0.62 ? "#f0a830" : "#5fe3a1";
+        else g.fillStyle = frac > 0.86 ? "rgba(230,57,70,.11)" : frac > 0.62 ? "rgba(240,168,48,.10)" : "rgba(95,227,161,.085)";
+        g.fillRect(x, y, barW, segH);
+      }
+      // Peak-Haltemarke
+      if (hold[b] > 0.03) {
+        const hy = gridTop + gridH - Math.min(gridH - dpr, hold[b] * gridH);
+        g.fillStyle = "rgba(255,255,255,.8)";
+        g.fillRect(x, hy, barW, Math.max(1, 1.6 * dpr));
+      }
+    }
+
+    // Übersteuerungs-Lampe oben rechts
+    if (clipFlash > 0) {
+      g.fillStyle = "rgba(230,57,70," + Math.min(0.9, clipFlash) + ")";
+      g.fillRect(W - pad - 34 * dpr, pad, 34 * dpr, 11 * dpr);
+      g.fillStyle = "#12070a";
+      g.font = "700 " + (7.5 * dpr) + "px ui-monospace, monospace";
+      g.textBaseline = "middle";
+      g.fillText("PEAK", W - pad - 30 * dpr, pad + 6 * dpr);
     }
   })();
 }
@@ -1638,6 +1758,37 @@ $("btn-copy-code") && ($("btn-copy-code").onclick = async () => {
   } catch { status("lobby-status", "Kopieren nicht möglich — Code von Hand markieren: " + code, true); }
 });
 
+// ── Einladungs-Link: Raumcode steckt in der Adresse, ein Klick reicht zum Beitreten ──
+function inviteLink(code) {
+  const u = new URL(location.href);
+  u.hash = "";
+  u.search = "?raum=" + code;
+  return u.toString();
+}
+$("btn-copy-link") && ($("btn-copy-link").onclick = async () => {
+  const link = inviteLink($("lobby-code").textContent);
+  const btn = $("btn-copy-link");
+  try {
+    await navigator.clipboard.writeText(link);
+    btn.textContent = "✅ Link kopiert — jetzt einfügen!";
+    setTimeout(() => { btn.textContent = "🔗 Einladungs-Link kopieren"; }, 2500);
+    SFX.click();
+  } catch { status("lobby-status", "Kopieren nicht möglich — Link von Hand kopieren: " + link, true); }
+});
+// Wer über einen Einladungs-Link kommt, findet den Code schon eingetragen vor.
+// Kein Auto-Beitritt: das Mikro braucht erst eine Freigabe durch eine echte Nutzergeste.
+const invitedCode = (() => {
+  const m = /^\d{4}$/.exec(new URLSearchParams(location.search).get("raum") || "");
+  return m ? m[0] : null;
+})();
+if (invitedCode) window.addEventListener("DOMContentLoaded", () => {
+  $("in-code").value = invitedCode;
+  const note = $("invite-note");
+  if (note) { note.textContent = "🎬 Du wurdest in Raum " + invitedCode + " eingeladen — Code steht schon drin, einfach auf „Beitreten“."; note.style.display = ""; }
+  const btn = $("btn-join");
+  if (btn) btn.classList.add("primary");
+});
+
 function enterLobby(code) {
   $("lobby-code").textContent = code;
   if (isHost) { $("host-scene").style.display = ""; $("host-start").style.display = ""; }
@@ -1670,6 +1821,11 @@ function setupHostConn(conn) {
     showToast("👋 " + goneName + " hat den Raum verlassen", "leave");
     SFX.leave();
     broadcastState();
+    // Auf wen auch immer gerade gewartet wird: derjenige ist jetzt vielleicht weg.
+    // Ohne diese Prüfung bleibt die Runde für alle anderen ewig hängen.
+    maybeFinishTracks();
+    if (duelInfo && document.querySelector("#scr-duel-vote.active")) maybeFinishDuelVote();
+    syncForceMixBtn();
   });
 }
 function broadcast(msg) { conns.forEach(c => { if (c.open) c.send(msg); }); }
@@ -1717,7 +1873,7 @@ function handleMsg(msg, conn) {
       status("start-status", "Raum ist voll — diese Szene hat nur " + msg.cap + " Rollen. 😅", true);
       show("scr-start"); break;
     case "state": players = msg.players; renderPlayers(); renderRoles(); renderBoothPlayers(); if (document.querySelector("#scr-playback.active")) renderPremStateGuest(); break;
-    case "scene": scene = msg.scene; videoBlobUrl = null; voiceTrackBuf = null; voiceTrackTried = false; showScene(scene.videoUrl); break;
+    case "scene": scene = msg.scene; videoBlobUrl = null; showScene(scene.videoUrl); break;
     case "playerLeft": showToast("👋 " + msg.name + " hat den Raum verlassen", "leave"); SFX.leave(); break;
     case "settings": match.mode = msg.mode; match.rounds = msg.rounds; match.round = msg.round; match.autoRoulette = msg.autoRoulette; renderSettingsView(msg); break;
     case "sceneReset":
@@ -1802,7 +1958,113 @@ async function loadSceneList() {
         return `<option value="${i}">${d ? d.emoji + " " : ""}${esc(s.title)} (${s.roles.length} Rollen${s.lines ? ", " + s.lines.length + " Lines" : ""}${d ? " · " + d.label : ""})</option>`;
       }).join("")
     : "<option>— Szenen laden… kurz warten &amp; Seite neu laden —</option>";
+  renderSceneGrid();
 }
+
+// ── Szenen-Auswahl als Bild-Raster ──
+// Das <select> bleibt als unsichtbare Quelle der Wahrheit erhalten, damit der restliche
+// Code (Laden-Knopf, Duell, Roulette) unverändert damit weiterarbeiten kann.
+let thumbObserver = null;
+function renderSceneGrid(filter) {
+  const grid = $("scene-grid");
+  if (!grid) return;
+  const q = (filter == null ? ($("scene-search") ? $("scene-search").value : "") : filter).trim().toLowerCase();
+  const hits = sceneList
+    .map((s, i) => ({ s, i }))
+    .filter(({ s }) => !q || (s.title + " " + (s.roles || []).map(r => r.name).join(" ")).toLowerCase().includes(q));
+
+  if (!sceneList.length) { grid.innerHTML = `<p class="sub" style="grid-column:1/-1">Szenen laden … kurz warten und Seite neu laden.</p>`; return; }
+  if (!hits.length) { grid.innerHTML = `<p class="sub" style="grid-column:1/-1">Keine Szene passt zu „${esc(q)}“.</p>`; return; }
+
+  const sel = $("scene-select");
+  // Steht die aktuell gewählte Szene nicht in den Suchtreffern, rutscht die Auswahl
+  // auf den ersten Treffer — sonst würde „Laden“ eine Szene starten, die gar nicht zu sehen ist.
+  if (sel && !hits.some(h => String(h.i) === String(sel.value))) sel.value = String(hits[0].i);
+  const current = sel ? String(sel.value) : "0";
+  grid.innerHTML = hits.map(({ s, i }) => {
+    const d = sceneDifficulty(s);
+    const at = (s.lines && s.lines.length ? s.lines[0].t : 1) + 0.35;   // erster gesprochener Moment zeigt am besten, was los ist
+    const fb = Object.values(s.avatars || {})[0] || "";
+    return `<button type="button" class="scene-tile${String(i) === current ? " sel" : ""}" data-i="${i}"
+        data-src="${esc(s.videoUrl)}" data-at="${at.toFixed(2)}" data-fb="${esc(fb)}">
+      <span class="st-thumb"><span class="st-ph">🎬</span><span class="st-badge">${s.roles.length}&nbsp;Rollen</span></span>
+      <span class="st-title">${esc(s.title)}</span>
+      <span class="st-meta">${d ? d.emoji + " " + esc(d.label) : "—"}${s.lines ? " · " + s.lines.length + " Lines" : ""}</span>
+    </button>`;
+  }).join("");
+
+  grid.querySelectorAll(".scene-tile").forEach(tile => {
+    tile.onclick = () => {
+      const alreadyPicked = tile.classList.contains("sel");
+      grid.querySelectorAll(".scene-tile.sel").forEach(t => t.classList.remove("sel"));
+      tile.classList.add("sel");
+      if (sel) sel.value = tile.dataset.i;
+      SFX.click();
+      if (alreadyPicked) $("btn-load-scene").click();   // zweiter Klick auf dieselbe Szene lädt sie direkt
+    };
+  });
+
+  // Vorschaubilder erst laden, wenn die Kachel wirklich sichtbar ist
+  if (thumbObserver) thumbObserver.disconnect();
+  if (typeof IntersectionObserver === "function") {
+    thumbObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => { if (e.isIntersecting) { mountSceneThumb(e.target); obs.unobserve(e.target); } });
+    }, { root: grid, rootMargin: "150px" });
+    grid.querySelectorAll(".scene-tile").forEach(t => thumbObserver.observe(t));
+  } else {
+    grid.querySelectorAll(".scene-tile").forEach(mountSceneThumb);
+  }
+}
+// Standbild aus dem Video holen — so bekommt jede Szene automatisch ein Bild,
+// auch neu hinzugefügte, ohne dass extra Dateien gepflegt werden müssen.
+// Sobald das Bild da ist, wird es auf eine kleine Leinwand gemalt und das Video
+// wieder freigegeben: 43 offene Videos gleichzeitig würden sonst den Speicher fluten.
+function mountSceneThumb(tile) {
+  if (tile.dataset.thumb) return;
+  tile.dataset.thumb = "1";
+  const holder = tile.querySelector(".st-thumb");
+  const ph = holder.querySelector(".st-ph");
+  const at = parseFloat(tile.dataset.at) || 1;
+  const v = document.createElement("video");
+  v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = "metadata";
+  v.setAttribute("muted", ""); v.setAttribute("playsinline", "");
+
+  const zeigeErsatzbild = () => {
+    const fb = tile.dataset.fb;
+    if (fb) { const img = document.createElement("img"); img.src = fb; img.alt = ""; holder.insertBefore(img, holder.firstChild); if (ph) ph.remove(); }
+    else if (ph) ph.textContent = "🚫";
+  };
+  const einfrieren = () => {
+    if (tile.dataset.frozen) return;
+    tile.dataset.frozen = "1";
+    try {
+      const breit = 320, verhaeltnis = v.videoWidth ? v.videoHeight / v.videoWidth : 0.5625;
+      const c = document.createElement("canvas");
+      c.width = breit; c.height = Math.max(1, Math.round(breit * verhaeltnis));
+      c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+      holder.insertBefore(c, holder.firstChild);
+      if (ph) ph.remove();
+    } catch { zeigeErsatzbild(); }
+    v.removeAttribute("src");
+    try { v.load(); } catch {}
+    v.remove();
+  };
+
+  let sprungNoetig = false;
+  v.addEventListener("loadedmetadata", () => {
+    const ziel = Math.min(at, Math.max(0, (v.duration || at) - 0.1));
+    if (Math.abs(v.currentTime - ziel) > 0.3) { sprungNoetig = true; try { v.currentTime = ziel; } catch { sprungNoetig = false; } }
+  }, { once: true });
+  v.addEventListener("seeked", einfrieren, { once: true });
+  v.addEventListener("loadeddata", () => { if (!sprungNoetig) einfrieren(); }, { once: true });
+  v.addEventListener("error", () => { v.remove(); zeigeErsatzbild(); }, { once: true });
+  // Reißleine, falls der Sprung nie zurückmeldet (z. B. Server ohne Range-Unterstützung)
+  setTimeout(() => { if (!tile.dataset.frozen && v.readyState >= 2) einfrieren(); }, 8000);
+
+  v.src = tile.dataset.src + "#t=" + at.toFixed(2);
+  holder.insertBefore(v, holder.firstChild);
+}
+$("scene-search") && ($("scene-search").oninput = () => renderSceneGrid());
 
 // ── 🔍 Selbst-Check: prüft, ob wirklich alle in scenes.json referenzierten Dateien existieren ──
 function filesOfScene(s) {
@@ -1882,7 +2144,6 @@ $("btn-load-scene").onclick = () => {
   scene = JSON.parse(JSON.stringify(s));       // Kopie, damit Blind-Flag das Original nicht verändert
   scene.blind = $("blind-mode").checked;
   localVideoBuf = null; videoBlobUrl = null;
-  voiceTrackBuf = null; voiceTrackTried = false;   // sonst spielt "Original anhören" noch die Stimmen der VORHERIGEN Szene ab!
   resetRoles();
   showScene(scene.videoUrl);
   broadcast({ t: "scene", scene });
@@ -2451,7 +2712,6 @@ async function pickRandomScene() {
   scene = JSON.parse(JSON.stringify(s));
   scene.blind = $("blind-mode") ? $("blind-mode").checked : false;
   localVideoBuf = null; videoBlobUrl = null;
-  voiceTrackBuf = null; voiceTrackTried = false;   // FIX: sonst spielt "Original anhören" die Stimmen der VORHERIGEN Szene ab!
   rouletteRoles();
   showScene(scene.videoUrl);
   broadcast({ t: "scene", scene });
@@ -2555,7 +2815,6 @@ $("btn-duel-start").onclick = () => {
   duelInfo = { roleId, aId, bId };
   scene = JSON.parse(JSON.stringify(duelStagedScene));
   localVideoBuf = null; videoBlobUrl = null;
-  voiceTrackBuf = null; voiceTrackTried = false;
   players.forEach(p => { p.role = (p.id === aId || p.id === bId) ? roleId : null; p.ready = true; });
   Object.keys(duelSubs).forEach(k => delete duelSubs[k]);
   Object.keys(duelVotes).forEach(k => delete duelVotes[k]);
@@ -2617,7 +2876,7 @@ function renderLine() {
   $("line-who").textContent = l.who + (l.chars.length > 1 ? " (zusammen!)" : "");
   $("line-text").textContent = l.text;
   $("line-de").textContent = (l.de && !scene.blind) ? "🇩🇪 " + l.de : (scene.blind ? "🕶 Blind-Modus — improvisier!" : "");
-  $("line-dur").textContent = "~" + Math.max(1, Math.round(l.end - l.t)) + " Sek.";
+  showLineDuration(l);
   $("booth-video").currentTime = l.t;
   $("btn-line-play").disabled = !takes[l.idx] || takes[l.idx] === "SKIP";
   $("btn-line-next").disabled = !takes[l.idx];
@@ -2646,17 +2905,32 @@ function renderLine() {
 
 // Original-Voiceline anhören (Aussprache-Referenz, z. B. "Surprise Mothafucka")
 
-// Voice-Track: eine lange Stimmen-Spur, aus der Lines per Zeitfenster geschnitten werden
-let voiceTrackBuf = null, voiceTrackTried = false;
+// Voice-Track: eine lange Stimmen-Spur, aus der Lines per Zeitfenster geschnitten werden.
+// Cache pro URL (wie origCache) statt einer globalen Variable: dadurch kann die Spur einer
+// vorherigen Szene nie hängenbleiben, egal an welcher Stelle `scene` neu gesetzt wird.
+const voiceTrackCache = new Map();     // url -> AudioBuffer
+const voiceTrackLoading = new Map();   // url -> laufender Ladevorgang
 async function getVoiceTrack() {
-  if (voiceTrackBuf || voiceTrackTried || !scene.voiceTrack) return voiceTrackBuf;
-  voiceTrackTried = true;
-  try {
-    const ctx = getCtx();
-    const raw = await (await fetch(scene.voiceTrack)).arrayBuffer();
-    voiceTrackBuf = await ctx.decodeAudioData(raw);
-  } catch (e) { console.warn("Voice-Track nicht ladbar:", e); }
-  return voiceTrackBuf;
+  const url = scene && scene.voiceTrack;
+  if (!url) return null;
+  if (voiceTrackCache.has(url)) return voiceTrackCache.get(url);
+  if (voiceTrackLoading.has(url)) return voiceTrackLoading.get(url);
+  const load = (async () => {
+    try {
+      const ctx = getCtx();
+      const raw = await (await fetch(url)).arrayBuffer();
+      const buf = await ctx.decodeAudioData(raw);
+      voiceTrackCache.set(url, buf);
+      return buf;
+    } catch (e) {
+      console.warn("Voice-Track nicht ladbar:", e);
+      return null;   // Fehlschlag nicht cachen, damit ein erneuter Klick es nochmal versucht
+    } finally {
+      voiceTrackLoading.delete(url);
+    }
+  })();
+  voiceTrackLoading.set(url, load);
+  return load;
 }
 // Schneidet ein Stück [t, end] aus dem Voice-Track als eigenen AudioBuffer
 function sliceBuffer(full, t, end) {
@@ -2767,7 +3041,7 @@ $("btn-line-rec").onclick = async () => {
     // Adaptiver Puffer: nicht in die nächste Line reinlaufen
     const nextL = scene.lines[l.idx + 1];
     const room = nextL ? Math.max(0.3, nextL.t - l.end) : 1.2;
-    recMax = Math.min(20, Math.max(2.5, (l.end - l.t) + Math.min(1.2, room)));
+    recMax = Math.min(20, Math.max(2.5, lineSpeakSeconds(l) + Math.min(1.2, room)));
     const v = $("booth-video");
     v.pause(); v.currentTime = l.t; v.volume = boothVol; v.playbackRate = 1;
     await new Promise(res => {
@@ -3064,7 +3338,15 @@ function finishBooth() {
 let rtRecorder = null, rtChunks = [];
 
 async function startRealtime() {
-  const role = roleOf(myRole());
+  const rid = myRole();
+  if (rid == null) {                       // Zuschauer — wie im Line-Booth, sonst stürzt die Seite ab
+    show("scr-wait");
+    renderBoothPlayers();
+    const dn = $("duel-waiting-note"); if (dn) dn.style.display = "none";
+    status("wait-status", "🍿 Du bist Zuschauer — die Premiere startet automatisch, wenn alle fertig sind.");
+    return;
+  }
+  const role = roleOf(rid) || { name: "—" };
   $("rec-role").textContent = "🎭 Du bist: " + role.name;
   const v = $("rec-video");
   v.src = videoBlobUrl || scene.videoUrl;
@@ -3979,14 +4261,27 @@ function showDuelVote() {
   $("duel-result").innerHTML = "";
   $("btn-duel-back").style.display = "none";
   const amDuelist = myId === duelInfo.aId || myId === duelInfo.bId;
-  $("btn-vote-a").disabled = amDuelist;
-  $("btn-vote-b").disabled = amDuelist;
-  status("duel-vote-status", amDuelist ? "Als Duellant darfst du nicht über dich selbst abstimmen 😄" : "Klick auf die Version, die dir besser gefallen hat!");
+  const soloDuel = duelNeutralIds().length === 0;   // nur die beiden Duellanten im Raum
+  $("btn-vote-a").disabled = amDuelist && !soloDuel;
+  $("btn-vote-b").disabled = amDuelist && !soloDuel;
+  status("duel-vote-status", soloDuel
+    ? "Ihr seid nur zu zweit — also stimmt ihr selbst ab. Seid ehrlich 😄"
+    : amDuelist ? "Als Duellant darfst du nicht über dich selbst abstimmen 😄" : "Klick auf die Version, die dir besser gefallen hat!");
+}
+// Wer darf abstimmen? Normalerweise alle außer den Duellanten. Sind aber NUR die beiden
+// Duellanten im Raum, dürfen sie selbst ran — sonst könnte niemand abstimmen und der
+// Abstimm-Screen würde für immer stehen bleiben.
+function duelNeutralIds() {
+  return players.filter(p => p.id !== duelInfo.aId && p.id !== duelInfo.bId).map(p => p.id);
+}
+function duelVoterIds() {
+  const neutral = duelNeutralIds();
+  return neutral.length ? neutral : players.filter(p => p.id === duelInfo.aId || p.id === duelInfo.bId).map(p => p.id);
 }
 $("btn-vote-a").onclick = () => castDuelVote("a");
 $("btn-vote-b").onclick = () => castDuelVote("b");
 function castDuelVote(choice) {
-  if (myId === duelInfo.aId || myId === duelInfo.bId) return;
+  if (!duelVoterIds().includes(myId)) return;
   $("btn-vote-a").disabled = true; $("btn-vote-b").disabled = true;
   status("duel-vote-status", "✅ Stimme abgegeben — warte auf die anderen …");
   SFX.click();
@@ -3995,11 +4290,17 @@ function castDuelVote(choice) {
 }
 function collectDuelVote(voterId, choice) {
   duelVotes[voterId] = choice;
-  const eligible = players.filter(p => p.id !== duelInfo.aId && p.id !== duelInfo.bId);
+  maybeFinishDuelVote();
+}
+function maybeFinishDuelVote() {
+  if (!isHost || !duelInfo) return;
   const tally = { a: Object.values(duelVotes).filter(v => v === "a").length, b: Object.values(duelVotes).filter(v => v === "b").length };
   broadcast({ t: "duelVoteBroadcast", tally });
   showDuelVoteLive(tally);
-  if (Object.keys(duelVotes).length >= eligible.length && eligible.length > 0) finishDuelVote(tally);
+  const voters = duelVoterIds();
+  // Nur noch Stimmen von Leuten zählen, die auch wirklich noch im Raum sind
+  const abgegeben = Object.keys(duelVotes).filter(id => voters.includes(id)).length;
+  if (voters.length && abgegeben >= voters.length) finishDuelVote(tally);
 }
 function showDuelVoteLive(tally) {
   $("duel-vote-sub").textContent = "Stimmen bisher: " + nameOf(duelInfo.aId) + " " + tally.a + " : " + tally.b + " " + nameOf(duelInfo.bId);
@@ -4033,16 +4334,43 @@ $("btn-duel-back").onclick = () => {
 };
 
 function collectTracks(role, items) {
-  collected.set(role, items);
-  const neededRoles = new Set(players.filter(p => p.role != null).map(p => p.role));
-  if (collected.size >= neededRoles.size) {
-    const data = [...collected.entries()].map(([r, it]) => ({ role: r, items: it }));
-    finalTracksData = data;   // persistent merken, damit spaetere Redo-Korrekturen darauf aufbauen koennen
-    broadcast({ t: "mix", data });
-    loadMix(data);
-    collected.clear();
-  }
+  if (role != null) collected.set(role, items);
+  maybeFinishTracks();
 }
+// Getrennt aufrufbar, damit auch ein Verbindungsabbruch die Premiere auslösen kann:
+// wer weg ist, wird nicht mehr gebraucht — sonst wartet die Runde endlos auf seine Spur.
+let forceMixTimer = null;
+function maybeFinishTracks(force) {
+  if (!isHost || !collected.size) return;
+  const neededRoles = new Set(players.filter(p => p.role != null).map(p => p.role));
+  if (!force && collected.size < neededRoles.size) {
+    clearTimeout(forceMixTimer);
+    forceMixTimer = setTimeout(syncForceMixBtn, 45000);   // Notausgang erst anbieten, wenn es wirklich hängt
+    return;
+  }
+  clearTimeout(forceMixTimer);
+  const data = [...collected.entries()].map(([r, it]) => ({ role: r, items: it }));
+  finalTracksData = data;   // persistent merken, damit spaetere Redo-Korrekturen darauf aufbauen koennen
+  broadcast({ t: "mix", data });
+  loadMix(data);
+  collected.clear();
+  syncForceMixBtn();
+}
+// Notausgang für den Host, falls jemand hängt, ohne die Verbindung sauber zu schließen
+function syncForceMixBtn() {
+  const btn = $("btn-force-mix");
+  if (!btn) return;
+  const waiting = isHost && collected.size > 0 &&
+    collected.size < new Set(players.filter(p => p.role != null).map(p => p.role)).size &&
+    !!document.querySelector("#scr-wait.active");
+  btn.style.display = waiting ? "" : "none";
+}
+$("btn-force-mix") && ($("btn-force-mix").onclick = () => {
+  if (!isHost) return;
+  $("btn-force-mix").style.display = "none";
+  status("wait-status", "🎬 Starte die Premiere mit den vorhandenen Spuren …");
+  maybeFinishTracks(true);
+});
 function checkAllDone() { /* Fortschritt läuft über state-Broadcasts */ }
 
 // ═════════════════════════════════════════════════════════════

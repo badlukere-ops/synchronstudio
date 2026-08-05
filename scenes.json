@@ -1670,16 +1670,6 @@
         "de": "Ist Original Sprache!"
       },
       {
-        "t": 8.68,
-        "end": 12.8,
-        "chars": [
-          3
-        ],
-        "who": "Geist",
-        "text": "(kein dialoug hier kannst dir was ausdenken oder skippen geist hebt die flunte auf)",
-        "de": "Ist Original Sprache!"
-      },
-      {
         "t": 2,
         "end": 3,
         "chars": [
@@ -1687,6 +1677,16 @@
         ],
         "who": "Malcolm",
         "text": "Schnauf Geräusch",
+        "de": "Ist Original Sprache!"
+      },
+      {
+        "t": 8.68,
+        "end": 12.8,
+        "chars": [
+          3
+        ],
+        "who": "Geist",
+        "text": "(kein dialoug hier kannst dir was ausdenken oder skippen geist hebt die flunte auf)",
         "de": "Ist Original Sprache!"
       },
       {
@@ -6763,7 +6763,7 @@
       },
       {
         "t": 109.9,
-        "end": 153.99,
+        "end": 119.9,
         "chars": [
           2
         ],
@@ -7355,7 +7355,7 @@
       },
       {
         "t": 19.13,
-        "end": 19.13,
+        "end": 21.27,
         "chars": [
           1
         ],
@@ -7531,7 +7531,7 @@
       },
       {
         "t": 58.55,
-        "end": 58.55,
+        "end": 60.45,
         "chars": [
           1
         ],
@@ -8898,7 +8898,7 @@
       },
       {
         "t": 222.085,
-        "end": 344.302,
+        "end": 226.5,
         "chars": [
           17
         ],
@@ -10514,7 +10514,7 @@
       },
       {
         "t": 318.11,
-        "end": 318.14,
+        "end": 319.8,
         "chars": [
           4
         ],
@@ -10564,7 +10564,7 @@
       },
       {
         "t": 340.99,
-        "end": 341.02,
+        "end": 342.6,
         "chars": [
           4
         ],
@@ -10894,7 +10894,7 @@
       },
       {
         "t": 480.31,
-        "end": 514.22,
+        "end": 487.0,
         "chars": [
           1
         ],
