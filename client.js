@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.9";
+const APP_VERSION = "9.10";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -252,6 +252,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10", items: [
+    "⬜ Weiße Balken jetzt klein über dem Video (nicht Fullscreen), max. 60% Deckraft",
+    "🎭 Kinosaal/Vorhang nur noch beim Podest-Finale — Premiere startet sofort ohne Verzögerung",
+    "🤝 SynchroBuddy wirklich nur 1× pro ganzem Match (nicht jede Bewertungsrunde neu)",
+    "🎬 Yo Satoru neu gebaut (Rework 1.0.1): jetzt 5 Rollen (Gojo, Kenjaku, Mahito, Jogo, Choso), ~70 Lines, Timing/Audio gefixt"
+  ]},
   { v: "9.9", items: [
     "🤝 SynchroBuddy: bei der Bewertung kannst du EINEM Sprecher einen Sticker geben, wenn die Szene richtig gesessen hat — bringt Extra-Punkte",
     "🎭 Premiere mit richtigem Kinosaal: Vorhang auf/zu, dunkler Saal",
@@ -651,6 +657,9 @@ const AVATAR_CHARS = [
   { img: "scenes/megamind/hal.png", label: "Hal" },
   { img: "scenes/yosatarou/gojo.png", label: "Gojo (Yo Satoru)" },
   { img: "scenes/yosatarou/kenjaku.png", label: "Kenjaku" },
+  { img: "scenes/yosatarou/mahito.png", label: "Mahito" },
+  { img: "scenes/yosatarou/jogo.png", label: "Jogo" },
+  { img: "scenes/yosatarou/choso.png", label: "Choso" },
   { img: "scenes/ablaze/rengoku.png", label: "Rengoku" },
   { img: "scenes/ablaze/tanjiro.png", label: "Tanjiro" },
   { img: "scenes/broly/goku.png", label: "Goku" },
@@ -2160,7 +2169,8 @@ function leaveRoom() {
   localVideoBuf = null; videoBlobUrl = null;
   takes = {}; myLines = []; curLine = 0; outtakes = []; mixItems = []; collected.clear();
   ttt = { p: [], board: Array(9).fill(null), turn: 0, winner: null };
-  match = { rounds: 1, round: 1, totals: {}, autoRoulette: false };
+  match = { rounds: 1, round: 1, totals: {}, autoRoulette: false, buddyGivers: {} };
+  myBuddyUsed = false;
   Object.keys(mgWins).forEach(k => delete mgWins[k]);
   $("host-settings").style.display = "none";
   match.mode = "free";
@@ -3306,7 +3316,8 @@ $("btn-roulette").onclick = () => {
 // ═════════════════════════════════════════════════════════════
 // MATCH-SYSTEM: Runden, Gesamtwertung, Finale
 // ═════════════════════════════════════════════════════════════
-let match = { mode: "free", rounds: 3, round: 1, totals: {}, autoRoulette: true };
+let match = { mode: "free", rounds: 3, round: 1, totals: {}, autoRoulette: true, buddyGivers: {} };
+let myBuddyUsed = false;   // SynchroBuddy nur 1× pro ganzem Match (nicht jede Bewertungsrunde)
 const mgWins = {};   // Arena-Siege der Session
 
 function hostSettingsChanged() {
@@ -3880,10 +3891,11 @@ function recCountdown() {
   });
 }
 
-// Weiße Balken von links & rechts zur Mitte (Synchronstudios-Style)
+// Weiße Balken nur über dem aktuellen Video (Booth oder Premiere)
 function wipeCountdown() {
   return new Promise(res => {
-    const el = $("wipe-countdown");
+    const boothActive = !!document.querySelector("#scr-booth.active");
+    const el = $(boothActive ? "wipe-booth" : "wipe-play") || $("wipe-booth") || $("wipe-play");
     const num = el && el.querySelector(".wipe-num");
     if (!el) { recCountdown().then(res); return; }
     el.classList.remove("run", "flash");
@@ -3903,12 +3915,12 @@ function wipeCountdown() {
           el.classList.remove("show", "run", "flash");
           if (num) num.textContent = "3";
           res();
-        }, 140);
+        }, 100);
       } else {
         if (num) num.textContent = n;
         SFX.beep();
       }
-    }, 950);
+    }, 900);
   });
 }
 
@@ -3916,7 +3928,7 @@ function preferWipe() {
   return !!( $("rec-wipe") && $("rec-wipe").checked );
 }
 
-// Theater-Vorhang für die Premiere
+// Theater-Vorhang — nur Podest-Finale (schnell, ohne Premiere-Verzögerung)
 function curtainsShow(closed) {
   const el = $("cinema-curtains");
   if (!el) return;
@@ -3931,7 +3943,7 @@ function curtainsOpen() {
     void el.offsetWidth;
     requestAnimationFrame(() => {
       el.classList.add("open");
-      setTimeout(res, 1400);
+      setTimeout(res, 720);
     });
   });
 }
@@ -3941,7 +3953,7 @@ function curtainsClose() {
     if (!el) { res(); return; }
     el.classList.add("show");
     el.classList.remove("open");
-    setTimeout(() => { el.classList.remove("show"); res(); }, 1200);
+    setTimeout(() => { el.classList.remove("show"); res(); }, 650);
   });
 }
 
@@ -4577,10 +4589,8 @@ const allRatings = new Map();   // Host: voterId → { scores, buddy }
 const BUDDY_BONUS = 1.0;        // Extra-Punkte pro erhaltenem SynchroBuddy
 
 function showRateCard() {
-  curtainsClose().then(() => {
-    document.body.classList.remove("cinema");
-    const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
-  });
+  document.body.classList.remove("cinema");
+  const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
   const speakers = players.filter(p => p.role != null && p.id !== myId);
   const anySpeakers = players.filter(p => p.role != null).length >= 2;
   if (!anySpeakers) return;
@@ -4592,8 +4602,14 @@ function showRateCard() {
   $("btn-rate-force").style.display = "none";
   const otBtn = $("btn-outtakes");
   if (otBtn) otBtn.style.display = outtakes.length ? "" : "none";
+  const canBuddy = !myBuddyUsed && speakers.length > 0;
   const hint = $("buddy-hint");
-  if (hint) hint.style.display = speakers.length ? "" : "none";
+  if (hint) {
+    hint.style.display = speakers.length ? "" : "none";
+    hint.innerHTML = myBuddyUsed
+      ? "🤝 SynchroBuddy hast du in diesem Match schon vergeben."
+      : "🤝 Optional: gib <b>einem</b> Sprecher einen <b>SynchroBuddy</b>-Sticker (nur <b>1× pro Match</b>) — Extra-Punkte!";
+  }
   if (!speakers.length) {
     $("rate-rows").innerHTML = '<p class="sub">Du warst der einzige Sprecher — die anderen bewerten dich gerade… 👀</p>';
     $("btn-rate-submit").style.display = "none";
@@ -4608,7 +4624,7 @@ function showRateCard() {
         <span class="tag">🎭 ${esc(scene.roles.find(r => r.id === p.role)?.name || "")}</span>
       </div>
       <div class="starrow">${[1,2,3,4,5].map(n => `<button class="starbtn" data-n="${n}">★</button>`).join("")}</div>
-      <button type="button" class="buddy-btn" data-buddy="${p.id}" title="SynchroBuddy geben">🤝</button>
+      ${canBuddy ? `<button type="button" class="buddy-btn" data-buddy="${p.id}" title="SynchroBuddy geben (1× pro Match)">🤝</button>` : ""}
     </div>`).join("");
   $("rate-rows").querySelectorAll(".raterow").forEach(row => {
     row.querySelectorAll(".starbtn").forEach(b => b.onclick = () => {
@@ -4639,7 +4655,10 @@ $("btn-rate-submit").onclick = () => {
   rateSent = true;
   $("btn-rate-submit").disabled = true;
   $("btn-rate-submit").textContent = "✅ Abgeschickt — warte auf die anderen …";
-  sendRating(myStars, myBuddy);
+  // Buddy nur 1× pro Match — lokal sofort merken, Host prüft zusätzlich
+  const buddy = (!myBuddyUsed && myBuddy) ? myBuddy : null;
+  if (buddy) myBuddyUsed = true;
+  sendRating(myStars, buddy);
 };
 let rateForceTimer = null;
 function sendRating(scores, buddy) {
@@ -4652,7 +4671,12 @@ function sendRating(scores, buddy) {
   } else hostConn.send({ t: "rate", scores, buddy: buddy || null });
 }
 function collectRating(voterId, scores, buddy) {
-  allRatings.set(voterId, { scores: scores || {}, buddy: buddy || null });
+  if (!match.buddyGivers) match.buddyGivers = {};
+  // SynchroBuddy nur einmal pro Match und Wähler
+  let okBuddy = buddy || null;
+  if (okBuddy && match.buddyGivers[voterId]) okBuddy = null;
+  if (okBuddy) match.buddyGivers[voterId] = okBuddy;
+  allRatings.set(voterId, { scores: scores || {}, buddy: okBuddy });
   updateRateProgress();
   if (allRatings.size >= players.length) finishRating();
 }
@@ -4762,6 +4786,9 @@ function startNewRound() {
 function showFinal(list, rounds, championName) {
   show("scr-final");
   $("leave-btn").style.display = "";
+  // Kinosaal/Vorhang nur hier am Podest — kurz auf, dann Reveal
+  curtainsShow(true);
+  requestAnimationFrame(() => { setTimeout(() => curtainsOpen(), 80); });
 
   // Bei Battle Royale: Champion steht unabhängig von der Punktsumme immer auf Platz 1
   let ordered = [...list];
@@ -4907,7 +4934,8 @@ $("btn-back-lobby").onclick = () => {
 };
 function backToLobby(keepMatch) {
   document.body.classList.remove("cinema");
-  if (!keepMatch) { match.round = 1; match.totals = {}; }
+  const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
+  if (!keepMatch) { match.round = 1; match.totals = {}; match.buddyGivers = {}; myBuddyUsed = false; }
   players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; });
   mixItems = []; collected.clear(); takes = {}; outtakes = [];
   finalTracksData = null; premiereLocked = false; redoMode = null;
@@ -5488,12 +5516,8 @@ function premStart() {
   $("btn-download").disabled = false;
   $("btn-prem-start") && ($("btn-prem-start").style.display = "none");
   status("play-status", "🍿 Premiere!");
-  document.body.classList.add("cinema");
-  (async () => {
-    await curtainsOpen();
-    await countdown();
-    playMix(false);
-  })();
+  // Kein Kinosaal/Vorhang hier — der kommt nur beim Podest-Finale
+  countdown().then(() => playMix(false));
 }
 
 $("btn-prem-start").onclick = () => {
