@@ -1,0 +1,58 @@
+# Schlankes Pages-Deploy: große MP4s bleiben im Repo (CDN/jsDelivr),
+# werden aber NICHT mit der Website hochgeladen (sonst 10-Min-Timeout).
+name: Deploy Pages (slim)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build slim site (no scene MP4s)
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          # Alles außer .git / Workflow-Kram / Deploy-Staging
+          rsync -a \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '_site' \
+            --exclude '.cursor' \
+            --exclude 'node_modules' \
+            ./ _site/
+          # Große Szenen-Videos raus — Client lädt sie von jsDelivr
+          find _site/scenes -type f -name '*.mp4' -print -delete
+          # Größe checken
+          echo "Artifact size:"
+          du -sh _site
+          find _site -type f | wc -l
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

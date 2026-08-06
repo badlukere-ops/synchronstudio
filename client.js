@@ -5,8 +5,23 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.7";
+const APP_VERSION = "9.10.8";
 const PEER_PREFIX = "syncstudio-emvw-";
+// Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
+// Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
+const CDN_BASE = "https://cdn.jsdelivr.net/gh/synchron-studio/synchronstudio@main/";
+function useCdnAssets() {
+  try { return /\.github\.io$/i.test(location.hostname); } catch { return false; }
+}
+function assetUrl(path) {
+  if (!path) return path;
+  if (/^(https?:|blob:|data:)/i.test(path)) return path;
+  if (!useCdnAssets()) return path;
+  return CDN_BASE + String(path).replace(/^\.\//, "").replace(/^\//, "");
+}
+function sceneVideoSrc() {
+  return videoBlobUrl || assetUrl(scene && scene.videoUrl);
+}
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
 // ║  Nötig, wenn "Raum gefunden, aber Verbindung kommt nicht durch"   ║
@@ -252,6 +267,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.8", items: [
+    "📦 Live-Deploy neu: Videos kommen vom CDN — Higuruma Retrial & alle neuen Szenen wieder online"
+  ]},
   { v: "9.10.7", items: [
     "📦 Seite stark verkleinert damit GitHub-Deploy wieder klappt — Higuruma Retrial inkl."
   ]},
@@ -2462,7 +2480,7 @@ function handleMsg(msg, conn) {
       status("start-status", "Raum ist voll — diese Szene hat nur " + msg.cap + " Rollen. 😅", true);
       show("scr-start"); break;
     case "state": players = msg.players; renderPlayers(); renderRoles(); renderBoothPlayers(); if (document.querySelector("#scr-playback.active")) renderPremStateGuest(); break;
-    case "scene": scene = msg.scene; videoBlobUrl = null; showScene(scene.videoUrl); break;
+    case "scene": scene = msg.scene; videoBlobUrl = null; showScene(sceneVideoSrc()); break;
     case "playerLeft": showToast("👋 " + msg.name + " hat den Raum verlassen", "leave"); SFX.leave(); break;
     case "playerOffline": showToast("📴 " + msg.name + " ist rausgeflogen — Platz bleibt frei", "leave"); break;
     case "playerBack": showToast("🔌 " + msg.name + " ist wieder da!", "join"); SFX.ok(); break;
@@ -2472,7 +2490,7 @@ function handleMsg(msg, conn) {
       wvVersuch = 0; clearTimeout(wvTimer); wvBannerAus();
       if (msg.match) { match.mode = msg.match.mode; match.rounds = msg.match.rounds; match.round = msg.match.round; match.autoRoulette = msg.match.autoRoulette; renderSettingsView(msg.match); }
       if (msg.duelInfo) duelInfo = msg.duelInfo;
-      if (msg.scene) { scene = msg.scene; videoBlobUrl = null; showScene(scene.videoUrl); }
+      if (msg.scene) { scene = msg.scene; videoBlobUrl = null; showScene(sceneVideoSrc()); }
 
       // Steht die Seite noch offen, sind Rolle, Stelle in der Szene und alle schon
       // aufgenommenen Lines noch im Speicher — dann einfach genau da weitermachen.
@@ -2514,7 +2532,7 @@ function handleMsg(msg, conn) {
     case "wins": Object.assign(mgWins, msg.wins); renderWins(); break;
     case "nextRound":
       match.round = msg.round; players = msg.players;
-      if (msg.scene) { scene = msg.scene; videoBlobUrl = null; backToLobby(true); showScene(scene.videoUrl); renderSettingsView(); status("lobby-status", "🎲 Runde " + match.round + ": neue Szene & Rollen! „Bin bereit“ drücken."); }
+      if (msg.scene) { scene = msg.scene; videoBlobUrl = null; backToLobby(true); showScene(sceneVideoSrc()); renderSettingsView(); status("lobby-status", "🎲 Runde " + match.round + ": neue Szene & Rollen! „Bin bereit“ drücken."); }
       else startNewRound();
       break;
     case "matchEnd": showFinal(msg.list, msg.rounds, msg.championName); break;
@@ -2654,7 +2672,7 @@ function renderSceneGrid(filter) {
     const at = (s.lines && s.lines.length ? s.lines[0].t : 1) + 0.35;   // erster gesprochener Moment zeigt am besten, was los ist
     const fb = Object.values(s.avatars || {})[0] || "";
     return `<button type="button" class="scene-tile${String(i) === current ? " sel" : ""}" data-i="${i}"
-        data-src="${esc(s.videoUrl)}" data-at="${at.toFixed(2)}" data-fb="${esc(fb)}">
+        data-src="${esc(assetUrl(s.videoUrl))}" data-at="${at.toFixed(2)}" data-fb="${esc(fb)}">
       <span class="st-thumb"><span class="st-ph">🎬</span><span class="st-badge">${s.roles.length}&nbsp;Rollen</span></span>
       <span class="st-title">${esc(s.title)}</span>
       <span class="st-meta">${d ? d.emoji + " " + esc(d.label) : "—"}${s.lines ? " · " + s.lines.length + " Lines" : ""}</span>
@@ -2757,8 +2775,8 @@ syncModePicker();
 // ── 🔍 Selbst-Check: prüft, ob wirklich alle in scenes.json referenzierten Dateien existieren ──
 function filesOfScene(s) {
   const out = [];
-  if (s.videoUrl) out.push(s.videoUrl);
-  if (s.voiceTrack) out.push(s.voiceTrack);
+  if (s.videoUrl) out.push(assetUrl(s.videoUrl));
+  if (s.voiceTrack) out.push(assetUrl(s.voiceTrack));
   for (const a of Object.values(s.avatars || {})) out.push(a);
   for (const l of (s.lines || [])) if (l.orig) out.push(l.orig);
   return [...new Set(out)];   // Duplikate raus, spart Anfragen
@@ -2833,7 +2851,7 @@ $("btn-load-scene").onclick = () => {
   scene.blind = $("blind-mode").checked;
   localVideoBuf = null; videoBlobUrl = null;
   resetRoles();
-  showScene(scene.videoUrl);
+  showScene(sceneVideoSrc());
   broadcast({ t: "scene", scene });
   broadcastSettings();
   broadcastState();
@@ -3519,7 +3537,7 @@ async function pickRandomScene() {
   scene.blind = $("blind-mode") ? $("blind-mode").checked : false;
   localVideoBuf = null; videoBlobUrl = null;
   rouletteRoles();
-  showScene(scene.videoUrl);
+  showScene(sceneVideoSrc());
   broadcast({ t: "scene", scene });
   broadcastSettings();
   broadcastState();
@@ -3657,7 +3675,7 @@ function startBooth() {
   $("booth-avatar").style.display = av ? "" : "none";
   if (av) $("booth-avatar").src = av;
   const bv = $("booth-video");
-  bv.src = videoBlobUrl || scene.videoUrl;
+  bv.src = sceneVideoSrc();
   $("btn-line-rec").disabled = true;
   status("booth-status", "⏳ Video lädt — einen Moment …");
   setBar("booth-bar", 30);
@@ -4241,7 +4259,7 @@ async function startRealtime() {
   const role = roleOf(rid) || { name: "—" };
   $("rec-role").textContent = "🎭 Du bist: " + role.name;
   const v = $("rec-video");
-  v.src = videoBlobUrl || scene.videoUrl;
+  v.src = sceneVideoSrc();
   attachPrompter(v, $("rec-prompter"), myRole());
   show("scr-record");
   await countdown();
@@ -5038,7 +5056,7 @@ async function playOuttakesReel() {
   if (!ov || !v) return;
   outtakeAbort = false;
   ov.classList.add("show");
-  v.src = videoBlobUrl || (scene && scene.videoUrl) || "";
+  v.src = sceneVideoSrc() || "";
   try { await waitCanPlay(v, 8000); } catch {}
   const ctx = getCtx();
   for (let i = 0; i < outtakes.length; i++) {
@@ -5190,7 +5208,7 @@ function redoLine(lineIdx, fromScreen) {
   redoReturnScreen = fromScreen;
   curLine = idxInMyLines;
   const bv = $("booth-video");
-  bv.src = videoBlobUrl || scene.videoUrl;
+  bv.src = sceneVideoSrc();
   const rid = myRole();
   const av = scene.avatars?.[String(rid)];
   $("booth-avatar").style.display = av ? "" : "none";
@@ -5318,7 +5336,7 @@ async function loadDuelSequence(dataA, dataB, info) {
   const itemsB = await decodeDuelData(dataB);
 
   const pv = $("play-video");
-  pv.src = videoBlobUrl || scene.videoUrl;
+  pv.src = sceneVideoSrc();
   attachPrompter(pv, $("play-prompter"), null);
   await waitCanPlay(pv, 25000);
 
@@ -5521,7 +5539,7 @@ async function loadMix(data) {
   }
   // Video KOMPLETT vorladen, damit die Premiere bei allen gleichzeitig & ruckelfrei startet
   const pv = $("play-video");
-  pv.src = videoBlobUrl || scene.videoUrl;
+  pv.src = sceneVideoSrc();
   attachPrompter(pv, $("play-prompter"), null);
   status("play-status", "⏳ Video wird vorgeladen …");
   await waitCanPlay(pv, 25000);
@@ -5652,7 +5670,7 @@ async function exportAudioFast() {
 
     // Video-eigene Tonspur (Musik/SFX) mit reinrechnen
     try {
-      const videoBuf = await (await fetch(videoBlobUrl || scene.videoUrl)).arrayBuffer();
+      const videoBuf = await (await fetch(sceneVideoSrc())).arrayBuffer();
       const videoAudio = await offlineCtx.decodeAudioData(videoBuf.slice(0));
       const vSrc = offlineCtx.createBufferSource();
       vSrc.buffer = videoAudio;
