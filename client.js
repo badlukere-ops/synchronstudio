@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.5";
+const APP_VERSION = "9.10.6";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -252,6 +252,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.6", items: [
+    "📦 Live-Deploy gefixt (Higuruma Retrial jetzt online), große Videos etwas verkleinert"
+  ]},
   { v: "9.10.5", items: [
     "⚖️ Neue Szene: Jujutsu Kaisen — Higuruma Retrial (3 Rollen)"
   ]},
