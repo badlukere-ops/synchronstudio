@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.9";
+const APP_VERSION = "9.10.10";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -267,6 +267,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.10", items: [
+    "⚔️ Hashiras Meet Muzan: Shock-Zeile korrigiert (jetzt Shinobu)"
+  ]},
   { v: "9.10.9", items: [
     "⚔️ Neue Szene: Demon Slayer — Hashiras Meet Muzan (9 Rollen)"
   ]},
