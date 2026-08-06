@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.8";
+const APP_VERSION = "9.10.9";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -267,6 +267,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.9", items: [
+    "⚔️ Neue Szene: Demon Slayer — Hashiras Meet Muzan (9 Rollen)"
+  ]},
   { v: "9.10.8", items: [
     "📦 Live-Deploy neu: Videos kommen vom CDN — Higuruma Retrial & alle neuen Szenen wieder online"
   ]},
@@ -725,6 +728,15 @@ const AVATAR_CHARS = [
   { img: "scenes/higurumaretrial/judge.png", label: "Random Judge" },
   { img: "scenes/higurumaretrial/higuruma.png", label: "Higuruma (Retrial)" },
   { img: "scenes/higurumaretrial/shimizu.png", label: "Shimizu" },
+  { img: "scenes/hashirasmeetmuzan/sanemi.png", label: "Sanemi" },
+  { img: "scenes/hashirasmeetmuzan/shinobu.png", label: "Shinobu" },
+  { img: "scenes/hashirasmeetmuzan/muichiro.png", label: "Muichiro" },
+  { img: "scenes/hashirasmeetmuzan/mitsuri.png", label: "Mitsuri" },
+  { img: "scenes/hashirasmeetmuzan/obanai.png", label: "Obanai" },
+  { img: "scenes/hashirasmeetmuzan/giyu.png", label: "Giyu" },
+  { img: "scenes/hashirasmeetmuzan/gyomei.png", label: "Gyomei" },
+  { img: "scenes/hashirasmeetmuzan/tanjiro.png", label: "Tanjiro (Hashira)" },
+  { img: "scenes/hashirasmeetmuzan/muzan.png", label: "Muzan" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
