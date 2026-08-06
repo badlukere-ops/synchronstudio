@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.3";
+const APP_VERSION = "9.10.4";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -252,6 +252,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.4", items: [
+    "🦸 Neue Szene: SpongeBob — International Justice League (5 Rollen)",
+    "⬜ Weiße Balken laufen jetzt richtig bis zur Mitte zusammen"
+  ]},
   { v: "9.10.3", items: [
     "⬜ Weiße Balken nur noch in der Aufnahme-Booth — Premiere wieder mit Zahlen-Countdown",
     "🎬 Outtakes als eigener großer Knopf bei der Premiere (sichtbar sobald du Takes neu aufgenommen hast)"
@@ -685,6 +689,12 @@ const AVATAR_CHARS = [
   { img: "scenes/crying/meimei.png", label: "Mei Mei" },
   { img: "scenes/crying/geto.png", label: "Geto" },
   { img: "scenes/crying/shoko.png", label: "Shoko" },
+  { img: "scenes/ijlsa/narrator.png", label: "Erzähler (IJL)" },
+  { img: "scenes/ijlsa/quickster.png", label: "Quickster" },
+  { img: "scenes/ijlsa/captain_magma.png", label: "Captain Magma" },
+  { img: "scenes/ijlsa/elastic_waistband.png", label: "Elastic Waistband" },
+  { img: "scenes/ijlsa/miss_appear.png", label: "Miss Appear" },
+  { img: "scenes/bubblemsg/patrick.png", label: "Patrick (Blasen)" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
