@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.8";
+const APP_VERSION = "9.9";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -252,6 +252,13 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.9", items: [
+    "🤝 SynchroBuddy: bei der Bewertung kannst du EINEM Sprecher einen Sticker geben, wenn die Szene richtig gesessen hat — bringt Extra-Punkte",
+    "🎭 Premiere mit richtigem Kinosaal: Vorhang auf/zu, dunkler Saal",
+    "👏 Applaus auf dem Podium je nach Abstand Platz 1 ↔ 2 (knapper Sieg = anders als klare Dominanz)",
+    "⬜ Weiße Balken-Countdown (wie bei Synchronstudios) — an/aus neben dem 3-Sek.-Timer",
+    "🎬 Outtakes-Reel: verworfene Takes landen in einer kleinen Blooper-Show nach der Premiere"
+  ]},
   { v: "9.8", items: [
     "🏆 Podium-Finale richtig aufgepeppt: dunkle Bühne, Riser-Spannung, Gold/Silber/Bronze-Säulen, Scheinwerfer, Champion-Banner, Mega-Konfetti",
     "🎤 Neue Sounds: Riser (Spannungsaufbau), Gewinner-Fanfare, Publikum-Applaus — plus Klick, Zurück und „jemand hat den Raum verlassen“",
@@ -2151,7 +2158,7 @@ function leaveRoom() {
   peer = null; hostConn = null; conns.clear();
   isHost = false; players = []; scene = null;
   localVideoBuf = null; videoBlobUrl = null;
-  takes = {}; myLines = []; curLine = 0; mixItems = []; collected.clear();
+  takes = {}; myLines = []; curLine = 0; outtakes = []; mixItems = []; collected.clear();
   ttt = { p: [], board: Array(9).fill(null), turn: 0, winner: null };
   match = { rounds: 1, round: 1, totals: {}, autoRoulette: false };
   Object.keys(mgWins).forEach(k => delete mgWins[k]);
@@ -2394,7 +2401,7 @@ function handleMsg(msg, conn) {
     case "ttt": tttHandle(msg.a, conn.peer); break;
     case "rps": rpsHandle(msg.a, conn.peer); break;
     case "dice": diceHandle(msg.a, conn.peer); break;
-    case "rate": collectRating(conn.peer, msg.scores); break;
+    case "rate": collectRating(conn.peer, msg.scores, msg.buddy); break;
     case "mg":
       if (msg.k === "rxStart") { const d = 1500 + Math.random() * 3500; broadcast({ t: "rxGo", delay: d }); rxRun(d); }
       if (msg.k === "tpStart") { const ph = TP_PHRASES[Math.floor(Math.random() * TP_PHRASES.length)]; broadcast({ t: "tpGo", phrase: ph }); tpRun(ph); }
@@ -3524,6 +3531,8 @@ function startSession() {
 // 6) LINE-BOOTH — Zeile für Zeile, unendlich Versuche
 // ═════════════════════════════════════════════════════════════
 let myLines = [], curLine = 0, takes = {};   // takes: lineIdx → ArrayBuffer
+let outtakes = [];   // verworfene Takes fürs Outtakes-Reel [{lineIdx,text,t,end,buf,name}]
+const OUTTAKE_MAX = 8;
 let lineRec = null, lineChunks = [], recTimer = null, recStartT = 0, recMax = 0;
 
 
@@ -3598,7 +3607,7 @@ function startBooth() {
     return;
   }
   myLines = scene.lines.map((l, i) => ({ ...l, idx: i })).filter(l => l.chars.includes(rid));
-  curLine = 0; takes = {}; myEffectOverrides = {}; myEffectAmounts = {}; myLineGains = {};
+  curLine = 0; takes = {}; outtakes = []; myEffectOverrides = {}; myEffectAmounts = {}; myLineGains = {};
   const r = roleOf(rid);
   $("booth-rolename").textContent = r.name;
   const av = scene.avatars?.[String(rid)];
@@ -3794,7 +3803,10 @@ $("btn-line-rec").onclick = async () => {
   ["btn-line-scene","btn-line-play","btn-line-next","btn-line-skip","btn-line-orig"].forEach(id => { const el = $(id); if (el) el.disabled = true; });
   status("booth-status", "🎯 Bereite Aufnahme vor …");
   try {
-    if ($("rec-timer").checked) await recCountdown();
+    if ($("rec-timer").checked) {
+      if ($("rec-wipe") && $("rec-wipe").checked) await wipeCountdown();
+      else await recCountdown();
+    }
     const l = myLines[curLine];
     // Adaptiver Puffer: nicht in die nächste Line reinlaufen
     recMax = recWindowFor(l);
@@ -3868,6 +3880,71 @@ function recCountdown() {
   });
 }
 
+// Weiße Balken von links & rechts zur Mitte (Synchronstudios-Style)
+function wipeCountdown() {
+  return new Promise(res => {
+    const el = $("wipe-countdown");
+    const num = el && el.querySelector(".wipe-num");
+    if (!el) { recCountdown().then(res); return; }
+    el.classList.remove("run", "flash");
+    el.classList.add("show");
+    void el.offsetWidth;
+    el.classList.add("run");
+    let n = 3;
+    if (num) num.textContent = n;
+    SFX.beep();
+    const iv = setInterval(() => {
+      n--;
+      if (n <= 0) {
+        clearInterval(iv);
+        el.classList.add("flash");
+        SFX.go();
+        setTimeout(() => {
+          el.classList.remove("show", "run", "flash");
+          if (num) num.textContent = "3";
+          res();
+        }, 140);
+      } else {
+        if (num) num.textContent = n;
+        SFX.beep();
+      }
+    }, 950);
+  });
+}
+
+function preferWipe() {
+  return !!( $("rec-wipe") && $("rec-wipe").checked );
+}
+
+// Theater-Vorhang für die Premiere
+function curtainsShow(closed) {
+  const el = $("cinema-curtains");
+  if (!el) return;
+  el.classList.add("show");
+  el.classList.toggle("open", !closed);
+}
+function curtainsOpen() {
+  return new Promise(res => {
+    const el = $("cinema-curtains");
+    if (!el) { res(); return; }
+    curtainsShow(true);
+    void el.offsetWidth;
+    requestAnimationFrame(() => {
+      el.classList.add("open");
+      setTimeout(res, 1400);
+    });
+  });
+}
+function curtainsClose() {
+  return new Promise(res => {
+    const el = $("cinema-curtains");
+    if (!el) { res(); return; }
+    el.classList.add("show");
+    el.classList.remove("open");
+    setTimeout(() => { el.classList.remove("show"); res(); }, 1200);
+  });
+}
+
 function stopLineRec() {
   recBusy = false;
   recording = false;
@@ -3883,6 +3960,21 @@ async function onLineRecorded() {
   recBusy = false;
   ["btn-line-scene","btn-line-skip","btn-line-orig"].forEach(id => { const el = $(id); if (el) el.disabled = false; });
   const l = myLines[curLine];
+  const prev = takes[l.idx];
+  // Alten Take als Outtake behalten (Blooper-Reel nach der Premiere)
+  if (prev && prev !== "SKIP" && prev.byteLength) {
+    try {
+      outtakes.push({
+        lineIdx: l.idx,
+        text: l.de || l.text || ("Line " + (l.idx + 1)),
+        t: l.t,
+        end: l.end,
+        buf: prev.slice(0),
+        name: myName
+      });
+      if (outtakes.length > OUTTAKE_MAX) outtakes.shift();
+    } catch {}
+  }
   takes[l.idx] = await new Blob(lineChunks, { type: lineChunks[0]?.type }).arrayBuffer();
   $("btn-line-play").disabled = false;
   $("btn-line-next").disabled = false;
@@ -4128,6 +4220,7 @@ async function startRealtime() {
 }
 
 function countdown() {
+  if (preferWipe()) return wipeCountdown();
   return new Promise(res => {
     const el = $("countdown"), num = el.querySelector("div");
     el.classList.add("show");
@@ -4477,26 +4570,34 @@ function initDrawCanvas(canvasId, colorsId, sizeId, clearId, eraserId) {
 }
 
 // ═════════════════════════════════════════════════════════════
-// BEWERTUNGS-SHOW: Nach der Premiere Sterne verteilen
+// BEWERTUNGS-SHOW: Nach der Premiere Sterne + optional SynchroBuddy
 // ═════════════════════════════════════════════════════════════
-let pendingRate = false, myStars = {}, rateSent = false;
-const allRatings = new Map();   // Host: voterId → {targetId: stars}
+let pendingRate = false, myStars = {}, myBuddy = null, rateSent = false;
+const allRatings = new Map();   // Host: voterId → { scores, buddy }
+const BUDDY_BONUS = 1.0;        // Extra-Punkte pro erhaltenem SynchroBuddy
 
 function showRateCard() {
-  document.body.classList.remove("cinema");   // Licht wieder an
+  curtainsClose().then(() => {
+    document.body.classList.remove("cinema");
+    const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
+  });
   const speakers = players.filter(p => p.role != null && p.id !== myId);
   const anySpeakers = players.filter(p => p.role != null).length >= 2;
-  if (!anySpeakers) return;                      // Solo: keine Show
-  myStars = {}; rateSent = false; ratingDone = false; allRatings.clear();
+  if (!anySpeakers) return;
+  myStars = {}; myBuddy = null; rateSent = false; ratingDone = false; allRatings.clear();
   const rp = $("rate-progress"); if (rp) rp.textContent = "";
   $("rate-card").style.display = "";
   $("rate-result").innerHTML = "";
-  $("btn-rate-submit").style.display = ""; 
+  $("btn-rate-submit").style.display = "";
   $("btn-rate-force").style.display = "none";
-  if (!speakers.length) {                        // Ich bin einziger Sprecher → nur zuschauen
+  const otBtn = $("btn-outtakes");
+  if (otBtn) otBtn.style.display = outtakes.length ? "" : "none";
+  const hint = $("buddy-hint");
+  if (hint) hint.style.display = speakers.length ? "" : "none";
+  if (!speakers.length) {
     $("rate-rows").innerHTML = '<p class="sub">Du warst der einzige Sprecher — die anderen bewerten dich gerade… 👀</p>';
     $("btn-rate-submit").style.display = "none";
-    sendRating({});
+    sendRating({}, null);
     return;
   }
   $("rate-rows").innerHTML = speakers.map(p => `
@@ -4507,6 +4608,7 @@ function showRateCard() {
         <span class="tag">🎭 ${esc(scene.roles.find(r => r.id === p.role)?.name || "")}</span>
       </div>
       <div class="starrow">${[1,2,3,4,5].map(n => `<button class="starbtn" data-n="${n}">★</button>`).join("")}</div>
+      <button type="button" class="buddy-btn" data-buddy="${p.id}" title="SynchroBuddy geben">🤝</button>
     </div>`).join("");
   $("rate-rows").querySelectorAll(".raterow").forEach(row => {
     row.querySelectorAll(".starbtn").forEach(b => b.onclick = () => {
@@ -4521,6 +4623,13 @@ function showRateCard() {
       $("btn-rate-submit").disabled = Object.keys(myStars).length < speakers.length;
       SFX.click();
     });
+    const bb = row.querySelector(".buddy-btn");
+    if (bb) bb.onclick = () => {
+      const id = bb.dataset.buddy;
+      myBuddy = (myBuddy === id) ? null : id;
+      $("rate-rows").querySelectorAll(".buddy-btn").forEach(x => x.classList.toggle("on", x.dataset.buddy === myBuddy));
+      SFX.click();
+    };
   });
   $("btn-rate-submit").disabled = true;
 }
@@ -4530,29 +4639,28 @@ $("btn-rate-submit").onclick = () => {
   rateSent = true;
   $("btn-rate-submit").disabled = true;
   $("btn-rate-submit").textContent = "✅ Abgeschickt — warte auf die anderen …";
-  sendRating(myStars);
+  sendRating(myStars, myBuddy);
 };
 let rateForceTimer = null;
-function sendRating(scores) {
+function sendRating(scores, buddy) {
   if (isHost) {
-    collectRating(myId, scores);
+    collectRating(myId, scores, buddy);
     clearTimeout(rateForceTimer);
     rateForceTimer = setTimeout(() => {
       if (allRatings.size < players.length) $("btn-rate-force").style.display = "";
-    }, 25000);   // Notfall-Button erst nach 25s, falls jemand hängt
-  } else hostConn.send({ t: "rate", scores });
+    }, 25000);
+  } else hostConn.send({ t: "rate", scores, buddy: buddy || null });
 }
-function collectRating(voterId, scores) {
-  allRatings.set(voterId, scores);
+function collectRating(voterId, scores, buddy) {
+  allRatings.set(voterId, { scores: scores || {}, buddy: buddy || null });
   updateRateProgress();
-  if (allRatings.size >= players.length) finishRating();   // wirklich ALLE
+  if (allRatings.size >= players.length) finishRating();
 }
 function updateRateProgress() {
   if (!isHost) return;
   const have = allRatings.size, total = players.length;
   const el = $("rate-progress");
   if (el) el.textContent = "🗳 " + have + "/" + total + " haben abgestimmt" + (have < total ? " …" : " — alle fertig!");
-  // Force-Button erst NACH langem Warten anbieten, nicht sofort
   const btn = $("btn-rate-force");
   if (have >= total) btn.style.display = "none";
 }
@@ -4562,18 +4670,33 @@ function finishRating() {
   if (!isHost || ratingDone) return;
   ratingDone = true;
   clearTimeout(rateForceTimer);
-  const sums = {}, counts = {};
-  allRatings.forEach(scores => {
-    for (const [pid, n] of Object.entries(scores)) { sums[pid] = (sums[pid] || 0) + n; counts[pid] = (counts[pid] || 0) + 1; }
+  const sums = {}, counts = {}, buddyCounts = {};
+  allRatings.forEach(entry => {
+    const scores = entry.scores || entry; // Rückwärtskompat falls altes Format
+    const buddy = entry.buddy || null;
+    for (const [pid, n] of Object.entries(scores)) {
+      if (typeof n !== "number") continue;
+      sums[pid] = (sums[pid] || 0) + n;
+      counts[pid] = (counts[pid] || 0) + 1;
+    }
+    if (buddy) buddyCounts[buddy] = (buddyCounts[buddy] || 0) + 1;
   });
-  const results = Object.keys(sums).map(pid => ({ id: pid, name: nameOf(pid), avg: sums[pid] / counts[pid], votes: counts[pid] }))
-    .sort((a, b) => b.avg - a.avg);
-  // Sterne in die Match-Gesamtwertung übernehmen
+  const results = Object.keys(sums).map(pid => {
+    const avgStars = sums[pid] / counts[pid];
+    const buddies = buddyCounts[pid] || 0;
+    return {
+      id: pid,
+      name: nameOf(pid),
+      avg: avgStars + buddies * BUDDY_BONUS,
+      avgStars,
+      buddies,
+      votes: counts[pid]
+    };
+  }).sort((a, b) => b.avg - a.avg);
   results.forEach(r => { match.totals[r.id] = (match.totals[r.id] || 0) + r.avg; });
 
   let eliminatedName = null;
   if (match.mode === "elimination" && results.length > 1) {
-    // Schlechtester Sprecher DIESER Runde fliegt für immer raus (bei Gleichstand: zufällig unter den Schlechtesten)
     const worstScore = results[results.length - 1].avg;
     const worstCandidates = results.filter(r => Math.abs(r.avg - worstScore) < 0.0001);
     const out = worstCandidates[Math.floor(Math.random() * worstCandidates.length)];
@@ -4585,7 +4708,6 @@ function finishRating() {
   showRateResult(results, eliminatedName);
   allRatings.clear();
 
-  // Host-Steuerung: weiter oder Finale
   const activeLeft = players.filter(p => !p.eliminated).length;
   const btn = $("btn-next-round");
   btn.style.display = "";
@@ -4732,14 +4854,21 @@ function showFinal(list, rounds, championName) {
       el.classList.add("show", "pop");
       if (step.winner) {
         SFX.winner();
-        const applause = SFX.applause(0.52);
-        setTimeout(() => SFX.fadeStop(applause, 1600), 12000);   // Applaus nicht endlos
+        // Applaus-Stärke nach Abstand Platz 1 ↔ 2
+        const gap = top3[1] ? Math.max(0, (top3[0].sum || 0) - (top3[1].sum || 0)) : 99;
+        let vol = 0.42, holdMs = 9000, label = "knapp";
+        if (!top3[1] || gap >= 2.5) { vol = 0.78; holdMs = 16000; label = "dominant"; }
+        else if (gap >= 1.0) { vol = 0.6; holdMs = 12500; label = "klar"; }
+        else if (gap >= 0.4) { vol = 0.5; holdMs = 10500; label = "solide"; }
+        const applause = SFX.applause(vol);
+        setTimeout(() => SFX.fadeStop(applause, 1800), holdMs);
         burstConfetti(true);
         setTimeout(() => burstConfetti(true), 700);
-        setTimeout(() => burstConfetti(true), 1400);
+        setTimeout(() => burstConfetti(gap >= 1 ? true : false), 1400);
         if (stage) stage.classList.add("alive");
         if (champEl && top3[0]) {
-          champEl.textContent = "👑 " + top3[0].name.toUpperCase() + " — CHAMPION";
+          const gapTxt = top3[1] ? (label === "dominant" ? " · klare Sache!" : label === "knapp" ? " · knapper Sieg!" : "") : "";
+          champEl.textContent = "👑 " + top3[0].name.toUpperCase() + " — CHAMPION" + gapTxt;
           champEl.classList.add("show");
         }
       } else {
@@ -4780,12 +4909,13 @@ function backToLobby(keepMatch) {
   document.body.classList.remove("cinema");
   if (!keepMatch) { match.round = 1; match.totals = {}; }
   players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; });
-  mixItems = []; collected.clear(); takes = {};
+  mixItems = []; collected.clear(); takes = {}; outtakes = [];
   finalTracksData = null; premiereLocked = false; redoMode = null;
-  pendingRate = false; rateSent = false; ratingDone = false; allRatings.clear(); myStars = {};
+  pendingRate = false; rateSent = false; ratingDone = false; allRatings.clear(); myStars = {}; myBuddy = null;
   $("rate-card").style.display = "none"; $("rate-rows").innerHTML = ""; $("rate-result").innerHTML = "";
   $("btn-next-round").style.display = "none"; $("btn-rate-submit").disabled = true;
   $("btn-rate-submit").textContent = "Bewertung abschicken";
+  const otBtn = $("btn-outtakes"); if (otBtn) otBtn.style.display = "none";
   show("scr-lobby");
   $("leave-btn").style.display = "";
   if (isHost) { broadcastState(); }
@@ -4797,23 +4927,97 @@ function showRateResult(results, eliminatedName) {
   $("btn-rate-submit").style.display = "none";
   $("btn-rate-force").style.display = "none";
   $("rate-rows").innerHTML = "";
+  const hint = $("buddy-hint"); if (hint) hint.style.display = "none";
   const rows = $("rate-result");
   rows.innerHTML = results.map((r, i) => {
     const p = players.find(pl => pl.id === r.id);
+    const buddyBit = r.buddies
+      ? `<span class="buddy-badge">🤝 ×${r.buddies} SynchroBuddy${r.buddies > 1 ? "s" : ""} (+${(r.buddies * BUDDY_BONUS).toFixed(0)})</span>`
+      : "";
+    const scoreLabel = r.avgStars != null
+      ? `${r.avg.toFixed(1)} ★` + (r.buddies ? ` <span class="tag" style="color:var(--muted)">(${r.avgStars.toFixed(1)}+Buddy)</span>` : "")
+      : `${r.avg.toFixed(1)} ★`;
     return `<div class="raterow resultrow ${i === 0 ? "winner" : ""}" style="opacity:0;transform:translateX(-14px)">
       ${p ? avatarHTML(p) : ""}
       <div class="rateinfo">
         <span class="ratename">${i === 0 ? "🏆 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "• "}${esc(r.name)}</span>
         ${i === 0 ? '<span class="tag" style="color:var(--amber)">Bester Synchronsprecher!</span>' : `<span class="tag">${r.votes} Stimmen</span>`}
+        ${buddyBit}
       </div>
-      <span class="resultscore">${r.avg.toFixed(1)} ★</span>
+      <span class="resultscore">${scoreLabel}</span>
     </div>`;
   }).join("") + (eliminatedName ? `<div class="raterow" style="border-color:var(--hot);opacity:0">🔪 <b>${esc(eliminatedName)}</b> ist raus aus dem Battle Royale!</div>` : "");
   [...rows.children].forEach((row, i) => {
     setTimeout(() => { row.style.transition = "opacity .4s, transform .4s"; row.style.opacity = "1"; row.style.transform = "translateX(0)"; }, i * 150);
   });
   SFX.done();
+  const otBtn = $("btn-outtakes");
+  if (otBtn) otBtn.style.display = outtakes.length ? "" : "none";
 }
+
+// ── Outtakes-Reel: verworfene Takes nacheinander mit Video abspielen ──
+let outtakeAbort = false;
+async function playOuttakesReel() {
+  if (!outtakes.length) return;
+  const ov = $("outtakes-overlay");
+  const v = $("outtakes-video");
+  const lab = $("outtakes-label");
+  const lineEl = $("outtakes-line");
+  if (!ov || !v) return;
+  outtakeAbort = false;
+  ov.classList.add("show");
+  v.src = videoBlobUrl || (scene && scene.videoUrl) || "";
+  try { await waitCanPlay(v, 8000); } catch {}
+  const ctx = getCtx();
+  for (let i = 0; i < outtakes.length; i++) {
+    if (outtakeAbort) break;
+    const ot = outtakes[i];
+    if (lab) lab.textContent = "OUTTAKE " + (i + 1) + "/" + outtakes.length;
+    if (lineEl) lineEl.textContent = "„" + ot.text + "“";
+    try {
+      v.currentTime = Math.max(0, ot.t - 0.15);
+      await new Promise(r => { const h = () => { v.removeEventListener("seeked", h); r(); }; v.addEventListener("seeked", h); setTimeout(r, 600); });
+      const buf = await ctx.decodeAudioData(await toArrayBuffer(ot.buf.slice(0)));
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const g = ctx.createGain(); g.gain.value = 1.1;
+      src.connect(g); g.connect(ctx.destination);
+      v.volume = 0.35;
+      await v.play().catch(() => {});
+      src.start();
+      const dur = Math.min(buf.duration, Math.max(0.8, (ot.end - ot.t) + 0.4));
+      await new Promise(r => {
+        const t = setTimeout(r, dur * 1000);
+        const skip = () => { clearTimeout(t); try { src.stop(); } catch {} r(); };
+        const btn = $("btn-outtakes-skip");
+        if (btn) btn.onclick = skip;
+        src.onended = () => { clearTimeout(t); r(); };
+      });
+      v.pause();
+      try { src.stop(); } catch {}
+    } catch (e) { console.warn("Outtake skip:", e); }
+  }
+  ov.classList.remove("show");
+  v.pause();
+  SFX.ok();
+}
+$("btn-outtakes") && ($("btn-outtakes").onclick = () => { playOuttakesReel(); SFX.click(); });
+$("btn-outtakes-close") && ($("btn-outtakes-close").onclick = () => {
+  outtakeAbort = true;
+  $("outtakes-overlay").classList.remove("show");
+  const v = $("outtakes-video"); if (v) v.pause();
+});
+
+// Timer / Wipe-Einstellungen merken
+(() => {
+  const t = $("rec-timer"), w = $("rec-wipe");
+  try {
+    if (t && localStorage.getItem("ss_rec_timer") != null) t.checked = localStorage.getItem("ss_rec_timer") === "1";
+    if (w && localStorage.getItem("ss_rec_wipe") === "1") w.checked = true;
+  } catch {}
+  if (t) t.onchange = () => { try { localStorage.setItem("ss_rec_timer", t.checked ? "1" : "0"); } catch {} };
+  if (w) w.onchange = () => { try { localStorage.setItem("ss_rec_wipe", w.checked ? "1" : "0"); } catch {} };
+})();
 
 
 // ═════════════════════════════════════════════════════════════
@@ -5284,8 +5488,12 @@ function premStart() {
   $("btn-download").disabled = false;
   $("btn-prem-start") && ($("btn-prem-start").style.display = "none");
   status("play-status", "🍿 Premiere!");
-  document.body.classList.add("cinema");   // Saal fährt runter
-  countdown().then(() => playMix(false));
+  document.body.classList.add("cinema");
+  (async () => {
+    await curtainsOpen();
+    await countdown();
+    playMix(false);
+  })();
 }
 
 $("btn-prem-start").onclick = () => {
@@ -5849,15 +6057,18 @@ $("btn-back").onclick = () => {
 };
 function resetForNewRound() {
   players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; });
-  mixItems = []; collected.clear(); takes = {};
+  mixItems = []; collected.clear(); takes = {}; outtakes = [];
   invalidatePremCache();
   finalTracksData = null; premiereLocked = false; redoMode = null;
-  pendingRate = false; rateSent = false; allRatings.clear(); myStars = {};
+  pendingRate = false; rateSent = false; allRatings.clear(); myStars = {}; myBuddy = null;
+  document.body.classList.remove("cinema");
+  const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
   $("rate-card").style.display = "none";
   $("rate-rows").innerHTML = ""; $("rate-result").innerHTML = "";
   $("btn-rate-submit").textContent = "Bewertung abschicken";
   $("btn-rate-submit").disabled = true;
   $("btn-next-round").style.display = "none";
+  const otBtn = $("btn-outtakes"); if (otBtn) otBtn.style.display = "none";
   if (isHost) { ttt = { p: [], board: Array(9).fill(null), turn: 0, winner: null }; broadcast({ t: "tttState", ttt }); renderTTT(); }
   show("scr-lobby");
   if (isHost) broadcastState(); else { renderPlayers(); renderRoles(); }

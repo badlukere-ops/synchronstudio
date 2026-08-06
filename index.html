@@ -129,27 +129,133 @@
 
   /* 🎥 Kinosaal: bei der Premiere fährt der Saal runter, nur die Leinwand bleibt hell */
   body.cinema{background:#000}
-  body.cinema::after{opacity:.18!important;animation:none}
-  body.cinema .vignette{background:radial-gradient(ellipse 105% 78% at 50% 44%,transparent 30%,rgba(0,0,0,.92) 100%)}
-  body.cinema .grain{opacity:.07}
+  body.cinema::after{opacity:.08!important;animation:none}
+  body.cinema .vignette{background:radial-gradient(ellipse 100% 72% at 50% 42%,transparent 22%,rgba(0,0,0,.96) 100%)}
+  body.cinema .grain{opacity:.05}
   body.cinema header,
   body.cinema .side-panel,
   body.cinema #patchnotes-btn,
   body.cinema #leave-btn,
-  body.cinema .floaties{opacity:.08;pointer-events:none}
-  body.cinema #scr-playback > .card{
-    border-color:#4a4030;
-    box-shadow:0 0 0 1px rgba(240,168,48,.12), 0 0 90px rgba(0,0,0,.95), 0 0 160px rgba(240,168,48,.09);
+  body.cinema .floaties{opacity:0;pointer-events:none}
+  body.cinema #scr-playback > .card:not(#rate-card){
+    border-color:#3a3220;
+    background:#0a0a0c;
+    box-shadow:0 0 0 1px rgba(240,168,48,.1), 0 0 120px rgba(0,0,0,.98), 0 0 200px rgba(240,168,48,.08);
   }
+  body.cinema #scr-playback #rate-card{opacity:1;pointer-events:auto}
   body.cinema #scr-playback video{
-    box-shadow:0 0 60px rgba(0,0,0,.9), 0 0 24px rgba(240,168,48,.14);
+    box-shadow:0 0 80px rgba(0,0,0,.95), 0 0 40px rgba(240,168,48,.18);
+    border-radius:4px;
   }
+  body.cinema #scr-playback .row,
+  body.cinema #scr-playback .synccontrol,
+  body.cinema #scr-playback .prompter,
+  body.cinema #scr-playback #prem-emoji-bar,
+  body.cinema #scr-playback #redo-panel-prem,
+  body.cinema #scr-playback #dl-progress,
+  body.cinema #scr-playback #dl-progress-label,
+  body.cinema #scr-playback #prem-bar,
+  body.cinema #scr-playback #prem-status,
+  body.cinema #scr-playback #play-status,
+  body.cinema #scr-playback h2,
+  body.cinema #scr-playback > .card > .sub{opacity:.12;pointer-events:none}
+  body.cinema #scr-playback video,
+  body.cinema #btn-prem-start{opacity:1;pointer-events:auto}
   header,.side-panel,#patchnotes-btn,#leave-btn,.floaties,#scr-playback > .card,#scr-playback video{
     transition:opacity 1.1s ease, box-shadow 1.1s ease, border-color 1.1s ease;
   }
   @media (prefers-reduced-motion:reduce){
     header,.side-panel,#patchnotes-btn,#leave-btn,.floaties,#scr-playback > .card,#scr-playback video{transition:none}
   }
+
+  /* Theater-Vorhang */
+  .cinema-curtains{
+    position:fixed;inset:0;z-index:48;pointer-events:none;display:none;
+  }
+  .cinema-curtains.show{display:block}
+  .curtain{
+    position:absolute;top:0;bottom:0;width:52%;
+    background:
+      repeating-linear-gradient(90deg,transparent 0 14px,rgba(0,0,0,.18) 14px 15px),
+      linear-gradient(180deg,#6a1020 0%,#4a0c16 40%,#2e0810 100%);
+    box-shadow:inset 0 0 40px rgba(0,0,0,.55), 0 0 30px rgba(0,0,0,.6);
+    transition:transform 1.35s cubic-bezier(.55,.05,.35,1);
+  }
+  .curtain::after{
+    content:"";position:absolute;top:0;bottom:0;width:18px;
+    background:linear-gradient(90deg,rgba(255,200,120,.15),transparent);
+  }
+  .curtain-l{left:0;transform:translateX(0);border-right:2px solid #3a0a12}
+  .curtain-l::after{right:0}
+  .curtain-r{right:0;transform:translateX(0);border-left:2px solid #3a0a12}
+  .curtain-r::after{left:0;transform:scaleX(-1)}
+  .cinema-curtains.open .curtain-l{transform:translateX(-102%)}
+  .cinema-curtains.open .curtain-r{transform:translateX(102%)}
+  .cinema-curtains .curtain-rod{
+    position:absolute;top:0;left:0;right:0;height:14px;z-index:2;
+    background:linear-gradient(180deg,#c9a24a,#7a5a18);box-shadow:0 4px 12px rgba(0,0,0,.5);
+  }
+
+  /* Weiße Balken-Countdown (Synchronstudios-Style) */
+  .wipe-cd{
+    position:fixed;inset:0;z-index:56;display:none;pointer-events:none;
+    background:rgba(0,0,0,.35);
+  }
+  .wipe-cd.show{display:block}
+  .wipe-bar{
+    position:absolute;top:0;bottom:0;width:50%;background:#f5f5f7;
+    box-shadow:0 0 40px rgba(255,255,255,.35);
+  }
+  .wipe-l{left:0;transform:translateX(-101%)}
+  .wipe-r{right:0;transform:translateX(101%)}
+  .wipe-cd.run .wipe-l,
+  .wipe-cd.run .wipe-r{transform:translateX(0);transition:transform 2.85s linear}
+  .wipe-num{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    font-family:var(--font-display);font-size:18vw;color:var(--amber);
+    text-shadow:0 0 40px rgba(240,168,48,.7),0 4px 0 #000;
+    z-index:2;opacity:0;transition:opacity .2s;
+  }
+  .wipe-cd.show .wipe-num{opacity:1}
+  .wipe-cd.flash{background:#fff;transition:background .12s}
+  @media (prefers-reduced-motion:reduce){
+    .wipe-cd.run .wipe-l,.wipe-cd.run .wipe-r{transition:none;transform:translateX(0)}
+    .cinema-curtains .curtain{transition:none}
+  }
+
+  /* SynchroBuddy-Sticker */
+  .buddy-btn{
+    font-size:1.35rem;padding:4px 8px;background:transparent;border:1px dashed #3a3a46;
+    border-radius:8px;cursor:pointer;opacity:.45;transition:opacity .15s, border-color .15s, transform .15s, background .15s;
+  }
+  .buddy-btn:hover{opacity:.85;border-color:var(--amber)}
+  .buddy-btn.on{
+    opacity:1;border-style:solid;border-color:var(--amber);
+    background:rgba(240,168,48,.12);transform:scale(1.08);
+    box-shadow:0 0 14px rgba(240,168,48,.25);
+  }
+  .buddy-hint{font-size:.78rem;color:var(--muted);margin:0 0 10px}
+  .buddy-badge{
+    display:inline-flex;align-items:center;gap:4px;margin-top:2px;
+    font-size:.72rem;color:var(--amber);letter-spacing:.04em;
+  }
+
+  /* Outtakes-Reel Overlay */
+  .outtakes-overlay{
+    display:none;position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.88);
+    align-items:center;justify-content:center;padding:20px;
+  }
+  .outtakes-overlay.show{display:flex}
+  .outtakes-card{
+    max-width:560px;width:100%;background:#14141b;border:1px solid var(--line);
+    border-radius:14px;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+  .outtakes-card video{width:100%;border-radius:10px;background:#000;margin:10px 0}
+  .outtakes-label{
+    font-family:var(--font-display);color:var(--hot);font-size:1.1rem;letter-spacing:.06em;
+    text-align:center;min-height:1.4em;
+  }
+  .outtakes-line{text-align:center;color:var(--text);font-size:.95rem;min-height:2.4em;margin:6px 0 0}
 
   /* 🎵 Beat-Booth: Rhythmus-Minispiel im linken Panel */
   .bg-stage{position:relative;border:1px solid #2a2a33;border-radius:8px;overflow:hidden;
@@ -1050,9 +1156,13 @@
         <span class="tag">🔊 Video</span>
         <input type="range" id="booth-vol" min="0" max="1" step="0.05" value="0.55" style="width:120px;accent-color:var(--amber)">
       </div>
-      <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-bottom:10px;font-size:.9rem;color:var(--muted)">
+      <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-bottom:8px;font-size:.9rem;color:var(--muted)">
         <input type="checkbox" id="rec-timer" checked style="accent-color:var(--amber);width:17px;height:17px">
         ⏱ 3-Sek.-Countdown vor der Aufnahme · Leertaste = Aufnehmen / Stoppen
+      </label>
+      <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-bottom:10px;font-size:.9rem;color:var(--muted)">
+        <input type="checkbox" id="rec-wipe" style="accent-color:var(--amber);width:17px;height:17px">
+        ⬜ Weiße Balken-Countdown (wie Synchronstudios) — statt Zahlen
       </label>
       <label class="tag" style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
         🎚 Dein Effekt für diese Line:
@@ -1272,12 +1382,14 @@
     <div class="card" id="rate-card" style="display:none">
       <h2>⭐ Bewertungs-Show</h2>
       <p class="sub">Gib jedem Sprecher 1–5 Sterne (dich selbst kannst du nicht bewerten).</p>
+      <p class="buddy-hint" id="buddy-hint" style="display:none">🤝 Optional: gib <b>einem</b> Sprecher einen <b>SynchroBuddy</b>-Sticker, wenn die Szene richtig gesessen hat — Extra-Punkte!</p>
       <div id="rate-rows" style="display:grid;gap:10px"></div>
       <p class="status" id="rate-progress" style="margin-top:8px"></p>
       <div class="row" style="margin-top:14px">
         <button class="primary" id="btn-rate-submit" disabled>Bewertung abschicken</button>
         <button class="ghost" id="btn-rate-force" style="display:none">Ergebnis anzeigen (ohne Nachzügler)</button>
         <button class="primary big" id="btn-next-round" style="display:none">▶ Nächste Runde</button>
+        <button class="ghost" id="btn-outtakes" style="display:none">🎬 Outtakes-Reel</button>
       </div>
       <div id="rate-result" style="margin-top:14px;display:grid;gap:6px"></div>
     </div>
@@ -1333,11 +1445,34 @@
 </div>
 
 <div id="podium-blackout" class="podium-blackout"></div>
+<div id="cinema-curtains" class="cinema-curtains" aria-hidden="true">
+  <div class="curtain-rod"></div>
+  <div class="curtain curtain-l"></div>
+  <div class="curtain curtain-r"></div>
+</div>
+<div id="wipe-countdown" class="wipe-cd" aria-hidden="true">
+  <div class="wipe-bar wipe-l"></div>
+  <div class="wipe-bar wipe-r"></div>
+  <div class="wipe-num">3</div>
+</div>
+<div id="outtakes-overlay" class="outtakes-overlay">
+  <div class="outtakes-card">
+    <h2 style="margin:0 0 4px;font-size:1.15rem">🎬 Outtakes-Reel</h2>
+    <p class="sub" style="margin:0 0 8px">Takes, die's nicht in die Premiere geschafft haben.</p>
+    <div class="outtakes-label" id="outtakes-label">OUTTAKE</div>
+    <video id="outtakes-video" playsinline></video>
+    <p class="outtakes-line" id="outtakes-line"></p>
+    <div class="row" style="justify-content:center;gap:10px;margin-top:12px">
+      <button class="ghost" id="btn-outtakes-skip">⏭ Weiter</button>
+      <button class="primary" id="btn-outtakes-close">Fertig</button>
+    </div>
+  </div>
+</div>
 <div id="emoji-layer" style="position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden"></div>
 <div class="countdown" id="countdown"><div>3</div></div>
 <!-- ?v= muss bei jeder Version mitgezählt werden (gleiche Zahl wie APP_VERSION in client.js).
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
-  <script src="client.js?v=9.8"></script>
+  <script src="client.js?v=9.9"></script>
 </body>
 </html>
