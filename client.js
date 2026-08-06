@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.4";
+const APP_VERSION = "9.5";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -225,6 +225,13 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.5", items: [
+    "🫧 Neue Szene: „SpongeBob — Blasen-Nachrichten“ (3 Rollen)",
+    "🌸 Neue Szene: „Rascal Does Not Dream — Fukashigi no Carte“ (6 Rollen, Opening-Song)",
+    "🚗 Neue Szene: „Cars — We got ourselves a Noder“ (5 Rollen)",
+    "💬 Neue Szene: „Jujutsu Kaisen — Was ist dein Typ, Itadori?“ (3 Rollen)",
+    "⚡ Neue Szene: „Demon Slayer — Zenitsu vs. Kaigaku“ (7 Rollen, kompletter Kampf ~19 Min — stark komprimiert, damit es online lädt)"
+  ]},
   { v: "9.4", items: [
     "💥 Neue Szene: „My Hero Academia — All Might vs. Nomu“ (8 Rollen)",
     "🏰 Neue Szene: „Attack on Titan — Ihr Verräter“ (6 Rollen)",
@@ -554,6 +561,24 @@ const AVATAR_CHARS = [
   { img: "scenes/harrycedric/amos.png", label: "Amos Diggory" },
   { img: "scenes/todoflash/todo.png", label: "Todo" },
   { img: "scenes/todoflash/takada.png", label: "Takada" },
+  { img: "scenes/bubblemsg/spongebob.png", label: "SpongeBob (Blasen)" },
+  { img: "scenes/bubblemsg/thaddaeus.png", label: "Thaddäus (Blasen)" },
+  { img: "scenes/fukashigi/mai.png", label: "Mai" },
+  { img: "scenes/fukashigi/koga.png", label: "Koga" },
+  { img: "scenes/fukashigi/futaba.png", label: "Futaba" },
+  { img: "scenes/fukashigi/kaede.png", label: "Kaede" },
+  { img: "scenes/fukashigi/shoko.png", label: "Shoko" },
+  { img: "scenes/fukashigi/nodoka.png", label: "Nodoka" },
+  { img: "scenes/noderrr/wingo.png", label: "Wingo" },
+  { img: "scenes/noderrr/boost.png", label: "Boost" },
+  { img: "scenes/noderrr/dj.png", label: "DJ" },
+  { img: "scenes/noderrr/mack.png", label: "Mack" },
+  { img: "scenes/noderrr/snotrod.png", label: "Snot Rod" },
+  { img: "scenes/zenitsukaigaku/zenitsu.png", label: "Zenitsu" },
+  { img: "scenes/zenitsukaigaku/kaigaku.png", label: "Kaigaku" },
+  { img: "scenes/zenitsukaigaku/kokushibo.png", label: "Kokushibo" },
+  { img: "scenes/zenitsukaigaku/jigoro.png", label: "Jigoro" },
+  { img: "scenes/zenitsukaigaku/yushiro.png", label: "Yushiro" },
   { img: "scenes/tojigojo/gojo.png", label: "Gojo (Toji-Kampf)" },
   { img: "scenes/whodecided/escanor.png", label: "Escanor" },
   { img: "scenes/whodecided/estarossa.png", label: "Estarossa" },
