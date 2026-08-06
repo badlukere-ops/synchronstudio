@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.1";
+const APP_VERSION = "9.10.2";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -252,6 +252,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.2", items: [
+    "🔧 Live-Seite wieder korrekt aktualisiert (Besucherzähler greift jetzt)"
+  ]},
   { v: "9.10.1", items: [
     "📊 GoatCounter: anonyme Besucherzahlen (wer die Seite öffnet) — Stats unter synchronstudio.goatcounter.com"
   ]},
