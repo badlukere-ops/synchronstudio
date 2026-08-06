@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.4";
+const APP_VERSION = "9.10.5";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -252,6 +252,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.5", items: [
+    "⚖️ Neue Szene: Jujutsu Kaisen — Higuruma Retrial (3 Rollen)"
+  ]},
   { v: "9.10.4", items: [
     "🦸 Neue Szene: SpongeBob — International Justice League (5 Rollen)",
     "⬜ Weiße Balken laufen jetzt richtig bis zur Mitte zusammen"
@@ -695,6 +698,9 @@ const AVATAR_CHARS = [
   { img: "scenes/ijlsa/elastic_waistband.png", label: "Elastic Waistband" },
   { img: "scenes/ijlsa/miss_appear.png", label: "Miss Appear" },
   { img: "scenes/bubblemsg/patrick.png", label: "Patrick (Blasen)" },
+  { img: "scenes/higurumaretrial/judge.png", label: "Random Judge" },
+  { img: "scenes/higurumaretrial/higuruma.png", label: "Higuruma (Retrial)" },
+  { img: "scenes/higurumaretrial/shimizu.png", label: "Shimizu" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {

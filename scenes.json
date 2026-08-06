@@ -20388,5 +20388,95 @@
     "orig": "scenes/ijlsa/lines/14.mp3"
    }
   ]
+ },
+ {
+  "id": "higurumaretrial",
+  "title": "Jujutsu Kaisen — Higuruma Retrial (3 Rollen)",
+  "videoUrl": "scenes/higurumaretrial.mp4",
+  "avatars": {
+   "0": "scenes/higurumaretrial/judge.png",
+   "1": "scenes/higurumaretrial/higuruma.png",
+   "2": "scenes/higurumaretrial/shimizu.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Random Judge",
+    "pan": -0.25,
+    "effect": "none",
+    "gain": 1.0
+   },
+   {
+    "id": 1,
+    "name": "Higuruma",
+    "pan": 0.1,
+    "effect": "none",
+    "gain": 1.05
+   },
+   {
+    "id": 2,
+    "name": "Shimizu",
+    "pan": 0.35,
+    "effect": "none",
+    "gain": 1.0
+   }
+  ],
+  "lines": [
+   {
+    "t": 0.0,
+    "end": 8.16,
+    "chars": [
+     0
+    ],
+    "who": "Random Judge",
+    "text": "If there are any objections to today's trial, submit your final appeal in writing within 15 days, which includes today.",
+    "de": "Falls es Einwände gegen die heutige Verhandlung gibt: reicht eure letzte Berufung innerhalb von 15 Tagen schriftlich ein — heute mitgerechnet.",
+    "orig": "scenes/higurumaretrial/lines/01.mp3"
+   },
+   {
+    "t": 11.2,
+    "end": 12.85,
+    "chars": [
+     1
+    ],
+    "who": "Higuruma",
+    "text": "*annoyed breath in*",
+    "de": "*verärgerter Atemzug*",
+    "orig": "scenes/higurumaretrial/lines/02.mp3"
+   },
+   {
+    "t": 19.42,
+    "end": 21.03,
+    "chars": [
+     2
+    ],
+    "who": "Shimizu",
+    "text": "Higuruma... what are you doing?",
+    "de": "Higuruma… was machst du da?",
+    "orig": "scenes/higurumaretrial/lines/03.mp3"
+   },
+   {
+    "t": 24.55,
+    "end": 26.47,
+    "chars": [
+     1
+    ],
+    "who": "Higuruma",
+    "text": "Everyone come back...",
+    "de": "Alle kommt zurück…",
+    "orig": "scenes/higurumaretrial/lines/04.mp3"
+   },
+   {
+    "t": 31.37,
+    "end": 33.28,
+    "chars": [
+     1
+    ],
+    "who": "Higuruma",
+    "text": "We're having a retrial.",
+    "de": "Wir machen eine Neuverhandlung.",
+    "orig": "scenes/higurumaretrial/lines/05.mp3"
+   }
+  ]
  }
 ]
