@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10";
+const APP_VERSION = "9.10.1";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -252,6 +252,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.1", items: [
+    "📊 GoatCounter: anonyme Besucherzahlen (wer die Seite öffnet) — Stats unter synchronstudio.goatcounter.com"
+  ]},
   { v: "9.10", items: [
     "⬜ Weiße Balken jetzt klein über dem Video (nicht Fullscreen), max. 60% Deckraft",
     "🎭 Kinosaal/Vorhang nur noch beim Podest-Finale — Premiere startet sofort ohne Verzögerung",
