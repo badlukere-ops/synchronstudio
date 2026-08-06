@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.7";
+const APP_VERSION = "9.8";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -154,8 +154,31 @@ const SFX = (() => {
       o.start(t); o.stop(t + dur + 0.05);
     } catch {}
   }
+  // Echte Samples aus /sfx — überlappen erlaubt (jedes Mal neues Audio)
+  const active = new Set();
+  function sample(file, vol = 0.55) {
+    try {
+      const a = new Audio("sfx/" + file);
+      a.volume = Math.max(0, Math.min(1, vol));
+      active.add(a);
+      a.addEventListener("ended", () => active.delete(a), { once: true });
+      const p = a.play();
+      if (p && p.catch) p.catch(() => { active.delete(a); });
+      return a;
+    } catch { return null; }
+  }
+  function fadeStop(a, ms = 800) {
+    if (!a) return;
+    const steps = 8, step = ms / steps, start = a.volume;
+    let i = 0;
+    const iv = setInterval(() => {
+      i++;
+      try { a.volume = Math.max(0, start * (1 - i / steps)); } catch {}
+      if (i >= steps) { clearInterval(iv); try { a.pause(); } catch {} active.delete(a); }
+    }, step);
+  }
   return {
-    click: () => tone(950, 0.045, "square", 0.05),
+    click: () => { if (!sample("click.mp3", 0.42)) tone(950, 0.045, "square", 0.05); },
     ok:    () => { tone(660, 0.09, "triangle", 0.11); tone(990, 0.13, "triangle", 0.11, 0.09); },
     beep:  () => tone(440, 0.12, "sine", 0.14),
     go:    () => tone(880, 0.3, "sine", 0.16),
@@ -163,7 +186,12 @@ const SFX = (() => {
     stop:  () => tone(170, 0.14, "sine", 0.14, 0, 340),
     done:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.13, "triangle", 0.1, i * 0.09)),
     err:   () => tone(150, 0.22, "sawtooth", 0.09),
-    leave: () => [392, 294, 196].forEach((f, i) => tone(f, 0.16, "sine", 0.075, i * 0.1)),
+    leave: () => { if (!sample("leave.mp3", 0.6)) [392, 294, 196].forEach((f, i) => tone(f, 0.16, "sine", 0.075, i * 0.1)); },
+    back:  () => { sample("back.mp3", 0.5); },
+    riser: () => sample("riser.mp3", 0.72),
+    winner: () => sample("winner.mp3", 0.78),
+    applause: (vol = 0.5) => sample("applause.mp3", vol),
+    fadeStop,
     // Trefferton fürs Rhythmus-Spiel: kurz, weich, tonhöhenabhängig von der Wertung
     beathit: (kind) => {
       const f = kind === "perfect" ? 1046 : kind === "good" ? 784 : 587;
@@ -181,7 +209,7 @@ const SFX = (() => {
         const hits = 40;
         for (let i = 0; i < hits; i++) {
           const p = i / hits;
-          const t = t0 + durationSec * (1 - Math.pow(1 - p, 2.4));   // faengt langsam an, wird zum Schluss immer schneller
+          const t = t0 + durationSec * (1 - Math.pow(1 - p, 2.4));
           const src = a.createBufferSource(); src.buffer = noiseBuf;
           const filt = a.createBiquadFilter(); filt.type = "bandpass"; filt.frequency.value = 180 + p * 220; filt.Q.value = 1.1;
           const g = a.createGain();
@@ -190,7 +218,6 @@ const SFX = (() => {
           src.connect(filt); filt.connect(g); g.connect(a.destination);
           try { src.start(t); src.stop(t + 0.06); } catch {}
         }
-        // Abschließender Crash/Cymbal-Schlag am Ende des Wirbels
         const crashLen = Math.max(1, a.sampleRate * 0.5);
         const crashBuf = a.createBuffer(1, crashLen, a.sampleRate);
         const cd = crashBuf.getChannelData(0);
@@ -225,6 +252,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.8", items: [
+    "🏆 Podium-Finale richtig aufgepeppt: dunkle Bühne, Riser-Spannung, Gold/Silber/Bronze-Säulen, Scheinwerfer, Champion-Banner, Mega-Konfetti",
+    "🎤 Neue Sounds: Riser (Spannungsaufbau), Gewinner-Fanfare, Publikum-Applaus — plus Klick, Zurück und „jemand hat den Raum verlassen“",
+    "4️⃣5️⃣ Platz 4 und 5 erscheinen nach dem Top-3-Reveal unter den Säulen (nicht mehr nur als graue Liste)"
+  ]},
   { v: "9.7", items: [
     "✨ Mehr Accessoires: Hasenohren, Sonnenbrille, Brille, Monokel, Partyhut, Mütze, Zauberhut, Blume, Schleife, Schnurrbart, Stern, Bandana",
     "👁 Raumcode in der Lobby lässt sich mit dem Augen-Knopf verwischen (z. B. für Streams) — nochmal tippen zeigt ihn wieder",
@@ -2059,20 +2091,25 @@ function showToast(text, kind) {
   }, 3600);
 }
 
-function burstConfetti() {
+function burstConfetti(mega) {
   const layer = document.getElementById("emoji-layer");
   if (!layer) return;
-  const colors = ["#ffc95c", "#ff4d55", "#c84bff"];
-  for (let i = 0; i < 18; i++) {
+  const colors = ["#ffc95c", "#ff4d55", "#c84bff", "#5fe3a1", "#ffffff", "#f0a830"];
+  const n = mega ? 55 : 18;
+  for (let i = 0; i < n; i++) {
     const p = document.createElement("div");
     p.className = "confetti-bit";
-    p.style.left = (40 + Math.random() * 20) + "%";
+    p.style.left = (mega ? Math.random() * 100 : (40 + Math.random() * 20)) + "%";
+    p.style.bottom = mega ? (10 + Math.random() * 40) + "%" : "30%";
     p.style.background = colors[i % colors.length];
-    p.style.setProperty("--dx", (Math.random() * 200 - 100) + "px");
+    p.style.width = (6 + Math.random() * 8) + "px";
+    p.style.height = (6 + Math.random() * 8) + "px";
+    p.style.setProperty("--dx", (Math.random() * 280 - 140) + "px");
     p.style.setProperty("--rot", (Math.random() * 720 - 360) + "deg");
-    p.style.animationDelay = (Math.random() * 0.15) + "s";
+    p.style.animationDelay = (Math.random() * (mega ? 0.45 : 0.15)) + "s";
+    p.style.animationDuration = (1.2 + Math.random() * 1.1) + "s";
     layer.appendChild(p);
-    setTimeout(() => p.remove(), 1600);
+    setTimeout(() => p.remove(), 2200);
   }
 }
 
@@ -4599,7 +4636,7 @@ function startNewRound() {
   SFX.go();
 }
 
-// ═══ ANIMIERTES FINALE ═══
+// ═══ ANIMIERTES FINALE — Awards-Show mit Riser, Scheinwerfer, Applaus ═══
 function showFinal(list, rounds, championName) {
   show("scr-final");
   $("leave-btn").style.display = "";
@@ -4610,17 +4647,24 @@ function showFinal(list, rounds, championName) {
     ordered.sort((a, b) => (a.name === championName ? -1 : b.name === championName ? 1 : 0));
   }
   const top3 = ordered.slice(0, 3);
-  const rest = ordered.slice(3);
+  const also = ordered.slice(3, 5);   // 4. & 5. unter dem Podium
+  const rest = ordered.slice(5);
 
   $("final-sub").textContent = championName
-    ? "🔪 Battle Royale beendet — " + esc(championName) + " hat als Einzige(r) überlebt!"
+    ? "🔪 Battle Royale beendet — " + championName + " hat als Einzige(r) überlebt!"
     : rounds + " Runde" + (rounds > 1 ? "n" : "") + " gespielt — hier ist eure Gesamtwertung:";
+
+  const stage = $("podium-stage");
+  if (stage) stage.classList.remove("alive");
+  const champEl = $("podium-champ");
+  if (champEl) { champEl.textContent = ""; champEl.classList.remove("show"); }
 
   const fillSlot = (slotId, entry) => {
     const el = $(slotId);
-    if (!entry) { el.style.display = "none"; return; }
+    if (!el) return;
+    if (!entry) { el.style.display = "none"; el.classList.remove("show", "pop"); return; }
     el.style.display = "";
-    el.classList.remove("show");
+    el.classList.remove("show", "pop");
     const p = players.find(pl => pl.id === entry.id);
     el.querySelector(".p-avatar-wrap").innerHTML = p ? avatarHTML(p) : "";
     el.querySelector(".p-name").textContent = entry.name;
@@ -4630,49 +4674,105 @@ function showFinal(list, rounds, championName) {
   fillSlot("podium-2", top3[1]);
   fillSlot("podium-3", top3[2]);
 
+  const fillAlso = (slotId, entry, rank) => {
+    const el = $(slotId);
+    if (!el) return;
+    if (!entry) { el.style.display = "none"; el.classList.remove("show"); return; }
+    el.style.display = "";
+    el.classList.remove("show");
+    const p = players.find(pl => pl.id === entry.id);
+    el.querySelector(".p-avatar-wrap").innerHTML = p ? avatarHTML(p) : "";
+    el.querySelector(".p-name").textContent = entry.name;
+    el.querySelector(".p-score").textContent = entry.sum.toFixed(1) + " ★";
+    const rk = el.querySelector(".also-rank");
+    if (rk) rk.textContent = rank + ".";
+  };
+  fillAlso("podium-4", also[0], 4);
+  fillAlso("podium-5", also[1], 5);
+
   $("final-rest").innerHTML = rest.map((r, i) => `
     <div class="finalrow">
-      <span class="tag">${i + 4}.</span>
+      <span class="tag">${i + 6}.</span>
       <span class="fname">${esc(r.name)}</span>
       <span class="fscore">${r.sum.toFixed(1)} ★</span>
     </div>`).join("");
 
   if (isHost) $("btn-back-lobby").style.display = "";
 
-  // 🌑 Erst wird's dunkel, Trommelwirbel baut sich auf … 🔦 dann schwingt der Scheinwerfer, hält kurz je Platz — episch bis zum 1. Platz
+  // 🌑 Dunkel + Riser baut Spannung auf → Scheinwerfer → 3 → 2 → 1 → Applaus → 4./5.
   const blackout = $("podium-blackout");
   blackout.className = "podium-blackout";
-  void blackout.offsetWidth;   // Reflow erzwingen, damit die "in"-Transition sauber greift
+  void blackout.offsetWidth;
   blackout.classList.add("in");
 
   const spot = $("podium-spotlight");
   spot.className = "spotlight";
+
+  const REVEAL_START = 4200;      // Enthüllung startet, während der Riser (~6.2s) noch hochzieht
+  SFX.riser();
+
   const steps = [];
-  if (top3[2]) steps.push({ id: "podium-3", settle: "settle-3", sweepMs: 1600 });
-  if (top3[1]) steps.push({ id: "podium-2", settle: "settle-2", sweepMs: top3[2] ? 1100 : 1600 });
-  if (top3[0]) steps.push({ id: "podium-1", settle: "settle-1", sweepMs: (top3[2] || top3[1]) ? 1400 : 1600 });
+  if (top3[2]) steps.push({ id: "podium-3", settle: "settle-3", sweepMs: 900, gap: 750 });
+  if (top3[1]) steps.push({ id: "podium-2", settle: "settle-2", sweepMs: 850, gap: 900 });
+  if (top3[0]) steps.push({ id: "podium-1", settle: "settle-1", sweepMs: 1100, gap: 400, winner: true });
 
-  const BLACKOUT_BEAT = 800;   // kurzer dunkler Moment zum Aufbauen der Spannung, bevor's losgeht
-  let t = BLACKOUT_BEAT;
-  const totalSweep = steps.reduce((s, st) => s + st.sweepMs, 0) + steps.length * 700;
-  setTimeout(() => { SFX.drumroll(totalSweep / 1000); blackout.classList.remove("in"); blackout.classList.add("out"); }, BLACKOUT_BEAT);
+  setTimeout(() => {
+    blackout.classList.remove("in");
+    blackout.classList.add("out");
+  }, REVEAL_START - 400);
 
+  let t = REVEAL_START;
   steps.forEach((step, i) => {
     setTimeout(() => { spot.className = "spotlight sweeping"; }, t);
     t += step.sweepMs;
     setTimeout(() => { spot.className = "spotlight " + step.settle; }, t);
     setTimeout(() => {
-      $(step.id).classList.add("show");
-      if (i === steps.length - 1) { SFX.done(); burstConfetti(); }
-      else SFX.beep();
-    }, t + 160);
-    t += 700;   // kurz auf dem enthüllten Platz verweilen, bevor's weiterschwingt
+      const el = $(step.id);
+      if (!el) return;
+      el.classList.add("show", "pop");
+      if (step.winner) {
+        SFX.winner();
+        const applause = SFX.applause(0.52);
+        setTimeout(() => SFX.fadeStop(applause, 1600), 12000);   // Applaus nicht endlos
+        burstConfetti(true);
+        setTimeout(() => burstConfetti(true), 700);
+        setTimeout(() => burstConfetti(true), 1400);
+        if (stage) stage.classList.add("alive");
+        if (champEl && top3[0]) {
+          champEl.textContent = "👑 " + top3[0].name.toUpperCase() + " — CHAMPION";
+          champEl.classList.add("show");
+        }
+      } else {
+        SFX.beep();
+        burstConfetti(false);
+      }
+    }, t + 140);
+    t += step.gap;
   });
-  setTimeout(() => { spot.className = "spotlight hide"; blackout.className = "podium-blackout"; }, t + 500);
+
+  // 4. & 5. nach dem Sieger unter den Säulen einblenden
+  const alsoAt = t + 600;
+  setTimeout(() => {
+    ["podium-4", "podium-5"].forEach((id, i) => {
+      setTimeout(() => {
+        const el = $(id);
+        if (el && el.style.display !== "none") {
+          el.classList.add("show");
+          SFX.beep();
+        }
+      }, i * 350);
+    });
+  }, alsoAt);
+
+  setTimeout(() => {
+    spot.className = "spotlight hide";
+    blackout.className = "podium-blackout";
+  }, alsoAt + 1800);
 }
 
 $("btn-back-lobby").onclick = () => {
   if (!isHost) return;
+  SFX.back();
   broadcast({ t: "matchLobby" });
   backToLobby();
 };
@@ -5744,7 +5844,7 @@ $("btn-again").onclick = () => {
   else status("play-status", "Nur der Host kann eine neue Runde starten.", true);
 };
 $("btn-back").onclick = () => {
-  if (isHost) { scene = null; broadcast({ t: "again" }); resetForNewRound(); $("scene-card").style.display = "none"; }
+  if (isHost) { SFX.back(); scene = null; broadcast({ t: "again" }); resetForNewRound(); $("scene-card").style.display = "none"; }
   else status("play-status", "Nur der Host kann die Szene wechseln.", true);
 };
 function resetForNewRound() {

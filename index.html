@@ -564,8 +564,8 @@
 
   /* 🌑 Blackout-Vorhang vor der episch inszenierten Podium-Enthüllung */
   .podium-blackout{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:40}
-  .podium-blackout.in{opacity:.94;transition:opacity .5s ease-in}
-  .podium-blackout.out{opacity:0;transition:opacity 6.2s ease-out}
+  .podium-blackout.in{opacity:.96;transition:opacity .55s ease-in}
+  .podium-blackout.out{opacity:0;transition:opacity 2.8s ease-out}
   @media (prefers-reduced-motion:reduce){.podium-blackout{display:none!important}}
 
   .raterow{
@@ -587,50 +587,88 @@
   .resultrow.winner{border-color:var(--amber);box-shadow:0 0 20px rgba(255,201,92,.3)}
   .resultscore{font-family:var(--font-display);color:var(--amber);font-size:1.1rem;white-space:nowrap}
 
-  /* 🏆 Podium (Kahoot-artig, im Synchronstudio-Look) */
-  /* 🔦 Schwingender Scheinwerfer bei der Podium-Enthüllung */
+  /* 🏆 Podium-Bühne — Awards-Show statt flacher Kacheln */
+  .podium-stage{
+    position:relative;margin:10px 0 8px;padding:28px 12px 22px;
+    border-radius:14px;overflow:hidden;
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 100%, rgba(240,168,48,.14), transparent 70%),
+      radial-gradient(ellipse 40% 30% at 20% 80%, rgba(192,192,210,.06), transparent 60%),
+      radial-gradient(ellipse 40% 30% at 80% 80%, rgba(205,127,50,.07), transparent 60%),
+      linear-gradient(180deg,#121218 0%,#0a0a0e 100%);
+    border:1px solid #2a2a34;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 20px 50px rgba(0,0,0,.45);
+  }
+  .podium-stage.alive::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(ellipse 18% 55% at 18% 0%, rgba(255,230,170,.12), transparent 70%),
+      radial-gradient(ellipse 22% 70% at 50% 0%, rgba(255,210,120,.22), transparent 72%),
+      radial-gradient(ellipse 18% 55% at 82% 0%, rgba(255,230,170,.12), transparent 70%);
+    animation:beamPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes beamPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  .podium-stage.alive .podium-floor{
+    box-shadow:0 0 40px rgba(240,168,48,.25), inset 0 1px 0 rgba(255,220,140,.35);
+  }
+  .podium-floor{
+    position:absolute;left:8%;right:8%;bottom:10px;height:10px;border-radius:50%;
+    background:linear-gradient(90deg,transparent,rgba(240,168,48,.35) 20%,rgba(255,220,150,.5) 50%,rgba(240,168,48,.35) 80%,transparent);
+    filter:blur(1px);z-index:0;
+  }
+  .podium-champ{
+    text-align:center;font-family:var(--font-display);font-size:1.35rem;letter-spacing:.08em;
+    color:var(--amber);text-shadow:0 0 24px rgba(240,168,48,.7);min-height:1.4em;
+    opacity:0;transform:translateY(8px) scale(.92);
+    transition:opacity .5s ease, transform .55s cubic-bezier(.2,.9,.2,1);
+    position:relative;z-index:2;margin-bottom:4px;
+  }
+  .podium-champ.show{opacity:1;transform:translateY(0) scale(1);animation:champGlow 1.8s ease-in-out infinite alternate}
+  @keyframes champGlow{from{filter:brightness(1)}to{filter:brightness(1.25)}}
+
   .spotlight{
-    position:absolute; top:-60px; left:50%; width:260px; height:calc(100% + 60px);
-    margin-left:-130px; pointer-events:none; z-index:1; opacity:0;
-    background:radial-gradient(ellipse at top, rgba(255,225,160,.4), rgba(255,225,160,.08) 55%, transparent 75%);
+    position:absolute; top:-40px; left:50%; width:280px; height:calc(100% + 40px);
+    margin-left:-140px; pointer-events:none; z-index:1; opacity:0;
+    background:radial-gradient(ellipse at top, rgba(255,230,170,.5), rgba(255,210,120,.12) 50%, transparent 72%);
     filter:blur(1px);
     transform-origin:top center;
   }
-  .spotlight.sweeping{ opacity:1; animation:spotlightSweep 1.15s cubic-bezier(.45,.05,.55,.95) infinite; }
-  .spotlight.settle-3{ opacity:1; transform:translateX(120px) rotate(5deg); transition:transform .45s cubic-bezier(.34,1.56,.64,1), opacity .3s; }
-  .spotlight.settle-2{ opacity:1; transform:translateX(-120px) rotate(-5deg); transition:transform .45s cubic-bezier(.34,1.56,.64,1), opacity .3s; }
-  .spotlight.settle-1{ opacity:1; transform:translateX(0) rotate(0deg) scale(1.35); transition:transform .5s cubic-bezier(.34,1.56,.64,1), opacity .3s; filter:blur(0px) brightness(1.3); }
-  .spotlight.hide{ opacity:0; transition:opacity .5s; }
+  .spotlight.sweeping{ opacity:1; animation:spotlightSweep 1.05s cubic-bezier(.45,.05,.55,.95) infinite; }
+  .spotlight.settle-3{ opacity:1; transform:translateX(118px) rotate(5deg); transition:transform .4s cubic-bezier(.34,1.4,.64,1), opacity .25s; }
+  .spotlight.settle-2{ opacity:1; transform:translateX(-118px) rotate(-5deg); transition:transform .4s cubic-bezier(.34,1.4,.64,1), opacity .25s; }
+  .spotlight.settle-1{ opacity:1; transform:translateX(0) rotate(0deg) scale(1.4); transition:transform .5s cubic-bezier(.34,1.4,.64,1), opacity .25s; filter:blur(0) brightness(1.4); }
+  .spotlight.hide{ opacity:0; transition:opacity .6s; }
   @keyframes spotlightSweep{
-    0%{ transform:translateX(-135px) rotate(-9deg); }
-    50%{ transform:translateX(135px) rotate(9deg); }
-    100%{ transform:translateX(-135px) rotate(-9deg); }
+    0%{ transform:translateX(-140px) rotate(-10deg); }
+    50%{ transform:translateX(140px) rotate(10deg); }
+    100%{ transform:translateX(-140px) rotate(-10deg); }
   }
-  @media (prefers-reduced-motion:reduce){ .spotlight{ animation:none!important; transition:none!important; } }
+  @media (prefers-reduced-motion:reduce){ .spotlight,.podium-stage.alive::before{ animation:none!important; } }
 
-  .podium-wrap{display:flex;align-items:flex-end;justify-content:center;gap:16px;margin:26px 0 14px;flex-wrap:wrap;position:relative}
+  .podium-wrap{display:flex;align-items:flex-end;justify-content:center;gap:18px;margin:8px 0 6px;flex-wrap:nowrap;position:relative;z-index:2}
   .podium-slot{
-    display:flex;flex-direction:column;align-items:center;gap:8px;width:120px;
-    opacity:0;transform:translateY(36px) scale(.9);
-    transition:opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1);
+    display:flex;flex-direction:column;align-items:center;gap:7px;width:124px;
+    opacity:0;transform:translateY(48px) scale(.82);
+    transition:opacity .6s ease, transform .7s cubic-bezier(.18,1.15,.32,1);
+    position:relative;
   }
   .podium-slot.show{opacity:1;transform:translateY(0) scale(1)}
-  .p-avatar-wrap{width:60px;height:60px}
+  .podium-slot.pop{animation:podiumPop .7s cubic-bezier(.18,1.25,.32,1)}
+  @keyframes podiumPop{0%{transform:translateY(40px) scale(.7)}55%{transform:translateY(-10px) scale(1.08)}100%{transform:translateY(0) scale(1)}}
+  .p-avatar-wrap{width:60px;height:60px;position:relative;z-index:2}
   .p-avatar-wrap .pavatar{width:60px;height:60px;font-size:1.4rem;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
   .podium-slot .p-name{font-weight:700;text-align:center;max-width:118px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .podium-slot .p-score{font-family:var(--font-display);color:var(--amber);font-size:.95rem}
-  /* Podeste als echte Körper: gekippte Deckfläche, dunkle Seitenwange, Bodenschatten */
   .podium-pillar{
-    width:112px;position:relative;
+    width:116px;position:relative;
     border-radius:3px 3px 0 0;
     border:1px solid #2f2f3a;border-bottom:none;
     background:
-      repeating-linear-gradient(92deg,rgba(255,255,255,.02) 0 1px,transparent 1px 5px),
+      repeating-linear-gradient(92deg,rgba(255,255,255,.025) 0 1px,transparent 1px 5px),
       linear-gradient(100deg,#2a2a34 0%,#1e1e26 42%,#15151b 100%);
     display:flex;align-items:flex-start;justify-content:center;padding-top:16px;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 18px 34px rgba(0,0,0,.6);
   }
-  /* Deckfläche: nach hinten weggekippt, damit man auf das Podest schaut */
   .podium-pillar::before{
     content:"";position:absolute;left:-1px;right:-1px;top:-13px;height:15px;
     background:linear-gradient(180deg,#3d3d49,#2b2b36);
@@ -638,35 +676,85 @@
     transform:perspective(34px) rotateX(26deg);transform-origin:bottom center;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
   }
-  /* Bodenschatten, damit das Podest wirklich auf etwas steht */
   .podium-pillar::after{
     content:"";position:absolute;left:6%;right:6%;bottom:-13px;height:13px;
     background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);
     filter:blur(4px);border-radius:50%;
   }
+  /* Gold / Silber / Bronze */
   #podium-1 .podium-pillar{
-    height:186px;border-color:#7a5c1e;
+    height:198px;border-color:#9a7420;
     background:
-      repeating-linear-gradient(92deg,rgba(255,255,255,.03) 0 1px,transparent 1px 5px),
-      linear-gradient(100deg,#4a3a17 0%,#33280f 45%,#221a08 100%);
-    box-shadow:inset 0 1px 0 rgba(255,214,140,.28), 0 0 46px rgba(240,168,48,.28), 0 20px 40px rgba(0,0,0,.7);
+      repeating-linear-gradient(92deg,rgba(255,240,180,.06) 0 1px,transparent 1px 5px),
+      linear-gradient(105deg,#6a5118 0%,#3f3010 45%,#2a1f08 100%);
+    box-shadow:inset 0 1px 0 rgba(255,220,140,.4), 0 0 56px rgba(240,168,48,.4), 0 22px 44px rgba(0,0,0,.75);
+    animation:goldShimmer 2.8s ease-in-out infinite;
   }
+  @keyframes goldShimmer{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
   #podium-1 .podium-pillar::before{
-    background:linear-gradient(180deg,#8f6f28,#5c4718);
-    border-color:#9c7a2c;box-shadow:inset 0 1px 0 rgba(255,225,160,.45);
+    background:linear-gradient(180deg,#c49a3a,#7a5a1a);
+    border-color:#d4aa44;box-shadow:inset 0 1px 0 rgba(255,240,180,.55);
   }
-  #podium-2 .podium-pillar{height:132px}
-  #podium-3 .podium-pillar{height:96px}
+  #podium-2 .podium-pillar{
+    height:142px;border-color:#8a8a98;
+    background:
+      repeating-linear-gradient(92deg,rgba(255,255,255,.05) 0 1px,transparent 1px 5px),
+      linear-gradient(105deg,#5a5a68 0%,#353540 50%,#22222c 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 0 28px rgba(200,200,220,.18), 0 18px 34px rgba(0,0,0,.6);
+  }
+  #podium-2 .podium-pillar::before{
+    background:linear-gradient(180deg,#c8c8d4,#7a7a88);border-color:#d0d0dc;
+  }
+  #podium-3 .podium-pillar{
+    height:104px;border-color:#8a5a28;
+    background:
+      repeating-linear-gradient(92deg,rgba(255,200,140,.04) 0 1px,transparent 1px 5px),
+      linear-gradient(105deg,#6a4020 0%,#3e2614 50%,#28180c 100%);
+    box-shadow:inset 0 1px 0 rgba(255,180,100,.2), 0 0 22px rgba(205,127,50,.2), 0 16px 30px rgba(0,0,0,.55);
+  }
+  #podium-3 .podium-pillar::before{
+    background:linear-gradient(180deg,#c4783a,#7a4520);border-color:#d48840;
+  }
   .podium-rank{font-family:var(--font-display);font-size:1.9rem;color:#6d6d7d;text-shadow:0 2px 3px rgba(0,0,0,.7)}
-  #podium-1 .podium-rank{font-size:2.4rem;color:var(--amber);text-shadow:0 0 18px rgba(240,168,48,.85),0 2px 4px rgba(0,0,0,.6)}
-  #podium-1 .p-avatar-wrap .pavatar{width:74px;height:74px;font-size:1.7rem;box-shadow:0 0 0 3px var(--amber),0 0 30px rgba(240,168,48,.55)}
+  #podium-1 .podium-rank{font-size:2.5rem;color:var(--amber);text-shadow:0 0 22px rgba(240,168,48,.95),0 2px 4px rgba(0,0,0,.6)}
+  #podium-2 .podium-rank{color:#d8d8e4;text-shadow:0 0 12px rgba(220,220,240,.45)}
+  #podium-3 .podium-rank{color:#e09a55;text-shadow:0 0 12px rgba(205,127,50,.4)}
+  #podium-1 .p-avatar-wrap .pavatar{width:78px;height:78px;font-size:1.8rem;box-shadow:0 0 0 3px var(--amber),0 0 36px rgba(240,168,48,.65)}
+  #podium-1 .p-avatar-wrap{width:78px;height:78px}
   #podium-1{order:2} #podium-2{order:1} #podium-3{order:3}
-  /* Bühnenboden unter dem Podium */
-  .podium-wrap::after{
-    content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;
-    background:linear-gradient(90deg,transparent,rgba(240,168,48,.28) 20%,rgba(240,168,48,.28) 80%,transparent);
+  #podium-1.show .p-avatar-wrap{animation:winnerBob 2.2s ease-in-out infinite}
+  @keyframes winnerBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  /* 4. & 5. Platz unter dem Top-3-Podium */
+  .podium-also{
+    display:flex;justify-content:center;gap:28px;flex-wrap:wrap;
+    margin-top:18px;position:relative;z-index:2;min-height:0;
   }
-  @media(max-width:600px){.podium-wrap{gap:8px} .podium-slot{width:96px} .podium-pillar{width:92px}}
+  .podium-also-slot{
+    display:flex;align-items:center;gap:10px;
+    background:linear-gradient(180deg,#1a1a22,#121218);
+    border:1px solid #33333f;border-radius:10px;padding:8px 14px 8px 10px;
+    opacity:0;transform:translateY(16px) scale(.94);
+    transition:opacity .5s ease, transform .55s cubic-bezier(.2,.9,.2,1);
+    box-shadow:0 8px 22px rgba(0,0,0,.35);
+  }
+  .podium-also-slot.show{opacity:1;transform:translateY(0) scale(1)}
+  .podium-also-slot .also-rank{
+    font-family:var(--font-display);font-size:1.15rem;color:var(--muted);
+    width:28px;text-align:center;flex-shrink:0;
+  }
+  .podium-also-slot .p-avatar-wrap{width:40px;height:40px}
+  .podium-also-slot .p-avatar-wrap .pavatar{width:40px;height:40px;font-size:1rem}
+  .podium-also-slot .also-meta{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .podium-also-slot .p-name{font-size:.88rem;font-weight:700;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .podium-also-slot .p-score{font-family:var(--font-display);font-size:.78rem;color:var(--muted)}
+
+  @media(max-width:600px){
+    .podium-wrap{gap:8px}
+    .podium-slot{width:96px}
+    .podium-pillar{width:92px}
+    .podium-also{gap:12px}
+  }
 
   .finalrow{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;
     background:#14141b;border:1px solid var(--line);border-radius:10px;padding:10px 16px;font-size:.9rem}
@@ -1094,28 +1182,44 @@
     <div class="card">
       <h2>🏁 Finale — Wer synchronisiert am besten?</h2>
       <p class="sub" id="final-sub"></p>
-      <div class="podium-wrap" id="podium-wrap">
-        <div class="spotlight" id="podium-spotlight"></div>
-        <div class="podium-slot" id="podium-2" style="display:none">
-          <div class="p-avatar-wrap"></div>
-          <span class="p-name"></span>
-          <span class="p-score"></span>
-          <div class="podium-pillar"><span class="podium-rank">2</span></div>
+      <div class="podium-stage" id="podium-stage">
+        <div class="podium-champ" id="podium-champ"></div>
+        <div class="podium-wrap" id="podium-wrap">
+          <div class="spotlight" id="podium-spotlight"></div>
+          <div class="podium-slot" id="podium-2" style="display:none">
+            <div class="p-avatar-wrap"></div>
+            <span class="p-name"></span>
+            <span class="p-score"></span>
+            <div class="podium-pillar"><span class="podium-rank">2</span></div>
+          </div>
+          <div class="podium-slot" id="podium-1" style="display:none">
+            <div class="p-avatar-wrap"></div>
+            <span class="p-name"></span>
+            <span class="p-score"></span>
+            <div class="podium-pillar"><span class="podium-rank">👑</span></div>
+          </div>
+          <div class="podium-slot" id="podium-3" style="display:none">
+            <div class="p-avatar-wrap"></div>
+            <span class="p-name"></span>
+            <span class="p-score"></span>
+            <div class="podium-pillar"><span class="podium-rank">3</span></div>
+          </div>
         </div>
-        <div class="podium-slot" id="podium-1" style="display:none">
-          <div class="p-avatar-wrap"></div>
-          <span class="p-name"></span>
-          <span class="p-score"></span>
-          <div class="podium-pillar"><span class="podium-rank">👑</span></div>
-        </div>
-        <div class="podium-slot" id="podium-3" style="display:none">
-          <div class="p-avatar-wrap"></div>
-          <span class="p-name"></span>
-          <span class="p-score"></span>
-          <div class="podium-pillar"><span class="podium-rank">3</span></div>
+        <div class="podium-floor"></div>
+        <div class="podium-also" id="podium-also">
+          <div class="podium-also-slot" id="podium-4" style="display:none">
+            <span class="also-rank">4.</span>
+            <div class="p-avatar-wrap"></div>
+            <div class="also-meta"><span class="p-name"></span><span class="p-score"></span></div>
+          </div>
+          <div class="podium-also-slot" id="podium-5" style="display:none">
+            <span class="also-rank">5.</span>
+            <div class="p-avatar-wrap"></div>
+            <div class="also-meta"><span class="p-name"></span><span class="p-score"></span></div>
+          </div>
         </div>
       </div>
-      <div id="final-rest" style="display:grid;gap:8px;margin-top:6px"></div>
+      <div id="final-rest" style="display:grid;gap:8px;margin-top:10px"></div>
       <button class="primary big" id="btn-back-lobby" style="display:none;margin-top:16px">🏠 Zurück zur Lobby (alle)</button>
       <p class="status" id="final-status"></p>
     </div>
@@ -1234,6 +1338,6 @@
 <!-- ?v= muss bei jeder Version mitgezählt werden (gleiche Zahl wie APP_VERSION in client.js).
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
-  <script src="client.js?v=9.7"></script>
+  <script src="client.js?v=9.8"></script>
 </body>
 </html>
