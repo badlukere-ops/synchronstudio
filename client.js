@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.6";
+const APP_VERSION = "9.7";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -225,6 +225,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.7", items: [
+    "✨ Mehr Accessoires: Hasenohren, Sonnenbrille, Brille, Monokel, Partyhut, Mütze, Zauberhut, Blume, Schleife, Schnurrbart, Stern, Bandana",
+    "👁 Raumcode in der Lobby lässt sich mit dem Augen-Knopf verwischen (z. B. für Streams) — nochmal tippen zeigt ihn wieder",
+    "⏹ Beat-Booth: klarer „Song aus“-Knopf, damit du jederzeit abbrechen kannst"
+  ]},
   { v: "9.6", items: [
     "🎭 Szenen-Filter nach Rollenanzahl: unter der Suche z. B. „2 Rollen“, „3 Rollen“, „7+“ — die Kacheln bleiben wie bisher",
     "⚙ Spielmodus nicht mehr als kleines Dropdown: jetzt vier große, klare Taster (Freies Spiel / Match / Battle Royale / Duell), damit man sofort sieht, was aktiv ist"
@@ -671,14 +676,57 @@ const ACCESSORIES = {
     <circle cx="20" cy="20" r="8" fill="#e8c9a8"/>
     <circle cx="80" cy="20" r="8" fill="#e8c9a8"/>
   </svg>` },
+  bunny: { label: "🐰 Hasenohren", svg: `<svg viewBox="0 0 100 70" style="position:absolute;top:-42%;left:0;width:100%;height:80%;overflow:visible">
+    <ellipse cx="28" cy="28" rx="11" ry="28" fill="#f0e6da" stroke="#c4b5a4" stroke-width="2" transform="rotate(-18 28 28)"/>
+    <ellipse cx="72" cy="28" rx="11" ry="28" fill="#f0e6da" stroke="#c4b5a4" stroke-width="2" transform="rotate(18 72 28)"/>
+    <ellipse cx="28" cy="30" rx="5" ry="16" fill="#f691b3" transform="rotate(-18 28 30)"/>
+    <ellipse cx="72" cy="30" rx="5" ry="16" fill="#f691b3" transform="rotate(18 72 30)"/>
+  </svg>` },
   headphones: { label: "🎧 Kopfhörer", svg: `<svg viewBox="0 0 100 100" style="position:absolute;top:-14%;left:0;width:100%;height:100%;overflow:visible">
     <path d="M14,52 A36,36 0 0 1 86,52" fill="none" stroke="#e0e0e8" stroke-width="7" stroke-linecap="round"/>
     <rect x="6" y="46" width="16" height="26" rx="7" fill="#c9483a" stroke="#7a1f16" stroke-width="2"/>
     <rect x="78" y="46" width="16" height="26" rx="7" fill="#c9483a" stroke="#7a1f16" stroke-width="2"/>
   </svg>` },
+  sunglasses: { label: "🕶 Sonnenbrille", svg: `<svg viewBox="0 0 100 40" style="position:absolute;top:28%;left:0;width:100%;height:40%;overflow:visible">
+    <path d="M8,18 H92" stroke="#1a1a22" stroke-width="3"/>
+    <rect x="12" y="8" width="30" height="22" rx="6" fill="#1a1a22" stroke="#f0a830" stroke-width="2"/>
+    <rect x="58" y="8" width="30" height="22" rx="6" fill="#1a1a22" stroke="#f0a830" stroke-width="2"/>
+    <path d="M42,18 H58" stroke="#1a1a22" stroke-width="3"/>
+  </svg>` },
+  glasses: { label: "🤓 Brille", svg: `<svg viewBox="0 0 100 40" style="position:absolute;top:28%;left:0;width:100%;height:40%;overflow:visible">
+    <circle cx="28" cy="20" r="14" fill="none" stroke="#c8c8d0" stroke-width="3.5"/>
+    <circle cx="72" cy="20" r="14" fill="none" stroke="#c8c8d0" stroke-width="3.5"/>
+    <path d="M42,20 H58" stroke="#c8c8d0" stroke-width="3"/>
+    <path d="M14,18 L4,12" stroke="#c8c8d0" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M86,18 L96,12" stroke="#c8c8d0" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>` },
+  monocle: { label: "🧐 Monokel", svg: `<svg viewBox="0 0 100 50" style="position:absolute;top:22%;left:0;width:100%;height:50%;overflow:visible">
+    <circle cx="68" cy="22" r="16" fill="none" stroke="#f0a830" stroke-width="3.5"/>
+    <circle cx="68" cy="22" r="11" fill="rgba(200,220,255,.18)"/>
+    <path d="M68,38 Q55,55 48,58" fill="none" stroke="#f0a830" stroke-width="2" stroke-dasharray="3 2"/>
+  </svg>` },
   crown: { label: "👑 Krone", svg: `<svg viewBox="0 0 100 60" style="position:absolute;top:-34%;left:0;width:100%;height:55%;overflow:visible">
     <path d="M10,50 L10,26 L30,40 L50,14 L70,40 L90,26 L90,50 Z" fill="#ffc95c" stroke="#a87a1a" stroke-width="2.5" stroke-linejoin="round"/>
     <circle cx="50" cy="12" r="5" fill="#ff6b6b"/>
+  </svg>` },
+  party: { label: "🎉 Partyhut", svg: `<svg viewBox="0 0 100 70" style="position:absolute;top:-40%;left:0;width:100%;height:70%;overflow:visible">
+    <path d="M28,58 L50,6 L72,58 Z" fill="#e63946" stroke="#8a1a22" stroke-width="2"/>
+    <path d="M34,58 L50,18 L66,58 Z" fill="#f0a830"/>
+    <circle cx="50" cy="8" r="6" fill="#5fe3a1"/>
+    <circle cx="38" cy="40" r="3" fill="#fff"/>
+    <circle cx="58" cy="34" r="2.5" fill="#fff"/>
+  </svg>` },
+  beanie: { label: "🧢 Mütze", svg: `<svg viewBox="0 0 100 55" style="position:absolute;top:-30%;left:0;width:100%;height:60%;overflow:visible">
+    <ellipse cx="50" cy="38" rx="38" ry="14" fill="#3d6ea8" stroke="#244a78" stroke-width="2"/>
+    <path d="M14,38 Q20,8 50,6 Q80,8 86,38" fill="#4a82c4" stroke="#244a78" stroke-width="2"/>
+    <circle cx="50" cy="8" r="5" fill="#e63946"/>
+  </svg>` },
+  wizard: { label: "🧙 Zauberhut", svg: `<svg viewBox="0 0 100 80" style="position:absolute;top:-48%;left:0;width:100%;height:80%;overflow:visible">
+    <ellipse cx="50" cy="62" rx="36" ry="10" fill="#2a2a38" stroke="#15151e" stroke-width="2"/>
+    <path d="M22,58 L50,4 L78,58 Z" fill="#3a3a4e" stroke="#15151e" stroke-width="2"/>
+    <path d="M38,40 L62,40" stroke="#f0a830" stroke-width="3"/>
+    <circle cx="52" cy="22" r="2.5" fill="#ffe38a"/>
+    <circle cx="42" cy="30" r="1.8" fill="#ffe38a"/>
   </svg>` },
   halo: { label: "😇 Heiligenschein", svg: `<svg viewBox="0 0 100 40" style="position:absolute;top:-38%;left:0;width:100%;height:40%;overflow:visible">
     <ellipse cx="50" cy="20" rx="26" ry="9" fill="none" stroke="#ffe38a" stroke-width="6"/>
@@ -686,6 +734,31 @@ const ACCESSORIES = {
   horns: { label: "😈 Teufelshörner", svg: `<svg viewBox="0 0 100 60" style="position:absolute;top:-24%;left:0;width:100%;height:55%;overflow:visible">
     <path d="M22,44 Q10,20 26,6 Q22,26 34,38 Z" fill="#c9312b" stroke="#6e130f" stroke-width="2"/>
     <path d="M78,44 Q90,20 74,6 Q78,26 66,38 Z" fill="#c9312b" stroke="#6e130f" stroke-width="2"/>
+  </svg>` },
+  flower: { label: "🌸 Blume", svg: `<svg viewBox="0 0 100 50" style="position:absolute;top:-18%;left:0;width:100%;height:50%;overflow:visible">
+    <g transform="translate(78,22)">
+      <circle cx="0" cy="-10" r="7" fill="#f691b3"/>
+      <circle cx="9" cy="-3" r="7" fill="#f691b3"/>
+      <circle cx="6" cy="8" r="7" fill="#f691b3"/>
+      <circle cx="-6" cy="8" r="7" fill="#f691b3"/>
+      <circle cx="-9" cy="-3" r="7" fill="#f691b3"/>
+      <circle cx="0" cy="0" r="5" fill="#ffe38a"/>
+    </g>
+  </svg>` },
+  bow: { label: "🎀 Schleife", svg: `<svg viewBox="0 0 100 50" style="position:absolute;top:-16%;left:0;width:100%;height:50%;overflow:visible">
+    <path d="M50,28 L22,10 Q18,28 28,36 Z" fill="#e63946" stroke="#8a1a22" stroke-width="1.5"/>
+    <path d="M50,28 L78,10 Q82,28 72,36 Z" fill="#e63946" stroke="#8a1a22" stroke-width="1.5"/>
+    <circle cx="50" cy="28" r="7" fill="#c9312b" stroke="#8a1a22" stroke-width="1.5"/>
+  </svg>` },
+  mustache: { label: "🥸 Schnurrbart", svg: `<svg viewBox="0 0 100 40" style="position:absolute;top:58%;left:0;width:100%;height:40%;overflow:visible">
+    <path d="M18,22 Q32,6 50,20 Q68,6 82,22 Q68,34 50,24 Q32,34 18,22 Z" fill="#3a2a22" stroke="#1a1210" stroke-width="1.5"/>
+  </svg>` },
+  star: { label: "⭐ Stern", svg: `<svg viewBox="0 0 100 50" style="position:absolute;top:-22%;left:0;width:100%;height:50%;overflow:visible">
+    <path d="M78,22 L82,10 L86,22 L98,24 L88,32 L92,44 L82,36 L72,44 L76,32 L66,24 Z" fill="#f0a830" stroke="#a87a1a" stroke-width="1.5"/>
+  </svg>` },
+  bandana: { label: "🔴 Bandana", svg: `<svg viewBox="0 0 100 50" style="position:absolute;top:-8%;left:0;width:100%;height:50%;overflow:visible">
+    <path d="M6,28 Q50,6 94,28 L88,38 Q50,18 12,38 Z" fill="#e63946" stroke="#8a1a22" stroke-width="2"/>
+    <path d="M50,14 L62,2 L58,16 Z" fill="#c9312b"/>
   </svg>` }
 };
 let myAccessory = null;
@@ -1903,20 +1976,24 @@ async function bgStart() {
   bgTick();
 }
 
-function bgStop(showResult) {
+function bgStop(showResult, aborted) {
+  const wasRunning = BG.running;
   BG.running = false;
   cancelAnimationFrame(BG.raf);
-  if (BG.audio) { BG.audio.pause(); }
+  if (BG.audio) { BG.audio.pause(); BG.audio.currentTime = 0; }
   const cd = $("bg-count"); if (cd) cd.classList.remove("show");
   const sb = $("bg-start"), st = $("bg-stop");
   if (sb) sb.style.display = ""; if (st) st.style.display = "none";
-  if (showResult) {
+  if (showResult && wasRunning) {
     const c = BG.counts, total = c.perfect + c.good + c.ok + c.miss;
     const acc = total ? Math.round((c.perfect + c.good * 0.7 + c.ok * 0.35) / total * 100) : 0;
     const res = $("bg-result");
-    if (res) res.innerHTML = `🏁 <b>${BG.score}</b> Punkte · ${acc}% Genauigkeit · längste Combo ${BG.maxCombo}<br>
+    const head = aborted ? "⏹ Gestoppt" : "🏁 Fertig";
+    if (res) res.innerHTML = `${head} · <b>${BG.score}</b> Punkte · ${acc}% Genauigkeit · längste Combo ${BG.maxCombo}<br>
       <span style="color:#5fe3a1">${c.perfect} Perfect</span> · <span style="color:#f0a830">${c.good} Good</span> · ${c.ok} OK · <span style="color:#e63946">${c.miss} Miss</span>`;
-    SFX.done();
+    if (aborted) SFX.click(); else SFX.done();
+  } else if (!showResult) {
+    const res = $("bg-result"); if (res) res.textContent = "";
   }
   updateLobbyMusic();                       // Lobby-Musik ggf. wieder an
 }
@@ -2072,8 +2149,29 @@ $("btn-leave-cancel").onclick = () => $("leave-confirm-overlay").style.display =
 $("leave-confirm-overlay").onclick = e => { if (e.target.id === "leave-confirm-overlay") $("leave-confirm-overlay").style.display = "none"; };
 $("btn-leave-confirm").onclick = () => { $("leave-confirm-overlay").style.display = "none"; leaveRoom(); };
 
+// ── Raumcode verstecken (Blur): gut für Streams/Screenshots — Auge toggelt Sichtbarkeit ──
+let codeHidden = false;
+try { codeHidden = localStorage.getItem("ss_code_hidden") === "1"; } catch {}
+function syncCodeVisibility() {
+  const el = $("lobby-code");
+  const btn = $("btn-toggle-code");
+  if (!el) return;
+  el.classList.toggle("is-blurred", !!codeHidden);
+  if (btn) {
+    btn.textContent = codeHidden ? "👁‍🗨" : "👁";
+    btn.title = codeHidden ? "Raumcode anzeigen" : "Raumcode verstecken";
+  }
+}
+$("btn-toggle-code") && ($("btn-toggle-code").onclick = () => {
+  codeHidden = !codeHidden;
+  try { localStorage.setItem("ss_code_hidden", codeHidden ? "1" : "0"); } catch {}
+  syncCodeVisibility();
+  SFX.click();
+});
+syncCodeVisibility();
+
 $("btn-copy-code") && ($("btn-copy-code").onclick = async () => {
-  const code = $("lobby-code").textContent;
+  const code = raumCode || $("lobby-code").textContent;
   try {
     await navigator.clipboard.writeText(code);
     $("btn-copy-code").textContent = "✅";
@@ -2090,7 +2188,7 @@ function inviteLink(code) {
   return u.toString();
 }
 $("btn-copy-link") && ($("btn-copy-link").onclick = async () => {
-  const link = inviteLink($("lobby-code").textContent);
+  const link = inviteLink(raumCode || $("lobby-code").textContent);
   const btn = $("btn-copy-link");
   try {
     await navigator.clipboard.writeText(link);
@@ -2115,6 +2213,7 @@ if (invitedCode) whenReady(() => {
 
 function enterLobby(code) {
   $("lobby-code").textContent = code;
+  syncCodeVisibility();
   if (isHost) { $("host-scene").style.display = ""; $("host-start").style.display = ""; }
   show("scr-lobby");
   renderPlayers();
@@ -4057,7 +4156,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderDice();
   initDrawCanvas("draw-canvas", "draw-colors", "draw-size", "btn-draw-clear", "btn-draw-eraser");
   $("bg-start") && ($("bg-start").onclick = () => bgStart());
-  $("bg-stop") && ($("bg-stop").onclick = () => bgStop(true));
+  $("bg-stop") && ($("bg-stop").onclick = () => bgStop(true, true));
   $("bg-vol") && ($("bg-vol").oninput = e => { BG.vol = parseFloat(e.target.value); if (BG.audio) BG.audio.volume = BG.vol; });
   startFunFactRotation();
 });
