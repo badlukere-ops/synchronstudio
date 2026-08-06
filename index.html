@@ -420,6 +420,55 @@
   .st-meta{padding:0 9px 9px;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;color:var(--muted)}
   @media(max-width:600px){.scene-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));max-height:330px}}
 
+  /* Rollen-Filter: kleine Hardware-Chips unter der Suche */
+  .role-filter{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+  .role-filter .rf-label{
+    font-family:var(--font-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+    color:#6a6a78;margin-right:2px;
+  }
+  .rf-chip{
+    font-family:var(--font-mono);font-size:.72rem;font-weight:700;letter-spacing:.04em;
+    padding:6px 11px;min-height:34px;border-radius:6px;
+    background:linear-gradient(180deg,#22222a,#16161c);border:1px solid var(--metal);color:var(--muted);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 2px 0 #0d0d11;
+  }
+  .rf-chip:hover{border-color:#5c5c6e;color:var(--text);filter:none}
+  .rf-chip.on{
+    background:linear-gradient(180deg,#3a3428,#2a2418);border-color:var(--amber);color:var(--amber);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 0 0 1px rgba(240,168,48,.25), 0 2px 0 #1a1408;
+  }
+
+  /* Spielmodus: große Rack-Taster statt unauffälligem Dropdown */
+  .mode-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .mode-btn{
+    display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;
+    padding:14px 14px 12px;min-height:78px;border-radius:10px;
+    background:
+      radial-gradient(circle at 10px 10px,rgba(255,255,255,.04) 0 1.5px,transparent 2px),
+      linear-gradient(180deg,#24242c,#17171d);
+    border:1px solid var(--metal);color:var(--text);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 2px 0 #0d0d11, 0 4px 12px rgba(0,0,0,.35);
+    transition:transform .08s, border-color .12s, box-shadow .12s;
+  }
+  .mode-btn:hover{border-color:#5c5c6e;filter:brightness(1.08);transform:translateY(-1px)}
+  .mode-btn:active{transform:translateY(1px);box-shadow:inset 0 2px 6px rgba(0,0,0,.55), 0 0 0 #0d0d11}
+  .mode-btn.on{
+    border-color:var(--amber);
+    background:
+      radial-gradient(circle at 10px 10px,rgba(240,168,48,.35) 0 1.5px,transparent 2px),
+      linear-gradient(180deg,#3a3224,#231e14);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 0 0 1px rgba(240,168,48,.35), 0 6px 18px rgba(240,168,48,.18);
+  }
+  .mode-btn .mb-ico{font-size:1.35rem;line-height:1}
+  .mode-btn .mb-title{font-family:var(--font-display);font-size:1.05rem;letter-spacing:.02em;text-transform:uppercase;line-height:1.05}
+  .mode-btn .mb-sub{font-size:.78rem;color:var(--muted);line-height:1.35;font-weight:500}
+  .mode-btn.on .mb-sub{color:#c9b896}
+  .mode-btn.on .mb-title{color:var(--amber);text-shadow:0 0 18px rgba(240,168,48,.35)}
+  @media(max-width:600px){
+    .mode-picker{grid-template-columns:1fr}
+    .mode-btn{min-height:68px;padding:12px}
+  }
+
   /* Handy: größere Trefferflächen, sichere Ränder, kein versehentliches Zoomen auf Knöpfen */
   @media(max-width:700px){
     body{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px));font-size:16px}
@@ -756,18 +805,37 @@
 
     <div class="card" id="host-settings" style="display:none">
       <h2>⚙ Match-Einstellungen</h2>
-      <div class="row" style="gap:20px;align-items:center">
-        <label class="small" style="margin:0">Spielmodus:
-          <select id="set-mode">
-            <option value="free">🎮 Freies Spiel (Szene &amp; Rollen selbst wählen)</option>
-            <option value="rounds">🏆 Match mit Runden (alles Zufall)</option>
-            <option value="elimination">🔪 Battle Royale (schlechtester fliegt jede Runde raus)</option>
-            <option value="duell">🥊 Duell (2 Spieler, 1 Rolle, direkter Vergleich)</option>
-          </select>
-        </label>
+      <p class="tag" style="margin:0 0 8px">Spielmodus wählen</p>
+      <div class="mode-picker" id="mode-picker" role="radiogroup" aria-label="Spielmodus">
+        <button type="button" class="mode-btn on" data-mode="free" aria-pressed="true">
+          <span class="mb-ico">🎮</span>
+          <span class="mb-title">Freies Spiel</span>
+          <span class="mb-sub">Szene &amp; Rollen selbst aussuchen</span>
+        </button>
+        <button type="button" class="mode-btn" data-mode="rounds" aria-pressed="false">
+          <span class="mb-ico">🏆</span>
+          <span class="mb-title">Match</span>
+          <span class="mb-sub">Mehrere Runden — alles Zufall</span>
+        </button>
+        <button type="button" class="mode-btn" data-mode="elimination" aria-pressed="false">
+          <span class="mb-ico">🔪</span>
+          <span class="mb-title">Battle Royale</span>
+          <span class="mb-sub">Schlechtester fliegt jede Runde raus</span>
+        </button>
+        <button type="button" class="mode-btn" data-mode="duell" aria-pressed="false">
+          <span class="mb-ico">🥊</span>
+          <span class="mb-title">Duell</span>
+          <span class="mb-sub">2 Spieler, 1 Rolle, direkter Vergleich</span>
+        </button>
       </div>
+      <select id="set-mode" style="display:none" aria-hidden="true">
+        <option value="free" selected>Freies Spiel</option>
+        <option value="rounds">Match mit Runden</option>
+        <option value="elimination">Battle Royale</option>
+        <option value="duell">Duell</option>
+      </select>
       <input type="checkbox" id="set-roulette" checked style="display:none">
-      <div class="row" id="rounds-opts" style="gap:20px;margin-top:10px;display:none">
+      <div class="row" id="rounds-opts" style="gap:20px;margin-top:12px;display:none">
         <label class="small" style="margin:0">Runden:
           <select id="set-rounds"><option>2</option><option selected>3</option><option>5</option><option>7</option><option>10</option></select>
         </label>
@@ -801,6 +869,7 @@
         <input type="text" id="scene-search" placeholder="🔍 Suchen — Titel oder Rolle" style="flex:1" autocomplete="off">
         <button class="primary" id="btn-load-scene">Laden</button>
       </div>
+      <div class="role-filter" id="role-filter" aria-label="Nach Rollenanzahl filtern"></div>
       <div class="scene-grid" id="scene-grid"></div>
       <select id="scene-select" style="display:none"></select>
       <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-top:10px;font-size:.9rem;color:var(--muted)">
@@ -1159,6 +1228,6 @@
 <!-- ?v= muss bei jeder Version mitgezählt werden (gleiche Zahl wie APP_VERSION in client.js).
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
-  <script src="client.js?v=9.5"></script>
+  <script src="client.js?v=9.6"></script>
 </body>
 </html>

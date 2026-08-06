@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.5";
+const APP_VERSION = "9.6";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -225,6 +225,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.6", items: [
+    "🎭 Szenen-Filter nach Rollenanzahl: unter der Suche z. B. „2 Rollen“, „3 Rollen“, „7+“ — die Kacheln bleiben wie bisher",
+    "⚙ Spielmodus nicht mehr als kleines Dropdown: jetzt vier große, klare Taster (Freies Spiel / Match / Battle Royale / Duell), damit man sofort sieht, was aktiv ist"
+  ]},
   { v: "9.5", items: [
     "🫧 Neue Szene: „SpongeBob — Blasen-Nachrichten“ (3 Rollen)",
     "🌸 Neue Szene: „Rascal Does Not Dream — Fukashigi no Carte“ (6 Rollen, Opening-Song)",
@@ -2397,6 +2401,7 @@ async function loadSceneList() {
         return `<option value="${i}">${d ? d.emoji + " " : ""}${esc(s.title)} (${s.roles.length} Rollen${s.lines ? ", " + s.lines.length + " Lines" : ""}${d ? " · " + d.label : ""})</option>`;
       }).join("")
     : "<option>— Szenen laden… kurz warten &amp; Seite neu laden —</option>";
+  renderRoleFilter();
   renderSceneGrid();
 }
 
@@ -2404,16 +2409,55 @@ async function loadSceneList() {
 // Das <select> bleibt als unsichtbare Quelle der Wahrheit erhalten, damit der restliche
 // Code (Laden-Knopf, Duell, Roulette) unverändert damit weiterarbeiten kann.
 let thumbObserver = null;
+let sceneRoleFilter = "all";   // "all" | "2" | "3" | … | "7p" (≥7)
+
+function renderRoleFilter() {
+  const bar = $("role-filter");
+  if (!bar) return;
+  const counts = {};
+  for (const s of sceneList) {
+    const n = (s.roles || []).length;
+    if (!n) continue;
+    const key = n >= 7 ? "7p" : String(n);
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  const chips = [{ key: "all", label: "Alle" }];
+  for (let n = 1; n <= 6; n++) if (counts[String(n)]) chips.push({ key: String(n), label: n + " Rolle" + (n === 1 ? "" : "n") });
+  if (counts["7p"]) chips.push({ key: "7p", label: "7+" });
+  if (!counts[sceneRoleFilter] && sceneRoleFilter !== "all") sceneRoleFilter = "all";
+  bar.innerHTML = `<span class="rf-label">Rollen</span>` + chips.map(c =>
+    `<button type="button" class="rf-chip${c.key === sceneRoleFilter ? " on" : ""}" data-rf="${c.key}">${c.label}</button>`
+  ).join("");
+  bar.querySelectorAll(".rf-chip").forEach(btn => {
+    btn.onclick = () => {
+      sceneRoleFilter = btn.dataset.rf;
+      bar.querySelectorAll(".rf-chip").forEach(b => b.classList.toggle("on", b.dataset.rf === sceneRoleFilter));
+      SFX.click();
+      renderSceneGrid();
+    };
+  });
+}
+
 function renderSceneGrid(filter) {
   const grid = $("scene-grid");
   if (!grid) return;
   const q = (filter == null ? ($("scene-search") ? $("scene-search").value : "") : filter).trim().toLowerCase();
   const hits = sceneList
     .map((s, i) => ({ s, i }))
-    .filter(({ s }) => !q || (s.title + " " + (s.roles || []).map(r => r.name).join(" ")).toLowerCase().includes(q));
+    .filter(({ s }) => {
+      const n = (s.roles || []).length;
+      if (sceneRoleFilter === "7p") { if (n < 7) return false; }
+      else if (sceneRoleFilter !== "all" && n !== parseInt(sceneRoleFilter, 10)) return false;
+      if (!q) return true;
+      return (s.title + " " + (s.roles || []).map(r => r.name).join(" ")).toLowerCase().includes(q);
+    });
 
   if (!sceneList.length) { grid.innerHTML = `<p class="sub" style="grid-column:1/-1">Szenen laden … kurz warten und Seite neu laden.</p>`; return; }
-  if (!hits.length) { grid.innerHTML = `<p class="sub" style="grid-column:1/-1">Keine Szene passt zu „${esc(q)}“.</p>`; return; }
+  if (!hits.length) {
+    const tip = sceneRoleFilter !== "all" ? " mit diesem Rollen-Filter" : "";
+    grid.innerHTML = `<p class="sub" style="grid-column:1/-1">Keine Szene passt${q ? " zu „" + esc(q) + "“" : ""}${tip}.</p>`;
+    return;
+  }
 
   const sel = $("scene-select");
   // Steht die aktuell gewählte Szene nicht in den Suchtreffern, rutscht die Auswahl
@@ -2504,6 +2548,26 @@ function mountSceneThumb(tile) {
   holder.insertBefore(v, holder.firstChild);
 }
 $("scene-search") && ($("scene-search").oninput = () => renderSceneGrid());
+
+// Spielmodus: große Taster statt kleinem Dropdown — wählt intern weiter das <select>
+function syncModePicker(mode) {
+  const m = mode || ($("set-mode") && $("set-mode").value) || "free";
+  if ($("set-mode")) $("set-mode").value = m;
+  document.querySelectorAll("#mode-picker .mode-btn").forEach(btn => {
+    const on = btn.dataset.mode === m;
+    btn.classList.toggle("on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+$("mode-picker") && $("mode-picker").querySelectorAll(".mode-btn").forEach(btn => {
+  btn.onclick = () => {
+    if (!isHost) return;
+    syncModePicker(btn.dataset.mode);
+    SFX.click();
+    hostSettingsChanged();
+  };
+});
+syncModePicker();
 
 // ── 🔍 Selbst-Check: prüft, ob wirklich alle in scenes.json referenzierten Dateien existieren ──
 function filesOfScene(s) {
@@ -3108,6 +3172,7 @@ function hostSettingsChanged() {
   match.mode = $("set-mode").value;
   match.rounds = parseInt($("set-rounds").value);
   match.autoRoulette = $("set-roulette").checked;
+  syncModePicker(match.mode);
   // Im Runden- UND Battle-Royale-Modus ist alles Zufall: Rollenwahl & Szenenwahl werden ausgeblendet
   const rnd = match.mode === "rounds" || match.mode === "elimination";
   const duell = match.mode === "duell";
