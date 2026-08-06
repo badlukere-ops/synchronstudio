@@ -1318,14 +1318,7 @@
     <div class="card">
       <h2>🎬 Premiere</h2>
       <p class="sub">Euer fertiger Synchro-Take — Stimmen mit Panning, Effekten und Kompressor über dem Original-Sound.</p>
-      <div class="video-wipe-host">
-        <video id="play-video" playsinline preload="auto" crossorigin="anonymous" style="width:100%;display:block"></video>
-        <div class="wipe-cd" id="wipe-play" aria-hidden="true">
-          <div class="wipe-bar wipe-l"></div>
-          <div class="wipe-bar wipe-r"></div>
-          <div class="wipe-num">3</div>
-        </div>
-      </div>
+      <video id="play-video" playsinline preload="auto" crossorigin="anonymous" style="width:100%;display:block;border-radius:10px"></video>
       <div class="row" style="margin-top:10px;gap:6px" id="prem-emoji-bar">
         <span class="tag" style="margin-right:4px">🎙 Live-Kommentar:</span>
         <button class="emojibtn" data-e="👍">👍</button>
@@ -1357,6 +1350,7 @@
       <p class="tag" id="dl-progress-label" style="display:none"></p>
       <div class="row" style="margin-top:16px">
         <button class="primary big" id="btn-replay">▶ Nochmal abspielen</button>
+        <button class="big" id="btn-outtakes" style="display:none">🎬 Outtakes</button>
         <button class="big" id="btn-download-audio">⚡ Nur Ton speichern (sofort)</button>
         <button class="big" id="btn-download">⬇ Komplettes Video speichern (meist sofort)</button>
         <button id="btn-again">Neue Runde (gleiche Szene)</button>
@@ -1374,7 +1368,6 @@
         <button class="primary" id="btn-rate-submit" disabled>Bewertung abschicken</button>
         <button class="ghost" id="btn-rate-force" style="display:none">Ergebnis anzeigen (ohne Nachzügler)</button>
         <button class="primary big" id="btn-next-round" style="display:none">▶ Nächste Runde</button>
-        <button class="ghost" id="btn-outtakes" style="display:none">🎬 Outtakes-Reel</button>
       </div>
       <div id="rate-result" style="margin-top:14px;display:grid;gap:6px"></div>
     </div>
@@ -1453,7 +1446,7 @@
 <!-- ?v= muss bei jeder Version mitgezählt werden (gleiche Zahl wie APP_VERSION in client.js).
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
-  <script src="client.js?v=9.10.2"></script>
+  <script src="client.js?v=9.10.3"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>

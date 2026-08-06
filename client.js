@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.2";
+const APP_VERSION = "9.10.3";
 const PEER_PREFIX = "syncstudio-emvw-";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
@@ -252,6 +252,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.3", items: [
+    "⬜ Weiße Balken nur noch in der Aufnahme-Booth — Premiere wieder mit Zahlen-Countdown",
+    "🎬 Outtakes als eigener großer Knopf bei der Premiere (sichtbar sobald du Takes neu aufgenommen hast)"
+  ]},
   { v: "9.10.2", items: [
     "🔧 Live-Seite wieder korrekt aktualisiert (Besucherzähler greift jetzt)"
   ]},
@@ -3897,13 +3901,12 @@ function recCountdown() {
   });
 }
 
-// Weiße Balken nur über dem aktuellen Video (Booth oder Premiere)
+// Weiße Balken nur in der Line-Booth — nie bei Premiere/Playback
 function wipeCountdown() {
   return new Promise(res => {
-    const boothActive = !!document.querySelector("#scr-booth.active");
-    const el = $(boothActive ? "wipe-booth" : "wipe-play") || $("wipe-booth") || $("wipe-play");
+    const el = $("wipe-booth");
     const num = el && el.querySelector(".wipe-num");
-    if (!el) { recCountdown().then(res); return; }
+    if (!el || !document.querySelector("#scr-booth.active")) { recCountdown().then(res); return; }
     el.classList.remove("run", "flash");
     el.classList.add("show");
     void el.offsetWidth;
@@ -3991,6 +3994,7 @@ async function onLineRecorded() {
         name: myName
       });
       if (outtakes.length > OUTTAKE_MAX) outtakes.shift();
+      updateOuttakesBtn();
     } catch {}
   }
   takes[l.idx] = await new Blob(lineChunks, { type: lineChunks[0]?.type }).arrayBuffer();
@@ -4237,8 +4241,11 @@ async function startRealtime() {
   v.onended = () => { if (rtRecorder.state !== "inactive") rtRecorder.stop(); };
 }
 
-function countdown() {
-  if (preferWipe()) return wipeCountdown();
+// opts.wipe !== false → Balken nur wenn Checkbox an UND Booth aktiv
+function countdown(opts = {}) {
+  if (opts.wipe !== false && preferWipe() && document.querySelector("#scr-booth.active")) {
+    return wipeCountdown();
+  }
   return new Promise(res => {
     const el = $("countdown"), num = el.querySelector("div");
     el.classList.add("show");
@@ -4606,8 +4613,7 @@ function showRateCard() {
   $("rate-result").innerHTML = "";
   $("btn-rate-submit").style.display = "";
   $("btn-rate-force").style.display = "none";
-  const otBtn = $("btn-outtakes");
-  if (otBtn) otBtn.style.display = outtakes.length ? "" : "none";
+  updateOuttakesBtn();
   const canBuddy = !myBuddyUsed && speakers.length > 0;
   const hint = $("buddy-hint");
   if (hint) {
@@ -4949,7 +4955,7 @@ function backToLobby(keepMatch) {
   $("rate-card").style.display = "none"; $("rate-rows").innerHTML = ""; $("rate-result").innerHTML = "";
   $("btn-next-round").style.display = "none"; $("btn-rate-submit").disabled = true;
   $("btn-rate-submit").textContent = "Bewertung abschicken";
-  const otBtn = $("btn-outtakes"); if (otBtn) otBtn.style.display = "none";
+  updateOuttakesBtn();
   show("scr-lobby");
   $("leave-btn").style.display = "";
   if (isHost) { broadcastState(); }
@@ -4985,8 +4991,18 @@ function showRateResult(results, eliminatedName) {
     setTimeout(() => { row.style.transition = "opacity .4s, transform .4s"; row.style.opacity = "1"; row.style.transform = "translateX(0)"; }, i * 150);
   });
   SFX.done();
+  updateOuttakesBtn();
+}
+
+function updateOuttakesBtn() {
   const otBtn = $("btn-outtakes");
-  if (otBtn) otBtn.style.display = outtakes.length ? "" : "none";
+  if (!otBtn) return;
+  if (outtakes.length) {
+    otBtn.style.display = "";
+    otBtn.textContent = "🎬 Outtakes (" + outtakes.length + ")";
+  } else {
+    otBtn.style.display = "none";
+  }
 }
 
 // ── Outtakes-Reel: verworfene Takes nacheinander mit Video abspielen ──
@@ -5271,6 +5287,7 @@ async function loadDuelSequence(dataA, dataB, info) {
   show("scr-playback");
   $("btn-replay").style.display = "none"; $("btn-download-audio").style.display = "none";
   $("btn-download").style.display = "none"; $("btn-again").style.display = "none"; $("btn-back").style.display = "none";
+  const otDuel = $("btn-outtakes"); if (otDuel) otDuel.style.display = "none";
   $("prem-status").textContent = "";   // veraltete "X/Y geladen"-Anzeige vom normalen Modus ausblenden, gilt hier nicht
   $("btn-prem-start").style.display = "none";
   status("play-status", "🥊 Bereite beide Versionen vor …");
@@ -5495,6 +5512,7 @@ async function loadMix(data) {
   if (isHost) { broadcastState(); renderPremState(); }
   else { hostConn.send({ t: "premReady" }); status("play-status", "✅ Fertig geladen — warte, bis der Host die Premiere startet …"); }
   renderRedoPanel("redo-panel-prem");
+  updateOuttakesBtn();
   SFX.ok();
 }
 
@@ -5522,8 +5540,9 @@ function premStart() {
   $("btn-download").disabled = false;
   $("btn-prem-start") && ($("btn-prem-start").style.display = "none");
   status("play-status", "🍿 Premiere!");
-  // Kein Kinosaal/Vorhang hier — der kommt nur beim Podest-Finale
-  countdown().then(() => playMix(false));
+  updateOuttakesBtn();
+  // Zahlen-Countdown — weiße Balken nur in der Booth, nie hier
+  countdown({ wipe: false }).then(() => playMix(false));
 }
 
 $("btn-prem-start").onclick = () => {
@@ -6098,7 +6117,7 @@ function resetForNewRound() {
   $("btn-rate-submit").textContent = "Bewertung abschicken";
   $("btn-rate-submit").disabled = true;
   $("btn-next-round").style.display = "none";
-  const otBtn = $("btn-outtakes"); if (otBtn) otBtn.style.display = "none";
+  updateOuttakesBtn();
   if (isHost) { ttt = { p: [], board: Array(9).fill(null), turn: 0, winner: null }; broadcast({ t: "tttState", ttt }); renderTTT(); }
   show("scr-lobby");
   if (isHost) broadcastState(); else { renderPlayers(); renderRoles(); }
