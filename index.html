@@ -127,12 +127,53 @@
   .vu-label{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:#5a5a68}
   @media(max-width:700px){.vumeter{display:none}}
 
-  /* 🎥 Leichter Dim nur optional — schwerer Kinosaal/Vorhang nur noch beim Podest-Finale */
-  header,.side-panel,#patchnotes-btn,#leave-btn,.floaties,#scr-playback > .card,#scr-playback video{
-    transition:opacity .35s ease, box-shadow .35s ease, border-color .35s ease;
+  /* 🎥 Kinosaal bei laufender Premiere: alles dunkel außer Leinwand + Live-Kommentar */
+  header,.side-panel,#patchnotes-btn,#leave-btn,#scr-playback > .card,#scr-playback video,.prem-stage{
+    transition:opacity .35s ease, box-shadow .35s ease, border-color .35s ease, background .35s ease;
   }
   @media (prefers-reduced-motion:reduce){
-    header,.side-panel,#patchnotes-btn,#leave-btn,.floaties,#scr-playback > .card,#scr-playback video{transition:none}
+    header,.side-panel,#patchnotes-btn,#leave-btn,#scr-playback > .card,#scr-playback video,.prem-stage{transition:none}
+  }
+  body.cinema{
+    background:#050508 !important;
+  }
+  body.cinema::before{
+    content:"";position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(ellipse 70% 55% at 50% 42%, rgba(240,168,48,.07), transparent 70%),
+               radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.72) 100%);
+  }
+  body.cinema header,
+  body.cinema .side-panel,
+  body.cinema #patchnotes-btn,
+  body.cinema #leave-btn{
+    opacity:.04;pointer-events:none;filter:grayscale(.8);
+  }
+  body.cinema .floaties{z-index:60;pointer-events:none}
+  body.cinema #scr-playback{position:relative;z-index:2}
+  body.cinema #scr-playback > .card{
+    background:transparent;border-color:transparent;box-shadow:none;
+  }
+  body.cinema #scr-playback > .card > *:not(.prem-stage){
+    opacity:0 !important;pointer-events:none !important;
+    max-height:0 !important;margin:0 !important;padding:0 !important;overflow:hidden !important;
+    border:none !important;
+  }
+  body.cinema .prem-stage{
+    opacity:1;pointer-events:auto;max-height:none !important;overflow:visible !important;
+    position:relative;z-index:3;
+  }
+  body.cinema .prem-stage #play-video{
+    box-shadow:0 0 0 1px rgba(240,168,48,.25), 0 0 80px rgba(240,168,48,.12), 0 20px 60px rgba(0,0,0,.7);
+  }
+  body.cinema #prem-emoji-bar{
+    justify-content:center;margin-top:14px !important;opacity:1 !important;
+    pointer-events:auto !important;max-height:none !important;overflow:visible !important;
+  }
+  body.cinema #prem-emoji-bar .emojibtn{pointer-events:auto}
+  .prem-load-wrap{margin-top:10px}
+  .prem-load-wrap .prem-pct{
+    font-family:var(--font-mono);font-size:.85rem;color:var(--amber);
+    letter-spacing:.08em;margin:6px 0 0;text-align:center;
   }
 
   /* Theater-Vorhang — nur über dem Podium-Finale, schnell & clean */
@@ -1433,17 +1474,22 @@
     <div class="card">
       <h2>🎬 Premiere</h2>
       <p class="sub">Euer fertiger Synchro-Take — Stimmen mit Panning, Effekten und Kompressor über dem Original-Sound.</p>
-      <video id="play-video" playsinline preload="auto" crossorigin="anonymous" style="width:100%;display:block;border-radius:10px"></video>
-      <div class="row" style="margin-top:10px;gap:6px" id="prem-emoji-bar">
-        <span class="tag" style="margin-right:4px">🎙 Live-Kommentar:</span>
-        <button class="emojibtn" data-e="👍">👍</button>
-        <button class="emojibtn" data-e="😂">😂</button>
-        <button class="emojibtn" data-e="🔥">🔥</button>
-        <button class="emojibtn" data-e="👀">👀</button>
-        <button class="emojibtn" data-e="💀">💀</button>
-        <button class="emojibtn" data-e="👑">👑</button>
+      <div class="prem-stage">
+        <video id="play-video" playsinline preload="auto" crossorigin="anonymous" style="width:100%;display:block;border-radius:10px"></video>
+        <div class="row" style="margin-top:10px;gap:6px" id="prem-emoji-bar">
+          <span class="tag" style="margin-right:4px">🎙 Live-Kommentar:</span>
+          <button class="emojibtn" data-e="👍">👍</button>
+          <button class="emojibtn" data-e="😂">😂</button>
+          <button class="emojibtn" data-e="🔥">🔥</button>
+          <button class="emojibtn" data-e="👀">👀</button>
+          <button class="emojibtn" data-e="💀">💀</button>
+          <button class="emojibtn" data-e="👑">👑</button>
+        </div>
       </div>
-      <div class="bar" id="prem-bar" style="display:none"><i></i></div>
+      <div class="prem-load-wrap" id="prem-load-wrap">
+        <div class="bar" id="prem-bar" style="display:none"><i></i></div>
+        <p class="prem-pct" id="prem-bar-label" style="display:none"></p>
+      </div>
       <p class="status" id="prem-status"></p>
       <div id="redo-panel-prem" style="margin-top:8px"></div>
       <div id="prem-orig-panel" style="display:none;margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#121218">
@@ -1577,7 +1623,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.36"></script>
+  <script src="client.js?v=9.10.37"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>

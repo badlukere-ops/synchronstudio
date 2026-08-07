@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.36";
+const APP_VERSION = "9.10.37";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -477,6 +477,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.37", items: [
+    "📦 Premiere: echter Ladebalken mit Prozent pro Spieler (nicht nur 0/1)",
+    "🎥 Kinosaal: wenn die Premiere läuft, wird alles dunkel — nur Video + Live-Kommentar bleiben"
+  ]},
   { v: "9.10.36", items: [
     "🔧 Premiere-Reconnect: nach Reload nicht mehr ewig auf den Host warten; Bewertung wieder erreichbar",
     "🔇 Hintergrund-Schnitt der Premiere wieder still; Speichern nutzt keine veraltete Lautstärke mehr",
@@ -2891,7 +2895,7 @@ function broadcastState(opts) {
 // Nachrichten, die der Host von Gästen annehmen darf (alles andere ignorieren)
 const HOST_IN = new Set([
   "hello", "bye", "pickRole", "ready", "progress", "loadProg", "tracks", "trackUpdate",
-  "ttt", "rps", "dice", "draw", "rate", "mg", "emoji", "premReady", "cb",
+  "ttt", "rps", "dice", "draw", "rate", "mg", "emoji", "premReady", "premProg", "cb",
   "duelSubmit", "duelVote"
 ]);
 // Nachrichten, die Gäste vom Host annehmen dürfen
@@ -3094,6 +3098,16 @@ function handleMsg(msg, conn) {
       const p = players.find(p => p.id === conn.peer);
       if (p) { p.loadPct = msg.pct | 0; p.videoReady = !!msg.ready; }
       broadcastState({ throttle: !msg.ready });
+      break;
+    }
+    case "premProg": {
+      const p = players.find(p => p.id === conn.peer);
+      if (p) {
+        p.premPct = Math.max(0, Math.min(100, msg.pct | 0));
+        if (msg.ready) p.prem = true;
+      }
+      broadcastState({ throttle: !msg.ready });
+      renderPremState();
       break;
     }
     case "tracks": collectTracks(msg.role, attachTrackMeta(msg.items, msg), msg.outtakes, conn.peer); break;
@@ -5656,7 +5670,7 @@ const allRatings = new Map();   // Host: voterId → { scores, buddy }
 const BUDDY_BONUS = 1.0;        // Extra-Punkte pro erhaltenem SynchroBuddy
 
 function showRateCard() {
-  document.body.classList.remove("cinema");
+  exitCinemaMode();
   const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
   const speakers = players.filter(p => p.role != null && !p.offline && p.id !== myId);
   const anySpeakers = players.filter(p => p.role != null && !p.offline).length >= 2;
@@ -6015,10 +6029,10 @@ $("btn-back-lobby").onclick = () => {
   backToLobby();
 };
 function backToLobby(keepMatch) {
-  document.body.classList.remove("cinema");
+  exitCinemaMode();
   const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
   if (!keepMatch) { match.round = 1; match.totals = {}; match.buddyGivers = {}; myBuddyUsed = false; }
-  players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; });
+  players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; p.premPct = 0; });
   mixItems = []; collected.clear(); collectedOuttakes.clear(); takes = {}; outtakes = []; outtakesCache = null;
   finalTracksData = null; premiereLocked = false; redoMode = null;
   pendingRate = false; rateSent = false; ratingDone = false; allRatings.clear(); myStars = {}; myBuddy = null;
@@ -6960,6 +6974,62 @@ async function toArrayBuffer(x) {
   throw new Error("Unbekanntes Binärformat: " + Object.prototype.toString.call(x));
 }
 
+function reportPremLoad(pct, ready) {
+  const p = Math.max(0, Math.min(100, pct | 0));
+  const me = players.find(x => x.id === myId);
+  if (me) {
+    me.premPct = p;
+    if (ready) me.prem = true;
+  }
+  renderPremState();
+  if (isHost) broadcastState({ throttle: !ready });
+  else sendHost({ t: "premProg", pct: p, ready: !!ready });
+}
+
+function waitCanPlayProgress(v, onProg, timeoutMs = 25000) {
+  return new Promise(res => {
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(to);
+      clearInterval(iv);
+      v.removeEventListener("canplaythrough", finish);
+      v.removeEventListener("canplay", finish);
+      v.removeEventListener("progress", tick);
+      if (onProg) onProg(100);
+      res();
+    };
+    const tick = () => {
+      if (!onProg || finished) return;
+      try {
+        if (v.buffered && v.buffered.length && v.duration && isFinite(v.duration) && v.duration > 0) {
+          const end = v.buffered.end(v.buffered.length - 1);
+          onProg(Math.min(99, Math.round((end / v.duration) * 100)));
+        } else if (v.readyState >= 2) onProg(40);
+        else if (v.readyState >= 1) onProg(15);
+      } catch {}
+    };
+    if (v.readyState >= 3) { if (onProg) onProg(100); return res(); }
+    const to = setTimeout(finish, timeoutMs);
+    const iv = setInterval(tick, 200);
+    v.addEventListener("canplaythrough", finish);
+    v.addEventListener("canplay", finish);
+    v.addEventListener("progress", tick);
+    tick();
+    try { v.load(); } catch {}
+  });
+}
+
+function enterCinemaMode() {
+  document.body.classList.add("cinema");
+  try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = "none"; } catch {}
+}
+function exitCinemaMode() {
+  document.body.classList.remove("cinema");
+  try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = ""; } catch {}
+}
+
 async function loadMix(data, metaMsg) {
   if (!scene) {
     status("play-status", "⚠ Szene fehlt noch — kurz warten oder Seite neu laden.", true);
@@ -6969,11 +7039,19 @@ async function loadMix(data, metaMsg) {
   if (metaMsg) attachMetaToTracks(data, metaMsg);
   applyLocalLineMeta(data);
   show("scr-playback");
+  exitCinemaMode();
   status("play-status", "Dekodiere Spuren …");
   invalidatePremCache();
+  const me0 = players.find(x => x.id === myId);
+  if (me0) { me0.prem = false; me0.premPct = 0; }
+  reportPremLoad(2, false);
   const ctx = getCtx();
   mixItems = [];
   let okCount = 0, failCount = 0;
+  // Alle Items zählen für Prozent beim Dekodieren
+  let totalItems = 0;
+  for (const track of data) totalItems += (track.items || []).length;
+  let doneItems = 0;
   for (const track of data) {
     for (const item of track.items) {
       try {
@@ -6981,11 +7059,14 @@ async function loadMix(data, metaMsg) {
         mixItems.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: processTakeBuffer(ctx, await ctx.decodeAudioData(ab), item.gate, item.effect || (roleOf(track.role) || {}).effect, item.fxAmount), effect: item.effect, fxAmount: item.fxAmount, boost: item.boost, pan: item.pan });
         okCount++;
       } catch (e) { failCount++; console.warn("Spur kaputt:", track.role, e); }
+      doneItems++;
+      const decodePct = totalItems ? Math.round((doneItems / totalItems) * 45) : 45;
+      reportPremLoad(Math.max(3, decodePct), false);
     }
   }
   console.log("Mix geladen:", okCount, "Spuren ok,", failCount, "fehlgeschlagen");
   if (failCount) status("play-status", "⚠ " + failCount + " Spur(en) konnten nicht geladen werden — F12 → Console.", true);
-  setBar("prem-bar", 70);
+  reportPremLoad(48, false);
   // Original-Stimmen für alle Lines, die KEIN Spieler eingesprochen hat
   // (unbesetzte Rollen + übersprungene Lines)
   if (scene.lines) {
@@ -7009,38 +7090,67 @@ async function loadMix(data, metaMsg) {
       } catch { console.warn("Original fehlt für Line", i); }
     }
   }
+  reportPremLoad(55, false);
   // Video KOMPLETT vorladen, damit die Premiere bei allen gleichzeitig & ruckelfrei startet
   const pv = $("play-video");
   pv.src = sceneVideoSrc();
   attachPrompter(pv, $("play-prompter"), null);
   status("play-status", "⏳ Video wird vorgeladen …");
-  await waitCanPlay(pv, 25000);
-  setBar("prem-bar", 100);
+  await waitCanPlayProgress(pv, pct => {
+    // 55–99 % = Videopuffer
+    reportPremLoad(55 + Math.round((pct / 100) * 44), false);
+  }, 25000);
+  reportPremLoad(100, true);
   // Fertig geladen → beim Host melden
-  const me = players.find(p => p.id === myId);
-  if (me) me.prem = true;
   $("btn-replay").disabled = true;
   $("btn-download").disabled = true;
   initPremOrigFromMix();
   if (isHost) { broadcastState(); renderPremState(); broadcastPremOrig(); }
-  else { sendHost({ t: "premReady" }); status("play-status", "✅ Fertig geladen — warte, bis der Host die Premiere startet …"); }
+  else {
+    sendHost({ t: "premReady" });
+    status("play-status", "✅ Fertig geladen — warte, bis der Host die Premiere startet …");
+  }
   renderRedoPanel("redo-panel-prem");
   updateOuttakesBtn();
   SFX.ok();
 }
 
-function renderPremStateGuest() {
-  const active = onlinePlayers();
-  const total = active.length, ready = active.filter(p => p.prem).length;
-  const el = $("prem-status");
-  if (el) el.textContent = "📦 " + ready + "/" + total + " online haben fertig geladen" + (ready < total ? " …" : " — warte auf den Host!");
-}
+function renderPremStateGuest() { renderPremState(); }
 function renderPremState() {
   const active = onlinePlayers();
   const total = active.length;
   const ready = active.filter(p => p.prem).length;
+  const allReady = total > 0 && ready >= total;
+  const pcts = active.map(p => p.prem ? 100 : Math.max(0, Math.min(100, p.premPct | 0)));
+  const avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
+  const bar = $("prem-bar");
+  const label = $("prem-bar-label");
+  const wrap = $("prem-load-wrap");
+  if (bar) {
+    bar.style.display = allReady ? "none" : "";
+    const fill = bar.querySelector("i");
+    if (fill) fill.style.width = (allReady ? 100 : Math.max(avg, 1)) + "%";
+  }
+  if (label) {
+    label.style.display = allReady ? "none" : "";
+    label.textContent = avg + "%";
+  }
+  if (wrap) wrap.style.display = allReady ? "none" : "";
   const el = $("prem-status");
-  if (el) el.textContent = "📦 " + ready + "/" + total + " online haben fertig geladen" + (ready < total ? " …" : " — alle bereit!");
+  if (el) {
+    if (!total) el.textContent = "⏳ Premiere wird vorbereitet …";
+    else if (allReady) {
+      el.textContent = isHost
+        ? "✅ Alle fertig geladen (" + ready + "/" + total + ") — du kannst starten!"
+        : "✅ Alle fertig geladen — warte auf den Host!";
+    } else {
+      const parts = active.map(p => {
+        const pct = p.prem ? 100 : (p.premPct | 0);
+        return p.name.replace(/\s*\(Host\)\s*/i, "") + " " + pct + "%";
+      });
+      el.textContent = "⏳ Premiere lädt … " + parts.join(" · ");
+    }
+  }
   if (isHost) {
     const btn = $("btn-prem-start");
     if (btn) {
@@ -7181,6 +7291,7 @@ function premStart(opts) {
   status("play-status", "🍿 Premiere!");
   updateOuttakesBtn();
   updatePremPauseBtn();
+  enterCinemaMode();
   // Zahlen-Countdown — weiße Balken nur in der Booth, nie hier
   // Rejoin mitten in der Premiere: ohne Countdown sofort starten
   if (opts && opts.skipCountdown) playMix(false);
@@ -7970,7 +8081,7 @@ $("btn-back").onclick = () => {
   else status("play-status", "Nur der Host kann die Szene wechseln.", true);
 };
 function resetForNewRound() {
-  players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; });
+  players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; p.premPct = 0; });
   mixItems = []; collected.clear(); collectedOuttakes.clear(); takes = {}; outtakes = []; outtakesCache = null;
   clearTimeout(outtakesPrecacheTimer); outtakesPrecacheTimer = null;
   outtakeAbort = true; outtakesPlaying = false; outtakesQuietJob = false;
@@ -7985,7 +8096,7 @@ function resetForNewRound() {
   const pop = $("prem-orig-panel"); if (pop) pop.style.display = "none";
   updatePremPauseBtn();
   pendingRate = false; rateSent = false; allRatings.clear(); myStars = {}; myBuddy = null;
-  document.body.classList.remove("cinema");
+  exitCinemaMode();
   const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
   $("rate-card").style.display = "none";
   $("rate-rows").innerHTML = ""; $("rate-result").innerHTML = "";
