@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.49";
+const APP_VERSION = "9.10.50";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -504,6 +504,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.50", items: [
+    "🚪 Host kann Mitspieler kicken (mit Nachfrage) — Kick-Knopf neben jedem Namen in der Spielerliste"
+  ]},
   { v: "9.10.49", items: [
     "🔊 „Deine Lautstärke“ geht jetzt bis 5 % runter (vorher nur bis 40 %) — hilft, wenn Effekte die Stimme lauter machen"
   ]},
@@ -2722,7 +2725,7 @@ const duelVotes = {};         // Host: voterId -> "a" | "b"
 // ═════════════════════════════════════════════════════════════
 // RAUM VERLASSEN — sauberer Reset ohne Seiten-Reload
 // ═════════════════════════════════════════════════════════════
-function leaveRoom() {
+function leaveRoom(statusMsg) {
   // Bewusst gegangen: kein Wiederverbinden versuchen, und der Host soll den Platz
   // sofort räumen statt ihn zwei Minuten freizuhalten.
   absichtlichWeg = true;
@@ -2754,10 +2757,11 @@ function leaveRoom() {
   $("host-start").style.display = "none";
   $("scene-card").style.display = "none";
   $("leave-btn").style.display = "none";
-  status("start-status", "Raum verlassen. Du kannst direkt einen neuen erstellen oder beitreten.");
+  status("start-status", statusMsg || "Raum verlassen. Du kannst direkt einen neuen erstellen oder beitreten.");
   show("scr-start");
   SFX.stop();
 }
+let pendingConfirm = null; // { type:"leave" } | { type:"kick", pid }
 document.body.insertAdjacentHTML("beforeend",
   `<div id="wv-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:250;background:#c9821f;color:#12120f;font-family:var(--font-mono);font-size:.8rem;font-weight:700;text-align:center;padding:7px 12px;letter-spacing:.04em;box-shadow:0 2px 12px rgba(0,0,0,.5)"></div>
    <button id="leave-btn" style="position:fixed;right:12px;bottom:10px;z-index:98;display:none;padding:8px 14px;font-size:.82rem;background:#1f1f28;border:1px solid var(--line);border-radius:8px;color:var(--muted)">🚪 Raum verlassen</button>
@@ -2770,13 +2774,45 @@ document.body.insertAdjacentHTML("beforeend",
        </div>
      </div>
    </div>`);
-$("leave-btn").onclick = () => {
-  $("leave-confirm-text").textContent = "Raum wirklich verlassen?" + (isHost ? " Du bist Host — der Raum wird für alle geschlossen!" : "");
+function showConfirmDialog(text, confirmLabel, action) {
+  pendingConfirm = action;
+  $("leave-confirm-text").textContent = text;
+  $("btn-leave-confirm").textContent = confirmLabel;
+  $("btn-leave-confirm").style.background = "var(--hot)";
   $("leave-confirm-overlay").style.display = "flex";
+}
+$("leave-btn").onclick = () => {
+  showConfirmDialog(
+    "Raum wirklich verlassen?" + (isHost ? " Du bist Host — der Raum wird für alle geschlossen!" : ""),
+    "🚪 Ja, verlassen",
+    { type: "leave" }
+  );
 };
-$("btn-leave-cancel").onclick = () => $("leave-confirm-overlay").style.display = "none";
-$("leave-confirm-overlay").onclick = e => { if (e.target.id === "leave-confirm-overlay") $("leave-confirm-overlay").style.display = "none"; };
-$("btn-leave-confirm").onclick = () => { $("leave-confirm-overlay").style.display = "none"; leaveRoom(); };
+$("btn-leave-cancel").onclick = () => { pendingConfirm = null; $("leave-confirm-overlay").style.display = "none"; };
+$("leave-confirm-overlay").onclick = e => {
+  if (e.target.id === "leave-confirm-overlay") { pendingConfirm = null; $("leave-confirm-overlay").style.display = "none"; }
+};
+$("btn-leave-confirm").onclick = () => {
+  $("leave-confirm-overlay").style.display = "none";
+  const a = pendingConfirm; pendingConfirm = null;
+  if (!a) return;
+  if (a.type === "kick") kickPlayer(a.pid);
+  else leaveRoom();
+};
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-kick]");
+  if (!btn || !isHost) return;
+  e.preventDefault();
+  const pid = btn.getAttribute("data-kick");
+  const p = players.find(x => x.id === pid);
+  if (!p || p.id === myId) return;
+  showConfirmDialog(
+    (p.name || "Diesen Spieler") + " wirklich aus dem Raum kicken?",
+    "🚪 Ja, kicken",
+    { type: "kick", pid }
+  );
+  SFX.click();
+});
 
 // ── Raumcode verstecken (Blur): gut für Streams/Screenshots — Auge toggelt Sichtbarkeit ──
 let codeHidden = false;
@@ -2924,6 +2960,20 @@ function endgueltigWeg(p) {
   syncForceMixBtn();
 }
 
+// Host kickt jemanden: sofort raus (keine Gnadenfrist), Nachricht schicken, Verbindung zu.
+function kickPlayer(pid) {
+  if (!isHost || !pid || pid === myId) return;
+  const p = players.find(x => x.id === pid);
+  if (!p) return;
+  const c = conns.get(pid);
+  if (c && c.open) {
+    try { c.send({ t: "kicked" }); } catch {}
+  }
+  p.gehtFreiwillig = true;
+  endgueltigWeg(p);
+  if (c) setTimeout(() => { try { c.close(); } catch {} }, 200);
+}
+
 // Beim Wiederkommen hat die Person eine neue Peer-Adresse. Alles, was noch unter der
 // alten Adresse abgelegt ist, muss mitwandern — sonst könnte sie z. B. zweimal abstimmen.
 function idUmschreiben(alt, neu) {
@@ -2979,7 +3029,7 @@ const HOST_IN = new Set([
 ]);
 // Nachrichten, die Gäste vom Host annehmen dürfen
 const GUEST_IN = new Set([
-  "full", "state", "scene", "playerLeft", "playerOffline", "playerBack", "rejoined",
+  "full", "state", "scene", "playerLeft", "playerOffline", "playerBack", "rejoined", "kicked",
   "settings", "sceneReset", "duelSetupInfo", "duelReady", "duelPlayGo", "duelVoteBroadcast",
   "duelResult", "wins", "nextRound", "matchEnd", "matchLobby", "videoMeta", "videoChunk",
   "goLines", "go", "mix", "outtakesPool", "playOuttakes", "tttState", "rpsState", "diceState",
@@ -3245,6 +3295,11 @@ function handleMsg(msg, conn) {
     case "playerLeft": showToast("👋 " + msg.name + " hat den Raum verlassen", "leave"); SFX.leave(); break;
     case "playerOffline": showToast("📴 " + msg.name + " ist rausgeflogen — Platz bleibt frei", "leave"); break;
     case "playerBack": showToast("🔌 " + msg.name + " ist wieder da!", "join"); SFX.ok(); break;
+    case "kicked":
+      absichtlichWeg = true;
+      clearTimeout(wvTimer); wvVersuch = 0; wvBannerAus();
+      leaveRoom("Du wurdest vom Host aus dem Raum gekickt.");
+      break;
     case "rejoined":
       wvVersuch = 0; clearTimeout(wvTimer); wvBannerAus();
       applyPhaseRestore(msg);
@@ -4166,6 +4221,9 @@ function playerCard(p) {
     ? `<span class="tag offline-cd" data-offline-cd style="color:#e8a33d">${escOfflineCountdown(p)}</span>`
     : "";
   const loadingCls = (scene && scene.videoUrl && !p.videoReady) ? " loading" : "";
+  const kickBtn = (isHost && p.id !== myId)
+    ? `<button type="button" class="kick-btn" data-kick="${esc(p.id)}" title="Aus dem Raum kicken">Kicken</button>`
+    : "";
   return `<div class="player ${p.ready ? "ready" : ""}${loadingCls}" data-pid="${p.id}" style="${p.eliminated ? "opacity:.5" : p.offline ? "opacity:.55" : ""}">
     ${avatarHTML(p)}
     <div class="pinfo">
@@ -4173,6 +4231,7 @@ function playerCard(p) {
       ${p.eliminated ? '<span class="prole" style="color:var(--hot)">🔪 eliminiert</span>' : `<span class="prole ${role ? "" : "empty"}">${role ? "🎭 " + esc(role) : "noch keine Rolle"}</span>`}
       ${wegTag}${p.ready && !p.total ? '<span class="tag" style="color:var(--ok)">bereit</span>' : ""}${loadHtml}${prog}
     </div>
+    ${kickBtn}
   </div>`;
 }
 function escOfflineCountdown(p) {
