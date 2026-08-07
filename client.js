@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.37";
+const APP_VERSION = "9.10.38";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -477,6 +477,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.38", items: [
+    "🌈 Kinosaal-Ambilight: Glow hinter dem Video nimmt die Farben vom Bild (wie RGB-Licht am Rand)"
+  ]},
   { v: "9.10.37", items: [
     "📦 Premiere: echter Ladebalken mit Prozent pro Spieler (nicht nur 0/1)",
     "🎥 Kinosaal: wenn die Premiere läuft, wird alles dunkel — nur Video + Live-Kommentar bleiben"
@@ -7021,12 +7024,46 @@ function waitCanPlayProgress(v, onProg, timeoutMs = 25000) {
   });
 }
 
+let ambilightRAF = 0;
+function stopAmbilight() {
+  if (ambilightRAF) { cancelAnimationFrame(ambilightRAF); ambilightRAF = 0; }
+}
+function startAmbilight() {
+  stopAmbilight();
+  const v = $("play-video");
+  const c = $("play-ambilight");
+  if (!v || !c) return;
+  const ctx = c.getContext("2d", { alpha: false, desynchronized: true });
+  if (!ctx) return;
+  let lastDraw = 0;
+  const tick = (now) => {
+    ambilightRAF = requestAnimationFrame(tick);
+    if (!document.body.classList.contains("cinema")) return;
+    if (v.readyState < 2 || v.paused || v.ended) return;
+    // ~20 fps reicht fürs Glow — spart CPU
+    if (now - lastDraw < 50) return;
+    lastDraw = now;
+    const vw = v.videoWidth || 16, vh = v.videoHeight || 9;
+    const w = 56;
+    const h = Math.max(2, Math.round(w * vh / vw));
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    try {
+      ctx.drawImage(v, 0, 0, w, h);
+    } catch {
+      // CORS / tainted — stiller Abbruch, kein Spam
+      stopAmbilight();
+    }
+  };
+  ambilightRAF = requestAnimationFrame(tick);
+}
 function enterCinemaMode() {
   document.body.classList.add("cinema");
   try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = "none"; } catch {}
+  startAmbilight();
 }
 function exitCinemaMode() {
   document.body.classList.remove("cinema");
+  stopAmbilight();
   try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = ""; } catch {}
 }
 
