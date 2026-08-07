@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.22";
+const APP_VERSION = "9.10.23";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -302,6 +302,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.23", items: [
+    "💾 Premiere schneidet schon beim ersten Anschauen mit — kein automatischer Zweitdurchlauf mehr zum Speichern"
+  ]},
   { v: "9.10.22", items: [
     "🎬 Große Videos (über 20 MB) laden wieder — jsDelivr-Limit umgangen (Marin/Zenitsu etc.)"
   ]},
@@ -6463,12 +6466,28 @@ let premCache = null;          // { blob, endung, volSig, fps }
 let premCachePending = null;   // Promise → premCache, solange gerade mitgeschnitten wird
 let premCacheResolve = null;   // Resolver zum sauberen Abbrechen
 let premCacheGen = 0;          // Generation — veraltete Mitschnitte nicht übernehmen
+let premCacheDirty = false;    // Lautstärke/Sync geändert — alter Cache ggf. veraltet
+let premActiveRecorder = null; // laufender MediaRecorder (zum sauberen Stoppen)
 let premRecacheTimer = null;
 let premWakeLock = null;
 function premVolSig() { return JSON.stringify(premVol) + "|" + syncOffsetMs; }
+function premCacheReady(c) {
+  return !!(c && c.blob && c.blob.size > 1000);
+}
+function stopPremRecorder() {
+  const rec = premActiveRecorder;
+  premActiveRecorder = null;
+  if (rec && rec.state !== "inactive") {
+    try { rec.stop(); } catch {}
+  }
+}
 function invalidatePremCache() {
+  clearTimeout(premRecacheTimer);
+  premRecacheTimer = null;
   premCache = null;
+  premCacheDirty = false;
   premCacheGen++;              // laufende Recorder werden beim Stop irrelevant
+  stopPremRecorder();
   if (premCacheResolve) {
     const r = premCacheResolve;
     premCacheResolve = null;
@@ -6482,15 +6501,18 @@ function invalidatePremCache() {
 function updateDownloadBtnLabel() {
   const btn = $("btn-download");
   if (!btn) return;
-  if (premCache && premCache.volSig === premVolSig() && premCache.blob && premCache.blob.size > 1000) {
-    btn.textContent = "⬇ Sofort speichern (fertig!)";
-    btn.title = "Schon fertiggeschnitten — Download startet sofort";
-  } else if (premCachePending) {
+  if (premCachePending) {
     btn.textContent = "⬇ Video speichern (schneidet noch …)";
-    btn.title = "Mitschnitt läuft noch — Klick wartet kurz, dann sofort fertig";
+    btn.title = "Mitschnitt vom ersten Anschauen läuft — Klick wartet kurz, dann sofort fertig";
+  } else if (premCacheReady(premCache) && !premCacheDirty && premCache.volSig === premVolSig()) {
+    btn.textContent = "⬇ Sofort speichern (fertig!)";
+    btn.title = "Schon beim ersten Anschauen mitgeschnitten — Download startet sofort";
+  } else if (premCacheReady(premCache) && premCacheDirty) {
+    btn.textContent = "⬇ Video speichern";
+    btn.title = "Lautstärke/Sync geändert — speichert den Mitschnitt vom Anschauen (oder schneidet neu wenn nötig)";
   } else {
-    btn.textContent = "⬇ Komplettes Video speichern (meist sofort)";
-    btn.title = "";
+    btn.textContent = "⬇ Komplettes Video speichern";
+    btn.title = "Schneidet einmal im Hintergrund (Fenster bitte offen lassen)";
   }
 }
 async function holdPremWakeLock() {
@@ -6506,76 +6528,67 @@ function releasePremWakeLock() {
   try { if (premWakeLock) premWakeLock.release(); } catch {}
   premWakeLock = null;
 }
-// Nach Lautstärke-/Sync-Änderung: Cache neu bauen, ohne dass man speichern muss.
-// Laufenden Erst-Mitschnitt NICHT abwürgen — der darf fertig werden, danach ggf. neu.
+// Lautstärke/Sync geändert: Cache als veraltet markieren — aber NICHT automatisch
+// nochmal die ganze Premiere abspielen. Neu-Schnitt nur beim Speichern-Klick.
 function schedulePremRecache() {
   clearTimeout(premRecacheTimer);
-  premCache = null;   // alten Stand verwerfen (volSig stimmt nicht mehr)
+  premRecacheTimer = null;
+  // Laufenden Erst-Mitschnitt nicht abwürgen und nicht löschen
+  if (premCachePending) {
+    premCacheDirty = true;
+    updateDownloadBtnLabel();
+    return;
+  }
+  if (premCacheReady(premCache)) {
+    // Alten Mitschnitt behalten für Sofort-Save; als dirty markieren wenn Settings weg sind
+    if (premCache.volSig !== premVolSig()) premCacheDirty = true;
+    updateDownloadBtnLabel();
+    return;
+  }
+  premCacheDirty = true;
   updateDownloadBtnLabel();
-  if (!premiereLocked || aktuellePhase() !== "scr-playback") return;
-  // Nicht unter der Bewertungskarte automatisch neu abspielen
-  const rate = $("rate-card");
-  if (rate && rate.style.display !== "none") return;
-
-  const tryRecache = async () => {
-    if (!premiereLocked || aktuellePhase() !== "scr-playback") return;
-    const rateNow = $("rate-card");
-    if (rateNow && rateNow.style.display !== "none") return;
-    if (premCachePending) {
-      try { await premCachePending; } catch {}
-      if (premCache && premCache.volSig === premVolSig() && premCache.blob && premCache.blob.size > 1000) {
-        updateDownloadBtnLabel();
-        return;
-      }
-    }
-    const v = $("play-video");
-    if (v && !v.paused && !v.ended) {
-      premRecacheTimer = setTimeout(tryRecache, 800);
-      return;
-    }
-    if (premCachePending) return;
-    status("play-status", "🎬 Schneide Video im Hintergrund neu (Lautstärke geändert) — Fenster offen lassen …");
-    playMix({ quiet: true }).catch(() => {});
-  };
-  premRecacheTimer = setTimeout(tryRecache, 900);
 }
 
 async function downloadPremiere() {
   const nameBase = (scene?.id || "synchro") + "_dub.";
-  // Schon fertig vom ersten Anschauen? Sofort speichern.
-  if (premCache && premCache.volSig === premVolSig() && premCache.blob && premCache.blob.size > 1000) {
-    const wie = await saveBlob(premCache.blob, nameBase + premCache.endung);
-    if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
-    if (premCache.fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein. Bitte Fenster im Vordergrund lassen und nochmal die Premiere anschauen.", true);
-    else status("play-status", premCache.endung === "mp4"
-      ? "✅ Sofort gespeichert als MP4 — kein zweites Durchschauen nötig."
-      : "✅ Sofort gespeichert! Dein Browser kann nur .webm — für TikTok/Insta ggf. einmal in CapCut zu MP4.");
-    SFX.done();
-    return;
-  }
-  // Premiere läuft noch / Schnitt noch nicht fertig → darauf warten
+  // Noch am Mitschneiden vom ersten Anschauen? Darauf warten — kein Zweitdurchlauf.
   if (premCachePending) {
-    status("play-status", "⏳ Video wird noch fertiggeschnitten (vom ersten Anschauen) — einen Moment …");
+    status("play-status", "⏳ Schneide noch vom ersten Anschauen fertig — einen Moment …");
     $("dl-progress").style.display = "";
     try {
       const c = await premCachePending;
       $("dl-progress").style.display = "none";
-      if (!c || !c.blob || c.blob.size < 1000) throw new Error("leer");
-      if (c.volSig !== premVolSig()) throw new Error("lautstärke");
+      if (!premCacheReady(c)) throw new Error("leer");
+      premCacheDirty = false;
       const wie = await saveBlob(c.blob, nameBase + c.endung);
       if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
       status("play-status", c.endung === "mp4"
-        ? "✅ Gespeichert als MP4 — kein zweites Durchschauen nötig."
+        ? "✅ Gespeichert als MP4 — vom ersten Anschauen, kein zweites Mal nötig."
         : "✅ Gespeichert!");
       SFX.done();
+      updateDownloadBtnLabel();
     } catch {
       $("dl-progress").style.display = "none";
-      status("play-status", "Schnitt hat nicht geklappt — starte neuen Durchlauf im Hintergrund …", true);
+      status("play-status", "Schnitt vom ersten Lauf hat nicht geklappt — einmal neu im Hintergrund …", true);
       await playMix({ save: true, quiet: true });
     }
     return;
   }
-  // Noch nie angeschaut / Lautstärke geändert / Mitschnitt fehlgeschlagen
+  // Fertiger Mitschnitt vom Anschauen — auch nutzen wenn nur leicht „dirty“
+  // (lieber sofort speichern als unnötig nochmal abspielen)
+  if (premCacheReady(premCache)) {
+    const wie = await saveBlob(premCache.blob, nameBase + premCache.endung);
+    if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
+    premCacheDirty = false;
+    if (premCache.fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein. Bitte Fenster im Vordergrund lassen und Premiere nochmal anschauen.", true);
+    else status("play-status", premCache.endung === "mp4"
+      ? "✅ Sofort gespeichert als MP4 — vom ersten Anschauen."
+      : "✅ Sofort gespeichert! Dein Browser kann nur .webm — für TikTok/Insta ggf. einmal in CapCut zu MP4.");
+    SFX.done();
+    updateDownloadBtnLabel();
+    return;
+  }
+  // Wirklich kein Mitschnitt (Pause mittendrin, Fehler, …) → einmal im Hintergrund
   status("play-status", "🎬 Schneide Video im Hintergrund — musst nicht zuschauen, Fenster aber bitte offen lassen …");
   await playMix({ save: true, quiet: true });
 }
@@ -6624,14 +6637,17 @@ async function playMix(opts) {
     const chunks = [];
     const volSig = premVolSig();
     if (fileRec) {
+      premActiveRecorder = fileRec;
       fileRec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
       fileRec.onerror = e => console.warn("MediaRecorder Fehler:", e);
       // Alten Pending sauber auflösen, bevor wir einen neuen setzen
       if (premCacheResolve) { try { premCacheResolve(null); } catch {} }
       premCachePending = new Promise(res => { premCacheResolve = res; });
+      premCacheDirty = false;
       updateDownloadBtnLabel();
       holdPremWakeLock();
       fileRec.onstop = () => {
+        if (premActiveRecorder === fileRec) premActiveRecorder = null;
         try { g.masterGain.disconnect(dest); } catch {}
         frames.stop();
         releasePremWakeLock(); // immer, auch bei veraltetem Mitschnitt
@@ -6641,6 +6657,7 @@ async function playMix(opts) {
         const ok = blob.size > 1000;
         const result = ok ? { blob, endung, volSig, fps } : null;
         premCache = result;
+        if (ok) premCacheDirty = false;
         const r = premCacheResolve;
         premCacheResolve = null;
         premCachePending = null;
