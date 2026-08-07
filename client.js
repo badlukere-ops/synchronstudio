@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.39";
+const APP_VERSION = "9.10.40";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -477,6 +477,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.40", items: [
+    "🎥 Kinosaal: Video etwas kleiner & wirklich mittig; dezente Lautstärke-Regler unten (Stimmen/Musik)"
+  ]},
   { v: "9.10.39", items: [
     "🎥 Kinosaal: Video größer und immer mittig auf dem Bildschirm"
   ]},
@@ -7062,6 +7065,7 @@ function startAmbilight() {
 function enterCinemaMode() {
   document.body.classList.add("cinema");
   try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = "none"; } catch {}
+  syncCinemaVolSliders();
   startAmbilight();
 }
 function exitCinemaMode() {
@@ -7890,9 +7894,30 @@ async function playMix(opts) {
 }
 
 
-$("vol-master").oninput = e => { premVol.master = parseFloat(e.target.value); applyPremVol(); schedulePremRecache(); };
-$("vol-voice").oninput  = e => { premVol.voice  = parseFloat(e.target.value); applyPremVol(); schedulePremRecache(); };
-$("vol-video").oninput  = e => { premVol.video  = parseFloat(e.target.value); applyPremVol(); schedulePremRecache(); };
+function syncCinemaVolSliders() {
+  const m = $("cin-vol-master"), v = $("cin-vol-voice"), u = $("cin-vol-video");
+  if (m) m.value = premVol.master;
+  if (v) v.value = premVol.voice;
+  if (u) u.value = premVol.video;
+}
+function bindVolSlider(id, key, twinId) {
+  const el = $(id);
+  if (!el) return;
+  el.oninput = e => {
+    premVol[key] = parseFloat(e.target.value);
+    const twin = twinId && $(twinId);
+    if (twin && twin !== el) twin.value = e.target.value;
+    applyPremVol();
+    schedulePremRecache();
+  };
+}
+bindVolSlider("vol-master", "master", "cin-vol-master");
+bindVolSlider("vol-voice", "voice", "cin-vol-voice");
+bindVolSlider("vol-video", "video", "cin-vol-video");
+bindVolSlider("cin-vol-master", "master", "vol-master");
+bindVolSlider("cin-vol-voice", "voice", "vol-voice");
+bindVolSlider("cin-vol-video", "video", "vol-video");
+syncCinemaVolSliders();
 let boothVol = 0.55;
 $("booth-vol").oninput = e => { boothVol = parseFloat(e.target.value); $("booth-video").volume = boothVol; };
 

@@ -154,16 +154,16 @@
   body.cinema #scr-playback{
     position:fixed;inset:0;z-index:2;
     display:flex !important;align-items:center;justify-content:center;
-    width:100vw;height:100vh;margin:0;padding:20px 16px 18px;
+    width:100vw;height:100vh;margin:0;padding:0;
     box-sizing:border-box;
   }
   body.cinema #scr-playback.active{animation:none}
   body.cinema #scr-playback > .card{
     background:transparent;border-color:transparent;box-shadow:none;
-    width:min(96vw,1400px);max-width:1400px;margin:0 auto;padding:0;
+    width:auto;max-width:none;margin:0;padding:0;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
   }
-  body.cinema #scr-playback > .card > *:not(.prem-stage){
+  body.cinema #scr-playback > .card > *:not(.prem-stage):not(#cinema-vol){
     opacity:0 !important;pointer-events:none !important;
     max-height:0 !important;margin:0 !important;padding:0 !important;overflow:hidden !important;
     border:none !important;
@@ -171,7 +171,7 @@
   body.cinema .prem-stage{
     opacity:1;pointer-events:auto;max-height:none !important;overflow:visible !important;
     position:relative;z-index:3;
-    width:min(96vw,1360px);max-width:100%;
+    width:min(88vw,980px);
     display:flex;flex-direction:column;align-items:center;
   }
   .prem-screen{
@@ -191,21 +191,46 @@
   }
   body.cinema #play-ambilight{display:block}
   body.cinema .prem-screen{
-    width:min(96vw,1360px,calc(82vh * 16 / 9));
+    width:min(88vw,980px,calc(62vh * 16 / 9));
   }
   body.cinema .prem-screen #play-video{
-    width:100%;height:auto;max-height:82vh;object-fit:contain;
+    width:100%;height:auto;max-height:62vh;object-fit:contain;
     margin:0 auto;box-shadow:0 18px 50px rgba(0,0,0,.75);
   }
   @media (prefers-reduced-motion:reduce){
     #play-ambilight{filter:blur(28px) saturate(1.25) brightness(1.08);opacity:.55;transform:scale(1.08)}
   }
   body.cinema #prem-emoji-bar{
-    justify-content:center;margin-top:16px !important;opacity:1 !important;
+    justify-content:center;margin-top:12px !important;opacity:1 !important;
     pointer-events:auto !important;max-height:none !important;overflow:visible !important;
     width:100%;
   }
   body.cinema #prem-emoji-bar .emojibtn{pointer-events:auto}
+  /* Dezente Kinosaal-Lautstärke — sichtbar, aber unauffällig */
+  #cinema-vol{
+    display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+    z-index:5;gap:14px;align-items:center;justify-content:center;
+    padding:8px 14px;border-radius:999px;
+    background:rgba(10,10,14,.42);border:1px solid rgba(255,255,255,.06);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    opacity:.38;transition:opacity .2s ease;
+  }
+  body.cinema #cinema-vol{display:flex}
+  body.cinema #cinema-vol:hover,
+  body.cinema #cinema-vol:focus-within{opacity:.85}
+  #cinema-vol label{
+    display:flex;align-items:center;gap:6px;
+    font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em;
+    text-transform:uppercase;color:rgba(220,220,230,.55);white-space:nowrap;
+  }
+  #cinema-vol input[type=range]{
+    width:72px;accent-color:rgba(240,168,48,.7);opacity:.85;cursor:pointer;
+  }
+  @media(max-width:600px){
+    #cinema-vol{gap:8px;padding:7px 10px;bottom:12px}
+    #cinema-vol input[type=range]{width:56px}
+    #cinema-vol .cv-label{display:none}
+  }
   .prem-load-wrap{margin-top:10px}
   .prem-load-wrap .prem-pct{
     font-family:var(--font-mono);font-size:.85rem;color:var(--amber);
@@ -1543,10 +1568,15 @@
       <button class="big" id="btn-prem-pause" style="display:none">⏸ Pause für alle</button>
       <button class="primary big" id="btn-duel-play-start" style="display:none">🥊 Beide Versionen abspielen (nur Host)</button>
       <div class="prompter" id="play-prompter"></div>
-      <div class="row" style="margin-top:12px;gap:14px">
+      <div class="row" style="margin-top:12px;gap:14px" id="prem-vol-row">
         <span class="tag">🔊 Gesamt</span><input type="range" id="vol-master" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
         <span class="tag">🎙 Stimmen</span><input type="range" id="vol-voice" min="0" max="2" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
         <span class="tag">🎵 Musik</span><input type="range" id="vol-video" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
+      </div>
+      <div id="cinema-vol" aria-label="Lautstärke">
+        <label><span class="cv-label">Gesamt</span> 🔊 <input type="range" id="cin-vol-master" min="0" max="1.5" step="0.05" value="1"></label>
+        <label><span class="cv-label">Stimmen</span> 🎙 <input type="range" id="cin-vol-voice" min="0" max="2" step="0.05" value="1"></label>
+        <label><span class="cv-label">Musik</span> 🎵 <input type="range" id="cin-vol-video" min="0" max="1.5" step="0.05" value="1"></label>
       </div>
       <div class="synccontrol">
         <label class="small" style="margin:0;white-space:nowrap">Lippen-Sync</label>
@@ -1662,7 +1692,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.39"></script>
+  <script src="client.js?v=9.10.40"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>
