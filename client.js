@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.40";
+const APP_VERSION = "9.10.41";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -477,6 +477,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.41", items: [
+    "🌈 Kinosaal: kleiner Glow-Knopf zum An/Aus; Hintergrund-Bubbles & Profilbilder fliegen nicht mehr übers Bild"
+  ]},
   { v: "9.10.40", items: [
     "🎥 Kinosaal: Video etwas kleiner & wirklich mittig; dezente Lautstärke-Regler unten (Stimmen/Musik)"
   ]},
@@ -7031,20 +7034,44 @@ function waitCanPlayProgress(v, onProg, timeoutMs = 25000) {
 }
 
 let ambilightRAF = 0;
+let ambilightOn = true;
+try { ambilightOn = localStorage.getItem("ss_ambilight") !== "0"; } catch {}
+
 function stopAmbilight() {
   if (ambilightRAF) { cancelAnimationFrame(ambilightRAF); ambilightRAF = 0; }
+}
+function syncGlowBtn() {
+  const btn = $("btn-cinema-glow");
+  if (!btn) return;
+  btn.classList.toggle("off", !ambilightOn);
+  btn.setAttribute("aria-pressed", ambilightOn ? "true" : "false");
+  btn.title = ambilightOn ? "Glow aus" : "Glow an";
+}
+function setAmbilightEnabled(on) {
+  ambilightOn = !!on;
+  try { localStorage.setItem("ss_ambilight", ambilightOn ? "1" : "0"); } catch {}
+  syncGlowBtn();
+  document.body.classList.toggle("cinema-no-glow", !ambilightOn);
+  if (!document.body.classList.contains("cinema")) return;
+  if (ambilightOn) startAmbilight();
+  else stopAmbilight();
 }
 function startAmbilight() {
   stopAmbilight();
   const v = $("play-video");
   const c = $("play-ambilight");
   if (!v || !c) return;
+  if (!ambilightOn) {
+    document.body.classList.add("cinema-no-glow");
+    return;
+  }
+  document.body.classList.remove("cinema-no-glow");
   const ctx = c.getContext("2d", { alpha: false, desynchronized: true });
   if (!ctx) return;
   let lastDraw = 0;
   const tick = (now) => {
     ambilightRAF = requestAnimationFrame(tick);
-    if (!document.body.classList.contains("cinema")) return;
+    if (!document.body.classList.contains("cinema") || !ambilightOn) return;
     if (v.readyState < 2 || v.paused || v.ended) return;
     // ~20 fps reicht fürs Glow — spart CPU
     if (now - lastDraw < 50) return;
@@ -7064,15 +7091,31 @@ function startAmbilight() {
 }
 function enterCinemaMode() {
   document.body.classList.add("cinema");
+  document.body.classList.toggle("cinema-no-glow", !ambilightOn);
   try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = "none"; } catch {}
+  // Bubbles/Profilbilder aus dem Hintergrund — sonst fliegen sie übers Video
+  try { const f = document.getElementById("floaties"); if (f) f.style.display = "none"; } catch {}
   syncCinemaVolSliders();
+  syncGlowBtn();
   startAmbilight();
 }
 function exitCinemaMode() {
   document.body.classList.remove("cinema");
+  document.body.classList.remove("cinema-no-glow");
   stopAmbilight();
   try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = ""; } catch {}
+  // Floaties wieder wie vom aktuellen Screen vorgesehen
+  try {
+    const calm = !!document.body.classList.contains("ingame");
+    const f = document.getElementById("floaties");
+    if (f) f.style.display = calm ? "none" : "";
+  } catch {}
 }
+$("btn-cinema-glow") && ($("btn-cinema-glow").onclick = () => {
+  setAmbilightEnabled(!ambilightOn);
+  SFX.click();
+});
+syncGlowBtn();
 
 async function loadMix(data, metaMsg) {
   if (!scene) {

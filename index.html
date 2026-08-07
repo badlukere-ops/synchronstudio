@@ -147,7 +147,8 @@
   body.cinema #leave-btn{
     opacity:.04;pointer-events:none;filter:grayscale(.8);
   }
-  body.cinema .floaties{z-index:60;pointer-events:none}
+  /* Hintergrund-Bubbles/Profilbilder im Kinosaal aus — fliegen sonst übers Bild */
+  body.cinema .floaties{display:none !important}
   body.cinema .wrap{
     max-width:none;padding:0;margin:0;width:100%;
   }
@@ -190,6 +191,7 @@
     opacity:.92;will-change:contents,filter;
   }
   body.cinema #play-ambilight{display:block}
+  body.cinema.cinema-no-glow #play-ambilight{display:none !important}
   body.cinema .prem-screen{
     width:min(88vw,980px,calc(62vh * 16 / 9));
   }
@@ -209,7 +211,7 @@
   /* Dezente Kinosaal-Lautstärke — sichtbar, aber unauffällig */
   #cinema-vol{
     display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
-    z-index:5;gap:14px;align-items:center;justify-content:center;
+    z-index:5;gap:12px;align-items:center;justify-content:center;
     padding:8px 14px;border-radius:999px;
     background:rgba(10,10,14,.42);border:1px solid rgba(255,255,255,.06);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
@@ -226,6 +228,15 @@
   #cinema-vol input[type=range]{
     width:72px;accent-color:rgba(240,168,48,.7);opacity:.85;cursor:pointer;
   }
+  #btn-cinema-glow{
+    width:30px;height:30px;border-radius:50%;padding:0;margin:0;
+    border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);
+    color:rgba(240,168,48,.85);font-size:.95rem;line-height:1;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;
+    opacity:.9;flex-shrink:0;
+  }
+  #btn-cinema-glow:hover{border-color:rgba(240,168,48,.45);background:rgba(240,168,48,.12)}
+  #btn-cinema-glow.off{color:rgba(180,180,190,.45);opacity:.7;filter:grayscale(.8)}
   @media(max-width:600px){
     #cinema-vol{gap:8px;padding:7px 10px;bottom:12px}
     #cinema-vol input[type=range]{width:56px}
@@ -1574,6 +1585,7 @@
         <span class="tag">🎵 Musik</span><input type="range" id="vol-video" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
       </div>
       <div id="cinema-vol" aria-label="Lautstärke">
+        <button type="button" id="btn-cinema-glow" title="Glow an/aus" aria-pressed="true" aria-label="Glow an/aus">🌈</button>
         <label><span class="cv-label">Gesamt</span> 🔊 <input type="range" id="cin-vol-master" min="0" max="1.5" step="0.05" value="1"></label>
         <label><span class="cv-label">Stimmen</span> 🎙 <input type="range" id="cin-vol-voice" min="0" max="2" step="0.05" value="1"></label>
         <label><span class="cv-label">Musik</span> 🎵 <input type="range" id="cin-vol-video" min="0" max="1.5" step="0.05" value="1"></label>
@@ -1692,7 +1704,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.40"></script>
+  <script src="client.js?v=9.10.41"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>
