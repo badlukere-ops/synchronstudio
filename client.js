@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.35";
+const APP_VERSION = "9.10.36";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -320,19 +320,20 @@ function beginSceneVideoLoad(src) {
 
 function getCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (audioCtx.state === "suspended") audioCtx.resume();
+  // Bei Host-Pause nicht automatisch resume — sonst kämpft Pause gegen Klick/Visibility
+  if (audioCtx.state === "suspended" && !premPaused) audioCtx.resume();
   return audioCtx;
 }
 // Handy (vor allem iOS) pausiert den Ton, sobald die App kurz im Hintergrund war.
 // Beim Zurückkommen und bei der nächsten Berührung wieder anstoßen.
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && audioCtx && audioCtx.state === "suspended") {
+  if (document.visibilityState === "visible" && audioCtx && audioCtx.state === "suspended" && !premPaused) {
     try { audioCtx.resume(); } catch {}
   }
 });
 ["pointerdown", "touchstart", "click"].forEach(ev => {
   document.addEventListener(ev, () => {
-    if (audioCtx && audioCtx.state === "suspended") { try { audioCtx.resume(); } catch {} }
+    if (audioCtx && audioCtx.state === "suspended" && !premPaused) { try { audioCtx.resume(); } catch {} }
   }, { capture: true, passive: true });
 });
 
@@ -476,6 +477,14 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.36", items: [
+    "🔧 Premiere-Reconnect: nach Reload nicht mehr ewig auf den Host warten; Bewertung wieder erreichbar",
+    "🔇 Hintergrund-Schnitt der Premiere wieder still; Speichern nutzt keine veraltete Lautstärke mehr",
+    "🔊 Vorhören mit eigenem Take wieder zuverlässig; „Vorherige“ während Aufnahme gesperrt",
+    "🎚 Neu: „Rollen-Effekt aus“ in den Booth-Einstellungen (z. B. kein Monster bei Kaigaku)",
+    "⏸ Pause für alle: kein Auto-Resume-Kampf mehr + gemeinsame Video-Zeit",
+    "⚔️ Neue Szene: Jujutsu Kaisen — Yuta vs. Ryu Final Fight (4 Rollen)"
+  ]},
   { v: "9.10.35", items: [
     "📜 Line-Text liegt jetzt als Gaffer-Streifen über dem Video",
     "🌊 Wellenform sitzt direkt über den Aufnahme-Knöpfen"
@@ -1046,6 +1055,10 @@ const AVATAR_CHARS = [
   { img: "scenes/kawaimarin/marin2.png", label: "Marin 2" },
   { img: "scenes/kawaimarin/marin3.png", label: "Marin 3" },
   { img: "scenes/kawaimarin/marin4.png", label: "Marin 4" },
+  { img: "scenes/yutaryu/yuta.png", label: "Yuta (vs Ryu)" },
+  { img: "scenes/yutaryu/ryu.png", label: "Ryu" },
+  { img: "scenes/yutaryu/tengen.png", label: "Tengen (vs Ryu)" },
+  { img: "scenes/yutaryu/rika.png", label: "Rika (vs Ryu)" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
@@ -2952,7 +2965,18 @@ function applyPhaseRestore(msg) {
 
   if (msg.phase === "scr-playback" && msg.mix) {
     if (!scene) { enterLobby(raumCode); return; }
-    loadMix(msg.mix, msg);
+    loadMix(msg.mix, msg).then(() => {
+      if (msg.ratingOpen) {
+        premiereLocked = true;
+        pendingRate = false;
+        status("play-status", "🔌 Wieder drin — Bewertung läuft …");
+        if (!rateSent) showRateCard();
+      } else if (msg.premiereLocked) {
+        // Host hat schon gestartet — nicht ewig auf premGo warten
+        premStart({ skipCountdown: true });
+        status("play-status", "🔌 Wieder drin — Premiere läuft …");
+      }
+    }).catch(e => console.warn("Rejoin-Premiere:", e));
   } else if (msg.phase === "scr-booth") {
     if (msg.role != null && scene) {
       queueOrStartBooth();
@@ -2964,10 +2988,12 @@ function applyPhaseRestore(msg) {
   } else if (msg.phase === "scr-wait" || msg.phase === "scr-record") {
     show("scr-wait");
     status("wait-status", "🔌 Wieder drin — warte auf die anderen …");
-  } else if (msg.phase === "scr-rate") {
+  } else if (msg.phase === "scr-rate" || msg.ratingOpen) {
     show("scr-playback");
     status("play-status", "🔌 Wieder drin — Bewertung läuft …");
-    if (!rateSent) showRateCard();
+    if (msg.mix) {
+      loadMix(msg.mix, msg).then(() => { if (!rateSent) showRateCard(); }).catch(() => { if (!rateSent) showRateCard(); });
+    } else if (!rateSent) showRateCard();
   } else if (msg.phase === "scr-duel-vote") {
     show("scr-duel-vote");
     status("duel-vote-status", "🔌 Wieder drin — stimme jetzt ab!");
@@ -3021,6 +3047,7 @@ function handleMsg(msg, conn) {
           match: matchPayload(),
           duelInfo, mix: finalTracksData,
           ...metaMapsFromTracks(finalTracksData),
+          ...rejoinPlaybackFlags(),
         });
         if (scene && localVideoBuf) sendLocalVideo(conn);
         conn.send({ t: "drawState", drawBoard });
@@ -3045,6 +3072,7 @@ function handleMsg(msg, conn) {
           match: matchPayload(),
           duelInfo, mix: finalTracksData,
           ...metaMapsFromTracks(finalTracksData),
+          ...rejoinPlaybackFlags(),
         });
       }
       broadcastState();
@@ -3179,8 +3207,8 @@ function handleMsg(msg, conn) {
     case "drawState": drawBoard = msg.drawBoard; renderDrawBoard(); break;
     case "premGo": premStart(); break;
     case "premOrig": applyPremOrigMsg(msg); break;
-    case "premPause": premPauseAll(false); break;
-    case "premResume": premResumeAll(false); break;
+    case "premPause": premPauseAll(false, msg.tVideo); break;
+    case "premResume": premResumeAll(false, msg.tVideo); break;
     case "emojiShow": showEmoji(msg.pid, msg.char); break;
     case "rateResult": showRateResult(msg.results, msg.eliminatedName); break;
     case "rxGo": rxRun(msg.delay); break;
@@ -3508,6 +3536,7 @@ let myEffectOverrides = {};   // lineIdx -> Effekt-Key (nur gesetzt, wenn vom St
 let myEffectAmounts = {};     // lineIdx -> Effekt-Staerke 0..1 (nur gesetzt, wenn abweichend von voll)
 let myLineGains = {};        // lineIdx -> Lautstaerke-Faktor (1 = unveraendert)
 let myLinePans = {};         // lineIdx -> Stereo-Pan -1..1 (nur gesetzt, wenn Spieler selbst wählt)
+let stripRoleFx = false;     // true = Szenen-/Rollen-Effekt aus (z.B. kein Monster bei Kaigaku), außer man wählt selbst einen
 // Einfache Stereo-Presets (kein echtes Oben/Unten — Kopfhörer/Boxen können nur links↔rechts)
 const LINE_PAN_PRESETS = [
   { id: "auto", label: "Auto", tip: "Wie die Rolle (Standard)", pan: undefined },
@@ -3880,7 +3909,7 @@ function applyGateToBuffer(ctx, buffer, gateAmount) {
 }
 
 function myEffectiveRole(l) {
-  // Reihenfolge: Spieler-Wahl > Szenen-Autor-Override (l.effect) > Rollen-Standard
+  // Reihenfolge: Spieler-Wahl > (optional Strip) > Szenen-Autor-Override (l.effect) > Rollen-Standard
   const base = roleOf(myRole()) || { pan: 0, effect: "none", gain: 1 };
   const amt = myEffectAmounts[l.idx];
   const boost = myLineGains[l.idx];
@@ -3893,7 +3922,24 @@ function myEffectiveRole(l) {
   };
   const chosen = myEffectOverrides[l.idx];
   if (chosen) return withAmt({ ...base, effect: chosen });
+  if (stripRoleFx) return withAmt({ ...base, effect: "none" });
   return withAmt(effectiveRole(base, l));
+}
+
+/** Effekt-Feld für Host/Mix: bei Strip muss "none" mitgeschickt werden, sonst greift wieder der Szenen-Standard. */
+function submitEffectFor(l) {
+  if (myEffectOverrides[l.idx]) return myEffectOverrides[l.idx];
+  if (stripRoleFx) return "none";
+  return undefined;
+}
+
+function isRatingCardOpen() {
+  const el = $("rate-card");
+  return !!(el && el.style.display !== "none");
+}
+
+function rejoinPlaybackFlags() {
+  return { premiereLocked: !!premiereLocked, ratingOpen: isRatingCardOpen() };
 }
 
 $("file-video").onchange = async (e) => {
@@ -4286,6 +4332,7 @@ async function pickRandomScene() {
   scene = JSON.parse(JSON.stringify(s));
   scene.blind = $("blind-mode") ? $("blind-mode").checked : false;
   clearSceneVideoState();
+  clearSceneCaches();
   rouletteRoles();
   showScene(sceneVideoSrc());
   broadcast({ t: "scene", scene });
@@ -4503,10 +4550,15 @@ function renderLine() {
   if (efSel) {
     const baseRole = roleOf(myRole()) || { effect: "none" };
     const sceneDefault = effectiveRole(baseRole, l).effect;
-    efSel.innerHTML = `<option value="">🎭 Standard (${esc(EFFECTS[sceneDefault] || sceneDefault)})</option>` +
+    const stdLabel = stripRoleFx
+      ? "Normal (Rollen-Effekt aus)"
+      : (EFFECTS[sceneDefault] || sceneDefault);
+    efSel.innerHTML = `<option value="">🎭 Standard (${esc(stdLabel)})</option>` +
       Object.entries(EFFECTS).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
     efSel.value = myEffectOverrides[l.idx] || "";
   }
+  const sx = $("strip-role-fx");
+  if (sx) sx.checked = !!stripRoleFx;
   syncFxAmountUI(l);
   syncLineGainUI(l);
   syncLinePanUI(l);
@@ -4684,7 +4736,7 @@ $("btn-line-rec").onclick = async () => {
   stopRecCue();
   // Original-Anhören stoppen, sonst doppelt mit Cue
   if (origSrc) { try { origSrc.stop(); } catch {} origSrc = null; const ob = $("btn-line-orig"); if (ob) ob.textContent = "🗣 Original anhören"; }
-  ["btn-line-scene","btn-line-play","btn-line-next","btn-line-skip","btn-line-orig"].forEach(id => { const el = $(id); if (el) el.disabled = true; });
+  ["btn-line-scene","btn-line-play","btn-line-next","btn-line-skip","btn-line-orig","btn-line-prev"].forEach(id => { const el = $(id); if (el) el.disabled = true; });
   status("booth-status", "🎯 Bereite Aufnahme vor …");
   try {
     if ($("rec-timer").checked) {
@@ -5006,9 +5058,14 @@ async function fxPreview() {
   try {
     const ctx = getCtx();
     if (ctx.state === "suspended") await ctx.resume();   // Browser pausieren den Ton bis zur ersten Geste
-    let raw = takes[l.idx] || null;
-    if (!raw) {
-      btn.textContent = "⏳ …";
+    btn.textContent = "⏳ …";
+    let raw = null;
+    let isTake = false;
+    if (takes[l.idx] && takes[l.idx] !== "SKIP") {
+      // Takes liegen als ArrayBuffer — processTakeBuffer braucht ein AudioBuffer
+      raw = await ctx.decodeAudioData(await toArrayBuffer(takes[l.idx]));
+      isTake = true;
+    } else {
       try { raw = await getLineOrigBuffer(l); } catch {}
     }
     if (!raw) {
@@ -5016,7 +5073,8 @@ async function fxPreview() {
       btn.textContent = "🔊 Vorhören"; return;
     }
     fxPreviewRaw = raw;
-    fxPreviewIsTake = !!takes[l.idx];
+    fxPreviewIsTake = isTake;
+    fxPreviewCacheKey = null;
     startFxPreview();
   } catch (e) {
     console.error("Vorhören fehlgeschlagen:", e);
@@ -5039,7 +5097,7 @@ function startFxPreview() {
   const role = myEffectiveRole(l);
   // Aufbereitung kann bei „Studio" rechenintensiv sein -> Ergebnis je Einstellung merken,
   // damit man am Stärke-Regler ziehen kann, ohne dass es jedes Mal neu rechnet und hakt.
-  const key = role.effect + "|" + (role.fxAmount === undefined ? 1 : role.fxAmount) + "|" + (role.gain ?? 1) + "|" + (role.pan ?? 0) + "|" + micSettings.gate + "|" + (fxPreviewIsTake ? "t" : "o");
+  const key = role.effect + "|" + (role.fxAmount === undefined ? 1 : role.fxAmount) + "|" + (role.gain ?? 1) + "|" + (role.pan ?? 0) + "|" + micSettings.gate + "|" + (fxPreviewIsTake ? "t" : "o") + "|" + stripRoleFx;
   let buf;
   if (fxPreviewCacheKey === key && fxPreviewCacheBuf) buf = fxPreviewCacheBuf;
   else {
@@ -5048,6 +5106,7 @@ function startFxPreview() {
   }
   const src = ctx.createBufferSource();
   src.buffer = buf;
+  src.playbackRate.value = effectPitch(role.effect);
   src.connect(buildChain(ctx, role, ctx.destination));
   src.start();
   fxPreviewSrc = src;
@@ -5056,6 +5115,7 @@ function startFxPreview() {
 }
 $("btn-fx-preview") && ($("btn-fx-preview").onclick = fxPreview);
 $("btn-line-prev").onclick = () => {
+  if (recording || recBusy) return;
   if (redoMode !== null || curLine <= 0) return;
   curLine--; renderLine(); SFX.click();
 };
@@ -5181,7 +5241,7 @@ function finishBooth() {
   show("scr-wait");
   renderBoothPlayers();
   const items = myLines.filter(l => takes[l.idx] && takes[l.idx] !== "SKIP")
-    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: myEffectOverrides[l.idx] || undefined, fxAmount: myEffectAmounts[l.idx], boost: myLineGains[l.idx], pan: myLinePans[l.idx], gate: micSettings.gate }));
+    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: submitEffectFor(l), fxAmount: myEffectAmounts[l.idx], boost: myLineGains[l.idx], pan: myLinePans[l.idx], gate: micSettings.gate }));
   const ots = serializeOuttakes();
   const boostByIdx = boostMapFromItems(items);
   const panByIdx = panMapFromItems(items);
@@ -6422,9 +6482,10 @@ $("btn-outtakes-close") && ($("btn-outtakes-close").onclick = () => {
   const v = $("outtakes-video"); if (v) v.pause();
 });
 
-// Timer / Wipe / Cue-Einstellungen merken
+// Timer / Wipe / Cue / Effekt-Strip-Einstellungen merken
 (() => {
   const t = $("rec-timer"), w = $("rec-wipe"), c = $("rec-cue-orig"), cv = $("rec-cue-vol"), cvl = $("rec-cue-vol-val");
+  const sx = $("strip-role-fx");
   try {
     if (t && localStorage.getItem("ss_rec_timer") != null) t.checked = localStorage.getItem("ss_rec_timer") === "1";
     if (w && localStorage.getItem("ss_rec_wipe") === "1") w.checked = true;
@@ -6433,7 +6494,9 @@ $("btn-outtakes-close") && ($("btn-outtakes-close").onclick = () => {
       cv.value = localStorage.getItem("ss_rec_cue_vol");
       if (cvl) cvl.textContent = Math.round(parseFloat(cv.value) * 100) + "%";
     }
+    if (sx && localStorage.getItem("ss_strip_role_fx") === "1") sx.checked = true;
   } catch {}
+  stripRoleFx = !!(sx && sx.checked);
   if (t) t.onchange = () => { try { localStorage.setItem("ss_rec_timer", t.checked ? "1" : "0"); } catch {} };
   if (w) w.onchange = () => { try { localStorage.setItem("ss_rec_wipe", w.checked ? "1" : "0"); } catch {} };
   if (c) c.onchange = () => { try { localStorage.setItem("ss_rec_cue", c.checked ? "1" : "0"); } catch {} };
@@ -6442,6 +6505,13 @@ $("btn-outtakes-close") && ($("btn-outtakes-close").onclick = () => {
     if (cvl) cvl.textContent = Math.round(v * 100) + "%";
     if (recCueGain) try { recCueGain.gain.value = v; } catch {}
     try { localStorage.setItem("ss_rec_cue_vol", String(v)); } catch {}
+  };
+  if (sx) sx.onchange = () => {
+    stripRoleFx = !!sx.checked;
+    try { localStorage.setItem("ss_strip_role_fx", stripRoleFx ? "1" : "0"); } catch {}
+    const l = myLines[curLine];
+    if (l) { syncFxAmountUI(l); fxPreviewCacheKey = null; if (fxPreviewSrc) startFxPreview(); }
+    SFX.click();
   };
 })();
 
@@ -6564,7 +6634,7 @@ function finishRedo() {
   const buf = takes[l.idx];
   const startAt = l.t;
   const lineIdx = l.idx;
-  const effect = myEffectOverrides[l.idx] || undefined;
+  const effect = submitEffectFor(l);
   const gate = micSettings.gate;
   const boost = myLineGains[l.idx];
   const fxAmount = myEffectAmounts[l.idx];
@@ -7065,30 +7135,42 @@ function updatePremPauseBtn() {
   btn.textContent = premPaused ? "▶ Weiter für alle" : "⏸ Pause für alle";
 }
 
-function premPauseAll(fromHostClick) {
+function premPauseAll(fromHostClick, syncT) {
   premPaused = true;
   invalidatePremCache();
   const v = $("play-video");
-  try { if (v) v.pause(); } catch {}
+  try {
+    if (v && typeof syncT === "number" && isFinite(syncT)) v.currentTime = syncT;
+    if (v) v.pause();
+  } catch {}
   try { if (audioCtx && audioCtx.state === "running") audioCtx.suspend(); } catch {}
   updatePremPauseBtn();
-  if (fromHostClick && isHost) broadcast({ t: "premPause" });
+  if (fromHostClick && isHost) {
+    const tVideo = v && isFinite(v.currentTime) ? v.currentTime : 0;
+    broadcast({ t: "premPause", tVideo });
+  }
   status("play-status", "⏸ Pause");
 }
 
-function premResumeAll(fromHostClick) {
+function premResumeAll(fromHostClick, syncT) {
   premPaused = false;
   const ctx = getCtx();
   const v = $("play-video");
+  try {
+    if (v && typeof syncT === "number" && isFinite(syncT)) v.currentTime = syncT;
+  } catch {}
   Promise.resolve(ctx.resume()).catch(() => {}).then(() => {
     try { if (v && v.paused && !v.ended) v.play(); } catch {}
   });
   updatePremPauseBtn();
-  if (fromHostClick && isHost) broadcast({ t: "premResume" });
+  if (fromHostClick && isHost) {
+    const tVideo = v && isFinite(v.currentTime) ? v.currentTime : 0;
+    broadcast({ t: "premResume", tVideo });
+  }
   status("play-status", "🍿 Premiere!");
 }
 
-function premStart() {
+function premStart(opts) {
   premiereLocked = true;
   premPaused = false;
   renderRedoPanel("redo-panel-wait"); renderRedoPanel("redo-panel-prem");
@@ -7100,7 +7182,9 @@ function premStart() {
   updateOuttakesBtn();
   updatePremPauseBtn();
   // Zahlen-Countdown — weiße Balken nur in der Booth, nie hier
-  countdown({ wipe: false }).then(() => playMix(false));
+  // Rejoin mitten in der Premiere: ohne Countdown sofort starten
+  if (opts && opts.skipCountdown) playMix(false);
+  else countdown({ wipe: false }).then(() => playMix(false));
 }
 
 $("btn-prem-start").onclick = () => {
@@ -7143,10 +7227,11 @@ function premGraph(ctx, v) {
     const masterGain = ctx.createGain();
     const voiceGain = ctx.createGain();
     const vidGain = ctx.createGain();
+    const hearGain = ctx.createGain();
     voiceGain.connect(comp); vidGain.connect(comp);
-    comp.connect(masterGain); masterGain.connect(ctx.destination);
+    comp.connect(masterGain); masterGain.connect(hearGain); hearGain.connect(ctx.destination);
     elementSource(ctx, v).connect(vidGain);
-    premNodes = { comp, masterGain, voiceGain, vidGain };
+    premNodes = { comp, masterGain, voiceGain, vidGain, hearGain };
     applyPremVol();
   }
   return premNodes;
@@ -7452,8 +7537,7 @@ async function downloadPremiere() {
     try {
       const c = await premCachePending;
       $("dl-progress").style.display = "none";
-      if (!premCacheReady(c)) throw new Error("leer");
-      premCacheDirty = false;
+      if (!premCacheReady(c) || c.volSig !== premVolSig()) throw new Error("veraltet");
       const wie = await saveBlob(c.blob, nameBase + c.endung);
       if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
       status("play-status", c.endung === "mp4"
@@ -7468,12 +7552,10 @@ async function downloadPremiere() {
     }
     return;
   }
-  // Fertiger Mitschnitt vom Anschauen — auch nutzen wenn nur leicht „dirty“
-  // (lieber sofort speichern als unnötig nochmal abspielen)
-  if (premCacheReady(premCache)) {
+  // Fertiger Mitschnitt — nur nutzen wenn Lautstärke/Sync noch passen
+  if (premCacheReady(premCache) && !premCacheDirty && premCache.volSig === premVolSig()) {
     const wie = await saveBlob(premCache.blob, nameBase + premCache.endung);
     if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
-    premCacheDirty = false;
     if (premCache.fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein. Bitte Fenster im Vordergrund lassen und Premiere nochmal anschauen.", true);
     else status("play-status", premCache.endung === "mp4"
       ? "✅ Sofort gespeichert als MP4 — vom ersten Anschauen."
@@ -7482,7 +7564,10 @@ async function downloadPremiere() {
     updateDownloadBtnLabel();
     return;
   }
-  // Wirklich kein Mitschnitt (Pause mittendrin, Fehler, …) → einmal im Hintergrund
+  // Dirty / kein Cache → einmal im Hintergrund neu schneiden (aktuelle Lautstärke)
+  if (premCacheDirty || (premCacheReady(premCache) && premCache.volSig !== premVolSig())) {
+    invalidatePremCache();
+  }
   status("play-status", "🎬 Schneide Video im Hintergrund — musst nicht zuschauen, Fenster aber bitte offen lassen …");
   await playMix({ save: true, quiet: true });
 }
@@ -7501,6 +7586,14 @@ async function playMix(opts) {
   updatePremPauseBtn();
 
   const g = premGraph(ctx, v);
+  // Quiet: Lautsprecher stumm (Gain 0), Recorder hängt weiter am masterGain — wie Outtakes
+  if (!g.hearGain) {
+    try { g.masterGain.disconnect(ctx.destination); } catch {}
+    g.hearGain = ctx.createGain();
+    g.masterGain.connect(g.hearGain);
+    g.hearGain.connect(ctx.destination);
+  }
+  g.hearGain.gain.value = quiet ? 0 : 1;
   const master = g.voiceGain;          // Stimmen laufen über den Voice-Regler in den Graph
   v.playbackRate = 1;
 

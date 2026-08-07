@@ -22159,5 +22159,631 @@
    }
   ],
   "difficultyOverride": "hard"
+ },
+ {
+  "id": "yutaryu",
+  "title": "Jujutsu Kaisen — Yuta vs. Ryu Final Fight (4 Rollen)",
+  "videoUrl": "scenes/yutaryu.mp4",
+  "avatars": {
+   "0": "scenes/yutaryu/yuta.png",
+   "1": "scenes/yutaryu/ryu.png",
+   "2": "scenes/yutaryu/tengen.png",
+   "3": "scenes/yutaryu/rika.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Yuta",
+    "pan": -0.3,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Ryu",
+    "pan": 0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Tengen",
+    "pan": 0,
+    "effect": "echo",
+    "gain": 1
+   },
+   {
+    "id": 3,
+    "name": "Rika",
+    "pan": -0.15,
+    "effect": "monster",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 1.024,
+    "end": 2.368,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "Now.",
+    "de": "Jetzt.",
+    "orig": "scenes/yutaryu/lines/01.mp3"
+   },
+   {
+    "t": 5.083,
+    "end": 10.195,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "Welcome to my table. Okkotsu.",
+    "de": "Willkommen an meinem Tisch, Okkotsu.",
+    "orig": "scenes/yutaryu/lines/02.mp3"
+   },
+   {
+    "t": 11.133,
+    "end": 13.053,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "Rika, let's go.",
+    "de": "Rika, los geht's.",
+    "orig": "scenes/yutaryu/lines/03.mp3"
+   },
+   {
+    "t": 17.831,
+    "end": 24.599,
+    "chars": [
+     2
+    ],
+    "who": "Tengen",
+    "text": "Okkotsu can discharge a high volume of cursed energy, but only while Rika is completely manifested.",
+    "de": "Okkotsu kann eine riesige Menge Fluchenergie entladen — aber nur, solange Rika vollständig manifestiert ist.",
+    "orig": "scenes/yutaryu/lines/04.mp3"
+   },
+   {
+    "t": 24.717,
+    "end": 29.565,
+    "chars": [
+     2
+    ],
+    "who": "Tengen",
+    "text": "However, his maximum output is slightly inferior to Ishigori's.",
+    "de": "Allerdings liegt sein Maximaloutput etwas unter dem von Ishigori.",
+    "orig": "scenes/yutaryu/lines/05.mp3"
+   },
+   {
+    "t": 29.583,
+    "end": 36.159,
+    "chars": [
+     2
+    ],
+    "who": "Tengen",
+    "text": "So he planned to charge and unleash his cursed energy before Ishigori reached maximum output.",
+    "de": "Also wollte er seine Fluchenergie aufladen und entfesseln, bevor Ishigori seinen Maximaloutput erreicht.",
+    "orig": "scenes/yutaryu/lines/06.mp3"
+   },
+   {
+    "t": 36.117,
+    "end": 36.309,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "*quiet gasp*",
+    "de": "*leises Keuchen*",
+    "orig": "scenes/yutaryu/lines/07.mp3"
+   },
+   {
+    "t": 36.417,
+    "end": 38.577,
+    "chars": [
+     2
+    ],
+    "who": "Tengen",
+    "text": "..but he changed his mind.",
+    "de": "...aber er hat es sich anders überlegt.",
+    "orig": "scenes/yutaryu/lines/08.mp3"
+   },
+   {
+    "t": 42.017,
+    "end": 50.825,
+    "chars": [
+     2
+    ],
+    "who": "Tengen",
+    "text": "Four hundred years of longing, the intense gaze full of that hunger, melting Yuta Okkotsu's heart.",
+    "de": "Vierhundert Jahre Sehnsucht — dieser hungrige, intensive Blick schmilzt Yuta Okkotsus Herz.",
+    "orig": "scenes/yutaryu/lines/09.mp3"
+   },
+   {
+    "t": 50.85,
+    "end": 55.554,
+    "chars": [
+     2
+    ],
+    "who": "Tengen",
+    "text": "Even though he would likely never find meaning in fighting.",
+    "de": "Obwohl er im Kämpfen wohl nie einen Sinn finden würde.",
+    "orig": "scenes/yutaryu/lines/10.mp3"
+   },
+   {
+    "t": 56.715,
+    "end": 58.899,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "Alright just this once.",
+    "de": "Na gut — nur dieses eine Mal.",
+    "orig": "scenes/yutaryu/lines/11.mp3"
+   },
+   {
+    "t": 66.583,
+    "end": 67.327,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "Hngrh!",
+    "de": "Hngrh!",
+    "orig": "scenes/yutaryu/lines/12.mp3"
+   },
+   {
+    "t": 66.617,
+    "end": 67.313,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "Hnrgh!",
+    "de": "Hnrgh!",
+    "orig": "scenes/yutaryu/lines/13.mp3"
+   },
+   {
+    "t": 77.612,
+    "end": 81.116,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "That was some seriously sweet stuff Okkotsu!",
+    "de": "Das war echt der Hammer, Okkotsu!",
+    "orig": "scenes/yutaryu/lines/14.mp3"
+   },
+   {
+    "t": 83.252,
+    "end": 83.924,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "*breathy huh*",
+    "de": "*atemloses Huh*",
+    "orig": "scenes/yutaryu/lines/15.mp3"
+   },
+   {
+    "t": 91.4,
+    "end": 95.312,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "Yeah, attaboy! Let's keep this dinner party going!",
+    "de": "Ja, so muss das! Lasst uns die Dinnerparty weiterlaufen lassen!",
+    "orig": "scenes/yutaryu/lines/16.mp3"
+   },
+   {
+    "t": 98.683,
+    "end": 100.915,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "That big thing can fire on it's own?",
+    "de": "Das große Ding kann von allein schießen?",
+    "orig": "scenes/yutaryu/lines/17.mp3"
+   },
+   {
+    "t": 101.7,
+    "end": 105.468,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "But.. its force is weak.",
+    "de": "Aber... die Kraft ist schwach.",
+    "orig": "scenes/yutaryu/lines/18.mp3"
+   },
+   {
+    "t": 107.033,
+    "end": 114.641,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "After domain expansion and a meal with me, even you haven't had enough time to digest and recover your full strength.",
+    "de": "Nach Domain Expansion und einem Mahl mit mir hattest selbst du nicht genug Zeit, das zu verdauen und deine volle Kraft zurückzugewinnen.",
+    "orig": "scenes/yutaryu/lines/19.mp3"
+   },
+   {
+    "t": 115.717,
+    "end": 120.037,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "I'll end this, GRANITE BLAST!!",
+    "de": "Ich beende das — GRANIT-BLAST!!",
+    "orig": "scenes/yutaryu/lines/20.mp3"
+   },
+   {
+    "t": 124.189,
+    "end": 129.997,
+    "chars": [
+     2
+    ],
+    "who": "Tengen",
+    "text": "But Okkotsu's technique.. had already recovered.",
+    "de": "Aber Okkotsus Technik... hatte sich bereits erholt.",
+    "orig": "scenes/yutaryu/lines/21.mp3"
+   },
+   {
+    "t": 131.133,
+    "end": 131.925,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "ough",
+    "de": "Urgh",
+    "orig": "scenes/yutaryu/lines/22.mp3"
+   },
+   {
+    "t": 132.667,
+    "end": 134.827,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "He's using Uro's technique!",
+    "de": "Er benutzt Uros Technik!",
+    "orig": "scenes/yutaryu/lines/23.mp3"
+   },
+   {
+    "t": 135.283,
+    "end": 138.283,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "I knew he was more than just a cursed speech user",
+    "de": "Ich wusste, dass er mehr ist als nur ein Fluchsprachen-Nutzer.",
+    "orig": "scenes/yutaryu/lines/24.mp3"
+   },
+   {
+    "t": 138.5,
+    "end": 142.556,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "And I figured that big thing probably had a different technique from Okkotsu's too.",
+    "de": "Und ich dachte mir schon, dass das große Ding wahrscheinlich auch eine andere Technik als Okkotsu hat.",
+    "orig": "scenes/yutaryu/lines/25.mp3"
+   },
+   {
+    "t": 142.824,
+    "end": 145.896,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "So that's it! Okkotsu's technique is Copy!",
+    "de": "Also ist es das! Okkotsus Technik ist Kopieren!",
+    "orig": "scenes/yutaryu/lines/26.mp3"
+   },
+   {
+    "t": 146.267,
+    "end": 153.011,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "But there should be strenuous conditions on it! When did he satisfy those conditions? While I wasn't looking? Maybe there aren't any!",
+    "de": "Aber dafür müssten doch strenge Bedingungen gelten! Wann hat er die erfüllt? Während ich nicht hingeschaut hab? Oder gibt's gar keine?!",
+    "orig": "scenes/yutaryu/lines/27.mp3"
+   },
+   {
+    "t": 157.433,
+    "end": 159.329,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "That was when he did it!",
+    "de": "Da hat er's gemacht!",
+    "orig": "scenes/yutaryu/lines/28.mp3"
+   },
+   {
+    "t": 159.55,
+    "end": 161.47,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "Thin icebreaker!",
+    "de": "Thin Ice Breaker!",
+    "orig": "scenes/yutaryu/lines/29.mp3"
+   },
+   {
+    "t": 162.717,
+    "end": 163.941,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "*painful grunt*",
+    "de": "*schmerzhaftes Stöhnen*",
+    "orig": "scenes/yutaryu/lines/30.mp3"
+   },
+   {
+    "t": 164.163,
+    "end": 164.907,
+    "chars": [
+     3
+    ],
+    "who": "Rika",
+    "text": "*some noise idk*",
+    "de": "*Geräusch*",
+    "orig": "scenes/yutaryu/lines/31.mp3"
+   },
+   {
+    "t": 164.836,
+    "end": 165.676,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "*grunt*",
+    "de": "*Grunz*",
+    "orig": "scenes/yutaryu/lines/32.mp3"
+   },
+   {
+    "t": 172.017,
+    "end": 177.513,
+    "chars": [
+     2
+    ],
+    "who": "Tengen",
+    "text": "Five minutes. Okkotsu's connection to Rika was severed.",
+    "de": "Fünf Minuten. Okkotsus Verbindung zu Rika wurde getrennt.",
+    "orig": "scenes/yutaryu/lines/33.mp3"
+   },
+   {
+    "t": 178.017,
+    "end": 179.073,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "*zombie-like grunt*",
+    "de": "*zombieartiges Stöhnen*",
+    "orig": "scenes/yutaryu/lines/34.mp3"
+   },
+   {
+    "t": 179.3,
+    "end": 179.924,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "Tst!",
+    "de": "Tst!",
+    "orig": "scenes/yutaryu/lines/35.mp3"
+   },
+   {
+    "t": 183.683,
+    "end": 185.363,
+    "chars": [
+     3
+    ],
+    "who": "Rika",
+    "text": "Yutaa!",
+    "de": "Yutaa!",
+    "orig": "scenes/yutaryu/lines/36.mp3"
+   },
+   {
+    "t": 186.917,
+    "end": 187.877,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "*grunt*",
+    "de": "*Grunz*",
+    "orig": "scenes/yutaryu/lines/37.mp3"
+   },
+   {
+    "t": 188.783,
+    "end": 190.703,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "Is this the feeling..",
+    "de": "Ist das dieses Gefühl...",
+    "orig": "scenes/yutaryu/lines/38.mp3"
+   },
+   {
+    "t": 190.717,
+    "end": 191.629,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "*kinda painful grunt*",
+    "de": "*etwas schmerzhaftes Stöhnen*",
+    "orig": "scenes/yutaryu/lines/39.mp3"
+   },
+   {
+    "t": 193.033,
+    "end": 194.017,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "RGRH!",
+    "de": "RGRH!",
+    "orig": "scenes/yutaryu/lines/40.mp3"
+   },
+   {
+    "t": 194.383,
+    "end": 197.575,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "THERE'S STILL MORE AFTER GOING ALL OUT!!",
+    "de": "DA IST IMMER NOCH MEHR — NACHDEM ICH ALLES GEGEBEN HAB!!",
+    "orig": "scenes/yutaryu/lines/41.mp3"
+   },
+   {
+    "t": 200.383,
+    "end": 203.935,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "This is what it's like.. tasting dessert!",
+    "de": "So fühlt sich das an... Dessert zu kosten!",
+    "orig": "scenes/yutaryu/lines/42.mp3"
+   },
+   {
+    "t": 219.427,
+    "end": 220.435,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "*chuckle*",
+    "de": "*Kichern*",
+    "orig": "scenes/yutaryu/lines/43.mp3"
+   },
+   {
+    "t": 220.491,
+    "end": 221.115,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "*grunt with effort*",
+    "de": "*Anstrengungs-Grunz*",
+    "orig": "scenes/yutaryu/lines/44.mp3"
+   },
+   {
+    "t": 225.083,
+    "end": 225.827,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "*gasp*",
+    "de": "*Keuchen*",
+    "orig": "scenes/yutaryu/lines/45.mp3"
+   },
+   {
+    "t": 226.4,
+    "end": 227.624,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "We're done.",
+    "de": "Wir sind fertig.",
+    "orig": "scenes/yutaryu/lines/46.mp3"
+   },
+   {
+    "t": 231.441,
+    "end": 233.889,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "What.. what does he mean?",
+    "de": "Was... was meint er damit?",
+    "orig": "scenes/yutaryu/lines/47.mp3"
+   },
+   {
+    "t": 234.433,
+    "end": 235.153,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "*quick gasp*",
+    "de": "*kurzes Keuchen*",
+    "orig": "scenes/yutaryu/lines/48.mp3"
+   },
+   {
+    "t": 246.913,
+    "end": 250.057,
+    "chars": [
+     0
+    ],
+    "who": "Yuta",
+    "text": "*breathing*",
+    "de": "*Atmen*",
+    "orig": "scenes/yutaryu/lines/49.mp3"
+   },
+   {
+    "t": 250.85,
+    "end": 253.442,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "Was that, my technique?",
+    "de": "War das... meine Technik?",
+    "orig": "scenes/yutaryu/lines/50.mp3"
+   },
+   {
+    "t": 256.067,
+    "end": 257.459,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "I see.",
+    "de": "Verstehe.",
+    "orig": "scenes/yutaryu/lines/51.mp3"
+   },
+   {
+    "t": 257.621,
+    "end": 261.581,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "He sent it sailing back to me. Using Uro's technique.",
+    "de": "Er hat sie zu mir zurückgeschickt. Mit Uros Technik.",
+    "orig": "scenes/yutaryu/lines/52.mp3"
+   },
+   {
+    "t": 264.983,
+    "end": 266.807,
+    "chars": [
+     1
+    ],
+    "who": "Ryu",
+    "text": "Thank you Okkotsu.",
+    "de": "Danke, Okkotsu.",
+    "orig": "scenes/yutaryu/lines/53.mp3"
+   }
+  ]
  }
 ]
