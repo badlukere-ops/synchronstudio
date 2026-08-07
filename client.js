@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.62";
+const APP_VERSION = "9.10.63";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -127,9 +127,11 @@ let premOrigOn = true;
 let premOrigUnfilled = [];        // [{id, name}]
 let premOrigMuted = new Set();    // Rollen-IDs die stumm sind
 let premPaused = false;
-// Premiere: Host-Lautstärke pro Mitspieler-Rolle (0.05–2, Default 1) — für alle synchron
-let premPlayerGains = Object.create(null);   // roleId -> number
-let premPlayerGainNodes = new Map();         // roleId -> GainNode (live)
+// Premiere: Host-Lautstärke pro Mitspieler-Rolle (0.05–3, Default 1) — für alle synchron
+// Keys IMMER als String ("0","1",…), sonst Object/Map-Mismatch → Anzeige klebt bei 100 %.
+let premPlayerGains = Object.create(null);   // roleIdStr -> number
+let premPlayerGainNodes = new Map();         // roleIdStr -> GainNode (live)
+let premPlayerVolBound = false;
 
 const $ = (id) => document.getElementById(id);
 let show = (id) => {
@@ -536,6 +538,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.63", items: [
+    "🎚 Fix: Premiere −/+ Mitspieler-Lautstärke reagiert wieder (Anzeige + Ton; Knöpfe lagen unter der Kinosaal-Leiste)",
+    "📺 Outtakes-Übergang: graues TV-Rauschen statt grünem Bild (Zeichnung statt kaputter Datei)",
+    "⬇ Outtakes speichern deutlich schneller (schneller Schnitt + Fortschritt „X/Y … %“)"
+  ]},
   { v: "9.10.62", items: [
     "🎬 Neue Szene: Ghost Stories — Think Of A Big Black Man Chasing You (Hajime, Keiichirou, Leo)"
   ]},
@@ -7029,18 +7036,23 @@ let outtakesPrecacheTimer = null;
 let outtakesSaveWhenReady = false; // Speichern anfordern, während stiller Schnitt läuft
 let outtakesDidSaveBlob = false;   // letzter Lauf hat saveBlob bereits ausgelöst
 
-/** TV-Rauschen-Übergang zwischen Outtake-Clips (nur zwischen, nie vor erstem / nach letztem). */
+/** Optional: kurzes Rausch-Audio (Bild kommt immer aus Canvas — Datei war oft grün/kaputt). */
 const OUTTAKES_TRANS_URL = "sfx/outtakes-static.mp4";
-/** Datei ist schon leise gemastert — Gain nahe 1, sonst hört man nichts. */
-const OUTTAKES_TRANS_GAIN = 0.85;
-/** Übergang kürzen (ms), auch wenn die Datei länger ist. */
-const OUTTAKES_TRANS_MAX_MS = 340;
+const OUTTAKES_TRANS_GAIN = 0.55;
+/** Sichtbarer Übergang (Anschauen). */
+const OUTTAKES_TRANS_MAX_MS = 220;
+/** Beim stillen Speichern/Precache: kurz, sonst fühlt sich Speichern „ewig“ an. */
+const OUTTAKES_TRANS_EXPORT_MS = 70;
 /** Ab so vielen Outtakes nur noch jeden 2. Übergang (weniger Spam). */
 const OUTTAKES_TRANS_SPARSE_AT = 10;
+/** Stiller Schnitt: schneller abspielen (Stimme + Video), fertig bevor man wartet. */
+const OUTTAKES_EXPORT_RATE = 2.8;
 let outtakesTransPreload = null;
 let outtakesTransGainNode = null;
-/** frameSource malt den Übergang cover-fit statt Szene-Video. */
+let outtakesNoiseBuf = null;
+/** frameSource malt grau/SW-TV-Rauschen statt Szene-Video. */
 let outtakesDrawTrans = false;
+let outtakesStaticRaf = null;
 /** Nutzer-Schalter „Rauschen an/aus“ (lokal, merkt sich localStorage). */
 let outtakesBeepOn = true;
 try {
@@ -7072,29 +7084,95 @@ function countOuttakesTransitions(reelLen) {
   for (let i = 0; i < reelLen - 1; i++) if (shouldPlayOuttakesTransition(i, reelLen)) n++;
   return n;
 }
+function outtakesTransMs(quiet) {
+  return quiet ? OUTTAKES_TRANS_EXPORT_MS : OUTTAKES_TRANS_MAX_MS;
+}
+
+/** Grau/Schwarzweiß-TV-Rauschen (nie die kaputte grüne MP4-Bildspur). */
+function drawTvStatic(g2, w, h) {
+  if (!g2 || !w || !h) return;
+  const cw = Math.max(48, Math.min(180, w | 0));
+  const ch = Math.max(27, Math.min(100, Math.round(cw * (h / w))));
+  try {
+    const img = g2.createImageData(cw, ch);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const v = (Math.random() * 220 + 18) | 0;
+      d[i] = d[i + 1] = d[i + 2] = v;
+      d[i + 3] = 255;
+    }
+    const tmp = drawTvStatic._c || (drawTvStatic._c = document.createElement("canvas"));
+    tmp.width = cw; tmp.height = ch;
+    const tg = tmp.getContext("2d", { alpha: false });
+    tg.putImageData(img, 0, 0);
+    g2.save();
+    g2.imageSmoothingEnabled = false;
+    try { g2.imageSmoothingQuality = "low"; } catch {}
+    g2.fillStyle = "#000";
+    g2.fillRect(0, 0, w, h);
+    g2.drawImage(tmp, 0, 0, w, h);
+    // leichte Scanlines
+    g2.fillStyle = "rgba(0,0,0,.18)";
+    for (let y = 0; y < h; y += 3) g2.fillRect(0, y, w, 1);
+    g2.restore();
+  } catch {
+    try { g2.fillStyle = "#1a1a1a"; g2.fillRect(0, 0, w, h); } catch {}
+  }
+}
+
+function showOuttakesStaticOverlay(on) {
+  const c = $("outtakes-static-canvas");
+  if (!c) return;
+  if (on) {
+    c.classList.add("show");
+    const wrap = c.parentElement;
+    const w = (wrap && wrap.clientWidth) || 640;
+    const h = (wrap && wrap.clientHeight) || 360;
+    if (c.width !== w) c.width = w;
+    if (c.height !== h) c.height = h;
+    const g2 = c.getContext("2d", { alpha: false });
+    const tick = () => {
+      if (!outtakesDrawTrans) return;
+      drawTvStatic(g2, c.width, c.height);
+      outtakesStaticRaf = requestAnimationFrame(tick);
+    };
+    if (outtakesStaticRaf) cancelAnimationFrame(outtakesStaticRaf);
+    outtakesStaticRaf = requestAnimationFrame(tick);
+  } else {
+    c.classList.remove("show");
+    if (outtakesStaticRaf) { cancelAnimationFrame(outtakesStaticRaf); outtakesStaticRaf = null; }
+  }
+}
 
 function preloadOuttakesTransition() {
   const tv = $("outtakes-transition");
   if (!tv) return Promise.resolve();
-  if (!tv.getAttribute("src") && !tv.src) tv.src = OUTTAKES_TRANS_URL;
-  else if (tv.src && !String(tv.src).includes("outtakes-static")) tv.src = OUTTAKES_TRANS_URL;
+  try { tv.muted = true; } catch {}
+  if (!tv.getAttribute("src") && !tv.src) tv.src = assetUrl(OUTTAKES_TRANS_URL);
+  else if (tv.src && !String(tv.src).includes("outtakes-static")) tv.src = assetUrl(OUTTAKES_TRANS_URL);
   if (!outtakesTransPreload) {
     try { tv.preload = "auto"; tv.playsInline = true; } catch {}
-    outtakesTransPreload = waitCanPlay(tv, 10000).catch(() => {});
+    outtakesTransPreload = waitCanPlay(tv, 4000).catch(() => {});
   }
   return outtakesTransPreload;
 }
 
+function ensureOuttakesNoiseBuf(ctx) {
+  if (outtakesNoiseBuf && outtakesNoiseBuf.sampleRate === ctx.sampleRate) return outtakesNoiseBuf;
+  const len = Math.max(1, Math.floor(ctx.sampleRate * 0.35));
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const ch = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * 0.35;
+  outtakesNoiseBuf = buf;
+  return buf;
+}
+
 function ensureOuttakesTransGain(ctx) {
-  const tv = $("outtakes-transition");
-  if (!tv || !ctx) return null;
+  if (!ctx) return null;
   if (!outtakesTransGainNode) {
     try {
-      const elSrc = elementSource(ctx, tv);
       outtakesTransGainNode = ctx.createGain();
       outtakesTransGainNode.gain.value = OUTTAKES_TRANS_GAIN;
-      try { elSrc.disconnect(); } catch {}
-      elSrc.connect(outtakesTransGainNode);
     } catch (e) {
       console.warn("Outtakes-Transition-Audio:", e);
       return null;
@@ -7111,44 +7189,32 @@ function connectOuttakesTransBus(hearGain, recDest) {
   if (recDest) try { outtakesTransGainNode.connect(recDest); } catch {}
 }
 
-/** Video cover-fit auf Zielgröße (wie CSS object-fit: cover) — kein Letterbox. */
-function drawVideoCover(g2, video, dw, dh) {
-  const sw = video.videoWidth || 0, sh = video.videoHeight || 0;
-  if (!g2 || !sw || !sh || !dw || !dh) return false;
-  const scale = Math.max(dw / sw, dh / sh);
-  const tw = sw * scale, th = sh * scale;
-  const ox = (dw - tw) / 2, oy = (dh - th) / 2;
-  try { g2.drawImage(video, ox, oy, tw, th); } catch { return false; }
-  return true;
-}
-
-/** Spielt den Glitch-Übergang (live + Export über dieselbe Canvas-Pipeline). */
+/** Spielt grau/SW-Rauschen (Canvas) + synthetisches Audio — kein hängendes Video-play(). */
 async function playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, ctx, hearGain, recDest }) {
-  const tv = $("outtakes-transition");
-  if (!tv || outtakeAbort) return;
+  if (outtakeAbort) return;
   outtakesOverlayLine = "";
   if (!quiet) {
     if (lab) lab.textContent = "…";
     if (lineEl) lineEl.textContent = "";
     if (capEl) capEl.textContent = "";
   }
-  await preloadOuttakesTransition();
   if (outtakeAbort) return;
+  const durMs = outtakesTransMs(quiet);
   ensureOuttakesTransGain(ctx);
   connectOuttakesTransBus(hearGain, recDest);
-  try { tv.pause(); } catch {}
-  try { tv.currentTime = 0; } catch {}
-  await new Promise(r => {
-    const h = () => { tv.removeEventListener("seeked", h); r(); };
-    tv.addEventListener("seeked", h);
-    setTimeout(r, 250);
-  });
-  if (outtakeAbort) return;
+  let noiseSrc = null;
+  try {
+    if (ctx && outtakesTransGainNode) {
+      if (ctx.state === "suspended") try { await ctx.resume(); } catch {}
+      const buf = ensureOuttakesNoiseBuf(ctx);
+      noiseSrc = ctx.createBufferSource();
+      noiseSrc.buffer = buf;
+      noiseSrc.connect(outtakesTransGainNode);
+      noiseSrc.start();
+    }
+  } catch (e) { console.warn("Outtakes-Noise:", e); }
   outtakesDrawTrans = true;
-  if (!quiet) tv.classList.add("show");
-  try { tv.muted = false; tv.volume = 1; } catch {}
-  if (ctx && ctx.state === "suspended") try { await ctx.resume(); } catch {}
-  await tv.play().catch(() => {});
+  if (!quiet) showOuttakesStaticOverlay(true);
   if (frames) try { frames.paint(); } catch {}
   await new Promise(r => {
     let done = false;
@@ -7156,21 +7222,15 @@ async function playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, c
       if (done) return;
       done = true;
       clearTimeout(t);
-      try { tv.removeEventListener("ended", finish); } catch {}
       r();
     };
-    const fullMs = ((isFinite(tv.duration) && tv.duration > 0) ? tv.duration : 1) * 1000 + 80;
-    const durMs = Math.min(fullMs, OUTTAKES_TRANS_MAX_MS);
     const t = setTimeout(finish, durMs);
-    tv.addEventListener("ended", finish);
     const btn = $("btn-outtakes-skip");
-    if (btn && !quiet) {
-      btn.onclick = () => { try { tv.pause(); } catch {} finish(); };
-    }
+    if (btn && !quiet) btn.onclick = () => finish();
   });
   outtakesDrawTrans = false;
-  try { tv.pause(); } catch {}
-  if (!quiet) tv.classList.remove("show");
+  try { if (noiseSrc) noiseSrc.stop(); } catch {}
+  if (!quiet) showOuttakesStaticOverlay(false);
   if (frames) try { frames.paint(); } catch {}
 }
 
@@ -7204,9 +7264,9 @@ function scheduleOuttakesPrecache() {
   if (!outtakes.length || outtakesCacheReady()) return;
   outtakesPrecacheTimer = setTimeout(() => {
     if (!outtakes.length || outtakesCacheReady() || outtakesPlaying || outtakesCachePending) return;
-    // Stiller Schnitt im Hintergrund — Speichern danach sofort
+    // Stiller Schnell-Schnitt im Hintergrund — Speichern danach sofort
     playOuttakesReel({ quiet: true }).catch(e => console.warn("Outtakes-Precache:", e));
-  }, 800);
+  }, 350);
 }
 
 async function playOuttakesReel(opts) {
@@ -7270,7 +7330,22 @@ async function playOuttakesReel(opts) {
       recStat.style.color = saveFile ? "var(--hot)" : "var(--amber)";
     } else recStat.style.display = "none";
   }
-  if (quiet) status("play-status", "🎬 Outtakes werden im Hintergrund geschnitten — Speichern gleich sofort …");
+  const exportRate = quiet ? OUTTAKES_EXPORT_RATE : 1;
+  const reportOtProg = (i, total, phase) => {
+    const pct = total ? Math.max(1, Math.min(99, Math.round((i / total) * 100))) : 0;
+    const msg = phase === "decode"
+      ? ("🎬 Outtakes vorbereiten … " + pct + "%")
+      : ("🎬 Outtakes speichern … " + (i + 1) + "/" + total + " (" + pct + "%)");
+    if (quiet || saveFile) status("play-status", msg);
+    if (recStat && (quiet || saveFile || auchCachen)) {
+      recStat.style.display = "";
+      recStat.textContent = msg;
+      recStat.style.color = "var(--amber)";
+    }
+    const dl = $("btn-outtakes-dl");
+    if (dl && (outtakesCachePending || quiet)) dl.textContent = "⬇ " + pct + "% …";
+  };
+  if (quiet) status("play-status", "🎬 Outtakes werden schnell geschnitten …");
   updateOuttakesBtn();
 
   let vidGain = null, hearGain = null, recDest = null, frames = null, fileRec = null;
@@ -7283,8 +7358,6 @@ async function playOuttakesReel(opts) {
   try {
     v.src = sceneVideoSrc() || "";
     try { await waitCanPlay(v, 8000); } catch {}
-    // Übergang vorladen, damit der Reel nicht hakt
-    try { await preloadOuttakesTransition(); } catch {}
     const ctx = getCtx();
     if (ctx.state === "suspended") try { await ctx.resume(); } catch {}
 
@@ -7296,8 +7369,6 @@ async function playOuttakesReel(opts) {
       hearGain.connect(ctx.destination);
       vidGain = ctx.createGain();
       vidGain.gain.value = 0.35;
-      // Nach createMediaElementSource steuert nur noch der Graph den Ton —
-      // element.muted=true macht in Chromium den MediaElementSource oft komplett stumm.
       try { v.muted = false; } catch {}
       try { v.volume = 1; } catch {}
       const elSrc = elementSource(ctx, v);
@@ -7306,18 +7377,30 @@ async function playOuttakesReel(opts) {
       vidGain.connect(hearGain);
     } catch (e) { console.warn("Outtakes video-audio:", e); }
 
-    // Übergang-Audio an denselben Bus (leiser); RecDest kommt gleich dazu
     try {
       ensureOuttakesTransGain(ctx);
       connectOuttakesTransBus(hearGain, null);
     } catch (e) { console.warn("Outtakes-Transition-Bus:", e); }
+
+    // Alle Takes parallel dekodieren — spart Sekunden beim Speichern
+    reportOtProg(0, reel.length, "decode");
+    const decodedBufs = await Promise.all(reel.map(async (ot, idx) => {
+      try {
+        const ab = await outtakeAudioCopy(ot.buf);
+        const buf = await ctx.decodeAudioData(ab);
+        if (idx % 2 === 0 || idx === reel.length - 1) reportOtProg(idx + 1, reel.length, "decode");
+        return buf;
+      } catch (e) {
+        console.warn("Outtake decode:", e);
+        return null;
+      }
+    }));
 
     if (auchCachen) {
       try {
         recDest = ctx.createMediaStreamDestination();
         if (vidGain) vidGain.connect(recDest);
         connectOuttakesTransBus(hearGain, recDest);
-        // Canvas-Größe an Szene-Video fixieren — Übergang wird cover-fit hinein gemalt
         const lockW = v.videoWidth || 1280;
         const lockH = v.videoHeight || 720;
         frames = frameSource(v, { alwaysRaf: true, outtakesBadge: true, lockW, lockH });
@@ -7325,7 +7408,7 @@ async function playOuttakesReel(opts) {
           const t0 = performance.now();
           const iv = setInterval(() => {
             if (frames) try { frames.paint(); } catch {}
-            if ((v.videoWidth > 0 && frames && frames.count() >= 4) || performance.now() - t0 > 2500) {
+            if ((v.videoWidth > 0 && frames && frames.count() >= 4) || performance.now() - t0 > 1500) {
               clearInterval(iv); r();
             }
           }, 32);
@@ -7340,7 +7423,7 @@ async function playOuttakesReel(opts) {
         ]);
         fileRec = new MediaRecorder(stream, {
           mimeType: mime,
-          videoBitsPerSecond: 3_500_000,
+          videoBitsPerSecond: quiet ? 2_500_000 : 3_500_000,
           audioBitsPerSecond: 128_000
         });
         fileRec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
@@ -7358,8 +7441,11 @@ async function playOuttakesReel(opts) {
       }
     }
 
+    try { v.playbackRate = exportRate; } catch {}
+
     for (let i = 0; i < reel.length; i++) {
       if (outtakeAbort) break;
+      reportOtProg(i, reel.length, "cut");
       const ot = reel[i];
       const who = ot.name ? (" · " + ot.name) : "";
       const lineTxt = String(ot.text || "").trim();
@@ -7374,26 +7460,31 @@ async function playOuttakesReel(opts) {
         if (ctx.state === "suspended") try { await ctx.resume(); } catch {}
         v.pause();
         v.currentTime = Math.max(0, ot.t - 0.15);
-        await new Promise(r => { const h = () => { v.removeEventListener("seeked", h); r(); }; v.addEventListener("seeked", h); setTimeout(r, 600); });
+        await new Promise(r => {
+          const h = () => { v.removeEventListener("seeked", h); r(); };
+          v.addEventListener("seeked", h);
+          setTimeout(r, quiet ? 180 : 450);
+        });
         if (frames) try { frames.paint(); } catch {}
-        const ab = await outtakeAudioCopy(ot.buf);
-        const buf = await ctx.decodeAudioData(ab);
+        const buf = decodedBufs[i];
+        if (!buf) throw new Error("kein Buffer");
         src = ctx.createBufferSource();
         src.buffer = buf;
+        src.playbackRate.value = exportRate;
         const g = ctx.createGain(); g.gain.value = 1.1;
         src.connect(g);
-        // Stimme immer über hearGain (quiet=0) + Recorder — nie „nur Destination wenn !quiet“
         if (hearGain) g.connect(hearGain);
         else if (!quiet) g.connect(ctx.destination);
         if (recDest) g.connect(recDest);
-        await v.play().catch(() => {});
+        await Promise.race([v.play().catch(() => {}), new Promise(r => setTimeout(r, 400))]);
         if (frames) try { frames.paint(); } catch {}
         src.start();
-        const dur = Math.min(buf.duration, Math.max(0.8, (ot.end - ot.t) + 0.4));
+        const natural = Math.min(buf.duration, Math.max(0.8, (ot.end - ot.t) + 0.4));
+        const dur = natural / exportRate;
         await new Promise(r => {
           let done = false;
           const finish = () => { if (done) return; done = true; clearTimeout(t); r(); };
-          const t = setTimeout(finish, dur * 1000);
+          const t = setTimeout(finish, dur * 1000 + 40);
           const skip = () => { try { src.stop(); } catch {} finish(); };
           const btn = $("btn-outtakes-skip");
           if (btn && !quiet) btn.onclick = skip;
@@ -7403,14 +7494,18 @@ async function playOuttakesReel(opts) {
       try { if (src) src.stop(); } catch {}
       v.pause();
       if (frames) try { frames.paint(); } catch {}
-      // Glitch-/TV-Beep nur zwischen Clips (nicht vor dem ersten / nach dem letzten)
       if (i < reel.length - 1 && !outtakeAbort && shouldPlayOuttakesTransition(i, reel.length)) {
         await playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, ctx, hearGain, recDest });
       }
     }
+    reportOtProg(reel.length - 1, reel.length, "cut");
 
     if (fileRec && fileRec.state !== "inactive") {
-      await new Promise(r => { fileRec.onstop = r; try { fileRec.stop(); } catch { r(); } });
+      await new Promise(r => {
+        const to = setTimeout(r, 4000);
+        fileRec.onstop = () => { clearTimeout(to); r(); };
+        try { fileRec.stop(); } catch { clearTimeout(to); r(); }
+      });
     }
 
     // Speichern während Precache angefordert? Cache reicht — downloadOuttakes holt die Datei.
@@ -7419,11 +7514,11 @@ async function playOuttakesReel(opts) {
 
     if (fileRec && chunks.length && !outtakeAbort) {
       let blob = new Blob(chunks, { type: mime.split(";")[0] });
-      const clipSec = reel.reduce((s, ot) => s + Math.max(0.8, (ot.end - ot.t) + 0.4), 0);
-      const transSec = countOuttakesTransitions(reel.length) * (OUTTAKES_TRANS_MAX_MS / 1000);
+      // Echte Aufnahme-Länge (bei Export-Rate schon „komprimierte“ Zeit)
       const durSec = outtakesRecT0
         ? Math.max(0.5, (performance.now() - outtakesRecT0) / 1000)
-        : clipSec + transSec;
+        : reel.reduce((s, ot) => s + Math.max(0.8, (ot.end - ot.t) + 0.4), 0) / exportRate
+          + countOuttakesTransitions(reel.length) * (outtakesTransMs(quiet) / 1000);
       try { blob = await withRecordedDuration(blob, durSec); } catch {}
       if (blob.size > 1000) {
         outtakesCache = { blob, endung };
@@ -7462,6 +7557,11 @@ async function playOuttakesReel(opts) {
     if (saveFile) status("play-status", "⚠ Outtakes-Fehler — bitte nochmal speichern.", true);
   } finally {
     outtakesDrawTrans = false;
+    showOuttakesStaticOverlay(false);
+    try { v.playbackRate = 1; } catch {}
+    try {
+      if (fileRec && fileRec.state !== "inactive") fileRec.stop();
+    } catch {}
     try {
       const tv = $("outtakes-transition");
       if (tv) { tv.pause(); tv.classList.remove("show"); }
@@ -7500,7 +7600,7 @@ async function downloadOuttakes() {
   // Hintergrund läuft noch → warten, dann speichern (kein zweites Abspielen)
   if (outtakesCachePending || (outtakesPlaying && outtakesQuietJob)) {
     outtakesSaveWhenReady = true;
-    status("play-status", "⏳ Outtakes werden noch fertiggeschnitten — einen Moment …");
+    status("play-status", "⏳ Outtakes werden noch geschnitten — Fortschritt steht oben …");
     updateOuttakesBtn();
     try {
       if (outtakesCachePending) {
@@ -7570,6 +7670,8 @@ $("btn-outtakes-dl") && ($("btn-outtakes-dl").onclick = () => { SFX.click(); dow
 $("btn-outtakes-dl-overlay") && ($("btn-outtakes-dl-overlay").onclick = () => { SFX.click(); downloadOuttakes(); });
 $("btn-outtakes-close") && ($("btn-outtakes-close").onclick = () => {
   outtakeAbort = true;
+  outtakesDrawTrans = false;
+  showOuttakesStaticOverlay(false);
   $("outtakes-overlay").classList.remove("show");
   const v = $("outtakes-video"); if (v) v.pause();
 });
@@ -8220,6 +8322,20 @@ function startAmbilight() {
   };
   ambilightRAF = requestAnimationFrame(tick);
 }
+function dockPremPlayerVolPanel(cinema) {
+  const panel = $("prem-player-vol");
+  if (!panel) return;
+  try {
+    if (cinema) {
+      if (panel.parentElement !== document.body) document.body.appendChild(panel);
+      panel.classList.add("ppv-dock");
+    } else {
+      panel.classList.remove("ppv-dock");
+      const slot = $("prem-player-vol-slot");
+      if (slot && panel.parentElement !== slot) slot.appendChild(panel);
+    }
+  } catch {}
+}
 function enterCinemaMode() {
   document.body.classList.add("cinema");
   document.body.classList.toggle("cinema-no-glow", !ambilightOn);
@@ -8227,20 +8343,23 @@ function enterCinemaMode() {
   try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = "none"; } catch {}
   // Bubbles/Profilbilder aus dem Hintergrund — sonst fliegen sie übers Video
   try { const f = document.getElementById("floaties"); if (f) f.style.display = "none"; } catch {}
-  // Leiste sicher ans body hängen (falls HTML-Cache alt / falsch verschachtelt)
+  // Leiste + Mitspieler-Vol ans body (über Kinosaal-Leiste, sonst −/+ tot)
   try {
     const bar = $("cinema-vol");
     if (bar && bar.parentElement !== document.body) document.body.appendChild(bar);
   } catch {}
+  dockPremPlayerVolPanel(true);
   syncCinemaVolSliders();
   syncGlowBtn();
   startAmbilight();
+  renderPremPlayerVolPanel();
 }
 function exitCinemaMode() {
   document.body.classList.remove("cinema");
   document.body.classList.remove("cinema-no-glow");
   setCinemaGlowFallback(false);
   stopAmbilight();
+  dockPremPlayerVolPanel(false);
   try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = ""; } catch {}
   // Floaties wieder wie vom aktuellen Screen vorgesehen
   try {
@@ -8478,11 +8597,16 @@ function applyPremOrigMsg(msg) {
   if (!premiereLocked) invalidatePremCache();
 }
 
-/** Rollen-IDs immer als Zahl — sonst Match Map/Object/Set (0 vs "0") und Gain greift nicht. */
-function normRoleId(role) {
+/** Rollen-ID als stabile String-Key ("0","1",…) — Zahl und "1" treffen sich immer. */
+function roleKey(role) {
   if (role == null || role === "") return null;
   const n = +role;
-  return Number.isFinite(n) ? n : null;
+  if (!Number.isFinite(n)) return null;
+  return String(n);
+}
+function normRoleId(role) {
+  const k = roleKey(role);
+  return k == null ? null : +k;
 }
 function clampPremPlayerGain(g) {
   const n = Number(g);
@@ -8503,7 +8627,6 @@ function tunePremCompForPlayerGains() {
   }
   try {
     if (tweaked && (maxG > 1.02 || minG < 0.98)) {
-      // praktisch Bypass: −/+ hörbar, kein „Alles gleich laut“
       premNodes.comp.threshold.value = 0;
       premNodes.comp.knee.value = 0;
       premNodes.comp.ratio.value = 1;
@@ -8519,19 +8642,19 @@ function tunePremCompForPlayerGains() {
   } catch {}
 }
 function playerGainFor(role) {
-  const id = normRoleId(role);
-  if (id == null) return 1;
-  const g = premPlayerGains[id];
+  const k = roleKey(role);
+  if (k == null) return 1;
+  const g = premPlayerGains[k];
   return g == null ? 1 : clampPremPlayerGain(g);
 }
 function ingestPremPlayerGains(gains) {
   premPlayerGains = Object.create(null);
   if (!gains || typeof gains !== "object") return;
-  for (const [k, v] of Object.entries(gains)) {
-    const role = normRoleId(k);
-    if (role == null) continue;
+  for (const [k0, v] of Object.entries(gains)) {
+    const k = roleKey(k0);
+    if (k == null) continue;
     const g = clampPremPlayerGain(v);
-    if (Math.abs(g - 1) > 0.001) premPlayerGains[role] = g;
+    if (Math.abs(g - 1) > 0.001) premPlayerGains[k] = g;
   }
 }
 function clearPremPlayerGainNodes() {
@@ -8553,20 +8676,20 @@ function setGainParam(node, value) {
   }
 }
 function ensurePremPlayerGainNode(ctx, role, dest) {
-  const id = normRoleId(role);
-  if (id == null) return dest;
-  let g = premPlayerGainNodes.get(id);
+  const k = roleKey(role);
+  if (k == null) return dest;
+  let g = premPlayerGainNodes.get(k);
   if (!g) {
     g = ctx.createGain();
     g.connect(dest);
-    premPlayerGainNodes.set(id, g);
+    premPlayerGainNodes.set(k, g);
   }
-  setGainParam(g, playerGainFor(id));
+  setGainParam(g, playerGainFor(k));
   return g;
 }
 function applyPremPlayerGainsLive() {
-  for (const [role, node] of premPlayerGainNodes) {
-    setGainParam(node, playerGainFor(role));
+  for (const [k, node] of premPlayerGainNodes) {
+    setGainParam(node, playerGainFor(k));
   }
   tunePremCompForPlayerGains();
 }
@@ -8583,14 +8706,29 @@ function applyPremPlayerGainsMsg(msg) {
 }
 function setPremPlayerGain(role, gain) {
   if (!isHost) return;
-  const id = normRoleId(role);
-  if (id == null) return;
+  const k = roleKey(role);
+  if (k == null) return;
   const g = clampPremPlayerGain(gain);
-  if (Math.abs(g - 1) < 0.001) delete premPlayerGains[id];
-  else premPlayerGains[id] = g;
+  if (Math.abs(g - 1) < 0.001) delete premPlayerGains[k];
+  else premPlayerGains[k] = g;
   applyPremPlayerGainsLive();
+  // Anzeige sofort (ohne volles Rebuild), dann Broadcast
+  const row = document.querySelector('#prem-player-vol-list .ppv-row[data-role="' + k + '"]');
+  if (row) {
+    const pct = Math.round(g * 100);
+    const pctEl = row.querySelector(".ppv-pct");
+    if (pctEl) { pctEl.textContent = pct + "%"; pctEl.title = "Aktuell " + pct + "% (max. 300 %)"; }
+    const minus = row.querySelector('.ppv-btn[data-delta="-"]');
+    const plus = row.querySelector('.ppv-btn[data-delta="+"]');
+    if (minus) minus.disabled = g <= 0.05;
+    if (plus) {
+      plus.disabled = g >= 3;
+      plus.title = g >= 3 ? "Schon maximal (300 %)" : "Lauter (bis 300 %)";
+    }
+  } else {
+    renderPremPlayerVolPanel();
+  }
   broadcastPremPlayerGains();
-  renderPremPlayerVolPanel();
   schedulePremRecache();
 }
 function resetPremPlayerGains() {
@@ -8605,15 +8743,35 @@ function resetPremPlayerGains() {
 function rolesInPremMix() {
   const roles = new Set();
   for (const it of mixItems) {
-    const id = it && !it.isOrig ? normRoleId(it.role) : null;
-    if (id != null) roles.add(id);
+    const k = it && !it.isOrig ? roleKey(it.role) : null;
+    if (k != null) roles.add(k);
   }
   return roles;
+}
+function bindPremPlayerVolClicks() {
+  const list = $("prem-player-vol-list");
+  if (!list || premPlayerVolBound) return;
+  premPlayerVolBound = true;
+  // Delegation: überlebt Re-Render, kein stopPropagation-Konflikt mit Kinosaal
+  list.addEventListener("pointerup", (e) => {
+    const btn = e.target && e.target.closest ? e.target.closest(".ppv-btn") : null;
+    if (!btn || btn.disabled || !list.contains(btn)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const row = btn.closest(".ppv-row");
+    const k = row && row.dataset.role;
+    if (k == null || !isHost) return;
+    const delta = btn.dataset.delta === "+" ? 0.1 : -0.1;
+    try { SFX.click(); } catch {}
+    setPremPlayerGain(k, playerGainFor(k) + delta);
+  });
 }
 function renderPremPlayerVolPanel() {
   const panel = $("prem-player-vol");
   const list = $("prem-player-vol-list");
   if (!panel || !list) return;
+  bindPremPlayerVolClicks();
+  dockPremPlayerVolPanel(document.body.classList.contains("cinema"));
   // Nur Host sieht die Knöpfe — Gäste bekommen die Werte per Broadcast
   if (!isHost) {
     panel.style.display = "none";
@@ -8622,8 +8780,8 @@ function renderPremPlayerVolPanel() {
   }
   const roles = rolesInPremMix();
   const rows = players.filter(p => {
-    const id = normRoleId(p.role);
-    return id != null && roles.has(id);
+    const k = roleKey(p.role);
+    return k != null && roles.has(k);
   });
   if (!rows.length) {
     panel.style.display = "none";
@@ -8633,12 +8791,12 @@ function renderPremPlayerVolPanel() {
   panel.style.display = "";
   list.innerHTML = "";
   for (const p of rows) {
-    const roleId = normRoleId(p.role);
-    const g = playerGainFor(roleId);
+    const k = roleKey(p.role);
+    const g = playerGainFor(k);
     const pct = Math.round(g * 100);
     const row = document.createElement("div");
     row.className = "ppv-row";
-    row.dataset.role = String(roleId);
+    row.dataset.role = k;
     const avWrap = document.createElement("div");
     avWrap.innerHTML = avatarHTML(p);
     const avNode = avWrap.firstElementChild;
@@ -8650,15 +8808,10 @@ function renderPremPlayerVolPanel() {
     const minus = document.createElement("button");
     minus.type = "button";
     minus.className = "ppv-btn";
+    minus.dataset.delta = "-";
     minus.textContent = "−";
     minus.title = "Leiser";
     minus.disabled = g <= 0.05;
-    minus.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      try { SFX.click(); } catch {}
-      setPremPlayerGain(roleId, playerGainFor(roleId) - 0.1);
-    });
     const pctEl = document.createElement("span");
     pctEl.className = "ppv-pct";
     pctEl.textContent = pct + "%";
@@ -8666,15 +8819,10 @@ function renderPremPlayerVolPanel() {
     const plus = document.createElement("button");
     plus.type = "button";
     plus.className = "ppv-btn";
+    plus.dataset.delta = "+";
     plus.textContent = "+";
     plus.title = g >= 3 ? "Schon maximal (300 %)" : "Lauter (bis 300 %)";
     plus.disabled = g >= 3;
-    plus.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      try { SFX.click(); } catch {}
-      setPremPlayerGain(roleId, playerGainFor(roleId) + 0.1);
-    });
     row.appendChild(name);
     row.appendChild(minus);
     row.appendChild(pctEl);
@@ -9061,12 +9209,9 @@ function frameSource(v, opts) {
       c.width = v.videoWidth; c.height = v.videoHeight;
     }
     try {
-      const tv = outtakesDrawTrans ? $("outtakes-transition") : null;
-      if (tv && tv.readyState >= 2 && tv.videoWidth) {
-        g2.fillStyle = "#000";
-        g2.fillRect(0, 0, c.width, c.height);
-        drawVideoCover(g2, tv, c.width, c.height);
-        // Während Übergang: OUTTAKES + URL behalten, kein Zeilentext
+      if (outtakesDrawTrans) {
+        // Immer grau/SW-Rauschen zeichnen — nie die (oft grüne) Transition-MP4
+        drawTvStatic(g2, c.width, c.height);
         if (outtakesBadge) drawOuttakesBadge(g2, c.width, c.height, "");
         bilder++;
       } else if (v.readyState >= 2) {
@@ -9401,9 +9546,9 @@ async function playMix(opts) {
     src.buffer = item.buffer;
     src.playbackRate.value = effectPitch(role.effect);
     // Host-Mitspieler-Lautstärke: eigene GainNode pro Rolle (live änderbar für alle)
-    const roleId = !item.isOrig ? normRoleId(item.role) : null;
-    const dest = (roleId != null)
-      ? ensurePremPlayerGainNode(ctx, roleId, master)
+    const rk = !item.isOrig ? roleKey(item.role) : null;
+    const dest = (rk != null)
+      ? ensurePremPlayerGainNode(ctx, rk, master)
       : master;
     src.connect(buildChain(ctx, role, dest));
     // Spur auf ihr Line-Fenster begrenzen → kein Reinlabern in die nächste Line
