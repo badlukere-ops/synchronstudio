@@ -244,6 +244,46 @@
     width:100%;
   }
   body.cinema #prem-emoji-bar .emojibtn{pointer-events:auto}
+  /* Host: Mitspieler-Lautstärke (unter der Leinwand, auch im Kinosaal) */
+  .prem-player-vol{
+    width:100%;margin-top:10px;padding:8px 10px;
+    border:1px solid var(--line);border-radius:10px;
+    background:#121218;box-sizing:border-box;
+  }
+  .ppv-head{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+  }
+  .ppv-hint{opacity:.7;font-size:.72rem}
+  .ppv-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .ppv-row{
+    display:flex;align-items:center;gap:8px;
+    padding:5px 8px;border:1px solid var(--metal);border-radius:8px;
+    background:linear-gradient(180deg,#1a1a20,#131318);
+  }
+  .ppv-row .pavatar{width:28px;height:28px;font-size:.75rem}
+  .ppv-name{
+    flex:1;min-width:0;font-size:.82rem;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  .ppv-pct{
+    font-family:var(--font-mono);font-size:.68rem;letter-spacing:.04em;
+    color:var(--amber);min-width:3.4em;text-align:center;
+  }
+  .ppv-btn{
+    width:30px;height:26px;padding:0;margin:0;flex-shrink:0;
+    font-family:var(--font-mono);font-size:.9rem;font-weight:700;line-height:1;
+  }
+  body.cinema .prem-player-vol{
+    margin-top:8px;padding:7px 9px;
+    background:rgba(10,10,14,.78);border-color:rgba(255,255,255,.12);
+    box-shadow:0 6px 20px rgba(0,0,0,.45);
+    max-width:min(420px,100%);
+  }
+  body.cinema .ppv-hint{display:none}
+  @media(max-width:600px){
+    .ppv-name{font-size:.75rem}
+    .ppv-btn{width:28px;height:24px}
+  }
   /* Kinosaal-Leiste: fest am Viewport, über Filmkorn, gut sichtbar (auch Opera-Toolbar) */
   #cinema-vol{
     display:none;position:fixed;left:50%;
@@ -1687,6 +1727,13 @@
           <button class="emojibtn" data-e="💀">💀</button>
           <button class="emojibtn" data-e="👑">👑</button>
         </div>
+        <div id="prem-player-vol" class="prem-player-vol" style="display:none" aria-label="Mitspieler-Lautstärke">
+          <div class="ppv-head">
+            <span class="tag">🎚 Mitspieler lauter/leiser</span>
+            <span class="tag ppv-hint">nur Host · gilt für alle</span>
+          </div>
+          <div id="prem-player-vol-list" class="ppv-list"></div>
+        </div>
       </div>
       <div class="prem-load-wrap" id="prem-load-wrap">
         <div class="bar" id="prem-bar" style="display:none"><i></i></div>
@@ -1840,7 +1887,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.57"></script>
+  <script src="client.js?v=9.10.58"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>

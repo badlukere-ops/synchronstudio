@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.57";
+const APP_VERSION = "9.10.58";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -127,6 +127,9 @@ let premOrigOn = true;
 let premOrigUnfilled = [];        // [{id, name}]
 let premOrigMuted = new Set();    // Rollen-IDs die stumm sind
 let premPaused = false;
+// Premiere: Host-Lautstärke pro Mitspieler-Rolle (0.05–2, Default 1) — für alle synchron
+let premPlayerGains = Object.create(null);   // roleId -> number
+let premPlayerGainNodes = new Map();         // roleId -> GainNode (live)
 
 const $ = (id) => document.getElementById(id);
 let show = (id) => {
@@ -533,6 +536,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.58", items: [
+    "🎚 Premiere: Host kann Mitspieler einzeln lauter/leiser stellen (− / + unter dem Video) — gilt für alle Zuhörer und beim Speichern"
+  ]},
   { v: "9.10.57", items: [
     "🎬 Outtakes: dezente Einblendung der gesprochenen Zeile + Link synchron-studio.github.io/synchronstudio/ (Anschauen & Speichern)"
   ]},
@@ -3567,7 +3573,7 @@ const GUEST_IN = new Set([
   "settings", "sceneReset", "duelSetupInfo", "duelReady", "duelPlayGo", "duelVoteBroadcast",
   "duelResult", "wins", "nextRound", "matchEnd", "matchLobby", "videoMeta", "videoChunk",
   "goLines", "go", "mix", "outtakesPool", "playOuttakes", "tttState", "rpsState", "diceState",
-  "drawState", "premGo", "premOrig", "premPause", "premResume", "emojiShow", "rateResult",
+  "drawState", "premGo", "premOrig", "premPlayerVol", "premPause", "premResume", "emojiShow", "rateResult",
   "rxGo", "tpGo", "mgResult", "cbGo", "cbResult", "again"
 ]);
 
@@ -3898,6 +3904,7 @@ function handleMsg(msg, conn) {
     case "drawState": drawBoard = msg.drawBoard; renderDrawBoard(); break;
     case "premGo": premStart(); break;
     case "premOrig": applyPremOrigMsg(msg); break;
+    case "premPlayerVol": applyPremPlayerGainsMsg(msg); break;
     case "premPause": premPauseAll(false, msg.tVideo); break;
     case "premResume": premResumeAll(false, msg.tVideo); break;
     case "emojiShow": showEmoji(msg.pid, msg.char); break;
@@ -4634,7 +4641,11 @@ function isRatingCardOpen() {
 }
 
 function rejoinPlaybackFlags() {
-  return { premiereLocked: !!premiereLocked, ratingOpen: isRatingCardOpen() };
+  return {
+    premiereLocked: !!premiereLocked,
+    ratingOpen: isRatingCardOpen(),
+    playerGains: Object.assign(Object.create(null), premPlayerGains),
+  };
 }
 
 $("file-video").onchange = async (e) => {
@@ -6906,6 +6917,7 @@ function backToLobby(keepMatch) {
   players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; p.premPct = 0; });
   mixItems = []; collected.clear(); collectedOuttakes.clear(); takes = {}; outtakes = []; outtakesCache = null;
   finalTracksData = null; premiereLocked = false; redoMode = null;
+  resetPremPlayerGains();
   pendingRate = false; rateSent = false; ratingDone = false; allRatings.clear(); myStars = {}; myBuddy = null;
   $("rate-card").style.display = "none"; $("rate-rows").innerHTML = ""; $("rate-result").innerHTML = "";
   $("btn-next-round").style.display = "none"; $("btn-rate-submit").disabled = true;
@@ -8054,6 +8066,7 @@ async function loadMix(data, metaMsg) {
   // PeerJS streicht Boost/Pan oft neben den Audio-Buffern — Maps / eigene Booth-Werte nachziehen
   if (metaMsg) attachMetaToTracks(data, metaMsg);
   applyLocalLineMeta(data);
+  if (metaMsg && metaMsg.playerGains) ingestPremPlayerGains(metaMsg.playerGains);
   show("scr-playback");
   exitCinemaMode();
   status("play-status", "Dekodiere Spuren …");
@@ -8130,7 +8143,8 @@ async function loadMix(data, metaMsg) {
   $("btn-replay").disabled = true;
   $("btn-download").disabled = true;
   initPremOrigFromMix();
-  if (isHost) { broadcastState(); renderPremState(); broadcastPremOrig(); }
+  renderPremPlayerVolPanel();
+  if (isHost) { broadcastState(); renderPremState(); broadcastPremOrig(); broadcastPremPlayerGains(); }
   else {
     sendHost({ t: "premReady" });
     status("play-status", "✅ Fertig geladen — warte, bis der Host die Premiere startet …");
@@ -8257,6 +8271,142 @@ function applyPremOrigMsg(msg) {
   premOrigMuted = new Set(Array.isArray(msg.muted) ? msg.muted : []);
   renderPremOrigPanel();
   if (!premiereLocked) invalidatePremCache();
+}
+
+function clampPremPlayerGain(g) {
+  const n = Number(g);
+  if (!isFinite(n)) return 1;
+  // 5 % … 200 %, in 5 %-Schritten
+  return Math.max(0.05, Math.min(2, Math.round(n * 20) / 20));
+}
+function playerGainFor(role) {
+  if (role == null) return 1;
+  const g = premPlayerGains[role];
+  return g == null ? 1 : clampPremPlayerGain(g);
+}
+function ingestPremPlayerGains(gains) {
+  premPlayerGains = Object.create(null);
+  if (!gains || typeof gains !== "object") return;
+  for (const [k, v] of Object.entries(gains)) {
+    const role = +k;
+    if (!Number.isFinite(role)) continue;
+    const g = clampPremPlayerGain(v);
+    if (Math.abs(g - 1) > 0.001) premPlayerGains[role] = g;
+  }
+}
+function clearPremPlayerGainNodes() {
+  for (const g of premPlayerGainNodes.values()) {
+    try { g.disconnect(); } catch {}
+  }
+  premPlayerGainNodes.clear();
+}
+function ensurePremPlayerGainNode(ctx, role, dest) {
+  let g = premPlayerGainNodes.get(role);
+  if (!g) {
+    g = ctx.createGain();
+    g.connect(dest);
+    premPlayerGainNodes.set(role, g);
+  }
+  try { g.gain.value = playerGainFor(role); } catch {}
+  return g;
+}
+function applyPremPlayerGainsLive() {
+  for (const [role, node] of premPlayerGainNodes) {
+    try { node.gain.value = playerGainFor(role); } catch {}
+  }
+}
+function broadcastPremPlayerGains() {
+  if (!isHost) return;
+  broadcast({ t: "premPlayerVol", gains: Object.assign(Object.create(null), premPlayerGains) });
+}
+function applyPremPlayerGainsMsg(msg) {
+  if (isHost) return;
+  ingestPremPlayerGains(msg && msg.gains);
+  applyPremPlayerGainsLive();
+  renderPremPlayerVolPanel();
+  schedulePremRecache();
+}
+function setPremPlayerGain(role, gain) {
+  if (!isHost || role == null) return;
+  const g = clampPremPlayerGain(gain);
+  if (Math.abs(g - 1) < 0.001) delete premPlayerGains[role];
+  else premPlayerGains[role] = g;
+  applyPremPlayerGainsLive();
+  broadcastPremPlayerGains();
+  renderPremPlayerVolPanel();
+  schedulePremRecache();
+}
+function resetPremPlayerGains() {
+  premPlayerGains = Object.create(null);
+  clearPremPlayerGainNodes();
+  const panel = $("prem-player-vol");
+  if (panel) panel.style.display = "none";
+  const list = $("prem-player-vol-list");
+  if (list) list.innerHTML = "";
+}
+function rolesInPremMix() {
+  const roles = new Set();
+  for (const it of mixItems) {
+    if (it && it.role != null && !it.isOrig) roles.add(it.role);
+  }
+  return roles;
+}
+function renderPremPlayerVolPanel() {
+  const panel = $("prem-player-vol");
+  const list = $("prem-player-vol-list");
+  if (!panel || !list) return;
+  // Nur Host sieht die Knöpfe — Gäste bekommen die Werte per Broadcast
+  if (!isHost) {
+    panel.style.display = "none";
+    list.innerHTML = "";
+    return;
+  }
+  const roles = rolesInPremMix();
+  const rows = players.filter(p => p.role != null && roles.has(p.role));
+  if (!rows.length) {
+    panel.style.display = "none";
+    list.innerHTML = "";
+    return;
+  }
+  panel.style.display = "";
+  list.innerHTML = "";
+  for (const p of rows) {
+    const g = playerGainFor(p.role);
+    const pct = Math.round(g * 100);
+    const row = document.createElement("div");
+    row.className = "ppv-row";
+    row.dataset.role = String(p.role);
+    const avWrap = document.createElement("div");
+    avWrap.innerHTML = avatarHTML(p);
+    const avNode = avWrap.firstElementChild;
+    if (avNode) row.appendChild(avNode);
+    const name = document.createElement("span");
+    name.className = "ppv-name";
+    name.textContent = stripHostTag(p.name || "?");
+    name.title = name.textContent;
+    const minus = document.createElement("button");
+    minus.type = "button";
+    minus.className = "ppv-btn";
+    minus.textContent = "−";
+    minus.title = "Leiser";
+    minus.disabled = g <= 0.05;
+    minus.onclick = () => setPremPlayerGain(p.role, g - 0.1);
+    const pctEl = document.createElement("span");
+    pctEl.className = "ppv-pct";
+    pctEl.textContent = pct + "%";
+    const plus = document.createElement("button");
+    plus.type = "button";
+    plus.className = "ppv-btn";
+    plus.textContent = "+";
+    plus.title = "Lauter";
+    plus.disabled = g >= 2;
+    plus.onclick = () => setPremPlayerGain(p.role, g + 0.1);
+    row.appendChild(name);
+    row.appendChild(minus);
+    row.appendChild(pctEl);
+    row.appendChild(plus);
+    list.appendChild(row);
+  }
 }
 
 function updatePremPauseBtn() {
@@ -8441,6 +8591,11 @@ async function exportAudioFast() {
       if (item.effect) role = { ...role, effect: item.effect };
       if (item.fxAmount !== undefined) role = { ...role, fxAmount: item.fxAmount };
       if (item.boost != null && item.boost !== 1) role = { ...role, gain: (role.gain ?? 1) * item.boost };
+      // Host-Mitspieler-Lautstärke auch im schnellen Ton-Export
+      if (!item.isOrig && item.role != null) {
+        const pg = playerGainFor(item.role);
+        if (pg !== 1) role = { ...role, gain: (role.gain ?? 1) * pg };
+      }
       if (!item.isOrig) role = { ...role, pan: item.pan != null ? item.pan : 0 };
       else if (item.pan != null) role = { ...role, pan: item.pan };
       const src = offlineCtx.createBufferSource();
@@ -8675,7 +8830,9 @@ let premCacheDirty = false;    // Lautstärke/Sync geändert — alter Cache ggf
 let premActiveRecorder = null; // laufender MediaRecorder (zum sauberen Stoppen)
 let premRecacheTimer = null;
 let premWakeLock = null;
-function premVolSig() { return JSON.stringify(premVol) + "|" + syncOffsetMs; }
+function premVolSig() {
+  return JSON.stringify(premVol) + "|" + syncOffsetMs + "|" + JSON.stringify(premPlayerGains);
+}
 function premCacheReady(c) {
   return !!(c && c.blob && c.blob.size > 1000);
 }
@@ -8821,6 +8978,7 @@ async function playMix(opts) {
   }
   g.hearGain.gain.value = quiet ? 0 : 1;
   const master = g.voiceGain;          // Stimmen laufen über den Voice-Regler in den Graph
+  clearPremPlayerGainNodes();          // frische Per-Spieler-Gains für diesen Lauf
   v.playbackRate = 1;
 
   let fileRec = null;
@@ -8942,7 +9100,11 @@ async function playMix(opts) {
     const src = ctx.createBufferSource();
     src.buffer = item.buffer;
     src.playbackRate.value = effectPitch(role.effect);
-    src.connect(buildChain(ctx, role, master));
+    // Host-Mitspieler-Lautstärke: eigene GainNode pro Rolle (live änderbar für alle)
+    const dest = (!item.isOrig && item.role != null)
+      ? ensurePremPlayerGainNode(ctx, item.role, master)
+      : master;
+    src.connect(buildChain(ctx, role, dest));
     // Spur auf ihr Line-Fenster begrenzen → kein Reinlabern in die nächste Line
     let maxDur = item.buffer.duration;
     if (scene.lines && item.lineIdx != null) {
@@ -9226,6 +9388,7 @@ function resetForNewRound() {
   outtakesSaveWhenReady = false; outtakesDidSaveBlob = false;
   resolveOuttakesCachePending(null);
   premOrigOn = true; premOrigUnfilled = []; premOrigMuted = new Set(); premPaused = false;
+  resetPremPlayerGains();
   invalidatePremCache();
   clearSceneCaches();
   pendingPhaseRestore = null;
