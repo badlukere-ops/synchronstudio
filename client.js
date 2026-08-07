@@ -5,11 +5,13 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.21";
+const APP_VERSION = "9.10.22";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
+// jsDelivr (GitHub) blockiert Dateien > ~20 MB mit 403 — deshalb MP4s von GitHub Raw.
 const CDN_BASE = "https://cdn.jsdelivr.net/gh/synchron-studio/synchronstudio@main/";
+const GH_RAW_BASE = "https://raw.githubusercontent.com/synchron-studio/synchronstudio/main/";
 function useCdnAssets() {
   try { return /\.github\.io$/i.test(location.hostname); } catch { return false; }
 }
@@ -17,7 +19,9 @@ function assetUrl(path) {
   if (!path) return path;
   if (/^(https?:|blob:|data:)/i.test(path)) return path;
   if (!useCdnAssets()) return path;
-  return CDN_BASE + String(path).replace(/^\.\//, "").replace(/^\//, "");
+  const p = String(path).replace(/^\.\//, "").replace(/^\//, "");
+  if (/\.mp4$/i.test(p)) return GH_RAW_BASE + p;
+  return CDN_BASE + p;
 }
 function sceneVideoSrc() {
   return videoBlobUrl || assetUrl(scene && scene.videoUrl);
@@ -298,6 +302,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.22", items: [
+    "🎬 Große Videos (über 20 MB) laden wieder — jsDelivr-Limit umgangen (Marin/Zenitsu etc.)"
+  ]},
   { v: "9.10.21", items: [
     "🎀 Neue Szene: My Dress-Up Darling — Kawaii Kaiwai Outro (4× Marin)"
   ]},
