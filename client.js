@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.24";
+const APP_VERSION = "9.10.25";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -302,6 +302,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.25", items: [
+    "🗣 Beim Aufnehmen optional Original mithören (Lautstärke regelbar) — Take bleibt nur deine Stimme"
+  ]},
   { v: "9.10.24", items: [
     "🎬 Outtakes-Knopf deutlicher + Outtakes-Reel speichern/herunterladen"
   ]},
@@ -4169,6 +4172,7 @@ function renderLine() {
   if (!l) return finishBooth();
   origReqId++;   // Line gewechselt -> jede noch wartende "Original anhören"-Anfrage von vorher wird ungültig
   if (origSrc) { try { origSrc.stop(); } catch {} origSrc = null; }
+  stopRecCue();
   const ob = $("btn-line-orig"); if (ob) ob.textContent = "🗣 Original anhören";
   syncBoothGateUI();
   $("booth-count").innerHTML = `${curLine + 1}/${myLines.length}<small>Voiceline</small>`;
@@ -4184,6 +4188,8 @@ function renderLine() {
   $("btn-line-next").textContent = redoMode !== null ? "✅ Aktualisieren & zurück" : "✅ Passt, weiter";
   const sk = $("btn-line-skip"); if (sk) sk.style.display = lineHasOrig(l) ? "" : "none";
   const og = $("btn-line-orig"); if (og) og.style.display = (lineHasOrig(l) && !scene.blind) ? "" : "none";
+  const cueWrap = $("rec-cue-wrap");
+  if (cueWrap) cueWrap.style.display = (lineHasOrig(l) && !scene.blind) ? "" : "none";
   const efSel = $("my-effect-select");
   if (efSel) {
     const baseRole = roleOf(myRole()) || { effect: "none" };
@@ -4323,6 +4329,38 @@ $("btn-line-scene").onclick = () => {
 };
 
 let recBusy = false;
+let recCueSrc = null, recCueGain = null;   // Original-Cue nur im Ohr, nie im MediaRecorder
+function stopRecCue() {
+  if (recCueSrc) { try { recCueSrc.stop(); } catch {} recCueSrc = null; }
+  recCueGain = null;
+}
+function cueWhileRecOn() {
+  const c = $("rec-cue-orig");
+  return !!(c && c.checked && scene && !scene.blind);
+}
+function cueVolNow() {
+  const cv = $("rec-cue-vol");
+  const v = cv ? parseFloat(cv.value) : 0.45;
+  return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.45;
+}
+async function startRecCue(l) {
+  stopRecCue();
+  if (!cueWhileRecOn() || !lineHasOrig(l)) return;
+  try {
+    const ctx = getCtx();
+    const buffer = await getLineOrigBuffer(l);
+    if (!buffer || !recording) return;   // Aufnahme schon wieder vorbei
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const g = ctx.createGain();
+    g.gain.value = cueVolNow();
+    src.connect(g); g.connect(ctx.destination);   // nur Lautsprecher/Kopfhörer — nicht ins Mic-Rec
+    src.start();
+    recCueSrc = src;
+    recCueGain = g;
+    src.onended = () => { if (recCueSrc === src) { recCueSrc = null; recCueGain = null; } };
+  } catch (e) { console.warn("Rec-Cue Original:", e); }
+}
 function boothButtons_unused(dis) { ["btn-line-scene","btn-line-play","btn-line-next","btn-line-skip"].forEach(id => $(id).disabled = dis || (id !== "btn-line-scene" && $(id).disabled)); if(!dis) renderLine._keep || 0; }
 $("btn-line-rec").onclick = async () => {
   if (lineRec && lineRec.state === "recording") { stopLineRec(); return; }
@@ -4332,6 +4370,9 @@ $("btn-line-rec").onclick = async () => {
     return;
   }
   recBusy = { t: performance.now() };
+  stopRecCue();
+  // Original-Anhören stoppen, sonst doppelt mit Cue
+  if (origSrc) { try { origSrc.stop(); } catch {} origSrc = null; const ob = $("btn-line-orig"); if (ob) ob.textContent = "🗣 Original anhören"; }
   ["btn-line-scene","btn-line-play","btn-line-next","btn-line-skip","btn-line-orig"].forEach(id => { const el = $(id); if (el) el.disabled = true; });
   status("booth-status", "🎯 Bereite Aufnahme vor …");
   try {
@@ -4364,6 +4405,8 @@ $("btn-line-rec").onclick = async () => {
     lineRec.start();
     recBusy = false;
     recording = true;
+    // Cue parallel zum Mic starten (nur Wiedergabe, nicht in der Aufnahme)
+    startRecCue(l);
     startDualViz("viz", l, recMax);
     SFX.rec();
     $("btn-line-rec").textContent = "⏹ Stopp";
@@ -4375,7 +4418,8 @@ $("btn-line-rec").onclick = async () => {
       $("rectime-fill").style.width = Math.min(100, el / recMax * 100) + "%";
       if (el >= recMax) stopLineRec();
     }, 50);
-    status("booth-status", "🔴 Aufnahme läuft … (stoppt automatisch nach " + recMax.toFixed(1) + "s)");
+    const cueHint = cueWhileRecOn() && lineHasOrig(l) ? " · Original im Ohr" : "";
+    status("booth-status", "🔴 Aufnahme läuft … (stoppt automatisch nach " + recMax.toFixed(1) + "s)" + cueHint);
   } catch (e) {
     console.error("Rec-Start fehlgeschlagen:", e);
     forceRecReset();
@@ -4386,7 +4430,9 @@ $("btn-line-rec").onclick = async () => {
 // Alles zurücksetzen, falls ein Start hängen bleibt
 function forceRecReset() {
   recBusy = false;
+  recording = false;
   clearInterval(recTimer);
+  stopRecCue();
   try { $("booth-video").pause(); } catch {}
   if (lineRec && lineRec.state === "recording") { try { lineRec.stop(); } catch {} }
   $("btn-line-rec").textContent = "⏺ Aufnehmen";
@@ -4481,6 +4527,7 @@ function stopLineRec() {
   recBusy = false;
   recording = false;
   clearInterval(recTimer);
+  stopRecCue();
   $("booth-video").pause();
   if (lineRec && lineRec.state === "recording") lineRec.stop();
   $("btn-line-rec").textContent = "⏺ Nochmal aufnehmen";
@@ -5753,15 +5800,27 @@ $("btn-outtakes-close") && ($("btn-outtakes-close").onclick = () => {
   const v = $("outtakes-video"); if (v) v.pause();
 });
 
-// Timer / Wipe-Einstellungen merken
+// Timer / Wipe / Cue-Einstellungen merken
 (() => {
-  const t = $("rec-timer"), w = $("rec-wipe");
+  const t = $("rec-timer"), w = $("rec-wipe"), c = $("rec-cue-orig"), cv = $("rec-cue-vol"), cvl = $("rec-cue-vol-val");
   try {
     if (t && localStorage.getItem("ss_rec_timer") != null) t.checked = localStorage.getItem("ss_rec_timer") === "1";
     if (w && localStorage.getItem("ss_rec_wipe") === "1") w.checked = true;
+    if (c && localStorage.getItem("ss_rec_cue") === "1") c.checked = true;
+    if (cv && localStorage.getItem("ss_rec_cue_vol") != null) {
+      cv.value = localStorage.getItem("ss_rec_cue_vol");
+      if (cvl) cvl.textContent = Math.round(parseFloat(cv.value) * 100) + "%";
+    }
   } catch {}
   if (t) t.onchange = () => { try { localStorage.setItem("ss_rec_timer", t.checked ? "1" : "0"); } catch {} };
   if (w) w.onchange = () => { try { localStorage.setItem("ss_rec_wipe", w.checked ? "1" : "0"); } catch {} };
+  if (c) c.onchange = () => { try { localStorage.setItem("ss_rec_cue", c.checked ? "1" : "0"); } catch {} };
+  if (cv) cv.oninput = () => {
+    const v = parseFloat(cv.value);
+    if (cvl) cvl.textContent = Math.round(v * 100) + "%";
+    if (recCueGain) try { recCueGain.gain.value = v; } catch {}
+    try { localStorage.setItem("ss_rec_cue_vol", String(v)); } catch {}
+  };
 })();
 
 
