@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.63";
+const APP_VERSION = "9.10.64";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -56,6 +56,8 @@ const PEER_BROKERS = [
 ];
 let activeBrokerIdx = 0;
 const JOIN_MAX_TRIES = 4; // 2 Broker × (normal + Relay)
+const ROOM_SEARCH_MS = 9000; // „suche Raum“ — danach klarer Fehler / nächster Broker (nicht ewig hängen)
+const ICE_WAIT_MS = 16000;   // Datenkanal/ICE nach gefundenem Host
 const BROKER_TIP = "Dein Netz blockiert die Spiel-Verbindung. Hotspot vom Handy geht bei dir — dann liegt’s am normalen WLAN/Router/Firewall (z. B. Avast), nicht am Browser. Lösung: zum Spielen Hotspot nutzen, oder Avast/Firewall für synchron-studio.github.io + WebRTC erlauben.";
 const NETZ_TIP = "Tipp: Anderes Netz (Handy-Hotspot), Avast/Firewall lockern — Browser wechseln allein reicht oft nicht.";
 function makePeerConfig(forceRelay, brokerIdx) {
@@ -538,6 +540,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.64", items: [
+    "🌐 Beitreten: „suche Raum…“ hängt nicht mehr endlos — nach wenigen Sekunden klarer Hinweis + automatischer Versuch auf dem anderen Spiel-Server"
+  ]},
   { v: "9.10.63", items: [
     "🎚 Fix: Premiere −/+ Mitspieler-Lautstärke reagiert wieder (Anzeige + Ton; Knöpfe lagen unter der Kinosaal-Leiste)",
     "📺 Outtakes-Übergang: graues TV-Rauschen statt grünem Bild (Zeichnung statt kaputter Datei)",
@@ -2189,12 +2194,19 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
     if (!wiederkehr && !noRetry && tryNr < JOIN_MAX_TRIES - 1) {
       const next = tryNr + 1;
       melde("🔄 Verbindung wird nochmal versucht… (" + (next + 1) + "/" + JOIN_MAX_TRIES + ")");
-      setTimeout(() => gastBeitreten(code, false, next), 900 + tryNr * 500);
+      setTimeout(() => gastBeitreten(code, false, next), 700 + tryNr * 400);
       return;
     }
     const tip = ((opts && opts.skipTip) || /Hotspot|blockiert|Tipp/.test(msg)) ? "" : " " + NETZ_TIP;
     melde(msg + tip, true);
     if (wiederkehr) planeWiederverbindung();
+  }
+
+  function roomMissingMsg(final) {
+    if (final) {
+      return "❌ Raum " + code + " nicht gefunden / Host nicht erreichbar. Host noch in der Lobby? Code richtig? Beide: Strg+F5 → Host neuen Raum → du den neuen Code. Alter Einladungs-Tab zählt nicht.";
+    }
+    return "Raum " + code + " auf " + broker.label + " nicht gefunden — prüfe anderen Spiel-Server…";
   }
 
   if (!wiederkehr && tryNr > 0) {
@@ -2210,29 +2222,51 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
   }, 12000));
 
   peer.on("open", () => {
+    if (finished || joined) return;
     opened = true;
     myId = peer.id;
+    // Alten „Broker öffnen“-Timer weg — sonst kann er später stören
+    clearJoinFailTimers();
     melde("② Spiel-Server OK (" + broker.label + ") — suche Raum " + code + " …");
     hostConn = peer.connect(PEER_PREFIX + code, { reliable: true });
 
-    // Schritt 2: Broker kennt den Host evtl., aber ICE/NAT blockiert die Datenverbindung
+    // Schritt 2: Host finden / verbinden — kein endloses „suche Raum“ ohne Meldung
     joinFailTimers.push(setTimeout(() => {
-      if (joined) return;
+      if (joined || finished) return;
       if (sawPeerUnavailable) {
-        failJoin("Raum " + code + " nicht gefunden. Läuft der Host noch? Code richtig? (Host: neuer Raum nach Strg+F5)", { skipTip: true });
+        failJoin(roomMissingMsg(tryNr >= JOIN_MAX_TRIES - 1), {
+          noRetry: tryNr >= JOIN_MAX_TRIES - 1,
+          skipTip: true
+        });
         return;
       }
-      if (iceFailed) {
-        failJoin("❌ Spiel-Server ok, aber Direktverbindung blockiert (Router/Firewall/NAT). " + BROKER_TIP, { skipTip: true });
+      const pc = hostConn && hostConn.peerConnection;
+      const st = pc && pc.iceConnectionState;
+      // ICE läuft schon (checking/…) → Host existiert, nur NAT ist langsam → länger warten
+      if (pc && st && (st === "checking" || st === "connected" || st === "completed" || st === "disconnected")) {
+        melde("② Raum gefunden — Verbindung wird aufgebaut … (" + broker.label + ")");
+        joinFailTimers.push(setTimeout(() => {
+          if (joined || finished) return;
+          if (iceFailed) {
+            failJoin("❌ Spiel-Server ok, aber Direktverbindung blockiert (Router/Firewall/NAT). " + BROKER_TIP, { skipTip: true });
+            return;
+          }
+          failJoin("❌ Spiel-Server ok, aber Verbindung zum Host kommt nicht durch. Oft Router/Firewall — beide am Handy-Hotspot testen (Browser-Wechsel allein hilft selten).", { skipTip: true });
+        }, ICE_WAIT_MS));
         return;
       }
-      failJoin("❌ Spiel-Server ok, aber Verbindung zum Host kommt nicht durch. Oft Router/Firewall — beide am Handy-Hotspot testen (Browser-Wechsel allein hilft selten).", { skipTip: true });
-    }, 18000));
+      // Kein ICE / steckt bei „new“ / kein peerConnection → oft falscher Broker oder toter Raum
+      failJoin(roomMissingMsg(tryNr >= JOIN_MAX_TRIES - 1), {
+        noRetry: tryNr >= JOIN_MAX_TRIES - 1,
+        skipTip: true
+      });
+    }, ROOM_SEARCH_MS));
 
     hostConn.on("open", () => {
       joined = true;
       finished = true;
       clearJoinFailTimers();
+      if (iceWatchTimer) { clearInterval(iceWatchTimer); iceWatchTimer = null; }
       warSchonDrin = true;
       activeBrokerIdx = brokerIdx;
       sendHost({ t: "hello", name: stripHostTag(myName), avatar: myAvatar, accessory: myAccessory, key: myKey });
@@ -2285,11 +2319,13 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
     if (e.type === "peer-unavailable") {
       sawPeerUnavailable = true;
       if (wiederkehr || hostHandoffActive) {
+        finished = true;
+        clearJoinFailTimers();
         planeWiederverbindung();
         return;
       }
       // Anderen Broker / nächsten Versuch — Host kann auf Cloud-1 sein
-      failJoin("Raum " + code + " hier nicht gefunden — prüfe anderen Server…", {
+      failJoin(roomMissingMsg(tryNr >= JOIN_MAX_TRIES - 1), {
         noRetry: tryNr >= JOIN_MAX_TRIES - 1,
         skipTip: true
       });
@@ -3165,9 +3201,24 @@ const invitedCode = (() => {
   return m ? m[0] : null;
 })();
 if (invitedCode) whenReady(() => {
-  $("in-code").value = invitedCode;
+  const codeInput = $("in-code");
   const note = $("invite-note");
-  if (note) { note.textContent = "🎬 Du wurdest in Raum " + invitedCode + " eingeladen — Code steht schon drin, einfach auf „Beitreten“."; note.style.display = ""; }
+  codeInput.value = invitedCode;
+  const syncInviteNote = () => {
+    if (!note) return;
+    const v = (codeInput.value || "").trim();
+    if (v === invitedCode) {
+      note.textContent = "🎬 Du wurdest in Raum " + invitedCode + " eingeladen — Code steht schon drin, einfach auf „Beitreten“.";
+      note.style.display = "";
+    } else if (/^\d{4}$/.test(v)) {
+      note.textContent = "ℹ️ Einladungs-Link war Raum " + invitedCode + " — du suchst jetzt " + v + " (alter Link zählt nicht).";
+      note.style.display = "";
+    } else {
+      note.style.display = "none";
+    }
+  };
+  syncInviteNote();
+  codeInput.addEventListener("input", syncInviteNote);
   const btn = $("btn-join");
   if (btn) btn.classList.add("primary");
 });
