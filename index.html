@@ -244,8 +244,8 @@
     width:100%;
   }
   body.cinema #prem-emoji-bar .emojibtn{pointer-events:auto}
-  /* Host: Mitspieler-Lautstärke — im Kinosaal fixed ÜBER #cinema-vol (z-index 80),
-     sonst fängt die Leiste die −/+-Klicks ab und die Anzeige bleibt bei 100 %. */
+  /* Host: Mitspieler-Lautstärke — im Kinosaal links unten (neben Kinosaal-Leiste),
+     zugeklappt als kleiner Knopf — nicht über Emoji-Leiste / Video. z-index > #cinema-vol. */
   .prem-player-vol{
     width:100%;margin-top:10px;padding:8px 10px;
     border:1px solid var(--line);border-radius:10px;
@@ -254,6 +254,16 @@
   .ppv-head{
     display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
   }
+  .ppv-toggle{
+    display:none;align-items:center;gap:6px;margin:0;padding:5px 10px;
+    font-family:var(--font-mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;
+    color:rgba(220,220,230,.85);cursor:pointer;
+    background:linear-gradient(180deg,#1a1a20,#131318);
+    border:1px solid var(--metal);border-radius:6px;
+    pointer-events:auto;touch-action:manipulation;
+  }
+  .ppv-toggle:hover{border-color:rgba(240,168,48,.45);color:rgba(240,168,48,.95)}
+  .ppv-toggle .ppv-chev{opacity:.55;font-size:.7rem}
   .ppv-hint{opacity:.7;font-size:.72rem}
   .ppv-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
   .ppv-row{
@@ -277,20 +287,37 @@
     touch-action:manipulation;-webkit-user-select:none;user-select:none;
   }
   .ppv-btn:disabled{opacity:.25;cursor:not-allowed}
-  /* Außerhalb .card / #scr-playback gehostet → eigener Stacking-Context über Kinosaal-Leiste */
+  /* Links unten neben der zentrierten GESAMT/STIMMEN/MUSIK-Leiste — Emojis bleiben frei */
   #prem-player-vol.ppv-dock{
-    position:fixed;left:50%;transform:translateX(-50%);
+    position:fixed;left:max(10px, env(safe-area-inset-left, 0px));right:auto;
+    transform:none;
     bottom:max(72px, calc(env(safe-area-inset-bottom, 0px) + 56px));
-    z-index:90;width:min(420px, calc(100vw - 24px));margin:0;
-    background:rgba(10,10,14,.92);border-color:rgba(255,255,255,.14);
-    box-shadow:0 8px 28px rgba(0,0,0,.55);
-    pointer-events:auto !important;opacity:1 !important;
+    z-index:90;width:auto;max-width:min(300px, calc(100vw - 20px));margin:0;
+    padding:5px 6px;
+    background:rgba(10,10,14,.78);border-color:rgba(255,255,255,.14);
+    box-shadow:0 6px 22px rgba(0,0,0,.45);
+    pointer-events:auto !important;
+    opacity:.68;transition:opacity .18s ease, background .18s ease;
   }
-  body.cinema #prem-player-vol.ppv-dock .ppv-hint{display:none}
+  #prem-player-vol.ppv-dock:hover,
+  #prem-player-vol.ppv-dock:focus-within,
+  #prem-player-vol.ppv-dock.ppv-open{opacity:1;background:rgba(10,10,14,.92)}
+  #prem-player-vol.ppv-dock .ppv-title{display:none}
+  #prem-player-vol.ppv-dock .ppv-toggle{display:inline-flex}
+  #prem-player-vol.ppv-dock .ppv-hint{display:none}
+  #prem-player-vol.ppv-dock:not(.ppv-open) .ppv-list{display:none;margin:0}
+  #prem-player-vol.ppv-dock.ppv-open{
+    padding:8px 10px;width:min(300px, calc(100vw - 20px));
+  }
+  #prem-player-vol.ppv-dock.ppv-open .ppv-list{display:flex;margin-top:8px}
   @media(max-width:600px){
     .ppv-name{font-size:.75rem}
     .ppv-btn{width:28px;height:24px}
-    #prem-player-vol.ppv-dock{bottom:max(64px, calc(env(safe-area-inset-bottom, 0px) + 48px))}
+    #prem-player-vol.ppv-dock{
+      bottom:max(64px, calc(env(safe-area-inset-bottom, 0px) + 48px));
+      max-width:min(260px, calc(100vw - 16px));
+    }
+    #prem-player-vol.ppv-dock.ppv-open{width:min(260px, calc(100vw - 16px))}
   }
   /* Kinosaal-Leiste: fest am Viewport, über Filmkorn, gut sichtbar (auch Opera-Toolbar) */
   #cinema-vol{
@@ -1875,7 +1902,10 @@
      sonst fängt cardin-transform position:fixed ein und die Leiste liegt ÜBER −/+. -->
 <div id="prem-player-vol" class="prem-player-vol" style="display:none" aria-label="Mitspieler-Lautstärke">
   <div class="ppv-head">
-    <span class="tag">🎚 Mitspieler lauter/leiser</span>
+    <span class="tag ppv-title">🎚 Mitspieler lauter/leiser</span>
+    <button type="button" id="ppv-toggle" class="ppv-toggle" aria-expanded="false" title="Mitspieler-Lautstärke ein-/ausklappen">
+      <span>🎚 Mitspieler-Lautstärke</span><span class="ppv-chev" aria-hidden="true">▸</span>
+    </button>
     <span class="tag ppv-hint">nur Host · 5–300 % · gilt für alle</span>
   </div>
   <div id="prem-player-vol-list" class="ppv-list"></div>
@@ -1924,7 +1954,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.64"></script>
+  <script src="client.js?v=9.10.65"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>

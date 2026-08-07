@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.64";
+const APP_VERSION = "9.10.65";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -134,6 +134,7 @@ let premPaused = false;
 let premPlayerGains = Object.create(null);   // roleIdStr -> number
 let premPlayerGainNodes = new Map();         // roleIdStr -> GainNode (live)
 let premPlayerVolBound = false;
+let premPlayerVolToggleBound = false;
 
 const $ = (id) => document.getElementById(id);
 let show = (id) => {
@@ -540,6 +541,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.65", items: [
+    "🎚 Premiere: Mitspieler-Lautstärke ist jetzt ein kleiner Knopf links unten (aufklappbar) — verdeckt keine Emojis mehr"
+  ]},
   { v: "9.10.64", items: [
     "🌐 Beitreten: „suche Raum…“ hängt nicht mehr endlos — nach wenigen Sekunden klarer Hinweis + automatischer Versuch auf dem anderen Spiel-Server"
   ]},
@@ -8373,19 +8377,46 @@ function startAmbilight() {
   };
   ambilightRAF = requestAnimationFrame(tick);
 }
+function syncPpvToggleUi() {
+  const panel = $("prem-player-vol");
+  const btn = $("ppv-toggle");
+  if (!panel || !btn) return;
+  const open = panel.classList.contains("ppv-open");
+  btn.setAttribute("aria-expanded", open ? "true" : "false");
+  const chev = btn.querySelector(".ppv-chev");
+  if (chev) chev.textContent = open ? "▾" : "▸";
+}
+function bindPremPlayerVolToggle() {
+  const btn = $("ppv-toggle");
+  if (!btn || premPlayerVolToggleBound) return;
+  premPlayerVolToggleBound = true;
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const panel = $("prem-player-vol");
+    if (!panel || !panel.classList.contains("ppv-dock")) return;
+    panel.classList.toggle("ppv-open");
+    syncPpvToggleUi();
+    try { SFX.click(); } catch {}
+  });
+}
 function dockPremPlayerVolPanel(cinema) {
   const panel = $("prem-player-vol");
   if (!panel) return;
+  bindPremPlayerVolToggle();
   try {
     if (cinema) {
       if (panel.parentElement !== document.body) document.body.appendChild(panel);
+      // Neu in Kinosaal: zugeklappt, damit Emoji-Leiste frei bleibt
+      if (!panel.classList.contains("ppv-dock")) panel.classList.remove("ppv-open");
       panel.classList.add("ppv-dock");
     } else {
-      panel.classList.remove("ppv-dock");
+      panel.classList.remove("ppv-dock", "ppv-open");
       const slot = $("prem-player-vol-slot");
       if (slot && panel.parentElement !== slot) slot.appendChild(panel);
     }
   } catch {}
+  syncPpvToggleUi();
 }
 function enterCinemaMode() {
   document.body.classList.add("cinema");
@@ -8787,7 +8818,11 @@ function resetPremPlayerGains() {
   clearPremPlayerGainNodes();
   tunePremCompForPlayerGains();
   const panel = $("prem-player-vol");
-  if (panel) panel.style.display = "none";
+  if (panel) {
+    panel.style.display = "none";
+    panel.classList.remove("ppv-open");
+    syncPpvToggleUi();
+  }
   const list = $("prem-player-vol-list");
   if (list) list.innerHTML = "";
 }
