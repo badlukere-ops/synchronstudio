@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.18";
+const APP_VERSION = "9.10.19";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -81,6 +81,11 @@ let audioCtx = null;
 let mixItems = [];                // [{role, startAt, buffer}]
 let playNodes = [];
 let syncOffsetMs = 0;
+// Premiere: Original-Stimmen unbesetzter Rollen (Host steuert)
+let premOrigOn = true;
+let premOrigUnfilled = [];        // [{id, name}]
+let premOrigMuted = new Set();    // Rollen-IDs die stumm sind
+let premPaused = false;
 
 const $ = (id) => document.getElementById(id);
 let show = (id) => {
@@ -293,6 +298,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.19", items: [
+    "🎚 Noise Gate weicher + Nebengeräusche raus (Stimme bleibt), Original-Stimmen in Premiere wählbar, Pause für alle"
+  ]},
   { v: "9.10.18", items: [
     "🎛 Aufnahme-Welle wie Choicer: Original füllt die Breite, Lautstärke normalisiert (nicht mehr winzig/zu lang)"
   ]},
@@ -2636,8 +2644,8 @@ const GUEST_IN = new Set([
   "settings", "sceneReset", "duelSetupInfo", "duelReady", "duelPlayGo", "duelVoteBroadcast",
   "duelResult", "wins", "nextRound", "matchEnd", "matchLobby", "videoMeta", "videoChunk",
   "goLines", "go", "mix", "outtakesPool", "playOuttakes", "tttState", "rpsState", "diceState",
-  "drawState", "premGo", "emojiShow", "rateResult", "rxGo", "tpGo", "mgResult", "cbGo",
-  "cbResult", "again"
+  "drawState", "premGo", "premOrig", "premPause", "premResume", "emojiShow", "rateResult",
+  "rxGo", "tpGo", "mgResult", "cbGo", "cbResult", "again"
 ]);
 
 let pendingPhaseRestore = null;
@@ -2822,7 +2830,14 @@ function handleMsg(msg, conn) {
       if (msg.k === "tpScore") mgScore("tp", conn.peer, msg.ms);
       break;
     case "emoji": emojiBroadcast(conn.peer, msg.char); break;
-    case "premReady": { const p = players.find(p => p.id === conn.peer); if (p) p.prem = true; broadcastState(); renderPremState(); break; }
+    case "premReady": {
+      const p = players.find(p => p.id === conn.peer);
+      if (p) p.prem = true;
+      broadcastState();
+      renderPremState();
+      broadcastPremOrig();
+      break;
+    }
     case "cb":
       if (msg.a && msg.a.k === "start") { broadcast({ t: "cbGo" }); cbRun(); }
       if (msg.a && msg.a.k === "score") cbScore(conn.peer, msg.a.n);
@@ -2892,6 +2907,9 @@ function handleMsg(msg, conn) {
     case "diceState": dice = msg.dice; renderDice(); break;
     case "drawState": drawBoard = msg.drawBoard; renderDrawBoard(); break;
     case "premGo": premStart(); break;
+    case "premOrig": applyPremOrigMsg(msg); break;
+    case "premPause": premPauseAll(false); break;
+    case "premResume": premResumeAll(false); break;
     case "emojiShow": showEmoji(msg.pid, msg.char); break;
     case "rateResult": showRateResult(msg.results, msg.eliminatedName); break;
     case "rxGo": rxRun(msg.delay); break;
@@ -3466,9 +3484,31 @@ function studioEnhanceBuffer(ctx, buffer, strength) {
   } catch (e) { console.error("Studio-Aufbereitung fehlgeschlagen:", e); return buffer; }
 }
 
-// Gate + (falls Studio-Effekt gewaehlt) Rauschunterdrueckung in einem Rutsch
+// Leichte Spektral-Reinigung ohne Studio-Lautheits-Boost (für Gate-Regler)
+function lightDenoiseBuffer(ctx, buffer, strength) {
+  try {
+    const s = Math.max(0, Math.min(1, strength || 0));
+    if (s <= 0.02) return buffer;
+    const out = ctx.createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
+    for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+      const roh = Float32Array.from(buffer.getChannelData(ch));
+      out.copyToChannel(denoiseChannel(roh, s, buffer.sampleRate), ch);
+    }
+    return out;
+  } catch (e) {
+    console.warn("leichte Rauschunterdrückung fehlgeschlagen:", e);
+    return buffer;
+  }
+}
+
+// Gate + (optional) leichte Denoise; Studio-Effekt wie bisher extra
 function processTakeBuffer(ctx, buffer, gateAmount, effect, fxAmount) {
   let b = applyGateToBuffer(ctx, buffer, gateAmount);
+  const g = Math.max(0, Math.min(1, gateAmount || 0));
+  // Auch ohne Studio-Effekt: Gate-Stärke steuert leichte Denoise (max ~0.55)
+  if (g > 0.05 && effect !== "studio") {
+    b = lightDenoiseBuffer(ctx, b, Math.min(0.55, g * 0.65));
+  }
   if (effect === "studio") b = studioEnhanceBuffer(ctx, b, fxAmount === undefined ? 1 : fxAmount);
   return b;
 }
@@ -3476,35 +3516,63 @@ function processTakeBuffer(ctx, buffer, gateAmount, effect, fxAmount) {
 function applyGateToBuffer(ctx, buffer, gateAmount) {
   if (!gateAmount || gateAmount <= 0) return buffer;   // Gate aus -> unverändert
   const sr = buffer.sampleRate;
-  const winSize = Math.max(1, Math.round(sr * 0.01));      // 10ms-Analysefenster
-  const threshold = gateAmount * 0.16;                       // gleiche Formel wie früher live
-  const holdSamples = Math.round(sr * 0.2);                  // 200ms Hangover, bevor's zumacht
-  const attackSamples = Math.round(sr * 0.004);               // schnelles Öffnen
-  const releaseSamples = Math.round(sr * 0.05);               // sanftes Schließen
+  const winSize = Math.max(1, Math.round(sr * 0.012));     // ~12ms
+  const threshold = gateAmount * 0.14;                      // etwas sanfter als früher
+  const kneeLo = threshold * 0.45;                          // Soft-Knee-Untergrenze
+  const holdSamples = Math.round(sr * 0.28);                 // längeres Hangover
+  const attackSamples = Math.round(sr * 0.005);
+  const releaseSamples = Math.round(sr * 0.09);
+  // Geschlossen nicht hart auf 0 — Restboden schützt leise Sprache
+  const closedFloor = Math.max(0.03, 0.14 * (1 - gateAmount));
 
   const out = ctx.createBuffer(buffer.numberOfChannels, buffer.length, sr);
   const nWindows = Math.ceil(buffer.length / winSize);
   const rms = new Float32Array(nWindows);
+  // Grober Sprachband-Anteil: Differenz Hochpass-ähnlich (Differenz aufeinanderfolgender Samples)
+  // + Mid-Energie — schützt Stimme, wenn Mid klar über dem Threshold liegt
+  const midRatio = new Float32Array(nWindows);
   for (let w = 0; w < nWindows; w++) {
-    let sum = 0, count = 0;
+    let sum = 0, mid = 0, count = 0;
     for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
       const data = buffer.getChannelData(ch);
       const start = w * winSize, end = Math.min(buffer.length, start + winSize);
-      for (let i = start; i < end; i++) { sum += data[i] * data[i]; count++; }
+      let prev = start > 0 ? data[start - 1] : 0;
+      for (let i = start; i < end; i++) {
+        const x = data[i];
+        sum += x * x;
+        const d = x - prev;           // Hochton-/Transient-Anteil
+        mid += (x * x) * 0.55 + (d * d) * 0.45;
+        prev = x;
+        count++;
+      }
     }
     rms[w] = count ? Math.sqrt(sum / count) : 0;
+    midRatio[w] = count && sum > 1e-12 ? mid / sum : 0;
   }
-  const targetOpen = new Uint8Array(nWindows);
-  let lastLoudWin = -Infinity;
+  // Soft-Knee-Zielgain pro Fenster + Hangover wenn Sprachband klar da ist
+  const targetGain = new Float32Array(nWindows);
+  let lastOpenWin = -Infinity;
   for (let w = 0; w < nWindows; w++) {
-    if (rms[w] > threshold) lastLoudWin = w;
-    targetOpen[w] = (w - lastLoudWin) * winSize <= holdSamples ? 1 : 0;
+    const r = rms[w];
+    const speechProtect = midRatio[w] > 0.85 && r > kneeLo * 0.7;
+    let g;
+    if (r >= threshold || speechProtect) g = 1;
+    else if (r <= kneeLo) g = closedFloor;
+    else {
+      const t = (r - kneeLo) / Math.max(1e-9, threshold - kneeLo);
+      // smoothstep
+      const s = t * t * (3 - 2 * t);
+      g = closedFloor + (1 - closedFloor) * s;
+    }
+    if (g > 0.55) lastOpenWin = w;
+    if ((w - lastOpenWin) * winSize <= holdSamples) g = Math.max(g, 0.85);
+    targetGain[w] = g;
   }
   const gainCurve = new Float32Array(buffer.length);
-  let currentGain = targetOpen[0] ? 1 : 0;
+  let currentGain = targetGain[0];
   for (let w = 0; w < nWindows; w++) {
     const start = w * winSize, end = Math.min(buffer.length, start + winSize);
-    const target = targetOpen[w] ? 1 : 0;
+    const target = targetGain[w];
     const speed = target > currentGain ? attackSamples : releaseSamples;
     for (let i = start; i < end; i++) {
       currentGain += (target - currentGain) / Math.max(1, speed);
@@ -5756,7 +5824,12 @@ async function decodeDuelData(data) {
       if (!lineHasOrig(l) || coveredIdx.has(i)) continue;
       try {
         const buffer = await getLineOrigBuffer(l);
-        if (buffer) items.push({ role: null, startAt: l.t, lineIdx: i, buffer });
+        if (buffer) {
+          items.push({
+            role: null, startAt: l.t, lineIdx: i, buffer,
+            isOrig: true, origRoles: Array.isArray(l.chars) ? l.chars.slice() : []
+          });
+        }
       } catch {}
     }
   }
@@ -5997,7 +6070,12 @@ async function loadMix(data) {
       if (covered) continue;
       try {
         const buffer = await getLineOrigBuffer(l);
-        if (buffer) mixItems.push({ role: null, startAt: l.t, lineIdx: i, buffer });
+        if (buffer) {
+          mixItems.push({
+            role: null, startAt: l.t, lineIdx: i, buffer,
+            isOrig: true, origRoles: Array.isArray(l.chars) ? l.chars.slice() : []
+          });
+        }
       } catch { console.warn("Original fehlt für Line", i); }
     }
   }
@@ -6013,7 +6091,8 @@ async function loadMix(data) {
   if (me) me.prem = true;
   $("btn-replay").disabled = true;
   $("btn-download").disabled = true;
-  if (isHost) { broadcastState(); renderPremState(); }
+  initPremOrigFromMix();
+  if (isHost) { broadcastState(); renderPremState(); broadcastPremOrig(); }
   else { sendHost({ t: "premReady" }); status("play-status", "✅ Fertig geladen — warte, bis der Host die Premiere startet …"); }
   renderRedoPanel("redo-panel-prem");
   updateOuttakesBtn();
@@ -6041,8 +6120,117 @@ function renderPremState() {
   }
 }
 
+function isOrigItemAudible(item) {
+  if (!item || !item.isOrig) return true;
+  if (!premOrigOn) return false;
+  const roles = item.origRoles || [];
+  if (!roles.length) return true;
+  return !roles.some(r => premOrigMuted.has(r));
+}
+
+function initPremOrigFromMix() {
+  const map = new Map();
+  for (const it of mixItems) {
+    if (!it.isOrig || !it.origRoles) continue;
+    for (const rid of it.origRoles) {
+      if (map.has(rid)) continue;
+      const role = roleOf(rid);
+      map.set(rid, (role && role.name) || ("Rolle " + rid));
+    }
+  }
+  premOrigUnfilled = [...map.entries()].map(([id, name]) => ({ id, name }));
+  // Beim frischen Mix: Standard an, nichts stumm — außer Host hatte schon Einstellungen
+  // (bei Gästen überschreibt applyPremOrigMsg danach)
+  if (isHost) {
+    premOrigOn = true;
+    premOrigMuted = new Set();
+  }
+  renderPremOrigPanel();
+}
+
+function renderPremOrigPanel() {
+  const panel = $("prem-orig-panel");
+  const rolesEl = $("prem-orig-roles");
+  const master = $("prem-orig-master");
+  if (!panel || !rolesEl || !master) return;
+  const hasOrig = premOrigUnfilled.length > 0;
+  panel.style.display = hasOrig ? "" : "none";
+  master.checked = premOrigOn;
+  master.disabled = !isHost;
+  rolesEl.innerHTML = "";
+  for (const r of premOrigUnfilled) {
+    const lab = document.createElement("label");
+    lab.style.cssText = "display:flex;gap:6px;align-items:center;padding:4px 8px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:13px";
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = premOrigOn && !premOrigMuted.has(r.id);
+    cb.disabled = !isHost || !premOrigOn;
+    cb.dataset.roleId = String(r.id);
+    cb.onchange = () => {
+      if (!isHost) return;
+      const id = +cb.dataset.roleId;
+      if (cb.checked) premOrigMuted.delete(id);
+      else premOrigMuted.add(id);
+      broadcastPremOrig();
+      invalidatePremCache();
+    };
+    lab.appendChild(cb);
+    lab.appendChild(document.createTextNode(r.name));
+    rolesEl.appendChild(lab);
+  }
+}
+
+function broadcastPremOrig() {
+  if (!isHost) return;
+  broadcast({ t: "premOrig", on: !!premOrigOn, muted: [...premOrigMuted] });
+}
+
+function applyPremOrigMsg(msg) {
+  premOrigOn = !!msg.on;
+  premOrigMuted = new Set(Array.isArray(msg.muted) ? msg.muted : []);
+  renderPremOrigPanel();
+  if (!premiereLocked) invalidatePremCache();
+}
+
+function updatePremPauseBtn() {
+  const btn = $("btn-prem-pause");
+  if (!btn) return;
+  const v = $("play-video");
+  const laeuft = premiereLocked && aktuellePhase() === "scr-playback" && v && !v.ended;
+  if (!isHost || !laeuft) {
+    btn.style.display = "none";
+    return;
+  }
+  btn.style.display = "";
+  btn.textContent = premPaused ? "▶ Weiter für alle" : "⏸ Pause für alle";
+}
+
+function premPauseAll(fromHostClick) {
+  premPaused = true;
+  invalidatePremCache();
+  const v = $("play-video");
+  try { if (v) v.pause(); } catch {}
+  try { if (audioCtx && audioCtx.state === "running") audioCtx.suspend(); } catch {}
+  updatePremPauseBtn();
+  if (fromHostClick && isHost) broadcast({ t: "premPause" });
+  status("play-status", "⏸ Pause");
+}
+
+function premResumeAll(fromHostClick) {
+  premPaused = false;
+  const ctx = getCtx();
+  const v = $("play-video");
+  Promise.resolve(ctx.resume()).catch(() => {}).then(() => {
+    try { if (v && v.paused && !v.ended) v.play(); } catch {}
+  });
+  updatePremPauseBtn();
+  if (fromHostClick && isHost) broadcast({ t: "premResume" });
+  status("play-status", "🍿 Premiere!");
+}
+
 function premStart() {
   premiereLocked = true;
+  premPaused = false;
   renderRedoPanel("redo-panel-wait"); renderRedoPanel("redo-panel-prem");
   pendingRate = true;
   $("btn-replay").disabled = false;
@@ -6050,6 +6238,7 @@ function premStart() {
   $("btn-prem-start") && ($("btn-prem-start").style.display = "none");
   status("play-status", "🍿 Premiere!");
   updateOuttakesBtn();
+  updatePremPauseBtn();
   // Zahlen-Countdown — weiße Balken nur in der Booth, nie hier
   countdown({ wipe: false }).then(() => playMix(false));
 }
@@ -6058,6 +6247,18 @@ $("btn-prem-start").onclick = () => {
   broadcast({ t: "premGo" });
   premStart();
 };
+$("btn-prem-pause") && ($("btn-prem-pause").onclick = () => {
+  if (!isHost || !premiereLocked) return;
+  if (premPaused) premResumeAll(true);
+  else premPauseAll(true);
+});
+$("prem-orig-master") && ($("prem-orig-master").onchange = () => {
+  if (!isHost) return;
+  premOrigOn = !!$("prem-orig-master").checked;
+  renderPremOrigPanel();
+  broadcastPremOrig();
+  invalidatePremCache();
+});
 $("btn-replay").onclick = () => { invalidatePremCache(); playMix(false); };
 $("btn-download").onclick = () => downloadPremiere();
 $("btn-download-audio").onclick = () => exportAudioFast();
@@ -6151,6 +6352,7 @@ async function exportAudioFast() {
     } catch (e) { console.warn("Video-Ton nicht verfügbar für Offline-Export:", e); }
 
     for (const item of mixItems) {
+      if (item.isOrig && !isOrigItemAudible(item)) continue;
       let role = item.role != null ? (roleOf(item.role) || { pan: 0, effect: "none", gain: 1 }) : { pan: 0, effect: "none", gain: 1 };
       if (scene.lines && item.lineIdx != null) role = effectiveRole(role, scene.lines[item.lineIdx]);
       if (item.effect) role = { ...role, effect: item.effect };
@@ -6361,6 +6563,9 @@ async function playMix(opts) {
   const v = $("play-video");
   playNodes.forEach(n => { try { n.stop(); } catch {} });
   playNodes = [];
+  premPaused = false;
+  try { await ctx.resume(); } catch {}
+  updatePremPauseBtn();
 
   const g = premGraph(ctx, v);
   const master = g.voiceGain;          // Stimmen laufen über den Voice-Regler in den Graph
@@ -6465,6 +6670,7 @@ async function playMix(opts) {
   const off = syncOffsetMs / 1000;
 
   for (const item of mixItems) {
+    if (item.isOrig && !isOrigItemAudible(item)) continue;
     let role = item.role != null ? (roleOf(item.role) || { pan: 0, effect: "none", gain: 1 }) : { pan: 0, effect: "none", gain: 1 };
     if (scene.lines && item.lineIdx != null) role = effectiveRole(role, scene.lines[item.lineIdx]);
     if (item.effect) role = { ...role, effect: item.effect };   // Spieler-eigene Wahl übersticht alles andere
@@ -6490,6 +6696,8 @@ async function playMix(opts) {
   // Videoende = ALLES stoppt → kein 1–2s-Nachlauf-Audio mehr
   v.addEventListener("ended", () => {
     playNodes.forEach(n => { try { n.stop(); } catch {} });
+    premPaused = false;
+    updatePremPauseBtn();
     if (pendingRate && !saveFile) { pendingRate = false; showRateCard(); }
   }, { once: true });
 
@@ -6730,10 +6938,14 @@ $("btn-back").onclick = () => {
 function resetForNewRound() {
   players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; });
   mixItems = []; collected.clear(); collectedOuttakes.clear(); takes = {}; outtakes = [];
+  premOrigOn = true; premOrigUnfilled = []; premOrigMuted = new Set(); premPaused = false;
   invalidatePremCache();
   clearSceneCaches();
   pendingPhaseRestore = null;
   finalTracksData = null; premiereLocked = false; redoMode = null;
+  try { if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); } catch {}
+  const pop = $("prem-orig-panel"); if (pop) pop.style.display = "none";
+  updatePremPauseBtn();
   pendingRate = false; rateSent = false; allRatings.clear(); myStars = {}; myBuddy = null;
   document.body.classList.remove("cinema");
   const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
