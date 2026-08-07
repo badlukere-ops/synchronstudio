@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.55";
+const APP_VERSION = "9.10.56";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -533,6 +533,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.56", items: [
+    "🐛 Fix: Start-Knopf in der Lobby war weg (Host konnte keine Szene mehr starten)"
+  ]},
   { v: "9.10.55", items: [
     "🌐 Klarer Hinweis: wenn Hotspot geht aber normales WLAN nicht → Netz/Firewall blockiert (nicht der Browser)"
   ]},
@@ -2189,7 +2192,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
         failJoin("❌ Spiel-Server ok, aber Direktverbindung blockiert (Router/Firewall/NAT). " + BROKER_TIP, { skipTip: true });
         return;
       }
-      failJoin("❌ Spiel-Server ok, aber Verbindung zum Host kommt nicht durch (oft Router/Firewall). Beide am gleichen Handy-Hotspot testen.", { skipTip: true });
+      failJoin("❌ Spiel-Server ok, aber Verbindung zum Host kommt nicht durch. Oft Router/Firewall — beide am Handy-Hotspot testen (Browser-Wechsel allein hilft selten).", { skipTip: true });
     }, 18000));
 
     hostConn.on("open", () => {
@@ -3152,9 +3155,10 @@ function enterLobby(code) {
     $("set-rounds").onchange = hostSettingsChanged;
     $("set-roulette").onchange = hostSettingsChanged;
     hostSettingsChanged();
-  } else {
-    syncHostUi();
   }
+  // Host-Start-Karte & Host-UI: syncHostUi ist die Quelle der Wahrheit
+  // (früher stand hier nur für Host host-start=anzeigen — das ging bei Host-Transfer verloren)
+  syncHostUi();
   renderSettingsView();
   SFX.ok();
 }
