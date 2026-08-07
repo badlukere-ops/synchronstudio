@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.42";
+const APP_VERSION = "9.10.43";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -477,6 +477,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.43", items: [
+    "🍔 Neue Szene: SpongeBob — Patrick: Open Sesame (2 Rollen)"
+  ]},
   { v: "9.10.42", items: [
     "🎧 Stimmen-Richtung Standard jetzt Mitte — links/rechts nur noch, wenn du es in den Line-Einstellungen änderst"
   ]},
@@ -1078,6 +1081,8 @@ const AVATAR_CHARS = [
   { img: "scenes/yutaryu/ryu.png", label: "Ryu" },
   { img: "scenes/yutaryu/tengen.png", label: "Tengen (vs Ryu)" },
   { img: "scenes/yutaryu/rika.png", label: "Rika (vs Ryu)" },
+  { img: "scenes/opensesame/patrick.png", label: "Patrick (Open Sesame)" },
+  { img: "scenes/opensesame/spongebob.png", label: "SpongeBob (Open Sesame)" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
