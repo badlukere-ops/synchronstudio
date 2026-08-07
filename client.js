@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.25";
+const APP_VERSION = "9.10.26";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -302,6 +302,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.26", items: [
+    "🎬 Outtakes-Speichern: Bildspur gefixt (war nur Ton / wie MP3)"
+  ]},
   { v: "9.10.25", items: [
     "🗣 Beim Aufnehmen optional Original mithören (Lautstärke regelbar) — Take bleibt nur deine Stimme"
   ]},
@@ -5670,27 +5673,43 @@ async function playOuttakesReel(opts) {
 
   // Beim Anschauen schon mitschneiden → Speichern danach sofort
   let fileRec = null, frames = null, recDest = null, chunks = [];
-  const mime = videoMime();
+  const mime = outtakesMime();
   const endung = mime.startsWith("video/mp4") ? "mp4" : "webm";
-  const auchCachen = !outtakesCache;
+  // Pro Durchlauf neu mitschneiden (kein alter „nur Ton“-Cache)
+  outtakesCache = null;
+  const auchCachen = true;
   if (saveFile || auchCachen) {
     try {
       recDest = ctx.createMediaStreamDestination();
       if (vidGain) vidGain.connect(recDest);
-      frames = frameSource(v);
+      // alwaysRaf: auch bei Pause/Seek zwischen Clips weiter Bilder liefern
+      frames = frameSource(v, { alwaysRaf: true });
+      // Warten bis wirklich Videobilder da sind — sonst speichert der Browser nur Ton
+      await new Promise(r => {
+        const t0 = performance.now();
+        const iv = setInterval(() => {
+          if (frames) try { frames.paint(); } catch {}
+          if ((v.videoWidth > 0 && frames && frames.count() >= 4) || performance.now() - t0 > 2500) {
+            clearInterval(iv); r();
+          }
+        }, 32);
+      });
+      const vTrack = frames.stream.getVideoTracks()[0];
+      if (vTrack) try { vTrack.enabled = true; } catch {}
       const stream = new MediaStream([
         ...frames.stream.getVideoTracks(),
         ...recDest.stream.getAudioTracks()
       ]);
       fileRec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 3_500_000 });
       fileRec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-      fileRec.start(500);
+      fileRec.start(200);
       if (recStat && saveFile) {
         recStat.style.display = "";
-        recStat.textContent = "🔴 Nimmt Outtakes auf …";
+        recStat.textContent = "🔴 Nimmt Outtakes auf (Bild+Ton) …";
+        recStat.style.color = "var(--hot)";
       } else if (recStat && auchCachen) {
         recStat.style.display = "";
-        recStat.textContent = "💾 Schneidet mit — Speichern danach sofort";
+        recStat.textContent = "💾 Schneidet mit (Bild+Ton) — Speichern danach sofort";
         recStat.style.color = "var(--amber)";
       }
     } catch (e) {
@@ -5713,6 +5732,7 @@ async function playOuttakesReel(opts) {
     try {
       v.currentTime = Math.max(0, ot.t - 0.15);
       await new Promise(r => { const h = () => { v.removeEventListener("seeked", h); r(); }; v.addEventListener("seeked", h); setTimeout(r, 600); });
+      if (frames) try { frames.paint(); } catch {}
       const buf = await ctx.decodeAudioData(await toArrayBuffer(ot.buf.slice ? ot.buf.slice(0) : ot.buf));
       const src = ctx.createBufferSource();
       src.buffer = buf;
@@ -5720,6 +5740,7 @@ async function playOuttakesReel(opts) {
       src.connect(g); g.connect(ctx.destination);
       if (recDest) g.connect(recDest);
       await v.play().catch(() => {});
+      if (frames) try { frames.paint(); } catch {}
       src.start();
       const dur = Math.min(buf.duration, Math.max(0.8, (ot.end - ot.t) + 0.4));
       await new Promise(r => {
@@ -5729,7 +5750,8 @@ async function playOuttakesReel(opts) {
         if (btn) btn.onclick = skip;
         src.onended = () => { clearTimeout(t); r(); };
       });
-      v.pause();
+      // Nicht pausieren während Mitschnitt — sonst friert/stirbt die Bildspur in manchen Browsern
+      if (!fileRec) v.pause();
       try { src.stop(); } catch {}
     } catch (e) { console.warn("Outtake skip:", e); }
   }
@@ -6607,13 +6629,15 @@ function videoMime() {
 }
 
 // Malt das laufende Video fortlaufend auf eine Leinwand und gibt einen Bildstrom davon
-// zurück. requestVideoFrameCallback trifft genau die echten Videobilder; wo es das nicht
-// gibt, springt die normale Bildschleife ein.
-function frameSource(v) {
+// zurück. requestVideoFrameCallback trifft genau die echten Videobilder; where es das nicht
+// gibt (oder Outtakes mit Pause/Seek), alwaysRaf: Dauer-RAF damit MediaRecorder nicht
+// nur Ton speichert.
+function frameSource(v, opts) {
+  const alwaysRaf = !!(opts && opts.alwaysRaf);
   const c = document.createElement("canvas");
   c.width = v.videoWidth || 1280;
   c.height = v.videoHeight || 720;
-  const g2 = c.getContext("2d", { alpha: false });
+  const g2 = c.getContext("2d", { alpha: false, desynchronized: true });
   let laeuft = true, bilder = 0, rafId = null;
 
   const malen = () => {
@@ -6621,9 +6645,12 @@ function frameSource(v) {
     if (v.videoWidth && (c.width !== v.videoWidth || c.height !== v.videoHeight)) {
       c.width = v.videoWidth; c.height = v.videoHeight;
     }
-    try { g2.drawImage(v, 0, 0, c.width, c.height); bilder++; } catch {}
+    try {
+      if (v.readyState >= 2) { g2.drawImage(v, 0, 0, c.width, c.height); bilder++; }
+    } catch {}
   };
-  if (typeof v.requestVideoFrameCallback === "function") {
+  // Outtakes: immer RAF — bei Pause/Seek liefert rVFC keine Frames → Datei ohne Bild
+  if (!alwaysRaf && typeof v.requestVideoFrameCallback === "function") {
     const schritt = () => { if (!laeuft) return; malen(); v.requestVideoFrameCallback(schritt); };
     v.requestVideoFrameCallback(schritt);
   } else {
@@ -6635,8 +6662,21 @@ function frameSource(v) {
   return {
     stream: c.captureStream(30),
     count: () => bilder,
+    paint: malen,
     stop: () => { laeuft = false; if (rafId) cancelAnimationFrame(rafId); }
   };
+}
+// Outtakes: WebM bevorzugen — MP4-Encoder droppt bei Canvas-Capture oft die Bildspur
+function outtakesMime() {
+  const kandidaten = [
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm",
+    "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+    "video/mp4",
+  ];
+  for (const m of kandidaten) if (MediaRecorder.isTypeSupported(m)) return m;
+  return "video/webm";
 }
 
 // Beim ersten Anschauen der Premiere wird das fertige Video schon mitgeschnitten.
