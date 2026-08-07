@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.54";
+const APP_VERSION = "9.10.55";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -56,8 +56,8 @@ const PEER_BROKERS = [
 ];
 let activeBrokerIdx = 0;
 const JOIN_MAX_TRIES = 4; // 2 Broker × (normal + Relay)
-const BROKER_TIP = "Vermutlich blockiert dein Netz den Spiel-Server (Firewall, Schulnetz, Router, Avast). Schnelltest: Handy-Hotspot an, Seite mit Strg+F5 neu laden, nochmal „Raum erstellen“. Wenn Hotspot geht → das andere Netz ist schuld.";
-const NETZ_TIP = "Tipp: VPN aus, Handy-Hotspot testen, Avast/Firewall für synchron-studio.github.io erlauben, Chrome/Edge ohne Extra-Shields.";
+const BROKER_TIP = "Dein Netz blockiert die Spiel-Verbindung. Hotspot vom Handy geht bei dir — dann liegt’s am normalen WLAN/Router/Firewall (z. B. Avast), nicht am Browser. Lösung: zum Spielen Hotspot nutzen, oder Avast/Firewall für synchron-studio.github.io + WebRTC erlauben.";
+const NETZ_TIP = "Tipp: Anderes Netz (Handy-Hotspot), Avast/Firewall lockern — Browser wechseln allein reicht oft nicht.";
 function makePeerConfig(forceRelay, brokerIdx) {
   const b = PEER_BROKERS[Math.max(0, brokerIdx | 0) % PEER_BROKERS.length] || PEER_BROKERS[0];
   return {
@@ -533,6 +533,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.55", items: [
+    "🌐 Klarer Hinweis: wenn Hotspot geht aber normales WLAN nicht → Netz/Firewall blockiert (nicht der Browser)"
+  ]},
   { v: "9.10.54", items: [
     "🌐 Verbindung: zweiter Spiel-Server (Fallback), bessere Meldungen wenn Raum-Erstellen schon scheitert, doppelte TURN-Relays",
     "📦 Deploy-Fix: Kenny 3 + Kritzel-Board-Fix aus 9.10.53 endlich online (Pages-Upload war vorher fehlgeschlagen)"
