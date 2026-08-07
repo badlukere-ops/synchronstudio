@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.66";
+const APP_VERSION = "9.10.67";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -541,6 +541,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.67", items: [
+    "👑 Host geben: alter Host bleibt Mitspieler in der Lobby (kein Rausflug mehr)",
+    "👥 Nach Host-Wechsel: Spielerliste kommt beim Rejoin wieder zuverlässig (Namen/Avatare für alle)"
+  ]},
   { v: "9.10.66", items: [
     "⬇ Fix: Outtakes-Datei wieder in normaler Geschwindigkeit (Speichern hat vorher im Zeitraffer mitgeschnitten)"
   ]},
@@ -2276,6 +2280,9 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
       if (iceWatchTimer) { clearInterval(iceWatchTimer); iceWatchTimer = null; }
       warSchonDrin = true;
       activeBrokerIdx = brokerIdx;
+      if (handoffBrokerIdx != null || hostHandoffActive) handoffBrokerIdx = brokerIdx;
+      // Handoff-Disconnect vorbei — ab hier bei Abbruch wieder normal nachfassen
+      hostHandoffActive = false;
       sendHost({ t: "hello", name: stripHostTag(myName), avatar: myAvatar, accessory: myAccessory, key: myKey });
       if (wiederkehr) {
         wvBanner("🔌 Wieder verbunden — hole den Stand …");
@@ -2325,9 +2332,14 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
     console.error("peer error", e);
     if (e.type === "peer-unavailable") {
       sawPeerUnavailable = true;
+      // Wiederkehr / Host-Handoff: Broker rotieren, nicht ewig auf Cloud-0 hängen
       if (wiederkehr || hostHandoffActive) {
         finished = true;
         clearJoinFailTimers();
+        if (tryNr < JOIN_MAX_TRIES - 1) {
+          setTimeout(() => gastBeitreten(code, true, tryNr + 1, preferBroker != null ? preferBroker : activeBrokerIdx), 450);
+          return;
+        }
         planeWiederverbindung();
         return;
       }
@@ -2353,8 +2365,10 @@ function verbindungWeg() {
   planeWiederverbindung();
 }
 
+let handoffBrokerIdx = null; // nach Host-Wechsel: zuerst denselben Spiel-Server wie der neue Host
 function planeWiederverbindung() {
-  if (isHost || absichtlichWeg || !raumCode || !warSchonDrin || hostHandoffActive) return;
+  // hostHandoffActive bewusst erlaubt — sonst stirbt der Rejoin nach „Host geben“
+  if (isHost || absichtlichWeg || !raumCode || !warSchonDrin) return;
   // Während Aufnahme/Premiere knackt die Leitung öfter (große Audio-Pakete) —
   // deshalb mehr Versuche, bevor wir aufgeben.
   const maxVersuche = 25;
@@ -2368,7 +2382,9 @@ function planeWiederverbindung() {
   // WLAN-Zucken sofort überbrückt, ohne den Host mit Anfragen zu überschütten.
   const warten = Math.min(8000, Math.round(500 * Math.pow(1.45, wvVersuch - 1)));
   wvBanner("📴 Verbindung weg — versuche wieder reinzukommen … (" + wvVersuch + "/" + maxVersuche + ")");
-  wvTimer = setTimeout(() => gastBeitreten(raumCode, true, 0), warten);
+  const prefer = (handoffBrokerIdx != null) ? handoffBrokerIdx : activeBrokerIdx;
+  const attempt = (wvVersuch - 1) % JOIN_MAX_TRIES;
+  wvTimer = setTimeout(() => gastBeitreten(raumCode, true, attempt, prefer), warten);
 }
 
 function wvBanner(text, dauerhaft) {
@@ -3045,6 +3061,7 @@ function leaveRoom(statusMsg) {
   // sofort räumen statt ihn zwei Minuten freizuhalten.
   absichtlichWeg = true;
   hostHandoffActive = false;
+  handoffBrokerIdx = null;
   raumCode = null;
   clearTimeout(wvTimer); wvVersuch = 0; wvBannerAus();
   clearJoinFailTimers();
@@ -3259,7 +3276,10 @@ function enterLobby(code) {
 // 2) NACHRICHTEN
 // ═════════════════════════════════════════════════════════════
 function setupHostConn(conn) {
-  conn.on("open", () => conns.set(conn.peer, conn));
+  // Sofort merken — sonst verpasst broadcastState den ersten hello (open kommt manchmal zu spät)
+  const track = () => { if (conn && conn.peer) conns.set(conn.peer, conn); };
+  track();
+  conn.on("open", track);
   conn.on("data", (msg) => handleMsg(msg, conn));
   conn.on("close", () => {
     conns.delete(conn.peer);
@@ -3426,11 +3446,14 @@ function transferHostTo(pid) {
   };
 
   hostHandoffActive = true;
+  handoffBrokerIdx = payload.broker;
+  absichtlichWeg = false;
   broadcast(payload);
   showToast("👑 Host geht an " + stripHostTag(target.name) + " …", "join");
-  wvBanner("👑 Host-Wechsel — du wirst Mitspieler …");
+  wvBanner("👑 Host-Wechsel — du bleibst Mitspieler, verbinde neu …");
 
-  // Kurz warten, damit die Nachricht ankommt, dann Raum-ID freigeben und als Gast neu rein
+  // Kurz warten, damit die Nachricht ankommt, dann Raum-ID freigeben und als Gast neu rein.
+  // hostHandoffActive bleibt true bis die Gast-Verbindung steht — kein leaveRoom dazwischen.
   setTimeout(() => {
     try { peer && peer.destroy(); } catch {}
     peer = null;
@@ -3438,15 +3461,22 @@ function transferHostTo(pid) {
     conns.clear();
     isHost = false;
     myName = stripHostTag(myName);
+    // Spielerliste lokal behalten (sichtbar), bis der neue Host den Stand schickt
+    players.forEach(p => {
+      if (p.key === myKey) {
+        p.name = stripHostTag(p.name);
+        p.id = myId || p.id;
+      }
+    });
     syncHostUi();
+    renderPlayers();
     setTimeout(() => {
-      hostHandoffActive = false;
       warSchonDrin = true;
       absichtlichWeg = false;
       wvVersuch = 0;
-      gastBeitreten(code, true, 0);
-    }, 1800);
-  }, 450);
+      gastBeitreten(code, true, 0, handoffBrokerIdx);
+    }, 2200);
+  }, 500);
 }
 function onHostHandoffMsg(msg) {
   if (!msg || !msg.code) return;
@@ -3459,8 +3489,9 @@ function onHostHandoffMsg(msg) {
     return;
   }
 
-  // Anderer Gast / alter Host: auf neuen Host warten und neu verbinden
+  // Anderer Gast: auf neuen Host warten und neu verbinden (nicht leaveRoom!)
   hostHandoffActive = true;
+  if (msg.broker != null) handoffBrokerIdx = msg.broker | 0;
   wvBanner("👑 Host wechselt zu " + stripHostTag(msg.newName || "?") + " — verbinde neu …");
   showToast("👑 Neuer Host: " + stripHostTag(msg.newName || "?"), "join");
   setTimeout(() => {
@@ -3469,15 +3500,17 @@ function onHostHandoffMsg(msg) {
     hostConn = null;
     isHost = false;
     warSchonDrin = true;
-    hostHandoffActive = false;
+    absichtlichWeg = false;
     wvVersuch = 0;
-    gastBeitreten(msg.code, true, 0);
-  }, 2200);
+    // hostHandoffActive bleibt bis rejoined — Roster kommt mit rejoined/state
+    gastBeitreten(msg.code, true, 0, handoffBrokerIdx);
+  }, 2400);
 }
 function becomeHostFromHandoff(msg) {
   hostHandoffActive = true;
   absichtlichWeg = false;
   raumCode = msg.code;
+  if (msg.broker != null) handoffBrokerIdx = msg.broker | 0;
   myName = stripHostTag(myName);
   wvBanner("👑 Du wirst Host — übernehme den Raum …");
   showToast("👑 Du wirst Host …", "join");
@@ -3499,7 +3532,8 @@ function becomeHostFromHandoff(msg) {
   duelInfo = msg.duelInfo || null;
   if (msg.drawBoard) drawBoard = msg.drawBoard;
 
-  setTimeout(() => claimHostRoom(msg, 0), 1100);
+  // Etwas warten, bis der alte Host die Raum-ID freigibt — dann aggressiv claimen
+  setTimeout(() => claimHostRoom(msg, 0), 900);
 }
 function claimHostRoom(msg, attempt) {
   const code = msg.code;
@@ -3769,12 +3803,18 @@ function handleMsg(msg, conn) {
   switch (msg.t) {
     // — Host ← Gast —
     case "hello": {
+      // Verbindung sofort in conns — sonst verpasst broadcast den Neuankömmling
+      if (conn && conn.peer) conns.set(conn.peer, conn);
+      const pushRoster = () => {
+        try { if (conn && conn.open) conn.send({ t: "state", players }); } catch {}
+      };
       const samePeer = players.find(p => p.id === conn.peer);
       if (samePeer) {
-        if (msg.name) samePeer.name = msg.name;
+        if (msg.name) samePeer.name = stripHostTag(msg.name);
         if (msg.avatar) samePeer.avatar = msg.avatar;
         if (msg.accessory) samePeer.accessory = msg.accessory;
         if (msg.key && !samePeer.key) samePeer.key = msg.key;
+        pushRoster();
         broadcastState();
         break;
       }
@@ -3785,9 +3825,11 @@ function handleMsg(msg, conn) {
         clearTimeout(rueckkehrTimer.get(msg.key)); rueckkehrTimer.delete(msg.key);
         rueck.id = conn.peer;
         rueck.offline = false; delete rueck.offlineBis;
-        if (msg.name) rueck.name = msg.name;
+        if (msg.name) rueck.name = stripHostTag(msg.name);
         if (msg.avatar) rueck.avatar = msg.avatar;
         if (msg.accessory) rueck.accessory = msg.accessory;
+        // Alter Host nach Handoff: kein „(Host)“-Tag mehr
+        if (rueck.key !== myKey) rueck.name = stripHostTag(rueck.name);
         idUmschreiben(alteId, conn.peer);
         players = players.filter(p => p === rueck || !p.key || p.key !== msg.key);
         const oldC = conns.get(alteId);
@@ -3796,9 +3838,11 @@ function handleMsg(msg, conn) {
           conns.delete(alteId);
         }
         // Szene-Metadaten IMMER mitschicken (auch bei eigenem Video) — sonst crasht loadMix
+        // players direkt im rejoined — nach Host-Wechsel sonst oft leere Liste beim Ex-Host
         conn.send({
           t: "rejoined", phase: aktuellePhase(), role: rueck.role,
           scene: scene || null,
+          players,
           hatVideoUebertragung: !!(scene && localVideoBuf),
           match: matchPayload(),
           duelInfo, mix: finalTracksData,
@@ -3807,6 +3851,7 @@ function handleMsg(msg, conn) {
         });
         if (scene && localVideoBuf) sendLocalVideo(conn);
         conn.send({ t: "drawState", drawBoard });
+        pushRoster();
         showToast("🔌 " + rueck.name + " ist wieder da!", "join");
         SFX.ok();
         broadcast({ t: "playerBack", name: rueck.name });
@@ -3815,7 +3860,7 @@ function handleMsg(msg, conn) {
         break;
       }
       if (players.length >= 8) { conn.send({ t: "full", cap: 8 }); setTimeout(() => conn.close(), 500); break; }
-      players.push({ id: conn.peer, key: msg.key || null, name: msg.name, avatar: msg.avatar || null, accessory: msg.accessory || null, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false });
+      players.push({ id: conn.peer, key: msg.key || null, name: stripHostTag(msg.name), avatar: msg.avatar || null, accessory: msg.accessory || null, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false });
       if (scene) { if (localVideoBuf) sendLocalVideo(conn); else conn.send({ t: "scene", scene }); }
       conn.send({ t: "drawState", drawBoard });
       // Spät dazukommen mitten in der Runde → in die laufende Phase holen
@@ -3824,6 +3869,7 @@ function handleMsg(msg, conn) {
         conn.send({
           t: "rejoined", phase: ph, role: null, forceRestore: true,
           scene: scene || null,
+          players,
           hatVideoUebertragung: !!(scene && localVideoBuf),
           match: matchPayload(),
           duelInfo, mix: finalTracksData,
@@ -3831,6 +3877,7 @@ function handleMsg(msg, conn) {
           ...rejoinPlaybackFlags(),
         });
       }
+      pushRoster();
       broadcastState();
       break;
     }
@@ -3905,7 +3952,14 @@ function handleMsg(msg, conn) {
     case "full":
       status("start-status", "Raum ist voll (max. " + (msg.cap || 8) + " Spieler). 😅", true);
       show("scr-start"); break;
-    case "state": players = msg.players; renderPlayers(); renderRoles(); renderBoothPlayers(); if (document.querySelector("#scr-playback.active")) renderPremStateGuest(); break;
+    case "state":
+      hostHandoffActive = false;
+      players = msg.players || [];
+      renderPlayers();
+      renderRoles();
+      renderBoothPlayers();
+      if (document.querySelector("#scr-playback.active")) renderPremStateGuest();
+      break;
     case "scene": {
       scene = msg.scene; clearSceneVideoState(); clearSceneCaches();
       const phSc = aktuellePhase();
@@ -3927,7 +3981,14 @@ function handleMsg(msg, conn) {
       onHostHandoffMsg(msg);
       break;
     case "rejoined":
+      hostHandoffActive = false;
       wvVersuch = 0; clearTimeout(wvTimer); wvBannerAus();
+      if (Array.isArray(msg.players) && msg.players.length) {
+        players = msg.players;
+        renderPlayers();
+        renderRoles();
+        renderBoothPlayers();
+      }
       applyPhaseRestore(msg);
       break;
     case "settings": match.mode = msg.mode; match.rounds = msg.rounds; match.round = msg.round; match.autoRoulette = msg.autoRoulette; renderSettingsView(msg); break;
