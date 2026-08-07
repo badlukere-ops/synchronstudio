@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.43";
+const APP_VERSION = "9.10.44";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -477,6 +477,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.44", items: [
+    "🎛 Bewertung als Jury-Pult: Sterne wie Hardware-Schalter + LED, wenn bewertet"
+  ]},
   { v: "9.10.43", items: [
     "🍔 Neue Szene: SpongeBob — Patrick: Open Sesame (2 Rollen)"
   ]},
@@ -5723,12 +5726,13 @@ function showRateCard() {
   }
   $("rate-rows").innerHTML = speakers.map(p => `
     <div class="raterow" data-p="${p.id}">
+      <span class="rate-led" title="Noch keine Sterne" aria-hidden="true"></span>
       ${avatarHTML(p)}
       <div class="rateinfo">
         <span class="ratename">${esc(p.name)}</span>
         <span class="tag">🎭 ${esc(scene.roles.find(r => r.id === p.role)?.name || "")}</span>
       </div>
-      <div class="starrow">${[1,2,3,4,5].map(n => `<button class="starbtn" data-n="${n}">★</button>`).join("")}</div>
+      <div class="starrow" role="group" aria-label="Sterne für ${esc(p.name)}">${[1,2,3,4,5].map(n => `<button type="button" class="starbtn" data-n="${n}" title="${n} Stern${n > 1 ? "e" : ""}">★</button>`).join("")}</div>
       ${canBuddy ? `<button type="button" class="buddy-btn" data-buddy="${p.id}" title="SynchroBuddy geben (1× pro Match)">🤝</button>` : ""}
     </div>`).join("");
   $("rate-rows").querySelectorAll(".raterow").forEach(row => {
@@ -5741,6 +5745,8 @@ function showRateCard() {
         if (on) { x.classList.remove("pop"); void x.offsetWidth; x.classList.add("pop"); }
       });
       row.classList.toggle("rated", true);
+      const led = row.querySelector(".rate-led");
+      if (led) led.title = n + " Stern" + (n > 1 ? "e" : "");
       $("btn-rate-submit").disabled = Object.keys(myStars).length < speakers.length;
       SFX.click();
     });
