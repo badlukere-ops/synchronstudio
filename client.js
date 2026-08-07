@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.60";
+const APP_VERSION = "9.10.61";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -536,6 +536,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.61", items: [
+    "📺 Outtakes: Beep durch kurzes, leises TV-Rauschen ersetzt (Schalter „Rauschen an/aus“)",
+    "🎚 Fix: Mitspieler −/+ in der Premiere ändert die Stimme wirklich (auch im Kinosaal; Kompressor blockiert nicht mehr)"
+  ]},
   { v: "9.10.60", items: [
     "⬇ Video speichern bleibt nach Outtakes sofort — Mitschnitt vom Anschauen wird nicht mehr weggeschmissen",
     "🎚 Mitspieler-Lautstärke bis 300 % (Kompressor weniger „platt“, + fühlt sich wirklich lauter an)",
@@ -7019,19 +7023,19 @@ let outtakesPrecacheTimer = null;
 let outtakesSaveWhenReady = false; // Speichern anfordern, während stiller Schnitt läuft
 let outtakesDidSaveBlob = false;   // letzter Lauf hat saveBlob bereits ausgelöst
 
-/** TV-Beep-/Glitch-Übergang zwischen Outtake-Clips (nur zwischen, nie vor erstem / nach letztem). */
-const OUTTAKES_TRANS_URL = "sfx/outtakes-beep.mp4";
-/** Lautstärke des Übergangs (~28 %) — bei vielen Clips sonst nervig. */
-const OUTTAKES_TRANS_GAIN = 0.28;
+/** TV-Rauschen-Übergang zwischen Outtake-Clips (nur zwischen, nie vor erstem / nach letztem). */
+const OUTTAKES_TRANS_URL = "sfx/outtakes-static.mp4";
+/** Datei ist schon leise gemastert — Gain nahe 1, sonst hört man nichts. */
+const OUTTAKES_TRANS_GAIN = 0.85;
 /** Übergang kürzen (ms), auch wenn die Datei länger ist. */
-const OUTTAKES_TRANS_MAX_MS = 420;
-/** Ab so vielen Outtakes nur noch jeden 2. Übergang (weniger Beep-Spam). */
+const OUTTAKES_TRANS_MAX_MS = 340;
+/** Ab so vielen Outtakes nur noch jeden 2. Übergang (weniger Spam). */
 const OUTTAKES_TRANS_SPARSE_AT = 10;
 let outtakesTransPreload = null;
 let outtakesTransGainNode = null;
 /** frameSource malt den Übergang cover-fit statt Szene-Video. */
 let outtakesDrawTrans = false;
-/** Nutzer-Schalter „Beep an/aus“ (lokal, merkt sich localStorage). */
+/** Nutzer-Schalter „Rauschen an/aus“ (lokal, merkt sich localStorage). */
 let outtakesBeepOn = true;
 try {
   if (localStorage.getItem("ss_outtakes_beep") === "0") outtakesBeepOn = false;
@@ -7042,7 +7046,7 @@ function syncOuttakesBeepToggles() {
   if (a) a.checked = outtakesBeepOn;
   if (b) b.checked = outtakesBeepOn;
   document.querySelectorAll(".ot-beep-lab").forEach(el => {
-    el.textContent = outtakesBeepOn ? "Beep an" : "Beep aus";
+    el.textContent = outtakesBeepOn ? "Rauschen an" : "Rauschen aus";
   });
 }
 function setOuttakesBeepOn(on) {
@@ -7067,7 +7071,7 @@ function preloadOuttakesTransition() {
   const tv = $("outtakes-transition");
   if (!tv) return Promise.resolve();
   if (!tv.getAttribute("src") && !tv.src) tv.src = OUTTAKES_TRANS_URL;
-  else if (tv.src && !String(tv.src).includes("outtakes-beep")) tv.src = OUTTAKES_TRANS_URL;
+  else if (tv.src && !String(tv.src).includes("outtakes-static")) tv.src = OUTTAKES_TRANS_URL;
   if (!outtakesTransPreload) {
     try { tv.preload = "auto"; tv.playsInline = true; } catch {}
     outtakesTransPreload = waitCanPlay(tv, 10000).catch(() => {});
@@ -8468,37 +8472,58 @@ function applyPremOrigMsg(msg) {
   if (!premiereLocked) invalidatePremCache();
 }
 
+/** Rollen-IDs immer als Zahl — sonst Match Map/Object/Set (0 vs "0") und Gain greift nicht. */
+function normRoleId(role) {
+  if (role == null || role === "") return null;
+  const n = +role;
+  return Number.isFinite(n) ? n : null;
+}
 function clampPremPlayerGain(g) {
   const n = Number(g);
   if (!isFinite(n)) return 1;
-  // 5 % … 300 %, in 5 %-Schritten (Kompressor dämpft etwas — höherer Kopfraum nötig)
+  // 5 % … 300 %, in 5 %-Schritten
   return Math.max(0.05, Math.min(3, Math.round(n * 20) / 20));
 }
-/** Kompressor etwas lockern wenn jemand über 100 % liegt, sonst fühlt sich „+“ tot an. */
+/** Kompressor ausknipsen sobald jemand ≠100 % — sonst frisst er −/+ komplett. */
 function tunePremCompForPlayerGains() {
   if (!premNodes || !premNodes.comp) return;
-  let maxG = 1;
+  let maxG = 1, minG = 1, tweaked = false;
   for (const g of Object.values(premPlayerGains)) {
     const n = Number(g);
-    if (isFinite(n) && n > maxG) maxG = n;
+    if (!isFinite(n)) continue;
+    tweaked = true;
+    if (n > maxG) maxG = n;
+    if (n < minG) minG = n;
   }
-  const boost = Math.max(0, Math.min(1, (maxG - 1) / 2)); // 100%→0 … 300%→1
   try {
-    premNodes.comp.threshold.value = -18 + boost * 10; // bis ca. −8
-    premNodes.comp.ratio.value = 4 - boost * 1.8;      // bis ca. 2.2
+    if (tweaked && (maxG > 1.02 || minG < 0.98)) {
+      // praktisch Bypass: −/+ hörbar, kein „Alles gleich laut“
+      premNodes.comp.threshold.value = 0;
+      premNodes.comp.knee.value = 0;
+      premNodes.comp.ratio.value = 1;
+      premNodes.comp.attack.value = 0.003;
+      premNodes.comp.release.value = 0.1;
+      return;
+    }
+    premNodes.comp.threshold.value = -18;
+    premNodes.comp.knee.value = 20;
+    premNodes.comp.ratio.value = 4;
+    premNodes.comp.attack.value = 0.005;
+    premNodes.comp.release.value = 0.15;
   } catch {}
 }
 function playerGainFor(role) {
-  if (role == null) return 1;
-  const g = premPlayerGains[role];
+  const id = normRoleId(role);
+  if (id == null) return 1;
+  const g = premPlayerGains[id];
   return g == null ? 1 : clampPremPlayerGain(g);
 }
 function ingestPremPlayerGains(gains) {
   premPlayerGains = Object.create(null);
   if (!gains || typeof gains !== "object") return;
   for (const [k, v] of Object.entries(gains)) {
-    const role = +k;
-    if (!Number.isFinite(role)) continue;
+    const role = normRoleId(k);
+    if (role == null) continue;
     const g = clampPremPlayerGain(v);
     if (Math.abs(g - 1) > 0.001) premPlayerGains[role] = g;
   }
@@ -8509,19 +8534,33 @@ function clearPremPlayerGainNodes() {
   }
   premPlayerGainNodes.clear();
 }
+function setGainParam(node, value) {
+  if (!node || !node.gain) return;
+  const v = Number(value);
+  if (!isFinite(v)) return;
+  try {
+    const t = node.context ? node.context.currentTime : 0;
+    node.gain.cancelScheduledValues(t);
+    node.gain.setValueAtTime(v, t);
+  } catch {
+    try { node.gain.value = v; } catch {}
+  }
+}
 function ensurePremPlayerGainNode(ctx, role, dest) {
-  let g = premPlayerGainNodes.get(role);
+  const id = normRoleId(role);
+  if (id == null) return dest;
+  let g = premPlayerGainNodes.get(id);
   if (!g) {
     g = ctx.createGain();
     g.connect(dest);
-    premPlayerGainNodes.set(role, g);
+    premPlayerGainNodes.set(id, g);
   }
-  try { g.gain.value = playerGainFor(role); } catch {}
+  setGainParam(g, playerGainFor(id));
   return g;
 }
 function applyPremPlayerGainsLive() {
   for (const [role, node] of premPlayerGainNodes) {
-    try { node.gain.value = playerGainFor(role); } catch {}
+    setGainParam(node, playerGainFor(role));
   }
   tunePremCompForPlayerGains();
 }
@@ -8537,10 +8576,12 @@ function applyPremPlayerGainsMsg(msg) {
   schedulePremRecache();
 }
 function setPremPlayerGain(role, gain) {
-  if (!isHost || role == null) return;
+  if (!isHost) return;
+  const id = normRoleId(role);
+  if (id == null) return;
   const g = clampPremPlayerGain(gain);
-  if (Math.abs(g - 1) < 0.001) delete premPlayerGains[role];
-  else premPlayerGains[role] = g;
+  if (Math.abs(g - 1) < 0.001) delete premPlayerGains[id];
+  else premPlayerGains[id] = g;
   applyPremPlayerGainsLive();
   broadcastPremPlayerGains();
   renderPremPlayerVolPanel();
@@ -8549,6 +8590,7 @@ function setPremPlayerGain(role, gain) {
 function resetPremPlayerGains() {
   premPlayerGains = Object.create(null);
   clearPremPlayerGainNodes();
+  tunePremCompForPlayerGains();
   const panel = $("prem-player-vol");
   if (panel) panel.style.display = "none";
   const list = $("prem-player-vol-list");
@@ -8557,7 +8599,8 @@ function resetPremPlayerGains() {
 function rolesInPremMix() {
   const roles = new Set();
   for (const it of mixItems) {
-    if (it && it.role != null && !it.isOrig) roles.add(it.role);
+    const id = it && !it.isOrig ? normRoleId(it.role) : null;
+    if (id != null) roles.add(id);
   }
   return roles;
 }
@@ -8572,7 +8615,10 @@ function renderPremPlayerVolPanel() {
     return;
   }
   const roles = rolesInPremMix();
-  const rows = players.filter(p => p.role != null && roles.has(p.role));
+  const rows = players.filter(p => {
+    const id = normRoleId(p.role);
+    return id != null && roles.has(id);
+  });
   if (!rows.length) {
     panel.style.display = "none";
     list.innerHTML = "";
@@ -8581,11 +8627,12 @@ function renderPremPlayerVolPanel() {
   panel.style.display = "";
   list.innerHTML = "";
   for (const p of rows) {
-    const g = playerGainFor(p.role);
+    const roleId = normRoleId(p.role);
+    const g = playerGainFor(roleId);
     const pct = Math.round(g * 100);
     const row = document.createElement("div");
     row.className = "ppv-row";
-    row.dataset.role = String(p.role);
+    row.dataset.role = String(roleId);
     const avWrap = document.createElement("div");
     avWrap.innerHTML = avatarHTML(p);
     const avNode = avWrap.firstElementChild;
@@ -8600,7 +8647,12 @@ function renderPremPlayerVolPanel() {
     minus.textContent = "−";
     minus.title = "Leiser";
     minus.disabled = g <= 0.05;
-    minus.onclick = () => { SFX.click(); setPremPlayerGain(p.role, g - 0.1); };
+    minus.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try { SFX.click(); } catch {}
+      setPremPlayerGain(roleId, playerGainFor(roleId) - 0.1);
+    });
     const pctEl = document.createElement("span");
     pctEl.className = "ppv-pct";
     pctEl.textContent = pct + "%";
@@ -8611,7 +8663,12 @@ function renderPremPlayerVolPanel() {
     plus.textContent = "+";
     plus.title = g >= 3 ? "Schon maximal (300 %)" : "Lauter (bis 300 %)";
     plus.disabled = g >= 3;
-    plus.onclick = () => { SFX.click(); setPremPlayerGain(p.role, g + 0.1); };
+    plus.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try { SFX.click(); } catch {}
+      setPremPlayerGain(roleId, playerGainFor(roleId) + 0.1);
+    });
     row.appendChild(name);
     row.appendChild(minus);
     row.appendChild(pctEl);
@@ -9338,8 +9395,9 @@ async function playMix(opts) {
     src.buffer = item.buffer;
     src.playbackRate.value = effectPitch(role.effect);
     // Host-Mitspieler-Lautstärke: eigene GainNode pro Rolle (live änderbar für alle)
-    const dest = (!item.isOrig && item.role != null)
-      ? ensurePremPlayerGainNode(ctx, item.role, master)
+    const roleId = !item.isOrig ? normRoleId(item.role) : null;
+    const dest = (roleId != null)
+      ? ensurePremPlayerGainNode(ctx, roleId, master)
       : master;
     src.connect(buildChain(ctx, role, dest));
     // Spur auf ihr Line-Fenster begrenzen → kein Reinlabern in die nächste Line
