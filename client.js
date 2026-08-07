@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.32";
+const APP_VERSION = "9.10.33";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -476,6 +476,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.33", items: [
+    "⏱ Gespeicherte Videos zeigen wieder die Gesamtlänge in der Zeitleiste (WebM-Duration-Metadaten)",
+    "🎬 Outtakes: Ton + Speichern (mit v9.10.32)"
+  ]},
   { v: "9.10.32", items: [
     "🎬 Outtakes: Ton beim Anschauen wieder da + Speichern/Sofort-Speichern zuverlässig (Hintergrund-Schnitt)"
   ]},
@@ -6141,6 +6145,7 @@ async function playOuttakesReel(opts) {
 
   let vidGain = null, hearGain = null, recDest = null, frames = null, fileRec = null;
   let cacheOk = null;
+  let outtakesRecT0 = 0;
   const chunks = [];
   const mime = outtakesMime();
   const endung = mime.startsWith("video/mp4") ? "mp4" : "webm";
@@ -6197,8 +6202,9 @@ async function playOuttakesReel(opts) {
           audioBitsPerSecond: 128_000
         });
         fileRec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-        fileRec.start(200);
+        if (!startMediaRecorder(fileRec, 200)) throw new Error("MediaRecorder start failed");
         holdPremWakeLock();
+        outtakesRecT0 = performance.now();
       } catch (e) {
         console.warn("Outtakes-Recorder startet nicht:", e);
         fileRec = null;
@@ -6263,7 +6269,11 @@ async function playOuttakesReel(opts) {
     if (outtakesSaveWhenReady && !saveFile) outtakesSaveWhenReady = false;
 
     if (fileRec && chunks.length && !outtakeAbort) {
-      const blob = new Blob(chunks, { type: mime.split(";")[0] });
+      let blob = new Blob(chunks, { type: mime.split(";")[0] });
+      const durSec = outtakesRecT0
+        ? Math.max(0.5, (performance.now() - outtakesRecT0) / 1000)
+        : reel.reduce((s, ot) => s + Math.max(0.8, (ot.end - ot.t) + 0.4), 0);
+      try { blob = await withRecordedDuration(blob, durSec); } catch {}
       if (blob.size > 1000) {
         outtakesCache = { blob, endung };
         cacheOk = outtakesCache;
@@ -7242,6 +7252,50 @@ function videoMime() {
   return "video/webm";
 }
 
+/**
+ * Chromium-MediaRecorder schreibt oft keine Duration in WebM (besonders mit timeslice).
+ * Windows-Player zeigt dann aktuelle Zeit, aber keine Gesamtlänge — obwohl das Video
+ * bis zum Ende spielt. WebM: Duration-Element nachtragen. MP4: unverändert zurück.
+ * @param {Blob} blob
+ * @param {number} durationSec Dauer in Sekunden
+ */
+async function withRecordedDuration(blob, durationSec) {
+  if (!blob || blob.size < 100) return blob;
+  const sec = Number(durationSec);
+  if (!(sec > 0) || !isFinite(sec)) return blob;
+  const type = String(blob.type || "").toLowerCase();
+  if (!type.includes("webm")) return blob;
+  const fix = typeof ysFixWebmDuration === "function" ? ysFixWebmDuration
+    : (typeof window !== "undefined" && typeof window.ysFixWebmDuration === "function" ? window.ysFixWebmDuration : null);
+  if (!fix) return blob;
+  try {
+    const ms = Math.max(1, Math.round(sec * 1000));
+    const out = await fix(blob, ms, { logger: false });
+    return out || blob;
+  } catch (e) {
+    console.warn("WebM-Duration-Fix:", e);
+    return blob;
+  }
+}
+
+/** MediaRecorder starten — ohne timeslice, damit Duration-Metadaten eher geschrieben werden.
+ *  Fallback mit timeslice, falls start() ohne Argumente scheitert. */
+function startMediaRecorder(rec, timesliceFallbackMs) {
+  try {
+    rec.start();
+    return "once";
+  } catch (e) {
+    console.warn("MediaRecorder.start() ohne timeslice fehlgeschlagen, Fallback:", e);
+    try {
+      rec.start(timesliceFallbackMs || 1000);
+      return "timeslice";
+    } catch (e2) {
+      console.warn("MediaRecorder.start Fallback fehlgeschlagen:", e2);
+      return null;
+    }
+  }
+}
+
 // Malt das laufende Video fortlaufend auf eine Leinwand und gibt einen Bildstrom davon
 // zurück. requestVideoFrameCallback trifft genau die echten Videobilder; where es das nicht
 // gibt (oder Outtakes mit Pause/Seek), alwaysRaf: Dauer-RAF damit MediaRecorder nicht
@@ -7479,14 +7533,16 @@ async function playMix(opts) {
       premCacheDirty = false;
       updateDownloadBtnLabel();
       holdPremWakeLock();
-      fileRec.onstop = () => {
+      fileRec.onstop = async () => {
         if (premActiveRecorder === fileRec) premActiveRecorder = null;
         try { g.masterGain.disconnect(dest); } catch {}
         frames.stop();
         releasePremWakeLock(); // immer, auch bei veraltetem Mitschnitt
         if (myGen !== premCacheGen) return; // veralteter Mitschnitt — Pending gehört dem neueren Lauf
-        const blob = new Blob(chunks, { type: mime.split(";")[0] });
-        const sek = Math.max(1, v.duration || 1), fps = frames.count() / sek;
+        let blob = new Blob(chunks, { type: mime.split(";")[0] });
+        const sek = Math.max(1, v.duration || ((performance.now() - recT0) / 1000) || 1);
+        try { blob = await withRecordedDuration(blob, sek); } catch {}
+        const fps = frames.count() / sek;
         const ok = blob.size > 1000;
         const result = ok ? { blob, endung, volSig, fps } : null;
         premCache = result;
@@ -7529,11 +7585,11 @@ async function playMix(opts) {
 
   v.pause(); v.currentTime = 0;
   await v.play();
+  const recT0 = performance.now();
   if (fileRec) {
-    // timeslice: Chunks regelmäßig abholen — sonst bleibt der Mitschnitt auf manchen Browsern leer
-    try { fileRec.start(1000); } catch (e) {
-      console.warn("fileRec.start fehlgeschlagen:", e);
-      try { fileRec.start(); } catch {}
+    // Ohne timeslice: Chromium schreibt eher Duration. Fallback mit timeslice falls nötig.
+    if (!startMediaRecorder(fileRec, 1000)) {
+      console.warn("fileRec.start fehlgeschlagen");
     }
     const progInterval = setInterval(() => {
       const pct = v.duration ? Math.round((v.currentTime / v.duration) * 100) : 0;
