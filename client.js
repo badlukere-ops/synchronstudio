@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.59";
+const APP_VERSION = "9.10.60";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -536,6 +536,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.60", items: [
+    "⬇ Video speichern bleibt nach Outtakes sofort — Mitschnitt vom Anschauen wird nicht mehr weggeschmissen",
+    "🎚 Mitspieler-Lautstärke bis 300 % (Kompressor weniger „platt“, + fühlt sich wirklich lauter an)",
+    "🎬 Outtakes-Beep leiser, bei vielen Clips nur noch jeden 2. Übergang, Schalter „Beep aus“"
+  ]},
   { v: "9.10.59", items: [
     "🎬 Outtakes: TV-Beep-/Glitch-Übergang zwischen den Clips (Anschauen & Speichern) — füllt immer das Bildformat, Ton etwas leiser"
   ]},
@@ -7016,12 +7021,47 @@ let outtakesDidSaveBlob = false;   // letzter Lauf hat saveBlob bereits ausgelö
 
 /** TV-Beep-/Glitch-Übergang zwischen Outtake-Clips (nur zwischen, nie vor erstem / nach letztem). */
 const OUTTAKES_TRANS_URL = "sfx/outtakes-beep.mp4";
-/** Lautstärke des Übergangs (~50 % ≈ −6 dB) — Original-Beep etwas zu laut. */
-const OUTTAKES_TRANS_GAIN = 0.5;
+/** Lautstärke des Übergangs (~28 %) — bei vielen Clips sonst nervig. */
+const OUTTAKES_TRANS_GAIN = 0.28;
+/** Übergang kürzen (ms), auch wenn die Datei länger ist. */
+const OUTTAKES_TRANS_MAX_MS = 420;
+/** Ab so vielen Outtakes nur noch jeden 2. Übergang (weniger Beep-Spam). */
+const OUTTAKES_TRANS_SPARSE_AT = 10;
 let outtakesTransPreload = null;
 let outtakesTransGainNode = null;
 /** frameSource malt den Übergang cover-fit statt Szene-Video. */
 let outtakesDrawTrans = false;
+/** Nutzer-Schalter „Beep an/aus“ (lokal, merkt sich localStorage). */
+let outtakesBeepOn = true;
+try {
+  if (localStorage.getItem("ss_outtakes_beep") === "0") outtakesBeepOn = false;
+} catch {}
+
+function syncOuttakesBeepToggles() {
+  const a = $("outtakes-beep-tog"), b = $("outtakes-beep-tog-ov");
+  if (a) a.checked = outtakesBeepOn;
+  if (b) b.checked = outtakesBeepOn;
+  document.querySelectorAll(".ot-beep-lab").forEach(el => {
+    el.textContent = outtakesBeepOn ? "Beep an" : "Beep aus";
+  });
+}
+function setOuttakesBeepOn(on) {
+  outtakesBeepOn = !!on;
+  try { localStorage.setItem("ss_outtakes_beep", outtakesBeepOn ? "1" : "0"); } catch {}
+  syncOuttakesBeepToggles();
+}
+/** Ob zwischen Clip i und i+1 ein Übergang kommt. */
+function shouldPlayOuttakesTransition(gapIndex, reelLen) {
+  if (!outtakesBeepOn) return false;
+  if (reelLen >= OUTTAKES_TRANS_SPARSE_AT) return (gapIndex % 2 === 0);
+  return true;
+}
+function countOuttakesTransitions(reelLen) {
+  if (!outtakesBeepOn || reelLen < 2) return 0;
+  let n = 0;
+  for (let i = 0; i < reelLen - 1; i++) if (shouldPlayOuttakesTransition(i, reelLen)) n++;
+  return n;
+}
 
 function preloadOuttakesTransition() {
   const tv = $("outtakes-transition");
@@ -7109,7 +7149,8 @@ async function playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, c
       try { tv.removeEventListener("ended", finish); } catch {}
       r();
     };
-    const durMs = ((isFinite(tv.duration) && tv.duration > 0) ? tv.duration : 1) * 1000 + 120;
+    const fullMs = ((isFinite(tv.duration) && tv.duration > 0) ? tv.duration : 1) * 1000 + 80;
+    const durMs = Math.min(fullMs, OUTTAKES_TRANS_MAX_MS);
     const t = setTimeout(finish, durMs);
     tv.addEventListener("ended", finish);
     const btn = $("btn-outtakes-skip");
@@ -7353,7 +7394,7 @@ async function playOuttakesReel(opts) {
       v.pause();
       if (frames) try { frames.paint(); } catch {}
       // Glitch-/TV-Beep nur zwischen Clips (nicht vor dem ersten / nach dem letzten)
-      if (i < reel.length - 1 && !outtakeAbort) {
+      if (i < reel.length - 1 && !outtakeAbort && shouldPlayOuttakesTransition(i, reel.length)) {
         await playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, ctx, hearGain, recDest });
       }
     }
@@ -7369,7 +7410,7 @@ async function playOuttakesReel(opts) {
     if (fileRec && chunks.length && !outtakeAbort) {
       let blob = new Blob(chunks, { type: mime.split(";")[0] });
       const clipSec = reel.reduce((s, ot) => s + Math.max(0.8, (ot.end - ot.t) + 0.4), 0);
-      const transSec = Math.max(0, reel.length - 1) * 1.0;
+      const transSec = countOuttakesTransitions(reel.length) * (OUTTAKES_TRANS_MAX_MS / 1000);
       const durSec = outtakesRecT0
         ? Math.max(0.5, (performance.now() - outtakesRecT0) / 1000)
         : clipSec + transSec;
@@ -7522,6 +7563,23 @@ $("btn-outtakes-close") && ($("btn-outtakes-close").onclick = () => {
   $("outtakes-overlay").classList.remove("show");
   const v = $("outtakes-video"); if (v) v.pause();
 });
+// Beep-Schalter (Leiste + Overlay) — speichert lokal, invalidiert Outtakes-Cache
+(() => {
+  syncOuttakesBeepToggles();
+  const bind = id => {
+    const el = $(id);
+    if (!el) return;
+    el.onchange = () => {
+      setOuttakesBeepOn(el.checked);
+      // Anderer Beep-Stand → altes Reel-Video verwerfen
+      outtakesCache = null;
+      updateOuttakesBtn();
+      scheduleOuttakesPrecache();
+    };
+  };
+  bind("outtakes-beep-tog");
+  bind("outtakes-beep-tog-ov");
+})();
 
 // Timer / Wipe / Cue / Effekt-Strip-Einstellungen merken
 (() => {
@@ -8413,8 +8471,22 @@ function applyPremOrigMsg(msg) {
 function clampPremPlayerGain(g) {
   const n = Number(g);
   if (!isFinite(n)) return 1;
-  // 5 % … 200 %, in 5 %-Schritten
-  return Math.max(0.05, Math.min(2, Math.round(n * 20) / 20));
+  // 5 % … 300 %, in 5 %-Schritten (Kompressor dämpft etwas — höherer Kopfraum nötig)
+  return Math.max(0.05, Math.min(3, Math.round(n * 20) / 20));
+}
+/** Kompressor etwas lockern wenn jemand über 100 % liegt, sonst fühlt sich „+“ tot an. */
+function tunePremCompForPlayerGains() {
+  if (!premNodes || !premNodes.comp) return;
+  let maxG = 1;
+  for (const g of Object.values(premPlayerGains)) {
+    const n = Number(g);
+    if (isFinite(n) && n > maxG) maxG = n;
+  }
+  const boost = Math.max(0, Math.min(1, (maxG - 1) / 2)); // 100%→0 … 300%→1
+  try {
+    premNodes.comp.threshold.value = -18 + boost * 10; // bis ca. −8
+    premNodes.comp.ratio.value = 4 - boost * 1.8;      // bis ca. 2.2
+  } catch {}
 }
 function playerGainFor(role) {
   if (role == null) return 1;
@@ -8451,6 +8523,7 @@ function applyPremPlayerGainsLive() {
   for (const [role, node] of premPlayerGainNodes) {
     try { node.gain.value = playerGainFor(role); } catch {}
   }
+  tunePremCompForPlayerGains();
 }
 function broadcastPremPlayerGains() {
   if (!isHost) return;
@@ -8527,17 +8600,18 @@ function renderPremPlayerVolPanel() {
     minus.textContent = "−";
     minus.title = "Leiser";
     minus.disabled = g <= 0.05;
-    minus.onclick = () => setPremPlayerGain(p.role, g - 0.1);
+    minus.onclick = () => { SFX.click(); setPremPlayerGain(p.role, g - 0.1); };
     const pctEl = document.createElement("span");
     pctEl.className = "ppv-pct";
     pctEl.textContent = pct + "%";
+    pctEl.title = "Aktuell " + pct + "% (max. 300 %)";
     const plus = document.createElement("button");
     plus.type = "button";
     plus.className = "ppv-btn";
     plus.textContent = "+";
-    plus.title = "Lauter";
-    plus.disabled = g >= 2;
-    plus.onclick = () => setPremPlayerGain(p.role, g + 0.1);
+    plus.title = g >= 3 ? "Schon maximal (300 %)" : "Lauter (bis 300 %)";
+    plus.disabled = g >= 3;
+    plus.onclick = () => { SFX.click(); setPremPlayerGain(p.role, g + 0.1); };
     row.appendChild(name);
     row.appendChild(minus);
     row.appendChild(pctEl);
@@ -8666,6 +8740,7 @@ function applyPremVol() {
   premNodes.masterGain.gain.value = premVol.master;
   premNodes.voiceGain.gain.value = premVol.voice;
   premNodes.vidGain.gain.value = premVol.video;
+  tunePremCompForPlayerGains();
 }
 
 
@@ -9016,10 +9091,11 @@ function updateDownloadBtnLabel() {
     btn.title = "Mitschnitt vom ersten Anschauen läuft — Klick wartet kurz, dann sofort fertig";
   } else if (premCacheReady(premCache) && !premCacheDirty && premCache.volSig === premVolSig()) {
     btn.textContent = "⬇ Sofort speichern (fertig!)";
-    btn.title = "Schon beim ersten Anschauen mitgeschnitten — Download startet sofort";
-  } else if (premCacheReady(premCache) && premCacheDirty) {
-    btn.textContent = "⬇ Video speichern";
-    btn.title = "Lautstärke/Sync geändert — speichert den Mitschnitt vom Anschauen (oder schneidet neu wenn nötig)";
+    btn.title = "Schon beim ersten Anschauen mitgeschnitten — Download startet sofort (auch nach Outtakes)";
+  } else if (premCacheReady(premCache)) {
+    // Dirty / Lautstärke geändert: trotzdem Sofort-Save vom Anschauen — kein erneutes Durchsitzen
+    btn.textContent = "⬇ Sofort speichern (wie angeschaut)";
+    btn.title = "Speichert den Mitschnitt vom Anschauen sofort. Für neue Lautstärke: „Nochmal abspielen“, dann speichern.";
   } else {
     btn.textContent = "⬇ Komplettes Video speichern";
     btn.title = "Schneidet einmal im Hintergrund (Fenster bitte offen lassen)";
@@ -9068,37 +9144,49 @@ async function downloadPremiere() {
     try {
       const c = await premCachePending;
       $("dl-progress").style.display = "none";
-      if (!premCacheReady(c) || c.volSig !== premVolSig()) throw new Error("veraltet");
-      const wie = await saveBlob(c.blob, nameBase + c.endung);
+      // Auch „veraltet“ (Lautstärke geändert): trotzdem speichern was angeschaut wurde
+      if (!premCacheReady(c) && !premCacheReady(premCache)) throw new Error("leer");
+      const use = premCacheReady(premCache) ? premCache : c;
+      const wie = await saveBlob(use.blob, nameBase + use.endung);
       if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
-      status("play-status", c.endung === "mp4"
-        ? "✅ Gespeichert als MP4 — vom ersten Anschauen, kein zweites Mal nötig."
+      status("play-status", use.endung === "mp4"
+        ? "✅ Gespeichert als MP4 — vom Anschauen, kein zweites Mal nötig."
         : "✅ Gespeichert!");
       SFX.done();
       updateDownloadBtnLabel();
     } catch {
       $("dl-progress").style.display = "none";
+      // Nur wenn wirklich nichts da ist: stiller Hintergrund-Schnitt (kein „nochmal angucken“)
+      if (premCacheReady(premCache)) {
+        const wie = await saveBlob(premCache.blob, nameBase + premCache.endung);
+        if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
+        status("play-status", "✅ Gespeichert (Mitschnitt vom Anschauen)!");
+        SFX.done();
+        updateDownloadBtnLabel();
+        return;
+      }
       status("play-status", "Schnitt vom ersten Lauf hat nicht geklappt — einmal neu im Hintergrund …", true);
       await playMix({ save: true, quiet: true });
     }
     return;
   }
-  // Fertiger Mitschnitt — nur nutzen wenn Lautstärke/Sync noch passen
-  if (premCacheReady(premCache) && !premCacheDirty && premCache.volSig === premVolSig()) {
+  // Fertiger Mitschnitt vom Anschauen — IMMER sofort speichern (auch nach Outtakes / Lautstärke-Tweak).
+  // Früher: dirty → Cache löschen → ganzes Video nochmal durchlaufen. Das war der Bug.
+  if (premCacheReady(premCache)) {
+    const dirtyNote = (premCacheDirty || premCache.volSig !== premVolSig())
+      ? " (wie angeschaut — für neue Lautstärke: Nochmal abspielen, dann speichern)"
+      : "";
     const wie = await saveBlob(premCache.blob, nameBase + premCache.endung);
     if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
     if (premCache.fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein. Bitte Fenster im Vordergrund lassen und Premiere nochmal anschauen.", true);
-    else status("play-status", premCache.endung === "mp4"
-      ? "✅ Sofort gespeichert als MP4 — vom ersten Anschauen."
-      : "✅ Sofort gespeichert! Dein Browser kann nur .webm — für TikTok/Insta ggf. einmal in CapCut zu MP4.");
+    else status("play-status", (premCache.endung === "mp4"
+      ? "✅ Sofort gespeichert als MP4 — vom Anschauen."
+      : "✅ Sofort gespeichert! Dein Browser kann nur .webm — für TikTok/Insta ggf. einmal in CapCut zu MP4.") + dirtyNote);
     SFX.done();
     updateDownloadBtnLabel();
     return;
   }
-  // Dirty / kein Cache → einmal im Hintergrund neu schneiden (aktuelle Lautstärke)
-  if (premCacheDirty || (premCacheReady(premCache) && premCache.volSig !== premVolSig())) {
-    invalidatePremCache();
-  }
+  // Gar kein Cache → einmal im Hintergrund neu schneiden (Audio stumm, Fenster offen lassen)
   status("play-status", "🎬 Schneide Video im Hintergrund — musst nicht zuschauen, Fenster aber bitte offen lassen …");
   await playMix({ save: true, quiet: true });
 }
@@ -9127,6 +9215,7 @@ async function playMix(opts) {
   g.hearGain.gain.value = quiet ? 0 : 1;
   const master = g.voiceGain;          // Stimmen laufen über den Voice-Regler in den Graph
   clearPremPlayerGainNodes();          // frische Per-Spieler-Gains für diesen Lauf
+  tunePremCompForPlayerGains();
   v.playbackRate = 1;
 
   let fileRec = null;

@@ -267,12 +267,13 @@
   }
   .ppv-pct{
     font-family:var(--font-mono);font-size:.68rem;letter-spacing:.04em;
-    color:var(--amber);min-width:3.4em;text-align:center;
+    color:var(--amber);min-width:3.8em;text-align:center;
   }
   .ppv-btn{
     width:30px;height:26px;padding:0;margin:0;flex-shrink:0;
     font-family:var(--font-mono);font-size:.9rem;font-weight:700;line-height:1;
   }
+  .ppv-btn:disabled{opacity:.25}
   body.cinema .prem-player-vol{
     margin-top:8px;padding:7px 9px;
     background:rgba(10,10,14,.78);border-color:rgba(255,255,255,.12);
@@ -474,6 +475,13 @@
     flex:1 1 160px;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;
     color:#e8a0a8;text-transform:uppercase;
   }
+  .ot-beep-tog{
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;
+    color:#c8c0a8;padding:6px 10px;border:1px solid var(--metal);border-radius:8px;
+    background:linear-gradient(180deg,#1a1a20,#131318);
+  }
+  .ot-beep-tog input{accent-color:var(--amber);margin:0}
   .btn-outtakes-hot{
     background:linear-gradient(180deg,#ff4d5a,#c42b36)!important;
     border-color:#ff6b76!important;color:#fff!important;
@@ -1736,7 +1744,7 @@
         <div id="prem-player-vol" class="prem-player-vol" style="display:none" aria-label="Mitspieler-Lautstärke">
           <div class="ppv-head">
             <span class="tag">🎚 Mitspieler lauter/leiser</span>
-            <span class="tag ppv-hint">nur Host · gilt für alle</span>
+            <span class="tag ppv-hint">nur Host · 5–300 % · gilt für alle</span>
           </div>
           <div id="prem-player-vol-list" class="ppv-list"></div>
         </div>
@@ -1776,6 +1784,10 @@
       <p class="tag" id="dl-progress-label" style="display:none"></p>
       <div class="outtakes-bar" id="outtakes-bar">
         <span class="ot-hint" id="outtakes-bar-hint">Blooper-Reel bereit</span>
+        <label class="ot-beep-tog" title="TV-Beep zwischen den Clips">
+          <input type="checkbox" id="outtakes-beep-tog" checked>
+          <span class="ot-beep-lab">Beep an</span>
+        </label>
         <button class="big btn-outtakes-hot" id="btn-outtakes">🎬 Outtakes anschauen</button>
         <button class="big btn-outtakes-hot" id="btn-outtakes-dl">⬇ Outtakes speichern</button>
       </div>
@@ -1881,7 +1893,11 @@
     </div>
     <p class="outtakes-line" id="outtakes-line"></p>
     <p class="tag" id="outtakes-rec-status" style="display:none;text-align:center;color:var(--hot);margin:8px 0 0">🔴 Nimmt Outtakes auf …</p>
-    <div class="row" style="justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap">
+    <div class="row" style="justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center">
+      <label class="ot-beep-tog" title="TV-Beep zwischen den Clips" style="margin:0">
+        <input type="checkbox" id="outtakes-beep-tog-ov" checked>
+        <span class="ot-beep-lab">Beep an</span>
+      </label>
       <button class="ghost" id="btn-outtakes-skip">⏭ Weiter</button>
       <button class="big btn-outtakes-hot" id="btn-outtakes-dl-overlay" style="display:none">⬇ Reel speichern</button>
       <button class="primary" id="btn-outtakes-close">Fertig</button>
@@ -1894,7 +1910,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.59"></script>
+  <script src="client.js?v=9.10.60"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>
