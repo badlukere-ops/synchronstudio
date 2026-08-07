@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.58";
+const APP_VERSION = "9.10.59";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -536,6 +536,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.59", items: [
+    "🎬 Outtakes: TV-Beep-/Glitch-Übergang zwischen den Clips (Anschauen & Speichern) — füllt immer das Bildformat, Ton etwas leiser"
+  ]},
   { v: "9.10.58", items: [
     "🎚 Premiere: Host kann Mitspieler einzeln lauter/leiser stellen (− / + unter dem Video) — gilt für alle Zuhörer und beim Speichern"
   ]},
@@ -6976,6 +6979,7 @@ function updateOuttakesBtn() {
     return;
   }
   if (bar) bar.classList.add("show");
+  try { preloadOuttakesTransition(); } catch {}
   if (otBtn) otBtn.textContent = "🎬 Outtakes anschauen (" + outtakes.length + ")";
   if (dlBtn) {
     if (outtakesCacheReady()) {
@@ -7009,6 +7013,115 @@ let outtakesCacheResolve = null;
 let outtakesPrecacheTimer = null;
 let outtakesSaveWhenReady = false; // Speichern anfordern, während stiller Schnitt läuft
 let outtakesDidSaveBlob = false;   // letzter Lauf hat saveBlob bereits ausgelöst
+
+/** TV-Beep-/Glitch-Übergang zwischen Outtake-Clips (nur zwischen, nie vor erstem / nach letztem). */
+const OUTTAKES_TRANS_URL = "sfx/outtakes-beep.mp4";
+/** Lautstärke des Übergangs (~50 % ≈ −6 dB) — Original-Beep etwas zu laut. */
+const OUTTAKES_TRANS_GAIN = 0.5;
+let outtakesTransPreload = null;
+let outtakesTransGainNode = null;
+/** frameSource malt den Übergang cover-fit statt Szene-Video. */
+let outtakesDrawTrans = false;
+
+function preloadOuttakesTransition() {
+  const tv = $("outtakes-transition");
+  if (!tv) return Promise.resolve();
+  if (!tv.getAttribute("src") && !tv.src) tv.src = OUTTAKES_TRANS_URL;
+  else if (tv.src && !String(tv.src).includes("outtakes-beep")) tv.src = OUTTAKES_TRANS_URL;
+  if (!outtakesTransPreload) {
+    try { tv.preload = "auto"; tv.playsInline = true; } catch {}
+    outtakesTransPreload = waitCanPlay(tv, 10000).catch(() => {});
+  }
+  return outtakesTransPreload;
+}
+
+function ensureOuttakesTransGain(ctx) {
+  const tv = $("outtakes-transition");
+  if (!tv || !ctx) return null;
+  if (!outtakesTransGainNode) {
+    try {
+      const elSrc = elementSource(ctx, tv);
+      outtakesTransGainNode = ctx.createGain();
+      outtakesTransGainNode.gain.value = OUTTAKES_TRANS_GAIN;
+      try { elSrc.disconnect(); } catch {}
+      elSrc.connect(outtakesTransGainNode);
+    } catch (e) {
+      console.warn("Outtakes-Transition-Audio:", e);
+      return null;
+    }
+  }
+  return outtakesTransGainNode;
+}
+
+function connectOuttakesTransBus(hearGain, recDest) {
+  if (!outtakesTransGainNode) return;
+  try { outtakesTransGainNode.disconnect(); } catch {}
+  outtakesTransGainNode.gain.value = OUTTAKES_TRANS_GAIN;
+  if (hearGain) try { outtakesTransGainNode.connect(hearGain); } catch {}
+  if (recDest) try { outtakesTransGainNode.connect(recDest); } catch {}
+}
+
+/** Video cover-fit auf Zielgröße (wie CSS object-fit: cover) — kein Letterbox. */
+function drawVideoCover(g2, video, dw, dh) {
+  const sw = video.videoWidth || 0, sh = video.videoHeight || 0;
+  if (!g2 || !sw || !sh || !dw || !dh) return false;
+  const scale = Math.max(dw / sw, dh / sh);
+  const tw = sw * scale, th = sh * scale;
+  const ox = (dw - tw) / 2, oy = (dh - th) / 2;
+  try { g2.drawImage(video, ox, oy, tw, th); } catch { return false; }
+  return true;
+}
+
+/** Spielt den Glitch-Übergang (live + Export über dieselbe Canvas-Pipeline). */
+async function playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, ctx, hearGain, recDest }) {
+  const tv = $("outtakes-transition");
+  if (!tv || outtakeAbort) return;
+  outtakesOverlayLine = "";
+  if (!quiet) {
+    if (lab) lab.textContent = "…";
+    if (lineEl) lineEl.textContent = "";
+    if (capEl) capEl.textContent = "";
+  }
+  await preloadOuttakesTransition();
+  if (outtakeAbort) return;
+  ensureOuttakesTransGain(ctx);
+  connectOuttakesTransBus(hearGain, recDest);
+  try { tv.pause(); } catch {}
+  try { tv.currentTime = 0; } catch {}
+  await new Promise(r => {
+    const h = () => { tv.removeEventListener("seeked", h); r(); };
+    tv.addEventListener("seeked", h);
+    setTimeout(r, 250);
+  });
+  if (outtakeAbort) return;
+  outtakesDrawTrans = true;
+  if (!quiet) tv.classList.add("show");
+  try { tv.muted = false; tv.volume = 1; } catch {}
+  if (ctx && ctx.state === "suspended") try { await ctx.resume(); } catch {}
+  await tv.play().catch(() => {});
+  if (frames) try { frames.paint(); } catch {}
+  await new Promise(r => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(t);
+      try { tv.removeEventListener("ended", finish); } catch {}
+      r();
+    };
+    const durMs = ((isFinite(tv.duration) && tv.duration > 0) ? tv.duration : 1) * 1000 + 120;
+    const t = setTimeout(finish, durMs);
+    tv.addEventListener("ended", finish);
+    const btn = $("btn-outtakes-skip");
+    if (btn && !quiet) {
+      btn.onclick = () => { try { tv.pause(); } catch {} finish(); };
+    }
+  });
+  outtakesDrawTrans = false;
+  try { tv.pause(); } catch {}
+  if (!quiet) tv.classList.remove("show");
+  if (frames) try { frames.paint(); } catch {}
+}
 
 /** Kopie der Outtake-Audiodaten — decodeAudioData darf das Original nie detach'en. */
 async function outtakeAudioCopy(buf) {
@@ -7119,6 +7232,8 @@ async function playOuttakesReel(opts) {
   try {
     v.src = sceneVideoSrc() || "";
     try { await waitCanPlay(v, 8000); } catch {}
+    // Übergang vorladen, damit der Reel nicht hakt
+    try { await preloadOuttakesTransition(); } catch {}
     const ctx = getCtx();
     if (ctx.state === "suspended") try { await ctx.resume(); } catch {}
 
@@ -7140,11 +7255,21 @@ async function playOuttakesReel(opts) {
       vidGain.connect(hearGain);
     } catch (e) { console.warn("Outtakes video-audio:", e); }
 
+    // Übergang-Audio an denselben Bus (leiser); RecDest kommt gleich dazu
+    try {
+      ensureOuttakesTransGain(ctx);
+      connectOuttakesTransBus(hearGain, null);
+    } catch (e) { console.warn("Outtakes-Transition-Bus:", e); }
+
     if (auchCachen) {
       try {
         recDest = ctx.createMediaStreamDestination();
         if (vidGain) vidGain.connect(recDest);
-        frames = frameSource(v, { alwaysRaf: true, outtakesBadge: true });
+        connectOuttakesTransBus(hearGain, recDest);
+        // Canvas-Größe an Szene-Video fixieren — Übergang wird cover-fit hinein gemalt
+        const lockW = v.videoWidth || 1280;
+        const lockH = v.videoHeight || 720;
+        frames = frameSource(v, { alwaysRaf: true, outtakesBadge: true, lockW, lockH });
         await new Promise(r => {
           const t0 = performance.now();
           const iv = setInterval(() => {
@@ -7227,6 +7352,10 @@ async function playOuttakesReel(opts) {
       try { if (src) src.stop(); } catch {}
       v.pause();
       if (frames) try { frames.paint(); } catch {}
+      // Glitch-/TV-Beep nur zwischen Clips (nicht vor dem ersten / nach dem letzten)
+      if (i < reel.length - 1 && !outtakeAbort) {
+        await playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, ctx, hearGain, recDest });
+      }
     }
 
     if (fileRec && fileRec.state !== "inactive") {
@@ -7239,9 +7368,11 @@ async function playOuttakesReel(opts) {
 
     if (fileRec && chunks.length && !outtakeAbort) {
       let blob = new Blob(chunks, { type: mime.split(";")[0] });
+      const clipSec = reel.reduce((s, ot) => s + Math.max(0.8, (ot.end - ot.t) + 0.4), 0);
+      const transSec = Math.max(0, reel.length - 1) * 1.0;
       const durSec = outtakesRecT0
         ? Math.max(0.5, (performance.now() - outtakesRecT0) / 1000)
-        : reel.reduce((s, ot) => s + Math.max(0.8, (ot.end - ot.t) + 0.4), 0);
+        : clipSec + transSec;
       try { blob = await withRecordedDuration(blob, durSec); } catch {}
       if (blob.size > 1000) {
         outtakesCache = { blob, endung };
@@ -7279,6 +7410,12 @@ async function playOuttakesReel(opts) {
     console.warn("Outtakes-Reel Fehler:", e);
     if (saveFile) status("play-status", "⚠ Outtakes-Fehler — bitte nochmal speichern.", true);
   } finally {
+    outtakesDrawTrans = false;
+    try {
+      const tv = $("outtakes-transition");
+      if (tv) { tv.pause(); tv.classList.remove("show"); }
+    } catch {}
+    try { if (outtakesTransGainNode) outtakesTransGainNode.disconnect(); } catch {}
     try { if (frames) frames.stop(); } catch {}
     try { if (vidGain && recDest) vidGain.disconnect(recDest); } catch {}
     try { if (vidGain && hearGain) vidGain.disconnect(hearGain); } catch {}
@@ -8768,22 +8905,33 @@ function drawOuttakesBadge(g2, w, h, lineText) {
 // zurück. requestVideoFrameCallback trifft genau die echten Videobilder; where es das nicht
 // gibt (oder Outtakes mit Pause/Seek), alwaysRaf: Dauer-RAF damit MediaRecorder nicht
 // nur Ton speichert.
+// opts.lockW/lockH: feste Export-Größe (Outtakes); Übergang wird cover-fit hinein gemalt.
 function frameSource(v, opts) {
   const alwaysRaf = !!(opts && opts.alwaysRaf);
   const outtakesBadge = !!(opts && opts.outtakesBadge);
+  const lockW = (opts && opts.lockW) || 0;
+  const lockH = (opts && opts.lockH) || 0;
   const c = document.createElement("canvas");
-  c.width = v.videoWidth || 1280;
-  c.height = v.videoHeight || 720;
+  c.width = lockW || v.videoWidth || 1280;
+  c.height = lockH || v.videoHeight || 720;
   const g2 = c.getContext("2d", { alpha: false, desynchronized: true });
   let laeuft = true, bilder = 0, rafId = null;
 
   const malen = () => {
     if (!laeuft) return;
-    if (v.videoWidth && (c.width !== v.videoWidth || c.height !== v.videoHeight)) {
+    if (!lockW && v.videoWidth && (c.width !== v.videoWidth || c.height !== v.videoHeight)) {
       c.width = v.videoWidth; c.height = v.videoHeight;
     }
     try {
-      if (v.readyState >= 2) {
+      const tv = outtakesDrawTrans ? $("outtakes-transition") : null;
+      if (tv && tv.readyState >= 2 && tv.videoWidth) {
+        g2.fillStyle = "#000";
+        g2.fillRect(0, 0, c.width, c.height);
+        drawVideoCover(g2, tv, c.width, c.height);
+        // Während Übergang: OUTTAKES + URL behalten, kein Zeilentext
+        if (outtakesBadge) drawOuttakesBadge(g2, c.width, c.height, "");
+        bilder++;
+      } else if (v.readyState >= 2) {
         g2.drawImage(v, 0, 0, c.width, c.height);
         if (outtakesBadge) drawOuttakesBadge(g2, c.width, c.height, outtakesOverlayLine);
         bilder++;
