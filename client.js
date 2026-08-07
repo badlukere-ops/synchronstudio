@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.30";
+const APP_VERSION = "9.10.31";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -476,6 +476,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.31", items: [
+    "🔊 Line-Lautstärke kommt jetzt auch bei allen anderen in Premiere & Speichern an (nicht nur bei dir selbst)"
+  ]},
   { v: "9.10.30", items: [
     "📥 Lange Szenen (z. B. Zenitsu): echter Ladebalken pro Spieler — Host sieht wer noch lädt",
     "🔒 Session startet erst, wenn bei allen Sprechern das Video fertig ist (kein Host-only-Start mehr)",
@@ -2935,7 +2938,7 @@ function applyPhaseRestore(msg) {
 
   if (msg.phase === "scr-playback" && msg.mix) {
     if (!scene) { enterLobby(raumCode); return; }
-    loadMix(msg.mix);
+    loadMix(msg.mix, msg);
   } else if (msg.phase === "scr-booth") {
     if (msg.role != null && scene) {
       queueOrStartBooth();
@@ -3003,6 +3006,7 @@ function handleMsg(msg, conn) {
           hatVideoUebertragung: !!(scene && localVideoBuf),
           match: matchPayload(),
           duelInfo, mix: finalTracksData,
+          ...metaMapsFromTracks(finalTracksData),
         });
         if (scene && localVideoBuf) sendLocalVideo(conn);
         conn.send({ t: "drawState", drawBoard });
@@ -3026,6 +3030,7 @@ function handleMsg(msg, conn) {
           hatVideoUebertragung: !!(scene && localVideoBuf),
           match: matchPayload(),
           duelInfo, mix: finalTracksData,
+          ...metaMapsFromTracks(finalTracksData),
         });
       }
       broadcastState();
@@ -3050,7 +3055,11 @@ function handleMsg(msg, conn) {
       break;
     }
     case "tracks": collectTracks(msg.role, attachTrackMeta(msg.items, msg), msg.outtakes, conn.peer); break;
-    case "trackUpdate": applyTrackUpdate(msg.role, msg.lineIdx, msg.startAt, msg.buf, msg.effect, msg.gate, msg.boost, msg.fxAmount, msg.pan); break;
+    case "trackUpdate": {
+      const tm = msg.trackMeta || msg;
+      applyTrackUpdate(msg.role, msg.lineIdx, msg.startAt, msg.buf, tm.effect, tm.gate, tm.boost, tm.fxAmount, tm.pan);
+      break;
+    }
     case "ttt": tttHandle(msg.a, conn.peer); break;
     case "rps": rpsHandle(msg.a, conn.peer); break;
     case "dice": diceHandle(msg.a, conn.peer); break;
@@ -3111,7 +3120,11 @@ function handleMsg(msg, conn) {
       break;
     }
     case "duelSetupInfo": duelInfo = msg.duelInfo; break;
-    case "duelReady": loadDuelSequence(msg.dataA, msg.dataB, msg.duelInfo); break;
+    case "duelReady":
+      attachMetaToTracks(msg.dataA, msg.metaA || msg);
+      attachMetaToTracks(msg.dataB, msg.metaB || msg);
+      loadDuelSequence(msg.dataA, msg.dataB, msg.duelInfo);
+      break;
     case "duelPlayGo": if (window.__duelRunSequence) { window.__duelRunSequence(); window.__duelRunSequence = null; } break;
     case "duelVoteBroadcast": showDuelVoteLive(msg.tally); break;
     case "duelResult": showDuelResult(msg.result); break;
@@ -3127,7 +3140,7 @@ function handleMsg(msg, conn) {
     case "videoChunk": receiveVideoChunk(msg.buf); break;
     case "goLines": queueOrStartBooth(); break;
     case "go": queueOrStartRealtime(); break;
-    case "mix": loadMix(msg.data); break;
+    case "mix": loadMix(msg.data, msg); break;
     case "outtakesPool":
       outtakes = dedupeOuttakes(Array.isArray(msg.items) ? msg.items : []);
       outtakesCache = null;
@@ -5097,6 +5110,40 @@ function attachPans(items, panByIdx) {
 function attachTrackMeta(items, msg) {
   return attachPans(attachBoosts(items, msg && msg.boostByIdx), msg && msg.panByIdx);
 }
+/** Alle Takes einer Mix-Nachricht → Boost/Pan-Maps (für Host→Gast-Broadcast). */
+function metaMapsFromTracks(tracks) {
+  const all = [];
+  for (const tr of tracks || []) {
+    if (tr && tr.items) for (const it of tr.items) all.push(it);
+  }
+  return { boostByIdx: boostMapFromItems(all), panByIdx: panMapFromItems(all) };
+}
+function attachMetaToTracks(tracks, msg) {
+  if (!tracks || !msg) return tracks;
+  for (const tr of tracks) {
+    if (tr && tr.items) attachTrackMeta(tr.items, msg);
+  }
+  return tracks;
+}
+/** Eigene Booth-Einstellungen nachziehen, falls PeerJS Meta unterwegs verloren hat. */
+function applyLocalLineMeta(tracks) {
+  const rid = myRole();
+  if (rid == null || !tracks) return;
+  for (const tr of tracks) {
+    if (!tr || tr.role !== rid || !tr.items) continue;
+    for (const it of tr.items) {
+      if (it.boost == null && myLineGains[it.idx] != null) it.boost = myLineGains[it.idx];
+      if (it.pan == null && myLinePans[it.idx] != null) it.pan = myLinePans[it.idx];
+    }
+  }
+}
+/** Mix an alle schicken — Boost/Pan extra, weil sie neben Audio-Buffern oft verloren gehen. */
+function publishMix(data) {
+  finalTracksData = data;
+  const maps = metaMapsFromTracks(data);
+  broadcast({ t: "mix", data, ...maps });
+  loadMix(data);
+}
 
 function finishBooth() {
   cancelAnimationFrame(vizRAF);
@@ -6393,7 +6440,12 @@ function finishRedo() {
   show(back);
   if (buf && buf !== "SKIP") {
     if (isHost) applyTrackUpdate(myRole(), lineIdx, startAt, buf, effect, gate, boost, fxAmount, pan);
-    else sendHost({ t: "trackUpdate", role: myRole(), lineIdx, startAt, buf, effect, gate, boost, fxAmount, pan });
+    else sendHost({
+      t: "trackUpdate", role: myRole(), lineIdx, startAt, buf,
+      effect, gate, boost, fxAmount, pan,
+      // Meta ohne Audio-Buffer — PeerJS streicht Nebenfelder neben buf manchmal
+      trackMeta: { effect, gate, boost, fxAmount, pan },
+    });
   }
   status(back === "scr-playback" ? "play-status" : "wait-status", "✅ Line aktualisiert! Wird im Endergebnis berücksichtigt.");
   renderRedoPanel("redo-panel-wait");
@@ -6433,8 +6485,7 @@ async function applyTrackUpdate(role, lineIdx, startAt, rawBuf, effect, gate, bo
       return { role, items };
     });
     if (!finalTracksData.some(t => t.role === role)) finalTracksData.push({ role, items: [entry] });
-    broadcast({ t: "mix", data: finalTracksData });
-    loadMix(finalTracksData);
+    publishMix(finalTracksData);
   } catch (e) { console.error("Track-Update fehlgeschlagen:", e); }
 }
 
@@ -6448,7 +6499,11 @@ function assembleDuelMixes() {
   if (!isHost) return;
   const dataA = [{ role: duelInfo.roleId, items: duelSubs[duelInfo.aId] }];
   const dataB = [{ role: duelInfo.roleId, items: duelSubs[duelInfo.bId] }];
-  broadcast({ t: "duelReady", dataA, dataB, duelInfo });
+  broadcast({
+    t: "duelReady", dataA, dataB, duelInfo,
+    metaA: metaMapsFromTracks(dataA),
+    metaB: metaMapsFromTracks(dataB),
+  });
   loadDuelSequence(dataA, dataB, duelInfo);
 }
 
@@ -6648,10 +6703,8 @@ function maybeFinishTracks(force) {
   }
   clearTimeout(forceMixTimer);
   const data = [...collected.entries()].map(([r, it]) => ({ role: r, items: it }));
-  finalTracksData = data;   // persistent merken, damit spaetere Redo-Korrekturen darauf aufbauen koennen
   publishOuttakesPool();
-  broadcast({ t: "mix", data });
-  loadMix(data);
+  publishMix(data);   // Boost/Pan extra mitschicken — sonst hoeren Gäste wieder 100 %
   collected.clear();
   syncForceMixBtn();
 }
@@ -6686,11 +6739,14 @@ async function toArrayBuffer(x) {
   throw new Error("Unbekanntes Binärformat: " + Object.prototype.toString.call(x));
 }
 
-async function loadMix(data) {
+async function loadMix(data, metaMsg) {
   if (!scene) {
     status("play-status", "⚠ Szene fehlt noch — kurz warten oder Seite neu laden.", true);
     return;
   }
+  // PeerJS streicht Boost/Pan oft neben den Audio-Buffern — Maps / eigene Booth-Werte nachziehen
+  if (metaMsg) attachMetaToTracks(data, metaMsg);
+  applyLocalLineMeta(data);
   show("scr-playback");
   status("play-status", "Dekodiere Spuren …");
   invalidatePremCache();
