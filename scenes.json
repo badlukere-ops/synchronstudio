@@ -14,21 +14,21 @@
     "name": "Dexter",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Doakes",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Random Dude (Security)",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -256,7 +256,7 @@
    },
    {
     "t": 71.68,
-    "end": 81.0,
+    "end": 81,
     "chars": [
      2
     ],
@@ -282,26 +282,26 @@
     "name": "Spongebob",
     "pan": -0.6,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Patrick",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Anrufer (Telefon)",
     "pan": 0.2,
     "effect": "telefon",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
-    "t": 0.0,
+    "t": 0,
     "end": 1.79,
     "chars": [
      1
@@ -427,37 +427,37 @@
    {
     "id": 1,
     "name": "Big Smoke",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "CJ",
     "pan": -0.6,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Cashier (Sprechanlage)",
     "pan": 0.3,
     "effect": "radio",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Rider",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Sweet",
     "pan": -0.3,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -573,7 +573,7 @@
    },
    {
     "t": 24.5,
-    "end": 26.0,
+    "end": 26,
     "chars": [
      1
     ],
@@ -583,7 +583,7 @@
     "orig": "scenes/bigsmoke/lines/11.mp3"
    },
    {
-    "t": 26.0,
+    "t": 26,
     "end": 28.53,
     "chars": [
      1
@@ -595,7 +595,7 @@
    },
    {
     "t": 28.53,
-    "end": 30.0,
+    "end": 30,
     "chars": [
      1
     ],
@@ -605,7 +605,7 @@
     "orig": "scenes/bigsmoke/lines/13.mp3"
    },
    {
-    "t": 30.0,
+    "t": 30,
     "end": 33.63,
     "chars": [
      1
@@ -632,21 +632,21 @@
     "name": "Debbie",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Mark",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Nolan (Omni-Man)",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -783,14 +783,14 @@
     "name": "Will Smith",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Sonny (Roboter)",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -807,7 +807,7 @@
    },
    {
     "t": 4.45,
-    "end": 9.0,
+    "end": 9,
     "chars": [
      1
     ],
@@ -817,7 +817,7 @@
     "orig": "scenes/irobot/lines/02.mp3"
    },
    {
-    "t": 9.0,
+    "t": 9,
     "end": 12.42,
     "chars": [
      2
@@ -850,21 +850,21 @@
     "name": "Velocidad (Speed)",
     "pan": -0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Niño",
     "pan": 0.3,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Espectador",
     "pan": 0.6,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -2517,27 +2517,27 @@
     "name": "Tuco",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Heisenberg",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Anderer Typ",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
-    "t": 0.0,
-    "end": 4.0,
+    "t": 0,
+    "end": 4,
     "chars": [
      1
     ],
@@ -2547,8 +2547,8 @@
     "orig": "scenes/breakingbad/lines/01.mp3"
    },
    {
-    "t": 4.0,
-    "end": 6.0,
+    "t": 4,
+    "end": 6,
     "chars": [
      2
     ],
@@ -2558,8 +2558,8 @@
     "orig": "scenes/breakingbad/lines/02.mp3"
    },
    {
-    "t": 6.0,
-    "end": 11.0,
+    "t": 6,
+    "end": 11,
     "chars": [
      1
     ],
@@ -2569,8 +2569,8 @@
     "orig": "scenes/breakingbad/lines/03.mp3"
    },
    {
-    "t": 11.0,
-    "end": 12.0,
+    "t": 11,
+    "end": 12,
     "chars": [
      1
     ],
@@ -2580,8 +2580,8 @@
     "orig": "scenes/breakingbad/lines/04.mp3"
    },
    {
-    "t": 12.0,
-    "end": 15.0,
+    "t": 12,
+    "end": 15,
     "chars": [
      2
     ],
@@ -2591,8 +2591,8 @@
     "orig": "scenes/breakingbad/lines/05.mp3"
    },
    {
-    "t": 15.0,
-    "end": 23.0,
+    "t": 15,
+    "end": 23,
     "chars": [
      2
     ],
@@ -2602,8 +2602,8 @@
     "orig": "scenes/breakingbad/lines/06.mp3"
    },
    {
-    "t": 23.0,
-    "end": 31.0,
+    "t": 23,
+    "end": 31,
     "chars": [
      1
     ],
@@ -2613,8 +2613,8 @@
     "orig": "scenes/breakingbad/lines/07.mp3"
    },
    {
-    "t": 31.0,
-    "end": 36.0,
+    "t": 31,
+    "end": 36,
     "chars": [
      1
     ],
@@ -2624,8 +2624,8 @@
     "orig": "scenes/breakingbad/lines/08.mp3"
    },
    {
-    "t": 36.0,
-    "end": 46.0,
+    "t": 36,
+    "end": 46,
     "chars": [
      1
     ],
@@ -2635,8 +2635,8 @@
     "orig": "scenes/breakingbad/lines/09.mp3"
    },
    {
-    "t": 46.0,
-    "end": 49.0,
+    "t": 46,
+    "end": 49,
     "chars": [
      1
     ],
@@ -2646,8 +2646,8 @@
     "orig": "scenes/breakingbad/lines/10.mp3"
    },
    {
-    "t": 49.0,
-    "end": 53.0,
+    "t": 49,
+    "end": 53,
     "chars": [
      1
     ],
@@ -2657,8 +2657,8 @@
     "orig": "scenes/breakingbad/lines/11.mp3"
    },
    {
-    "t": 53.0,
-    "end": 58.0,
+    "t": 53,
+    "end": 58,
     "chars": [
      1
     ],
@@ -2668,8 +2668,8 @@
     "orig": "scenes/breakingbad/lines/12.mp3"
    },
    {
-    "t": 58.0,
-    "end": 68.0,
+    "t": 58,
+    "end": 68,
     "chars": [
      1
     ],
@@ -2679,8 +2679,8 @@
     "orig": "scenes/breakingbad/lines/13.mp3"
    },
    {
-    "t": 68.0,
-    "end": 71.0,
+    "t": 68,
+    "end": 71,
     "chars": [
      3
     ],
@@ -2690,8 +2690,8 @@
     "orig": "scenes/breakingbad/lines/14.mp3"
    },
    {
-    "t": 71.0,
-    "end": 78.0,
+    "t": 71,
+    "end": 78,
     "chars": [
      2
     ],
@@ -2701,8 +2701,8 @@
     "orig": "scenes/breakingbad/lines/15.mp3"
    },
    {
-    "t": 78.0,
-    "end": 107.0,
+    "t": 78,
+    "end": 107,
     "chars": [
      2
     ],
@@ -2712,7 +2712,7 @@
     "orig": "scenes/breakingbad/lines/16.mp3"
    },
    {
-    "t": 107.0,
+    "t": 107,
     "end": 109.3,
     "chars": [
      1
@@ -2724,7 +2724,7 @@
    },
    {
     "t": 109.3,
-    "end": 112.0,
+    "end": 112,
     "chars": [
      2
     ],
@@ -2734,7 +2734,7 @@
     "orig": "scenes/breakingbad/lines/18.mp3"
    },
    {
-    "t": 112.0,
+    "t": 112,
     "end": 118.3,
     "chars": [
      1
@@ -2746,7 +2746,7 @@
    },
    {
     "t": 118.3,
-    "end": 123.0,
+    "end": 123,
     "chars": [
      1
     ],
@@ -2756,8 +2756,8 @@
     "orig": "scenes/breakingbad/lines/20.mp3"
    },
    {
-    "t": 123.0,
-    "end": 127.0,
+    "t": 123,
+    "end": 127,
     "chars": [
      1
     ],
@@ -2767,7 +2767,7 @@
     "orig": "scenes/breakingbad/lines/21.mp3"
    },
    {
-    "t": 127.0,
+    "t": 127,
     "end": 129.7,
     "chars": [
      1
@@ -2779,7 +2779,7 @@
    },
    {
     "t": 129.7,
-    "end": 135.0,
+    "end": 135,
     "chars": [
      1
     ],
@@ -2789,8 +2789,8 @@
     "orig": "scenes/breakingbad/lines/23.mp3"
    },
    {
-    "t": 135.0,
-    "end": 144.0,
+    "t": 135,
+    "end": 144,
     "chars": [
      1
     ],
@@ -2800,8 +2800,8 @@
     "orig": "scenes/breakingbad/lines/24.mp3"
    },
    {
-    "t": 144.0,
-    "end": 150.0,
+    "t": 144,
+    "end": 150,
     "chars": [
      1
     ],
@@ -2811,8 +2811,8 @@
     "orig": "scenes/breakingbad/lines/25.mp3"
    },
    {
-    "t": 150.0,
-    "end": 155.0,
+    "t": 150,
+    "end": 155,
     "chars": [
      2
     ],
@@ -2822,7 +2822,7 @@
     "orig": "scenes/breakingbad/lines/26.mp3"
    },
    {
-    "t": 155.0,
+    "t": 155,
     "end": 158.34,
     "chars": [
      1
@@ -2848,14 +2848,14 @@
     "name": "Geto",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Gojo",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -2927,7 +2927,7 @@
    },
    {
     "t": 20.5,
-    "end": 24.0,
+    "end": 24,
     "chars": [
      1
     ],
@@ -2937,7 +2937,7 @@
     "orig": "scenes/strongest/lines/07.mp3"
    },
    {
-    "t": 24.0,
+    "t": 24,
     "end": 26.72,
     "chars": [
      1
@@ -3051,20 +3051,20 @@
     "name": "Deku",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Tung Tung",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
     "t": 0.13,
-    "end": 2.0,
+    "end": 2,
     "chars": [
      1
     ],
@@ -3074,7 +3074,7 @@
     "orig": "scenes/aibubble/lines/01.mp3"
    },
    {
-    "t": 2.0,
+    "t": 2,
     "end": 4.12,
     "chars": [
      1
@@ -3189,26 +3189,26 @@
     "name": "Steve",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Garret",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Chicken Jockey",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
-    "t": 0.0,
+    "t": 0,
     "end": 3.58,
     "chars": [
      1
@@ -3478,14 +3478,14 @@
     "name": "Brian",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Peter",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -3659,14 +3659,14 @@
     "name": "Oppenheimer",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Einstein",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -3867,21 +3867,21 @@
     "name": "Toji",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Gojo",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Curse",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "monster",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -3986,7 +3986,7 @@
    },
    {
     "t": 35.65,
-    "end": 38.0,
+    "end": 38,
     "chars": [
      2
     ],
@@ -3996,7 +3996,7 @@
     "orig": "scenes/tojigojo/lines/10.mp3"
    },
    {
-    "t": 38.0,
+    "t": 38,
     "end": 40.6,
     "chars": [
      2
@@ -4063,7 +4063,7 @@
    },
    {
     "t": 54.5,
-    "end": 58.0,
+    "end": 58,
     "chars": [
      1
     ],
@@ -4073,7 +4073,7 @@
     "orig": "scenes/tojigojo/lines/17.mp3"
    },
    {
-    "t": 58.0,
+    "t": 58,
     "end": 59.99,
     "chars": [
      1
@@ -4232,21 +4232,21 @@
     "name": "Escanor",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Estarossa",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Zeldris",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -4296,7 +4296,7 @@
    },
    {
     "t": 14.07,
-    "end": 16.0,
+    "end": 16,
     "chars": [
      1
     ],
@@ -4306,7 +4306,7 @@
     "orig": "scenes/whodecided/lines/05.mp3"
    },
    {
-    "t": 16.0,
+    "t": 16,
     "end": 18.18,
     "chars": [
      2
@@ -4362,7 +4362,7 @@
    },
    {
     "t": 34.72,
-    "end": 36.0,
+    "end": 36,
     "chars": [
      1
     ],
@@ -4372,7 +4372,7 @@
     "orig": "scenes/whodecided/lines/11.mp3"
    },
    {
-    "t": 36.0,
+    "t": 36,
     "end": 38.37,
     "chars": [
      2
@@ -4442,19 +4442,19 @@
     "name": "Shiori",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Jiro",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
-    "t": 0.0,
+    "t": 0,
     "end": 3.11,
     "chars": [
      1
@@ -4631,7 +4631,7 @@
    },
    {
     "t": 44.6,
-    "end": 49.0,
+    "end": 49,
     "chars": [
      1
     ],
@@ -4641,7 +4641,7 @@
     "orig": "scenes/marriedcouple/lines/17.mp3"
    },
    {
-    "t": 49.0,
+    "t": 49,
     "end": 52.05,
     "chars": [
      2
@@ -4733,19 +4733,19 @@
     "name": "Light",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Ryuk",
     "pan": 0.5,
     "effect": "monster",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
-    "t": 0.0,
+    "t": 0,
     "end": 2.8,
     "chars": [
      1
@@ -4757,7 +4757,7 @@
    },
    {
     "t": 2.8,
-    "end": 8.0,
+    "end": 8,
     "chars": [
      1
     ],
@@ -4767,7 +4767,7 @@
     "orig": "scenes/potatochip/lines/02.mp3"
    },
    {
-    "t": 8.0,
+    "t": 8,
     "end": 10.14,
     "chars": [
      2
@@ -4926,26 +4926,26 @@
     "name": "Bobby",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Clark",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Kat",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
-    "t": 5.0,
+    "t": 5,
     "end": 17.8,
     "chars": [
      1
@@ -4957,7 +4957,7 @@
    },
    {
     "t": 17.8,
-    "end": 19.0,
+    "end": 19,
     "chars": [
      2
     ],
@@ -4967,8 +4967,8 @@
     "orig": "scenes/brresearch/lines/02.mp3"
    },
    {
-    "t": 19.0,
-    "end": 21.0,
+    "t": 19,
+    "end": 21,
     "chars": [
      3
     ],
@@ -4978,7 +4978,7 @@
     "orig": "scenes/brresearch/lines/03.mp3"
    },
    {
-    "t": 21.0,
+    "t": 21,
     "end": 23.7,
     "chars": [
      2
@@ -4990,7 +4990,7 @@
    },
    {
     "t": 23.7,
-    "end": 25.0,
+    "end": 25,
     "chars": [
      1
     ],
@@ -5000,7 +5000,7 @@
     "orig": "scenes/brresearch/lines/05.mp3"
    },
    {
-    "t": 25.0,
+    "t": 25,
     "end": 25.8,
     "chars": [
      3
@@ -5023,7 +5023,7 @@
    },
    {
     "t": 28.5,
-    "end": 35.0,
+    "end": 35,
     "chars": [
      2
     ],
@@ -5033,8 +5033,8 @@
     "orig": "scenes/brresearch/lines/08.mp3"
    },
    {
-    "t": 35.0,
-    "end": 41.0,
+    "t": 35,
+    "end": 41,
     "chars": [
      1
     ],
@@ -5044,7 +5044,7 @@
     "orig": "scenes/brresearch/lines/09.mp3"
    },
    {
-    "t": 41.0,
+    "t": 41,
     "end": 43.2,
     "chars": [
      2
@@ -5056,7 +5056,7 @@
    },
    {
     "t": 43.2,
-    "end": 47.0,
+    "end": 47,
     "chars": [
      3
     ],
@@ -5066,7 +5066,7 @@
     "orig": "scenes/brresearch/lines/11.mp3"
    },
    {
-    "t": 47.0,
+    "t": 47,
     "end": 48.3,
     "chars": [
      2
@@ -5089,7 +5089,7 @@
    },
    {
     "t": 49.5,
-    "end": 53.0,
+    "end": 53,
     "chars": [
      2
     ],
@@ -5099,7 +5099,7 @@
     "orig": "scenes/brresearch/lines/14.mp3"
    },
    {
-    "t": 53.0,
+    "t": 53,
     "end": 54.5,
     "chars": [
      3
@@ -5122,7 +5122,7 @@
    },
    {
     "t": 55.9,
-    "end": 63.0,
+    "end": 63,
     "chars": [
      2
     ],
@@ -5132,7 +5132,7 @@
     "orig": "scenes/brresearch/lines/17.mp3"
    },
    {
-    "t": 63.0,
+    "t": 63,
     "end": 65.5,
     "chars": [
      1
@@ -5155,7 +5155,7 @@
    },
    {
     "t": 66.5,
-    "end": 67.0,
+    "end": 67,
     "chars": [
      3
     ],
@@ -5165,7 +5165,7 @@
     "orig": "scenes/brresearch/lines/20.mp3"
    },
    {
-    "t": 67.0,
+    "t": 67,
     "end": 67.5,
     "chars": [
      1
@@ -5199,7 +5199,7 @@
    },
    {
     "t": 70.5,
-    "end": 73.0,
+    "end": 73,
     "chars": [
      2
     ],
@@ -5209,7 +5209,7 @@
     "orig": "scenes/brresearch/lines/24.mp3"
    },
    {
-    "t": 73.0,
+    "t": 73,
     "end": 76.5,
     "chars": [
      1
@@ -5232,7 +5232,7 @@
    },
    {
     "t": 77.5,
-    "end": 79.0,
+    "end": 79,
     "chars": [
      1
     ],
@@ -5242,7 +5242,7 @@
     "orig": "scenes/brresearch/lines/27.mp3"
    },
    {
-    "t": 79.0,
+    "t": 79,
     "end": 80.5,
     "chars": [
      3
@@ -5276,7 +5276,7 @@
    },
    {
     "t": 85.4,
-    "end": 86.0,
+    "end": 86,
     "chars": [
      1
     ],
@@ -5286,7 +5286,7 @@
     "orig": "scenes/brresearch/lines/31.mp3"
    },
    {
-    "t": 86.0,
+    "t": 86,
     "end": 88.5,
     "chars": [
      2
@@ -5320,7 +5320,7 @@
    },
    {
     "t": 92.5,
-    "end": 97.0,
+    "end": 97,
     "chars": [
      3
     ],
@@ -5330,8 +5330,8 @@
     "orig": "scenes/brresearch/lines/35.mp3"
    },
    {
-    "t": 97.0,
-    "end": 103.0,
+    "t": 97,
+    "end": 103,
     "chars": [
      1
     ],
@@ -5341,7 +5341,7 @@
     "orig": "scenes/brresearch/lines/36.mp3"
    },
    {
-    "t": 103.0,
+    "t": 103,
     "end": 107.4,
     "chars": [
      3
@@ -5386,7 +5386,7 @@
    },
    {
     "t": 120.5,
-    "end": 123.0,
+    "end": 123,
     "chars": [
      2
     ],
@@ -5396,7 +5396,7 @@
     "orig": "scenes/brresearch/lines/41.mp3"
    },
    {
-    "t": 123.0,
+    "t": 123,
     "end": 127.5,
     "chars": [
      1
@@ -5430,7 +5430,7 @@
    },
    {
     "t": 130.5,
-    "end": 138.0,
+    "end": 138,
     "chars": [
      2
     ],
@@ -5440,7 +5440,7 @@
     "orig": "scenes/brresearch/lines/45.mp3"
    },
    {
-    "t": 138.0,
+    "t": 138,
     "end": 139.8,
     "chars": [
      1
@@ -5452,7 +5452,7 @@
    },
    {
     "t": 139.8,
-    "end": 143.0,
+    "end": 143,
     "chars": [
      3
     ],
@@ -5462,8 +5462,8 @@
     "orig": "scenes/brresearch/lines/47.mp3"
    },
    {
-    "t": 143.0,
-    "end": 148.0,
+    "t": 143,
+    "end": 148,
     "chars": [
      1
     ],
@@ -5473,8 +5473,8 @@
     "orig": "scenes/brresearch/lines/48.mp3"
    },
    {
-    "t": 148.0,
-    "end": 150.0,
+    "t": 148,
+    "end": 150,
     "chars": [
      3
     ],
@@ -5484,7 +5484,7 @@
     "orig": "scenes/brresearch/lines/49.mp3"
    },
    {
-    "t": 150.0,
+    "t": 150,
     "end": 157.8,
     "chars": [
      1
@@ -5496,7 +5496,7 @@
    },
    {
     "t": 157.8,
-    "end": 164.0,
+    "end": 164,
     "chars": [
      2
     ],
@@ -5506,7 +5506,7 @@
     "orig": "scenes/brresearch/lines/51.mp3"
    },
    {
-    "t": 164.0,
+    "t": 164,
     "end": 165.4,
     "chars": [
      3
@@ -5555,21 +5555,21 @@
     "name": "Spongebob",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Man Ray",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Patrick",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -5831,14 +5831,14 @@
     "name": "Anakin",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Obi-Wan",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -6360,19 +6360,19 @@
     "name": "Hal",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Megamind",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
-    "t": 0.0,
+    "t": 0,
     "end": 7.07,
     "chars": [
      1
@@ -6522,14 +6522,14 @@
     "name": "Gojo",
     "pan": -0.6,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Kenjaku",
     "pan": 0.55,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
@@ -6543,14 +6543,14 @@
     "name": "Jogo",
     "pan": -0.15,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Choso",
     "pan": 0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -7341,21 +7341,21 @@
     "name": "Akaza",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Rengoku",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Tanjiro",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -7772,37 +7772,37 @@
    {
     "id": 1,
     "name": "Goku",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Broly",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Paragus",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Frieza",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Krillin",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -8329,21 +8329,21 @@
     "name": "Reze",
     "pan": -0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Cafe Owner",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Denji",
     "pan": 0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -8503,7 +8503,7 @@
    },
    {
     "t": 36.32,
-    "end": 39.0,
+    "end": 39,
     "chars": [
      3
     ],
@@ -8513,7 +8513,7 @@
     "orig": "scenes/reze/lines/15.mp3"
    },
    {
-    "t": 39.0,
+    "t": 39,
     "end": 43.04,
     "chars": [
      1
@@ -8668,7 +8668,7 @@
    },
    {
     "t": 86.05,
-    "end": 94.0,
+    "end": 94,
     "chars": [
      1
     ],
@@ -8678,7 +8678,7 @@
     "orig": "scenes/reze/lines/30.mp3"
    },
    {
-    "t": 94.0,
+    "t": 94,
     "end": 95.42,
     "chars": [
      3
@@ -9517,37 +9517,37 @@
    {
     "id": 1,
     "name": "Gojo",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Utahime",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Mei Mei",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Geto",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Shoko",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -9839,7 +9839,7 @@
    },
    {
     "t": 67.69,
-    "end": 70.0,
+    "end": 70,
     "chars": [
      2
     ],
@@ -10253,42 +10253,42 @@
     "name": "Tanjiro",
     "pan": -0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Gyutaro",
     "pan": 0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Daki",
     "pan": 0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Tengen",
     "pan": -0.5,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Zenitsu",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 6,
     "name": "Inosuke",
     "pan": 0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -11424,7 +11424,7 @@
    },
    {
     "t": 480.31,
-    "end": 487.0,
+    "end": 487,
     "chars": [
      1
     ],
@@ -11466,33 +11466,33 @@
     "name": "Tester A (Pan links)",
     "pan": -0.8,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Tester B (Pan rechts)",
     "pan": 0.8,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Tester C (Funkgerät)",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "radio",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Tester D (Hall)",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "hall",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
-    "t": 2.0,
+    "t": 2,
     "end": 5.2,
     "chars": [
      1
@@ -11523,7 +11523,7 @@
    },
    {
     "t": 12.8,
-    "end": 16.0,
+    "end": 16,
     "chars": [
      4
     ],
@@ -11542,7 +11542,7 @@
     "de": "A nochmal — Panning links müsste man jetzt hören."
    },
    {
-    "t": 20.0,
+    "t": 20,
     "end": 23.2,
     "chars": [
      2
@@ -11586,23 +11586,23 @@
    {
     "id": 1,
     "name": "Son Goku",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Freezer",
     "pan": 0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Son Gohan",
     "pan": -0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -11768,51 +11768,51 @@
    {
     "id": 1,
     "name": "Thaddäus",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Patrick",
     "pan": -0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Sandy",
     "pan": 0.45,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Larry der Hummer",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Mr. Krabs",
     "pan": -0.45,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 6,
     "name": "Plankton",
     "pan": 0.5,
     "effect": "helium",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 7,
     "name": "SpongeBob",
     "pan": 0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -12250,14 +12250,14 @@
     "name": "Frozone",
     "pan": -0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Honey",
     "pan": 0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -12444,28 +12444,28 @@
     "name": "Nanami",
     "pan": -0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Maki",
     "pan": 0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Dagon",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "monster",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Erzähler",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "radio",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -12687,42 +12687,42 @@
     "name": "Maine",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Kiwi",
     "pan": 0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Rebecca",
     "pan": 0.45,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "David",
     "pan": -0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Lucy",
     "pan": 0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Wachmann",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "megaphone",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -13241,58 +13241,58 @@
    {
     "id": 0,
     "name": "All Might",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "megaphone",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Shigaraki",
     "pan": 0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Kirishima",
     "pan": -0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Deku",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Nomu",
     "pan": 0.2,
     "effect": "monster",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Kurogiri",
     "pan": 0.35,
     "effect": "radio",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 6,
     "name": "Tokoyami",
     "pan": -0.45,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 7,
     "name": "Ojiro",
     "pan": 0.45,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -13844,42 +13844,42 @@
     "name": "Reiner",
     "pan": -0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Eren",
     "pan": 0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Bertolt",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Mikasa",
     "pan": -0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Armin",
     "pan": 0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Historia",
     "pan": 0.15,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -14207,14 +14207,14 @@
     "name": "Mutter",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Shouya",
     "pan": 0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -14599,28 +14599,28 @@
     "name": "Higuruma",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Yuji",
     "pan": 0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Judgeman",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "radio",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Tengen",
     "pan": 0.35,
     "effect": "echo",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -15521,37 +15521,37 @@
    {
     "id": 0,
     "name": "Ansagerin",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "megaphone",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Dumbledore",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Molly",
     "pan": 0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Harry",
     "pan": -0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Amos Diggory",
     "pan": 0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -15715,21 +15715,21 @@
     "name": "Todo",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Itadori",
     "pan": 0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Takada",
     "pan": 0.4,
     "effect": "helium",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -15838,21 +15838,21 @@
     "name": "SpongeBob",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Thaddäus",
     "pan": 0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Patrick",
     "pan": 0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -16217,42 +16217,42 @@
     "name": "Mai",
     "pan": -0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Koga",
     "pan": 0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Futaba",
     "pan": -0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Kaede",
     "pan": 0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Shoko",
     "pan": 0.1,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Nodoka",
     "pan": -0.1,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -17045,35 +17045,35 @@
     "name": "Wingo",
     "pan": -0.3,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Boost",
     "pan": 0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "DJ",
     "pan": 0.4,
     "effect": "radio",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Mack",
     "pan": -0.15,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Snot Rod",
     "pan": 0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -17204,21 +17204,21 @@
     "name": "Todo",
     "pan": -0.2,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Itadori",
     "pan": 0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Takada",
     "pan": 0.4,
     "effect": "helium",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -17617,49 +17617,49 @@
     "name": "Zenitsu",
     "pan": -0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
     "name": "Kaigaku",
     "pan": 0.25,
     "effect": "monster",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
     "name": "Kokushibo",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "radio",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
     "name": "Jigoro",
     "pan": -0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Dämonenjäger 1",
     "pan": 0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Dämonenjäger 2",
     "pan": 0.45,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 6,
     "name": "Yushiro",
     "pan": -0.1,
     "effect": "echo",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -20199,7 +20199,7 @@
    {
     "id": 0,
     "name": "Erzähler",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
     "gain": 1.05
    },
@@ -20208,7 +20208,7 @@
     "name": "Quickster",
     "pan": -0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 2,
@@ -20222,14 +20222,14 @@
     "name": "Elastic Waistband",
     "pan": 0.15,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 4,
     "name": "Miss Appear",
     "pan": -0.15,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
@@ -20404,7 +20404,7 @@
     "name": "Random Judge",
     "pan": -0.25,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 1,
@@ -20418,12 +20418,12 @@
     "name": "Shimizu",
     "pan": 0.35,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    }
   ],
   "lines": [
    {
-    "t": 0.0,
+    "t": 0,
     "end": 8.16,
     "chars": [
      0
@@ -20507,7 +20507,7 @@
     "name": "Shinobu",
     "pan": 0.45,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 3,
@@ -20521,26 +20521,26 @@
     "name": "Mitsuri",
     "pan": 0.55,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 5,
     "name": "Obanai",
     "pan": -0.4,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 6,
     "name": "Giyu",
     "pan": 0.15,
     "effect": "none",
-    "gain": 1.0
+    "gain": 1
    },
    {
     "id": 7,
     "name": "Gyomei",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "none",
     "gain": 1.1
    },
@@ -20554,7 +20554,7 @@
    {
     "id": 9,
     "name": "Muzan",
-    "pan": 0.0,
+    "pan": 0,
     "effect": "hall",
     "gain": 1.15
    }
@@ -20562,7 +20562,7 @@
   "lines": [
    {
     "t": 3.02,
-    "end": 8.0,
+    "end": 8,
     "chars": [
      1
     ],
@@ -20925,5 +20925,924 @@
    }
   ],
   "difficultyOverride": "hard"
+ },
+ {
+  "id": "ghostrabbit",
+  "title": "Ghost Stories — Not Because You're A Rabbit (3 Rollen)",
+  "videoUrl": "scenes/ghostrabbit.mp4",
+  "avatars": {
+   "1": "scenes/ghostrabbit/satsuki.png",
+   "2": "scenes/ghostrabbit/mio.png",
+   "3": "scenes/ghostrabbit/rabbit.png"
+  },
+  "roles": [
+   {
+    "id": 1,
+    "name": "Satsuki",
+    "pan": -0.55,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Mio",
+    "pan": 0.45,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 3,
+    "name": "Rabbit",
+    "pan": -0.2,
+    "effect": "monster",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 3.058,
+    "end": 4.491,
+    "chars": [
+     1
+    ],
+    "who": "Satsuki",
+    "text": "You are pathethic",
+    "de": "Du bist erbärmlich",
+    "orig": "scenes/ghostrabbit/lines/01.mp3"
+   },
+   {
+    "t": 4.541,
+    "end": 8.657,
+    "chars": [
+     2
+    ],
+    "who": "Mio",
+    "text": "When he died I was so sad that I would never hear that voice again",
+    "de": "Als er starb, war ich so traurig, dass ich diese Stimme nie wieder hören würde",
+    "orig": "scenes/ghostrabbit/lines/02.mp3"
+   },
+   {
+    "t": 8.707,
+    "end": 9.558,
+    "chars": [
+     2
+    ],
+    "who": "Mio",
+    "text": "His laugh",
+    "de": "Sein Lachen",
+    "orig": "scenes/ghostrabbit/lines/03.mp3"
+   },
+   {
+    "t": 9.608,
+    "end": 11.778,
+    "chars": [
+     3
+    ],
+    "who": "Rabbit",
+    "text": "*Hehe* *Hehe*",
+    "de": "*Hihi* *Hihi*",
+    "orig": "scenes/ghostrabbit/lines/04.mp3"
+   },
+   {
+    "t": 11.924,
+    "end": 13.974,
+    "chars": [
+     2
+    ],
+    "who": "Mio",
+    "text": "His funny little requests",
+    "de": "Seine lustigen kleinen Bitten",
+    "orig": "scenes/ghostrabbit/lines/05.mp3"
+   },
+   {
+    "t": 14.024,
+    "end": 15.324,
+    "chars": [
+     3
+    ],
+    "who": "Rabbit",
+    "text": "Touch me",
+    "de": "Fass mich an",
+    "orig": "scenes/ghostrabbit/lines/06.mp3"
+   },
+   {
+    "t": 15.374,
+    "end": 16.481,
+    "chars": [
+     2
+    ],
+    "who": "Mio",
+    "text": "His reprimands",
+    "de": "Seine Ermahnungen",
+    "orig": "scenes/ghostrabbit/lines/07.mp3"
+   },
+   {
+    "t": 16.531,
+    "end": 17.524,
+    "chars": [
+     3
+    ],
+    "who": "Rabbit",
+    "text": "Touch me harder",
+    "de": "Fass mich fester an",
+    "orig": "scenes/ghostrabbit/lines/08.mp3"
+   },
+   {
+    "t": 17.574,
+    "end": 20.36,
+    "chars": [
+     2
+    ],
+    "who": "Mio",
+    "text": "Shirotabi please forgive me for bringing you back to life",
+    "de": "Shirotabi, verzeih mir bitte, dass ich dich zurückgeholt habe",
+    "orig": "scenes/ghostrabbit/lines/09.mp3"
+   },
+   {
+    "t": 20.41,
+    "end": 22.624,
+    "chars": [
+     2
+    ],
+    "who": "Mio",
+    "text": "I know now that it could never work between us",
+    "de": "Ich weiß jetzt: Zwischen uns kann es nie klappen",
+    "orig": "scenes/ghostrabbit/lines/10.mp3"
+   },
+   {
+    "t": 22.674,
+    "end": 26.554,
+    "chars": [
+     2
+    ],
+    "who": "Mio",
+    "text": "As much as we want it to it could never be",
+    "de": "So sehr wir es auch wollen — es geht einfach nicht",
+    "orig": "scenes/ghostrabbit/lines/11.mp3"
+   },
+   {
+    "t": 27.674,
+    "end": 29.724,
+    "chars": [
+     2
+    ],
+    "who": "Mio",
+    "text": "Not because your a rabbit",
+    "de": "Nicht weil du ein Hase bist",
+    "orig": "scenes/ghostrabbit/lines/12.mp3"
+   },
+   {
+    "t": 29.774,
+    "end": 31.854,
+    "chars": [
+     2
+    ],
+    "who": "Mio",
+    "text": "But because your black",
+    "de": "Sondern weil du schwarz bist",
+    "orig": "scenes/ghostrabbit/lines/13.mp3"
+   }
+  ]
+ },
+ {
+  "id": "nwhorganic",
+  "title": "Spider-Man NWH — Organic Web Scene (4 Rollen)",
+  "videoUrl": "scenes/nwhorganic.mp4",
+  "avatars": {
+   "1": "scenes/nwhorganic/andrew.png",
+   "2": "scenes/nwhorganic/ned.png",
+   "3": "scenes/nwhorganic/tom.png",
+   "4": "scenes/nwhorganic/tobey.png"
+  },
+  "roles": [
+   {
+    "id": 1,
+    "name": "Andrew",
+    "pan": -0.55,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Ned",
+    "pan": 0.45,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 3,
+    "name": "Tom",
+    "pan": -0.2,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 4,
+    "name": "Tobey",
+    "pan": 0.55,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 0,
+    "end": 4.6,
+    "chars": [
+     1
+    ],
+    "who": "Andrew",
+    "text": "So wait, are you gonna go into battle dressed as a cool youth pastor or.. you got your suit?",
+    "de": "Also warte — gehst du so als cooler Jugendpastor in den Kampf, oder… hast du dein Suit?",
+    "orig": "scenes/nwhorganic/lines/01.mp3"
+   },
+   {
+    "t": 6.526,
+    "end": 7.384,
+    "chars": [
+     1
+    ],
+    "who": "Andrew",
+    "text": "Good..",
+    "de": "Gut…",
+    "orig": "scenes/nwhorganic/lines/02.mp3"
+   },
+   {
+    "t": 7.434,
+    "end": 8.523,
+    "chars": [
+     2
+    ],
+    "who": "Ned",
+    "text": "Here's your web cartridges.",
+    "de": "Hier sind deine Netz-Patronen.",
+    "orig": "scenes/nwhorganic/lines/03.mp3"
+   },
+   {
+    "t": 8.573,
+    "end": 9.801,
+    "chars": [
+     3
+    ],
+    "who": "Tom",
+    "text": "Ohh Thanks Man.",
+    "de": "Oh, danke Mann.",
+    "orig": "scenes/nwhorganic/lines/04.mp3"
+   },
+   {
+    "t": 9.851,
+    "end": 11.041,
+    "chars": [
+     4
+    ],
+    "who": "Tobey",
+    "text": "What's That For?",
+    "de": "Wofür ist das?",
+    "orig": "scenes/nwhorganic/lines/05.mp3"
+   },
+   {
+    "t": 11.421,
+    "end": 14.311,
+    "chars": [
+     3
+    ],
+    "who": "Tom",
+    "text": "uhh it's my web fluid, it's for my web shooters.. why?",
+    "de": "Äh, das ist meine Netz-Flüssigkeit, für meine Web-Shooter… warum?",
+    "orig": "scenes/nwhorganic/lines/06.mp3"
+   },
+   {
+    "t": 15.111,
+    "end": 16.681,
+    "chars": [
+     3
+    ],
+    "who": "Tom",
+    "text": "WOAH.. (it's better to do this one with other people so it fits the scene)",
+    "de": "WOAH…",
+    "orig": "scenes/nwhorganic/lines/07.mp3"
+   },
+   {
+    "t": 17.654,
+    "end": 18.497,
+    "chars": [
+     2
+    ],
+    "who": "Ned",
+    "text": "That came outta you..",
+    "de": "Das ist aus dir rausgekommen…",
+    "orig": "scenes/nwhorganic/lines/08.mp3"
+   },
+   {
+    "t": 18.547,
+    "end": 20.575,
+    "chars": [
+     4
+    ],
+    "who": "Tobey",
+    "text": "Yeah.. you can't do that huh?",
+    "de": "Ja… das kannst du nicht, oder?",
+    "orig": "scenes/nwhorganic/lines/09.mp3"
+   },
+   {
+    "t": 20.625,
+    "end": 21.083,
+    "chars": [
+     3
+    ],
+    "who": "Tom",
+    "text": "NO!?",
+    "de": "NEIN!?",
+    "orig": "scenes/nwhorganic/lines/10.mp3"
+   },
+   {
+    "t": 21.133,
+    "end": 22.28,
+    "chars": [
+     1
+    ],
+    "who": "Andrew",
+    "text": "How on earth does that.. (last line, ik it gets cut but i cant do anything :D )",
+    "de": "Wie zum Teufel funktioniert das…",
+    "orig": "scenes/nwhorganic/lines/11.mp3"
+   }
+  ]
+ },
+ {
+  "id": "sbmenacing",
+  "title": "SpongeBob — He's Just Standing There Menacingly (2 Rollen)",
+  "videoUrl": "scenes/sbmenacing.mp4",
+  "avatars": {
+   "1": "scenes/sbmenacing/patrick.png",
+   "2": "scenes/sbmenacing/spongebob.png"
+  },
+  "roles": [
+   {
+    "id": 1,
+    "name": "Patrick",
+    "pan": -0.55,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "SpongeBob",
+    "pan": 0.45,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 1.01,
+    "end": 4.342,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "spongebob come in spongebob answer",
+    "de": "SpongeBob, komm rein, SpongeBob, antworten",
+    "orig": "scenes/sbmenacing/lines/01.mp3"
+   },
+   {
+    "t": 4.392,
+    "end": 6.406,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "spongebob here patrick report",
+    "de": "SpongeBob hier, Patrick meldet",
+    "orig": "scenes/sbmenacing/lines/02.mp3"
+   },
+   {
+    "t": 6.456,
+    "end": 9.16,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "i don't want to be a policeman anymore",
+    "de": "Ich will kein Polizist mehr sein",
+    "orig": "scenes/sbmenacing/lines/03.mp3"
+   },
+   {
+    "t": 9.21,
+    "end": 10.579,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "i'm scared",
+    "de": "Ich hab Angst",
+    "orig": "scenes/sbmenacing/lines/04.mp3"
+   },
+   {
+    "t": 10.629,
+    "end": 12.595,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "get a hold of yourself deputy",
+    "de": "Reiß dich zusammen, Deputy",
+    "orig": "scenes/sbmenacing/lines/05.mp3"
+   },
+   {
+    "t": 12.645,
+    "end": 18.701,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "(Crying) I wanna go home",
+    "de": "(weint) Ich will nach Hause",
+    "orig": "scenes/sbmenacing/lines/06.mp3"
+   },
+   {
+    "t": 18.751,
+    "end": 20.301,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "oh rucky",
+    "de": "Oh Mist",
+    "orig": "scenes/sbmenacing/lines/07.mp3"
+   },
+   {
+    "t": 20.351,
+    "end": 21.975,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "all right i'm on my way back",
+    "de": "Alles klar, ich bin auf dem Rückweg",
+    "orig": "scenes/sbmenacing/lines/08.mp3"
+   },
+   {
+    "t": 22.025,
+    "end": 25.355,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "hurry spongebob i think it's getting",
+    "de": "Beeil dich SpongeBob, ich glaub es wird",
+    "orig": "scenes/sbmenacing/lines/09.mp3"
+   },
+   {
+    "t": 25.624,
+    "end": 26.748,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "dark...",
+    "de": "dunkel…",
+    "orig": "scenes/sbmenacing/lines/10.mp3"
+   },
+   {
+    "t": 26.798,
+    "end": 29.416,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "just put on your siren i'll be right there",
+    "de": "Mach einfach die Sirene an, ich bin gleich da",
+    "orig": "scenes/sbmenacing/lines/11.mp3"
+   },
+   {
+    "t": 29.466,
+    "end": 31.333,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "wee woo",
+    "de": "wiu wiu",
+    "orig": "scenes/sbmenacing/lines/12.mp3"
+   },
+   {
+    "t": 31.383,
+    "end": 33.689,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "wee woo",
+    "de": "wiu wiu",
+    "orig": "scenes/sbmenacing/lines/13.mp3"
+   },
+   {
+    "t": 33.739,
+    "end": 35.631,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "wee woo",
+    "de": "wiu wiu",
+    "orig": "scenes/sbmenacing/lines/14.mp3"
+   },
+   {
+    "t": 35.681,
+    "end": 37.691,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "wee woo",
+    "de": "wiu wiu",
+    "orig": "scenes/sbmenacing/lines/15.mp3"
+   },
+   {
+    "t": 42.068,
+    "end": 45.545,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "uhh WEE WOO WEE WOO WEE WOO",
+    "de": "äh WIU WIU WIU WIU WIU",
+    "orig": "scenes/sbmenacing/lines/16.mp3"
+   },
+   {
+    "t": 45.595,
+    "end": 47.753,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "Spongebob.. I see him",
+    "de": "SpongeBob… ich seh ihn",
+    "orig": "scenes/sbmenacing/lines/17.mp3"
+   },
+   {
+    "t": 47.803,
+    "end": 49.075,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "Where is he patrick?",
+    "de": "Wo ist er, Patrick?",
+    "orig": "scenes/sbmenacing/lines/18.mp3"
+   },
+   {
+    "t": 49.125,
+    "end": 53.055,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "at the intersection of conch and coral",
+    "de": "an der Kreuzung Muschel und Koralle",
+    "orig": "scenes/sbmenacing/lines/19.mp3"
+   },
+   {
+    "t": 54.918,
+    "end": 57.068,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "that's where i am",
+    "de": "Da bin ich gerade",
+    "orig": "scenes/sbmenacing/lines/20.mp3"
+   },
+   {
+    "t": 57.601,
+    "end": 60.789,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "he's right on top of me but i can't see him.... what's he doing",
+    "de": "Er ist direkt über mir, aber ich seh ihn nicht… was macht er?",
+    "orig": "scenes/sbmenacing/lines/21.mp3"
+   },
+   {
+    "t": 60.839,
+    "end": 63.942,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "uh he's just standing there",
+    "de": "äh er steht da einfach nur",
+    "orig": "scenes/sbmenacing/lines/22.mp3"
+   },
+   {
+    "t": 63.992,
+    "end": 65.815,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "MENACINGLY",
+    "de": "BEDROHLICH",
+    "orig": "scenes/sbmenacing/lines/23.mp3"
+   },
+   {
+    "t": 65.865,
+    "end": 67.885,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "GET OUT OF THERE SPONGEBOB",
+    "de": "RAUS DA, SPONGEBOB",
+    "orig": "scenes/sbmenacing/lines/24.mp3"
+   },
+   {
+    "t": 67.935,
+    "end": 69.223,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "(Screaming",
+    "de": "(Schrei)",
+    "orig": "scenes/sbmenacing/lines/25.mp3"
+   },
+   {
+    "t": 69.273,
+    "end": 71.12,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "that's his maniac shriek",
+    "de": "Das ist sein Verrückten-Schrei",
+    "orig": "scenes/sbmenacing/lines/26.mp3"
+   },
+   {
+    "t": 71.17,
+    "end": 72.785,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "he's going to attack",
+    "de": "Er greift gleich an",
+    "orig": "scenes/sbmenacing/lines/27.mp3"
+   },
+   {
+    "t": 72.835,
+    "end": 74.676,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "(Running crying)",
+    "de": "(rennt weinend)",
+    "orig": "scenes/sbmenacing/lines/28.mp3"
+   },
+   {
+    "t": 74.726,
+    "end": 76.282,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "he's acting all crazy",
+    "de": "Er spinnt total",
+    "orig": "scenes/sbmenacing/lines/29.mp3"
+   },
+   {
+    "t": 76.332,
+    "end": 78.971,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "run i'll hide behind that building",
+    "de": "Lauf, ich versteck mich hinter dem Gebäude",
+    "orig": "scenes/sbmenacing/lines/30.mp3"
+   },
+   {
+    "t": 79.021,
+    "end": 80.832,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "no he's behind that building",
+    "de": "Nein, er ist hinter dem Gebäude",
+    "orig": "scenes/sbmenacing/lines/31.mp3"
+   },
+   {
+    "t": 80.882,
+    "end": 82.88,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "Go quick hide behind that street sign",
+    "de": "Schnell, versteck dich hinter dem Straßenschild",
+    "orig": "scenes/sbmenacing/lines/32.mp3"
+   },
+   {
+    "t": 82.93,
+    "end": 85.757,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "NOO wait the maniac just went by that side",
+    "de": "NEEIN warte, der Spinner ist gerade da lang",
+    "orig": "scenes/sbmenacing/lines/33.mp3"
+   },
+   {
+    "t": 85.807,
+    "end": 87.99,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "Oh go quick get under the street light",
+    "de": "Oh schnell, unter die Straßenlaterne",
+    "orig": "scenes/sbmenacing/lines/34.mp3"
+   },
+   {
+    "t": 88.04,
+    "end": 90.73,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "NO Wait he's there too",
+    "de": "NEIN warte, da ist er auch",
+    "orig": "scenes/sbmenacing/lines/35.mp3"
+   },
+   {
+    "t": 90.78,
+    "end": 92.975,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "RUN FOR YOUR LIFE",
+    "de": "RENN UM DEIN LEBEN",
+    "orig": "scenes/sbmenacing/lines/36.mp3"
+   },
+   {
+    "t": 93.025,
+    "end": 95.834,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "(Screaming)",
+    "de": "(Schrei)",
+    "orig": "scenes/sbmenacing/lines/37.mp3"
+   },
+   {
+    "t": 95.884,
+    "end": 96.234,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "ahh",
+    "de": "Ahh",
+    "orig": "scenes/sbmenacing/lines/38.mp3"
+   },
+   {
+    "t": 96.044,
+    "end": 97.205,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "Spong",
+    "de": "Spon",
+    "orig": "scenes/sbmenacing/lines/39.mp3"
+   },
+   {
+    "t": 97.255,
+    "end": 97.951,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "Is",
+    "de": "ge",
+    "orig": "scenes/sbmenacing/lines/40.mp3"
+   },
+   {
+    "t": 98.001,
+    "end": 99.571,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "On",
+    "de": "bob",
+    "orig": "scenes/sbmenacing/lines/41.mp3"
+   },
+   {
+    "t": 100.424,
+    "end": 101.975,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "say again deputy",
+    "de": "Nochmal, Deputy",
+    "orig": "scenes/sbmenacing/lines/42.mp3"
+   },
+   {
+    "t": 102.025,
+    "end": 105.8,
+    "chars": [
+     1
+    ],
+    "who": "Patrick",
+    "text": "the maniacs in the mailbox",
+    "de": "Der Spinner ist im Briefkasten",
+    "orig": "scenes/sbmenacing/lines/43.mp3"
+   },
+   {
+    "t": 105.85,
+    "end": 107.93,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "(Screaming)",
+    "de": "(Schrei)",
+    "orig": "scenes/sbmenacing/lines/44.mp3"
+   },
+   {
+    "t": 108.097,
+    "end": 109.815,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "(Screaming)",
+    "de": "(Schrei)",
+    "orig": "scenes/sbmenacing/lines/45.mp3"
+   },
+   {
+    "t": 109.865,
+    "end": 113.42,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "( Scarily Running away)",
+    "de": "(rennt panisch weg)",
+    "orig": "scenes/sbmenacing/lines/46.mp3"
+   },
+   {
+    "t": 113.47,
+    "end": 114.612,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "(Sceaming)",
+    "de": "(Schrei)",
+    "orig": "scenes/sbmenacing/lines/47.mp3"
+   },
+   {
+    "t": 114.662,
+    "end": 116.572,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "(Screaming)",
+    "de": "(Schrei)",
+    "orig": "scenes/sbmenacing/lines/48.mp3"
+   },
+   {
+    "t": 116.752,
+    "end": 121.019,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "( Scarily Running away)",
+    "de": "(rennt panisch weg)",
+    "orig": "scenes/sbmenacing/lines/49.mp3"
+   },
+   {
+    "t": 121.069,
+    "end": 123.359,
+    "chars": [
+     2
+    ],
+    "who": "SpongeBob",
+    "text": "(Screaming)",
+    "de": "(Schrei)",
+    "orig": "scenes/sbmenacing/lines/50.mp3"
+   }
+  ]
  }
 ]

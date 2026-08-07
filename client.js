@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.19";
+const APP_VERSION = "9.10.20";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -298,6 +298,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.20", items: [
+    "🎬 Neue Szenen: Ghost Stories (Rabbit), Spider-Man NWH Organic Web, SpongeBob Menacingly"
+  ]},
   { v: "9.10.19", items: [
     "🎚 Noise Gate weicher + Nebengeräusche raus (Stimme bleibt), Original-Stimmen in Premiere wählbar, Pause für alle"
   ]},
@@ -803,6 +806,15 @@ const AVATAR_CHARS = [
   { img: "scenes/hashirasmeetmuzan/gyomei.png", label: "Gyomei" },
   { img: "scenes/hashirasmeetmuzan/tanjiro.png", label: "Tanjiro (Hashira)" },
   { img: "scenes/hashirasmeetmuzan/muzan.png", label: "Muzan" },
+  { img: "scenes/ghostrabbit/satsuki.png", label: "Satsuki" },
+  { img: "scenes/ghostrabbit/mio.png", label: "Mio" },
+  { img: "scenes/ghostrabbit/rabbit.png", label: "Rabbit (Ghost Stories)" },
+  { img: "scenes/nwhorganic/andrew.png", label: "Andrew Spidey" },
+  { img: "scenes/nwhorganic/ned.png", label: "Ned (NWH)" },
+  { img: "scenes/nwhorganic/tom.png", label: "Tom Spidey" },
+  { img: "scenes/nwhorganic/tobey.png", label: "Tobey Spidey" },
+  { img: "scenes/sbmenacing/patrick.png", label: "Patrick (Menacing)" },
+  { img: "scenes/sbmenacing/spongebob.png", label: "SpongeBob (Menacing)" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
