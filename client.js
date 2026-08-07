@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.52";
+const APP_VERSION = "9.10.53";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -519,6 +519,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.53", items: [
+    "🐹 Neues Profilbild: Kenny 3 (Hamster)",
+    "🎨 Kritzel-Board: kein Flackern mehr in Opera (Board bleibt sichtbar beim Mitmalen)"
+  ]},
   { v: "9.10.52", items: [
     "👑 Host weitergeben: in Lobby/Warteraum neben Mitspielern „Host geben“ — der andere übernimmt Start/Szenen/Kicken",
     "🌐 Verbindung robuster (Avast & co.): automatische Join-Retries, längere Timeouts, klarere Tipps, TURN-TCP bevorzugt"
@@ -1171,6 +1175,7 @@ const AVATAR_CHARS = [
   { img: "scenes/profiles/kayleen2.png", label: "Kayleen 2" },
   { img: "scenes/profiles/kenny1.png", label: "Kenny 1" },
   { img: "scenes/profiles/kenny2.png", label: "Kenny 2" },
+  { img: "scenes/profiles/kenny3.png", label: "Kenny 3" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
@@ -6237,12 +6242,21 @@ function drawHandle(a, pid) {
   broadcast({ t: "drawState", drawBoard });
   renderDrawBoard();
 }
+// Offscreen-Puffer: nie clearRect auf dem sichtbaren Canvas — Opera zeigt sonst kurz ein leeres Board (Flackern).
+let drawOffscreen = null;
+function ensureDrawCanvasSize(c) {
+  // clientWidth*dpr oft Bruchzahl; Canvas-Größe ist immer int → ohne Round: bei JEDEM Aufruf Resize (= Clear).
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(c.clientWidth * dpr));
+  const h = Math.max(1, Math.round(c.clientHeight * dpr));
+  const resized = c.width !== w || c.height !== h;
+  if (resized) { c.width = w; c.height = h; }
+  return { w, h, resized, dpr };
+}
 function drawCanvasCtx(canvasId) {
   const c = $(canvasId);
   if (!c) return null;
-  const dpr = window.devicePixelRatio || 1;
-  const w = c.clientWidth * dpr, h = c.clientHeight * dpr;
-  if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+  ensureDrawCanvasSize(c);
   return c.getContext("2d");
 }
 const DRAW_BG = "#0e0e13";
@@ -6250,31 +6264,43 @@ function strokeVisual(color, size) {
   // "eraser" ist keine echte Farbe -- male stattdessen mit der Canvas-Hintergrundfarbe und etwas dicker
   return color === "eraser" ? { color: DRAW_BG, width: size * 2.2 } : { color, width: size };
 }
-function drawOneStroke(g, c, s) {
+function drawOneStroke(g, w, h, s) {
   if (!s || !s.points.length) return;
   const v = strokeVisual(s.color, s.size || 4);
   g.strokeStyle = v.color; g.lineWidth = v.width * (window.devicePixelRatio || 1);
   g.lineCap = "round"; g.lineJoin = "round";
   g.beginPath();
   s.points.forEach((p, i) => {
-    const x = p[0] * c.width, y = p[1] * c.height;
+    const x = p[0] * w, y = p[1] * h;
     if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
   });
   g.stroke();
 }
 function renderDrawBoardOn(canvasId) {
-  const g = drawCanvasCtx(canvasId);
-  if (!g) return;
   const c = $(canvasId);
+  if (!c) return;
+  const { w, h } = ensureDrawCanvasSize(c);
+  if (!drawOffscreen) drawOffscreen = document.createElement("canvas");
+  if (drawOffscreen.width !== w || drawOffscreen.height !== h) {
+    drawOffscreen.width = w; drawOffscreen.height = h;
+  }
+  const g = drawOffscreen.getContext("2d");
+  g.fillStyle = DRAW_BG;
+  g.fillRect(0, 0, w, h);
   const live = (drawing && curStroke) ? curStroke : null;
-  g.clearRect(0, 0, c.width, c.height);
   for (const s of drawBoard.strokes) {
     if (live && s.id === live.id) continue;   // gespeicherte Fassung ist älter — gleich kommt die aktuelle
-    drawOneStroke(g, c, s);
+    drawOneStroke(g, w, h, s);
   }
   // Den eigenen Strich, an dem gerade gezogen wird, immer zuletzt und in seiner neuesten Fassung zeichnen.
   // Sonst verschwindet der zuletzt gezogene Teil bei jedem Neuaufbau kurz -> sichtbares Flackern.
-  if (live) drawOneStroke(g, c, live);
+  if (live) drawOneStroke(g, w, h, live);
+  // Ein GPU-Blit statt clear+neuzeichnen — kein leerer Zwischenframe (Opera).
+  const ctx = c.getContext("2d");
+  ctx.save();
+  ctx.globalCompositeOperation = "copy";
+  ctx.drawImage(drawOffscreen, 0, 0);
+  ctx.restore();
 }
 function renderDrawBoard() { DRAW_CANVAS_IDS.forEach(renderDrawBoardOn); }
 const DRAW_CANVAS_COLOR_IDS = ["draw-colors"];
@@ -6326,7 +6352,9 @@ function initDrawCanvas(canvasId, colorsId, sizeId, clearId, eraserId) {
     curStroke = null;
   };
   function drawLiveSegment() {
+    // Nur neuen Abschnitt anhängen — kein Full-Redraw (sonst Flackern bei Sync-Updates).
     const g = drawCanvasCtx(canvasId);
+    if (!g) return;
     const pts = curStroke.points;
     if (pts.length < 2) return;
     const v = strokeVisual(curStroke.color, curStroke.size);
