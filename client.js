@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.51";
+const APP_VERSION = "9.10.52";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -36,18 +36,33 @@ function sceneVideoSrc() {
 // ║  Anbieter: ExpressTurn — https://www.expressturn.com              ║
 // ║  1 TB/Monat gratis, ohne Kreditkarte (Stand: Umstellung von uns).  ║
 // ╚══════════════════════════════════════════════════════════════════╝
+const TURN_USER = "000000002101101430";
+const TURN_CRED = "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=";
 const MY_TURN = [
-  // ExpressTurn-Account — Freikontingent 1 TB/Monat statt vorher 0,5 GB bei Metered
+  // TCP/443 zuerst — hilft bei Avast / UDP-blockierenden Firewalls
+  { urls: "turn:free.expressturn.com:443?transport=tcp", username: TURN_USER, credential: TURN_CRED },
+  { urls: "turn:free.expressturn.com:3478?transport=tcp", username: TURN_USER, credential: TURN_CRED },
+  { urls: "turn:free.expressturn.com:3478?transport=udp", username: TURN_USER, credential: TURN_CRED },
   { urls: "stun:stun.expressturn.com:3478" },
-  { urls: "turn:free.expressturn.com:3478?transport=udp", username: "000000002101101430", credential: "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=" },
-  { urls: "turn:free.expressturn.com:3478?transport=tcp", username: "000000002101101430", credential: "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=" },
-  { urls: "turn:free.expressturn.com:443?transport=tcp",  username: "000000002101101430", credential: "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=" },
 ];
-const PEER_CONFIG = { config: { iceServers: [
-  { urls: "stun:stun.l.google.com:19302" },
-  { urls: "stun:stun1.l.google.com:19302" },
-  ...MY_TURN
-], iceCandidatePoolSize: 4 } };
+const JOIN_MAX_TRIES = 3;
+const NETZ_TIP = "Tipp Avast Secure Browser: WebRTC erlauben, Real-Time Shield prüfen, Firewall-Ausnahme für synchron-studio.github.io — oder Chrome/Edge nutzen. Sonst: VPN aus, anderes Netz (Handy-Hotspot), Brave-Shields aus.";
+function makePeerConfig(forceRelay) {
+  return {
+    secure: true,
+    config: {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:19302" },
+        ...MY_TURN
+      ],
+      iceCandidatePoolSize: 8,
+      ...(forceRelay ? { iceTransportPolicy: "relay" } : {})
+    }
+  };
+}
+const PEER_CONFIG = makePeerConfig(false);
 const CHUNK_SIZE = 128 * 1024;
 
 // ── State ────────────────────────────────────────────────────
@@ -504,6 +519,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.52", items: [
+    "👑 Host weitergeben: in Lobby/Warteraum neben Mitspielern „Host geben“ — der andere übernimmt Start/Szenen/Kicken",
+    "🌐 Verbindung robuster (Avast & co.): automatische Join-Retries, längere Timeouts, klarere Tipps, TURN-TCP bevorzugt"
+  ]},
   { v: "9.10.51", items: [
     "😺 Neue Profilbilder: Kayleen, Kayleen 2, Kenny 1, Kenny 2"
   ]},
@@ -1919,18 +1938,19 @@ $("btn-create").onclick = () => {
   saveName();
   isHost = true;
   absichtlichWeg = false;
+  hostHandoffActive = false;
   const code = randCode();
   raumCode = code;
   status("start-status", "① Verbinde zum Vermittlungsserver …");
   let opened = false;
   setTimeout(() => {
-    if (!opened) status("start-status", "❌ Kein Kontakt zum Vermittlungsserver. Fast immer: Brave-Shields / Adblocker — für diese Seite ausschalten und neu laden.", true);
-  }, 10000);
-  peer = new Peer(PEER_PREFIX + code, PEER_CONFIG);
+    if (!opened) status("start-status", "❌ Kein Kontakt zum Vermittlungsserver. " + NETZ_TIP, true);
+  }, 14000);
+  peer = new Peer(PEER_PREFIX + code, makePeerConfig(false));
   peer.on("open", () => {
     opened = true;
     myId = peer.id;
-    players = [{ id: myId, key: myKey, name: myName + " (Host)", avatar: myAvatar, accessory: myAccessory, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false }];
+    players = [{ id: myId, key: myKey, name: withHostTag(myName), avatar: myAvatar, accessory: myAccessory, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false }];
     enterLobby(code);
     loadSceneList();
   });
@@ -1938,14 +1958,14 @@ $("btn-create").onclick = () => {
   // Verliert der Host kurz die Leitung zum Vermittlungsserver, könnte danach niemand
   // mehr beitreten oder zurückkommen. Deshalb sofort wieder anmelden.
   peer.on("disconnected", () => {
-    if (absichtlichWeg || !peer || peer.destroyed) return;
+    if (absichtlichWeg || hostHandoffActive || !peer || peer.destroyed) return;
     wvBanner("📴 Leitung zum Vermittlungsserver weg — melde neu an …");
     try { peer.reconnect(); } catch {}
     setTimeout(() => { if (peer && !peer.disconnected) wvBannerAus(); }, 2500);
   });
   peer.on("error", (e) => {
     if (e.type === "unavailable-id") { peer.destroy(); $("btn-create").click(); }
-    else status("start-status", "Verbindungsfehler: " + e.type, true);
+    else status("start-status", "Verbindungsfehler: " + e.type + " — " + NETZ_TIP, true);
   });
 };
 
@@ -1955,29 +1975,68 @@ $("btn-join").onclick = () => {
   if (!myName) return status("start-status", "Erst Namen eingeben 🙂", true), SFX.err();
   if (!/^\d{4}$/.test(code)) return status("start-status", "Der Raumcode hat 4 Ziffern.", true), SFX.err();
   saveName();
-  absichtlichWeg = false; wvVersuch = 0; warSchonDrin = false;
-  gastBeitreten(code, false);
+  absichtlichWeg = false; wvVersuch = 0; warSchonDrin = false; hostHandoffActive = false;
+  gastBeitreten(code, false, 0);
 };
 let warSchonDrin = false;   // erst nach einem geglückten Beitritt automatisch nachfassen
+let hostHandoffActive = false; // Host-Wechsel läuft — kein Doppel-Reconnect / kein Raum-zu
+
+function stripHostTag(name) {
+  return String(name || "").replace(/\s*\(Host\)\s*$/i, "").trim();
+}
+function withHostTag(name) {
+  return stripHostTag(name) + " (Host)";
+}
 
 // Verbindet als Gast mit einem Raum. Wird auch für jeden Wiederverbindungs-Versuch
 // benutzt — bei einer Wiederkehr bleibt der aktuelle Bildschirm dabei unangetastet,
 // damit schon aufgenommene Lines und die Stelle in der Szene erhalten bleiben.
+// attempt: 0..JOIN_MAX_TRIES-1 — letzter Versuch forciert TURN-Relay (hilft bei Avast/UDP-Block).
 let iceWatchTimer = null;
-function gastBeitreten(code, wiederkehr) {
+let joinFailTimers = [];
+function clearJoinFailTimers() {
+  joinFailTimers.forEach(t => clearTimeout(t));
+  joinFailTimers = [];
+}
+function gastBeitreten(code, wiederkehr, attempt) {
   isHost = false;
   raumCode = code;
+  const tryNr = Math.max(0, attempt | 0);
+  const forceRelay = !wiederkehr && tryNr >= JOIN_MAX_TRIES - 1;
   if (iceWatchTimer) { clearInterval(iceWatchTimer); iceWatchTimer = null; }
+  clearJoinFailTimers();
   if (peer) { try { peer.destroy(); } catch {} }
-  let opened = false, joined = false;
+  let opened = false, joined = false, finished = false;
   const melde = (msg, err) => { if (!wiederkehr) status("start-status", msg, err); };
-  melde("① Verbinde zum Vermittlungsserver …");
-  peer = new Peer(PEER_CONFIG);
 
-  // Schritt 1 hängt → Server nicht erreichbar (Brave-Shields, Adblocker, Firewall)
-  setTimeout(() => {
-    if (!opened) melde("❌ Kein Kontakt zum Vermittlungsserver. Fast immer: Brave-Shields / Adblocker blockt — Schild-Icon anklicken, für diese Seite ausschalten, neu laden. Oder kurz in Chrome/Firefox testen.", true);
-  }, 10000);
+  function failJoin(msg, opts) {
+    if (finished || joined) return;
+    finished = true;
+    clearJoinFailTimers();
+    if (iceWatchTimer) { clearInterval(iceWatchTimer); iceWatchTimer = null; }
+    const noRetry = opts && opts.noRetry;
+    if (!wiederkehr && !noRetry && tryNr < JOIN_MAX_TRIES - 1) {
+      const next = tryNr + 1;
+      melde("🔄 Verbindung wird nochmal versucht… (" + (next + 1) + "/" + JOIN_MAX_TRIES + ")");
+      setTimeout(() => gastBeitreten(code, false, next), 1100 + tryNr * 700);
+      return;
+    }
+    const tip = ((opts && opts.skipTip) || /Avast|Tipp/.test(msg)) ? "" : " " + NETZ_TIP;
+    melde(msg + tip, true);
+    if (wiederkehr) planeWiederverbindung();
+  }
+
+  if (!wiederkehr && tryNr > 0) {
+    melde("🔄 Verbindung wird nochmal versucht… (" + (tryNr + 1) + "/" + JOIN_MAX_TRIES + ")" + (forceRelay ? " · nur Relay" : ""));
+  } else {
+    melde("① Verbinde zum Vermittlungsserver …");
+  }
+  peer = new Peer(makePeerConfig(forceRelay));
+
+  // Schritt 1 hängt → Server nicht erreichbar (Avast / Brave-Shields / Adblocker / Firewall)
+  joinFailTimers.push(setTimeout(() => {
+    if (!opened) failJoin("❌ Kein Kontakt zum Vermittlungsserver.");
+  }, 14000));
 
   peer.on("open", () => {
     opened = true;
@@ -1985,18 +2044,17 @@ function gastBeitreten(code, wiederkehr) {
     melde("② Server OK — suche Raum " + code + " …");
     hostConn = peer.connect(PEER_PREFIX + code, { reliable: true });
 
-    // Schritt 2 hängt → Raum existiert, aber Peer-Verbindung kommt nicht durch (NAT/Firewall)
-    setTimeout(() => {
-      if (!joined) {
-        melde("❌ Raum gefunden, aber die Verbindung zum Host kommt nicht durch. Beide mal: anderes Netz testen (z. B. Handy-Hotspot), VPN aus, Brave-Shields aus.", true);
-        if (wiederkehr) planeWiederverbindung();
-      }
-    }, 15000);
+    // Schritt 2 hängt → Raum existiert, aber Peer-Verbindung kommt nicht durch (NAT/Firewall/Avast)
+    joinFailTimers.push(setTimeout(() => {
+      if (!joined) failJoin("❌ Raum gefunden, aber die Verbindung zum Host kommt nicht durch.");
+    }, 20000));
 
     hostConn.on("open", () => {
       joined = true;
+      finished = true;
+      clearJoinFailTimers();
       warSchonDrin = true;
-      sendHost({ t: "hello", name: myName, avatar: myAvatar, accessory: myAccessory, key: myKey });
+      sendHost({ t: "hello", name: stripHostTag(myName), avatar: myAvatar, accessory: myAccessory, key: myKey });
       if (wiederkehr) {
         // Der Host antwortet mit "rejoined" und sagt darin, wie es weitergeht.
         // Bis dahin nichts anfassen.
@@ -2006,52 +2064,75 @@ function gastBeitreten(code, wiederkehr) {
         enterLobby(code);
       }
     });
-    // ICE-Status verfolgen — Timer immer aufräumen (sonst stapeln sich Reconnect-Versuche)
+    // ICE-Status: vor dem Join + danach (Avast kann den Kanal kurz kappen)
     let iceTicks = 0;
     iceWatchTimer = setInterval(() => {
       iceTicks++;
       const pc = hostConn && hostConn.peerConnection;
       if (!pc) {
-        if (iceTicks > 15) { clearInterval(iceWatchTimer); iceWatchTimer = null; }
+        if (iceTicks > 20) { clearInterval(iceWatchTimer); iceWatchTimer = null; }
         return;
       }
-      if (joined || pc.iceConnectionState === "failed" || pc.iceConnectionState === "closed" || iceTicks > 20) {
+      const st = pc.iceConnectionState;
+      if (!joined && (st === "failed" || st === "closed")) {
         clearInterval(iceWatchTimer); iceWatchTimer = null;
+        failJoin("❌ ICE failed — Direktverbindung UND TURN-Relay fehlgeschlagen.");
+        return;
       }
-      if (pc.iceConnectionState === "failed") {
-        melde("❌ ICE failed — Direktverbindung UND TURN-Relay fehlgeschlagen. Jetzt hilft: eigener TURN-Zugang (steht in client.js ganz oben, 5 Min, gratis).", true);
-        if (wiederkehr) planeWiederverbindung();
+      if (joined && (st === "failed" || st === "closed")) {
+        clearInterval(iceWatchTimer); iceWatchTimer = null;
+        verbindungWeg();
+        return;
+      }
+      if (joined && iceTicks > 90) {
+        // Nach stabilem Join nur noch selten prüfen
+        clearInterval(iceWatchTimer); iceWatchTimer = null;
       }
     }, 2000);
     hostConn.on("data", (msg) => handleMsg(msg, hostConn));
     hostConn.on("close", verbindungWeg);
-    hostConn.on("error", (e) => { console.error("conn error", e); melde("Verbindungsfehler zum Host: " + (e.type || e), true); verbindungWeg(); });
+    hostConn.on("error", (e) => {
+      console.error("conn error", e);
+      if (!joined) failJoin("Verbindungsfehler zum Host: " + (e.type || e));
+      else verbindungWeg();
+    });
   });
   peer.on("disconnected", () => {
     // Nur die Leitung zum Vermittlungsserver ist weg — die lässt sich direkt wiederholen
-    if (!absichtlichWeg && peer && !peer.destroyed) { try { peer.reconnect(); } catch {} }
+    if (!absichtlichWeg && !hostHandoffActive && peer && !peer.destroyed) {
+      try { peer.reconnect(); } catch {}
+    }
   });
   peer.on("error", (e) => {
     console.error("peer error", e);
-    if (e.type === "peer-unavailable") melde("Raum " + code + " nicht gefunden. Läuft der Host noch? Code richtig?", true);
-    else melde("Verbindungsfehler: " + e.type + " — F12 → Console für Details.", true);
-    if (wiederkehr || raumCode) planeWiederverbindung();
+    if (e.type === "peer-unavailable") {
+      // Beim Host-Wechsel ist die ID kurz weg — dann weiter versuchen
+      if (wiederkehr || hostHandoffActive) {
+        planeWiederverbindung();
+        return;
+      }
+      // Ein Soft-Retry (Timing), danach klarer Abbruch ohne Avast-Tipp-Spam
+      failJoin("Raum " + code + " nicht gefunden. Läuft der Host noch? Code richtig?", { noRetry: tryNr >= 1, skipTip: true });
+      return;
+    }
+    if (!joined) failJoin("Verbindungsfehler: " + e.type + ".");
+    else if (wiederkehr || raumCode) planeWiederverbindung();
   });
 }
 
 // ── Automatisch wieder reinkommen ────────────────────────────
 function verbindungWeg() {
-  if (isHost || absichtlichWeg || !raumCode) return;
+  if (isHost || absichtlichWeg || !raumCode || hostHandoffActive) return;
   planeWiederverbindung();
 }
 
 function planeWiederverbindung() {
-  if (isHost || absichtlichWeg || !raumCode || !warSchonDrin) return;
+  if (isHost || absichtlichWeg || !raumCode || !warSchonDrin || hostHandoffActive) return;
   // Während Aufnahme/Premiere knackt die Leitung öfter (große Audio-Pakete) —
   // deshalb mehr Versuche, bevor wir aufgeben.
   const maxVersuche = 25;
   if (wvVersuch >= maxVersuche) {
-    wvBanner("❌ Komme nicht mehr rein. Läuft der Host noch?", true);
+    wvBanner("❌ Komme nicht mehr rein. Läuft der Host noch? " + NETZ_TIP, true);
     return;
   }
   clearTimeout(wvTimer);
@@ -2060,7 +2141,7 @@ function planeWiederverbindung() {
   // WLAN-Zucken sofort überbrückt, ohne den Host mit Anfragen zu überschütten.
   const warten = Math.min(8000, Math.round(500 * Math.pow(1.45, wvVersuch - 1)));
   wvBanner("📴 Verbindung weg — versuche wieder reinzukommen … (" + wvVersuch + "/" + maxVersuche + ")");
-  wvTimer = setTimeout(() => gastBeitreten(raumCode, true), warten);
+  wvTimer = setTimeout(() => gastBeitreten(raumCode, true, 0), warten);
 }
 
 function wvBanner(text, dauerhaft) {
@@ -2736,8 +2817,11 @@ function leaveRoom(statusMsg) {
   // Bewusst gegangen: kein Wiederverbinden versuchen, und der Host soll den Platz
   // sofort räumen statt ihn zwei Minuten freizuhalten.
   absichtlichWeg = true;
+  hostHandoffActive = false;
   raumCode = null;
   clearTimeout(wvTimer); wvVersuch = 0; wvBannerAus();
+  clearJoinFailTimers();
+  if (iceWatchTimer) { clearInterval(iceWatchTimer); iceWatchTimer = null; }
   if (!isHost && hostConn && hostConn.open) { try { sendHost({ t: "bye" }); } catch {} }
   rueckkehrTimer.forEach(t => clearTimeout(t)); rueckkehrTimer.clear();
   try { if (lineRec && lineRec.state === "recording") lineRec.stop(); } catch {}
@@ -2768,7 +2852,7 @@ function leaveRoom(statusMsg) {
   show("scr-start");
   SFX.stop();
 }
-let pendingConfirm = null; // { type:"leave" } | { type:"kick", pid }
+let pendingConfirm = null; // { type:"leave" } | { type:"kick", pid } | { type:"hostgive", pid }
 document.body.insertAdjacentHTML("beforeend",
   `<div id="wv-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:250;background:#c9821f;color:#12120f;font-family:var(--font-mono);font-size:.8rem;font-weight:700;text-align:center;padding:7px 12px;letter-spacing:.04em;box-shadow:0 2px 12px rgba(0,0,0,.5)"></div>
    <button id="leave-btn" style="position:fixed;right:12px;bottom:10px;z-index:98;display:none;padding:8px 14px;font-size:.82rem;background:#1f1f28;border:1px solid var(--line);border-radius:8px;color:var(--muted)">🚪 Raum verlassen</button>
@@ -2804,21 +2888,42 @@ $("btn-leave-confirm").onclick = () => {
   const a = pendingConfirm; pendingConfirm = null;
   if (!a) return;
   if (a.type === "kick") kickPlayer(a.pid);
+  else if (a.type === "hostgive") transferHostTo(a.pid);
   else leaveRoom();
 };
 document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-kick]");
-  if (!btn || !isHost) return;
-  e.preventDefault();
-  const pid = btn.getAttribute("data-kick");
-  const p = players.find(x => x.id === pid);
-  if (!p || p.id === myId) return;
-  showConfirmDialog(
-    (p.name || "Diesen Spieler") + " wirklich aus dem Raum kicken?",
-    "🚪 Ja, kicken",
-    { type: "kick", pid }
-  );
-  SFX.click();
+  const kick = e.target.closest("[data-kick]");
+  if (kick && isHost) {
+    e.preventDefault();
+    const pid = kick.getAttribute("data-kick");
+    const p = players.find(x => x.id === pid);
+    if (!p || p.id === myId) return;
+    showConfirmDialog(
+      (p.name || "Diesen Spieler") + " wirklich aus dem Raum kicken?",
+      "🚪 Ja, kicken",
+      { type: "kick", pid }
+    );
+    SFX.click();
+    return;
+  }
+  const give = e.target.closest("[data-hostgive]");
+  if (give && isHost) {
+    e.preventDefault();
+    const pid = give.getAttribute("data-hostgive");
+    const p = players.find(x => x.id === pid);
+    if (!p || p.id === myId) return;
+    if (!hostHandoffAllowed()) {
+      showToast("Host weitergeben geht nur in der Lobby oder im Warteraum.", "leave");
+      SFX.err();
+      return;
+    }
+    showConfirmDialog(
+      "Host wirklich an " + stripHostTag(p.name || "diesen Spieler") + " weitergeben? Du wirst dann normaler Mitspieler.",
+      "👑 Ja, Host geben",
+      { type: "hostgive", pid }
+    );
+    SFX.click();
+  }
 });
 
 // ── Raumcode verstecken (Blur): gut für Streams/Screenshots — Auge toggelt Sichtbarkeit ──
@@ -2886,16 +2991,22 @@ if (invitedCode) whenReady(() => {
 function enterLobby(code) {
   $("lobby-code").textContent = code;
   syncCodeVisibility();
-  if (isHost) { $("host-scene").style.display = ""; $("host-start").style.display = ""; }
   show("scr-lobby");
   renderPlayers();
   $("leave-btn").style.display = "";
   if (isHost) {
+    // Match-Stand zuerst in die UI spiegeln — sonst resettet hostSettingsChanged die Szene
+    if ($("set-mode")) $("set-mode").value = match.mode;
+    if ($("set-rounds")) $("set-rounds").value = String(match.rounds);
+    if ($("set-roulette")) $("set-roulette").checked = !!match.autoRoulette;
+    syncModePicker(match.mode);
     $("host-settings").style.display = "";
     $("set-mode").onchange = hostSettingsChanged;
     $("set-rounds").onchange = hostSettingsChanged;
     $("set-roulette").onchange = hostSettingsChanged;
     hostSettingsChanged();
+  } else {
+    syncHostUi();
   }
   renderSettingsView();
   SFX.ok();
@@ -2981,6 +3092,260 @@ function kickPlayer(pid) {
   if (c) setTimeout(() => { try { c.close(); } catch {} }, 200);
 }
 
+// Host-Rolle weitergeben (nur Lobby/Warteraum): Raum-Peer-ID wird freigegeben,
+// neuer Host meldet sich mit demselben Code an, alle anderen verbinden neu per key.
+const HOST_HANDOFF_PHASES = new Set(["scr-lobby", "scr-wait"]);
+function hostHandoffAllowed() {
+  return HOST_HANDOFF_PHASES.has(aktuellePhase());
+}
+function syncHostUi() {
+  const inLobby = !!document.querySelector("#scr-lobby.active");
+  const rnd = match.mode === "rounds" || match.mode === "elimination";
+  const duell = match.mode === "duell";
+  if ($("host-settings")) $("host-settings").style.display = (isHost && inLobby) ? "" : "none";
+  if ($("host-scene")) $("host-scene").style.display = (isHost && inLobby && !rnd && !duell) ? "" : "none";
+  if ($("host-start")) $("host-start").style.display = (isHost && inLobby) ? "" : "none";
+  if ($("duel-setup")) $("duel-setup").style.display = (isHost && inLobby && duell) ? "" : "none";
+  if ($("rounds-opts")) $("rounds-opts").style.display = (isHost && inLobby && match.mode === "rounds") ? "" : "none";
+  if ($("btn-roulette")) $("btn-roulette").style.display = (isHost && scene) ? "" : "none";
+  if (isHost && inLobby) {
+    // DOM an Match-Stand anpassen, OHNE hostSettingsChanged (das würde die Szene resetten)
+    if ($("set-mode")) $("set-mode").value = match.mode;
+    if ($("set-rounds")) $("set-rounds").value = String(match.rounds);
+    if ($("set-roulette")) $("set-roulette").checked = !!match.autoRoulette;
+    syncModePicker(match.mode);
+    $("set-mode").onchange = hostSettingsChanged;
+    $("set-rounds").onchange = hostSettingsChanged;
+    $("set-roulette").onchange = hostSettingsChanged;
+    if (duell) populateDuelSceneSelect();
+    if (!rnd && !duell) loadSceneList();
+  }
+  renderSettingsView();
+  renderPlayers();
+}
+function transferHostTo(pid) {
+  if (!isHost || !pid || pid === myId || hostHandoffActive) return;
+  const target = players.find(p => p.id === pid);
+  if (!target) return;
+  if (!hostHandoffAllowed()) {
+    showToast("Host weitergeben geht nur in der Lobby oder im Warteraum.", "leave");
+    SFX.err();
+    return;
+  }
+  if (target.offline) {
+    showToast("Spieler ist offline — Host nur an jemanden, der online ist.", "leave");
+    SFX.err();
+    return;
+  }
+  if (!target.key) {
+    showToast("Spieler ohne Wiedererkennung — soll einmal neu beitreten, dann nochmal versuchen.", "leave");
+    SFX.err();
+    return;
+  }
+  const code = raumCode;
+  if (!code) return;
+
+  const snapPlayers = players.map(p => ({
+    key: p.key,
+    name: stripHostTag(p.name),
+    avatar: p.avatar || null,
+    accessory: p.accessory || null,
+    role: p.role != null ? p.role : null,
+    ready: !!p.ready,
+    done: p.done | 0,
+    total: p.total | 0,
+    loadPct: p.loadPct | 0,
+    videoReady: !!p.videoReady,
+    eliminated: !!p.eliminated,
+    timesSpectated: p.timesSpectated | 0,
+    timesPlayed: p.timesPlayed | 0
+  }));
+
+  const payload = {
+    t: "hostHandoff",
+    newKey: target.key,
+    newName: stripHostTag(target.name),
+    oldKey: myKey,
+    code,
+    phase: aktuellePhase(),
+    scene: scene || null,
+    match: {
+      mode: match.mode, rounds: match.rounds, round: match.round,
+      autoRoulette: match.autoRoulette,
+      totals: match.totals || {},
+      buddyGivers: match.buddyGivers || {},
+      blind: !!(scene && scene.blind)
+    },
+    duelInfo: duelInfo || null,
+    drawBoard: typeof drawBoard !== "undefined" ? drawBoard : { strokes: [] },
+    players: snapPlayers
+  };
+
+  hostHandoffActive = true;
+  broadcast(payload);
+  showToast("👑 Host geht an " + stripHostTag(target.name) + " …", "join");
+  wvBanner("👑 Host-Wechsel — du wirst Mitspieler …");
+
+  // Kurz warten, damit die Nachricht ankommt, dann Raum-ID freigeben und als Gast neu rein
+  setTimeout(() => {
+    try { peer && peer.destroy(); } catch {}
+    peer = null;
+    hostConn = null;
+    conns.clear();
+    isHost = false;
+    myName = stripHostTag(myName);
+    syncHostUi();
+    setTimeout(() => {
+      hostHandoffActive = false;
+      warSchonDrin = true;
+      absichtlichWeg = false;
+      wvVersuch = 0;
+      gastBeitreten(code, true, 0);
+    }, 1800);
+  }, 450);
+}
+function onHostHandoffMsg(msg) {
+  if (!msg || !msg.code) return;
+  raumCode = msg.code;
+  absichtlichWeg = false;
+  clearTimeout(wvTimer);
+
+  if (msg.newKey && msg.newKey === myKey) {
+    becomeHostFromHandoff(msg);
+    return;
+  }
+
+  // Anderer Gast / alter Host: auf neuen Host warten und neu verbinden
+  hostHandoffActive = true;
+  wvBanner("👑 Host wechselt zu " + stripHostTag(msg.newName || "?") + " — verbinde neu …");
+  showToast("👑 Neuer Host: " + stripHostTag(msg.newName || "?"), "join");
+  setTimeout(() => {
+    try { peer && peer.destroy(); } catch {}
+    peer = null;
+    hostConn = null;
+    isHost = false;
+    warSchonDrin = true;
+    hostHandoffActive = false;
+    wvVersuch = 0;
+    gastBeitreten(msg.code, true, 0);
+  }, 2200);
+}
+function becomeHostFromHandoff(msg) {
+  hostHandoffActive = true;
+  absichtlichWeg = false;
+  raumCode = msg.code;
+  myName = stripHostTag(myName);
+  wvBanner("👑 Du wirst Host — übernehme den Raum …");
+  showToast("👑 Du wirst Host …", "join");
+
+  try { peer && peer.destroy(); } catch {}
+  peer = null;
+  hostConn = null;
+  conns.clear();
+
+  if (msg.match) {
+    match.mode = msg.match.mode || match.mode;
+    match.rounds = msg.match.rounds != null ? msg.match.rounds : match.rounds;
+    match.round = msg.match.round != null ? msg.match.round : match.round;
+    match.autoRoulette = !!msg.match.autoRoulette;
+    if (msg.match.totals) match.totals = msg.match.totals;
+    if (msg.match.buddyGivers) match.buddyGivers = msg.match.buddyGivers;
+  }
+  scene = msg.scene || null;
+  duelInfo = msg.duelInfo || null;
+  if (msg.drawBoard) drawBoard = msg.drawBoard;
+
+  setTimeout(() => claimHostRoom(msg, 0), 1100);
+}
+function claimHostRoom(msg, attempt) {
+  const code = msg.code;
+  if (!code) return;
+  if (peer) { try { peer.destroy(); } catch {} }
+  isHost = true;
+  raumCode = code;
+  peer = new Peer(PEER_PREFIX + code, makePeerConfig(false));
+  peer.on("connection", (conn) => setupHostConn(conn));
+  peer.on("disconnected", () => {
+    if (absichtlichWeg || hostHandoffActive || !peer || peer.destroyed) return;
+    wvBanner("📴 Leitung zum Vermittlungsserver weg — melde neu an …");
+    try { peer.reconnect(); } catch {}
+    setTimeout(() => { if (peer && !peer.disconnected) wvBannerAus(); }, 2500);
+  });
+  peer.on("error", (e) => {
+    if (e.type === "unavailable-id" && attempt < 10) {
+      try { peer.destroy(); } catch {}
+      peer = null;
+      setTimeout(() => claimHostRoom(msg, attempt + 1), 700 + attempt * 250);
+      return;
+    }
+    console.error("claimHostRoom", e);
+    wvBanner("❌ Host-Übernahme fehlgeschlagen — Seite neu laden (Strg+F5) und neu beitreten.", true);
+    hostHandoffActive = false;
+    isHost = false;
+  });
+  peer.on("open", () => {
+    myId = peer.id;
+    hostHandoffActive = false;
+    wvVersuch = 0;
+    clearTimeout(wvTimer);
+    wvBannerAus();
+
+    const snap = Array.isArray(msg.players) ? msg.players : [];
+    const frist = gnadenfristMs();
+    players = snap.filter(p => p && p.key).map(p => {
+      const self = p.key === myKey;
+      return {
+        id: self ? myId : ("pending-" + p.key),
+        key: p.key,
+        name: self ? withHostTag(myName) : stripHostTag(p.name),
+        avatar: self ? myAvatar : (p.avatar || null),
+        accessory: self ? myAccessory : (p.accessory || null),
+        role: p.role != null ? p.role : null,
+        ready: !!p.ready,
+        done: p.done | 0,
+        total: p.total | 0,
+        loadPct: p.loadPct | 0,
+        videoReady: !!p.videoReady,
+        eliminated: !!p.eliminated,
+        timesSpectated: p.timesSpectated | 0,
+        timesPlayed: p.timesPlayed | 0,
+        offline: !self,
+        offlineBis: self ? undefined : Date.now() + frist
+      };
+    });
+    if (!players.some(p => p.key === myKey)) {
+      players.unshift({
+        id: myId, key: myKey, name: withHostTag(myName), avatar: myAvatar, accessory: myAccessory,
+        role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false
+      });
+    }
+
+    // Gnadenfrist für ausstehende Rejoins
+    players.forEach(p => {
+      if (!p.offline || !p.key) return;
+      clearTimeout(rueckkehrTimer.get(p.key));
+      rueckkehrTimer.set(p.key, setTimeout(() => endgueltigWeg(p), frist));
+    });
+
+    $("leave-btn").style.display = "";
+    if (msg.phase === "scr-wait") {
+      show("scr-wait");
+      if (scene) showScene(sceneVideoSrc());
+      syncHostUi();
+      status("wait-status", "👑 Du bist jetzt Host — warte auf die anderen …");
+    } else {
+      enterLobby(code);
+      if (scene) showScene(sceneVideoSrc());
+      else syncHostUi();
+      loadSceneList();
+      status("lobby-status", "👑 Du bist jetzt Host!");
+    }
+    showToast("👑 Du bist jetzt Host!", "join");
+    SFX.ok();
+    broadcastState();
+  });
+}
+
 // Beim Wiederkommen hat die Person eine neue Peer-Adresse. Alles, was noch unter der
 // alten Adresse abgelegt ist, muss mitwandern — sonst könnte sie z. B. zweimal abstimmen.
 function idUmschreiben(alt, neu) {
@@ -3037,6 +3402,7 @@ const HOST_IN = new Set([
 // Nachrichten, die Gäste vom Host annehmen dürfen
 const GUEST_IN = new Set([
   "full", "state", "scene", "playerLeft", "playerOffline", "playerBack", "rejoined", "kicked",
+  "hostHandoff",
   "settings", "sceneReset", "duelSetupInfo", "duelReady", "duelPlayGo", "duelVoteBroadcast",
   "duelResult", "wins", "nextRound", "matchEnd", "matchLobby", "videoMeta", "videoChunk",
   "goLines", "go", "mix", "outtakesPool", "playOuttakes", "tttState", "rpsState", "diceState",
@@ -3306,6 +3672,9 @@ function handleMsg(msg, conn) {
       absichtlichWeg = true;
       clearTimeout(wvTimer); wvVersuch = 0; wvBannerAus();
       leaveRoom("Du wurdest vom Host aus dem Raum gekickt.");
+      break;
+    case "hostHandoff":
+      onHostHandoffMsg(msg);
       break;
     case "rejoined":
       wvVersuch = 0; clearTimeout(wvTimer); wvBannerAus();
@@ -4228,9 +4597,14 @@ function playerCard(p) {
     ? `<span class="tag offline-cd" data-offline-cd style="color:#e8a33d">${escOfflineCountdown(p)}</span>`
     : "";
   const loadingCls = (scene && scene.videoUrl && !p.videoReady) ? " loading" : "";
-  const kickBtn = (isHost && p.id !== myId)
+  const showHostActs = isHost && p.id !== myId && !p.offline;
+  const kickBtn = showHostActs
     ? `<button type="button" class="kick-btn" data-kick="${esc(p.id)}" title="Aus dem Raum kicken">Kicken</button>`
     : "";
+  const hostGiveBtn = (showHostActs && p.key && hostHandoffAllowed())
+    ? `<button type="button" class="host-btn" data-hostgive="${esc(p.id)}" title="Host-Rolle weitergeben">Host geben</button>`
+    : "";
+  const acts = (kickBtn || hostGiveBtn) ? `<div class="player-acts">${hostGiveBtn}${kickBtn}</div>` : "";
   return `<div class="player ${p.ready ? "ready" : ""}${loadingCls}" data-pid="${p.id}" style="${p.eliminated ? "opacity:.5" : p.offline ? "opacity:.55" : ""}">
     ${avatarHTML(p)}
     <div class="pinfo">
@@ -4238,7 +4612,7 @@ function playerCard(p) {
       ${p.eliminated ? '<span class="prole" style="color:var(--hot)">🔪 eliminiert</span>' : `<span class="prole ${role ? "" : "empty"}">${role ? "🎭 " + esc(role) : "noch keine Rolle"}</span>`}
       ${wegTag}${p.ready && !p.total ? '<span class="tag" style="color:var(--ok)">bereit</span>' : ""}${loadHtml}${prog}
     </div>
-    ${kickBtn}
+    ${acts}
   </div>`;
 }
 function escOfflineCountdown(p) {
