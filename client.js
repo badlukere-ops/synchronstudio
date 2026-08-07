@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.68";
+const APP_VERSION = "9.10.69";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -553,6 +553,14 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.69", items: [
+    "🎬 Neue Szene: Shrek — Muffin Man (Lebkuchenmann, Farquaad, Wache, Spiegel, Thelonius)",
+    "🎬 Neue Szene: SpongeBob — Krusty Dog (SpongeBob, Krabs, Squidward + 3 Gäste)",
+    "🎬 Neue Szene: SpongeBob — Sea Bear (Squidward, SpongeBob, Patrick, Sea Bear)",
+    "🎬 Neue Szene: Classroom of the Elite — Bruder-Konfrontation (Ayanokoji, Manabu, Suzune)",
+    "🎬 Neue Szene: Evangelion — Shinjis Geständnis (Shinji, Rei)",
+    "🎬 Neue Szene: GTA V — Yee-Yee-Ass Haircut (Lamar, Franklin)"
+  ]},
   { v: "9.10.68", items: [
     "👑 FIX: Host geben — niemand fliegt mehr raus, gleicher Raumcode, alle bleiben in der Lobby",
     "🔌 Host-Rolle ist jetzt nur ein Recht (Start/Kicken), die Raum-Verbindung bleibt stabil"
@@ -1261,6 +1269,28 @@ const AVATAR_CHARS = [
   { img: "scenes/ghostchase/hajime.png", label: "Hajime" },
   { img: "scenes/ghostchase/keiichirou.png", label: "Keiichirou" },
   { img: "scenes/ghostchase/leo.png", label: "Leo (Ghost Stories)" },
+  { img: "scenes/muffinman/gingerbread_man.png", label: "Lebkuchenmann" },
+  { img: "scenes/muffinman/lord_farquaad.png", label: "Lord Farquaad" },
+  { img: "scenes/muffinman/guard.png", label: "Wache (Shrek)" },
+  { img: "scenes/muffinman/mirror.png", label: "Zauberspiegel" },
+  { img: "scenes/muffinman/thelonius.png", label: "Thelonius" },
+  { img: "scenes/krustydog/spongebob.png", label: "SpongeBob (Krusty Dog)" },
+  { img: "scenes/krustydog/mr_krabs.png", label: "Mr. Krabs (Krusty Dog)" },
+  { img: "scenes/krustydog/squidward.png", label: "Squidward (Krusty Dog)" },
+  { img: "scenes/krustydog/guest_1.png", label: "Gast 1 (Krusty Dog)" },
+  { img: "scenes/krustydog/guest_2.png", label: "Gast 2 (Krusty Dog)" },
+  { img: "scenes/krustydog/guest_3.png", label: "Gast 3 (Krusty Dog)" },
+  { img: "scenes/seabear/squidward.png", label: "Squidward (Sea Bear)" },
+  { img: "scenes/seabear/spongebob.png", label: "SpongeBob (Sea Bear)" },
+  { img: "scenes/seabear/patrick.png", label: "Patrick (Sea Bear)" },
+  { img: "scenes/seabear/fish_bear.png", label: "Sea Bear" },
+  { img: "scenes/classroomelite/ayanokoji.png", label: "Ayanokoji" },
+  { img: "scenes/classroomelite/manabu.png", label: "Manabu" },
+  { img: "scenes/classroomelite/suzune.png", label: "Suzune" },
+  { img: "scenes/shinjiconfession/shinji.png", label: "Shinji" },
+  { img: "scenes/shinjiconfession/rei.png", label: "Rei" },
+  { img: "scenes/yeeyee/lamar.png", label: "Lamar" },
+  { img: "scenes/yeeyee/franklin.png", label: "Franklin" },
   { img: "scenes/profiles/kayleen.png", label: "Kayleen" },
   { img: "scenes/profiles/kayleen2.png", label: "Kayleen 2" },
   { img: "scenes/profiles/kenny1.png", label: "Kenny 1" },

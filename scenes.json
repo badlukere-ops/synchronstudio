@@ -23594,7 +23594,7 @@
   ],
   "lines": [
    {
-    "t": 0.0,
+    "t": 0,
     "end": 3.89,
     "chars": [
      0
@@ -23661,105 +23661,2195 @@
    }
   ]
  },
-  {
-    "id": "ghostchase",
-    "title": "Ghost Stories — Think Of A Big Black Man Chasing You (3 Rollen)",
-    "videoUrl": "scenes/ghostchase.mp4",
-    "avatars": {
-      "0": "scenes/ghostchase/hajime.png",
-      "1": "scenes/ghostchase/keiichirou.png",
-      "2": "scenes/ghostchase/leo.png"
-    },
-    "roles": [
-      {
-        "id": 0,
-        "name": "Hajime",
-        "pan": -0.35,
-        "effect": "none",
-        "gain": 1
-      },
-      {
-        "id": 1,
-        "name": "Keiichirou",
-        "pan": 0.35,
-        "effect": "none",
-        "gain": 1
-      },
-      {
-        "id": 2,
-        "name": "Leo",
-        "pan": 0,
-        "effect": "none",
-        "gain": 1
-      }
+ {
+  "id": "ghostchase",
+  "title": "Ghost Stories — Think Of A Big Black Man Chasing You (3 Rollen)",
+  "videoUrl": "scenes/ghostchase.mp4",
+  "avatars": {
+   "0": "scenes/ghostchase/hajime.png",
+   "1": "scenes/ghostchase/keiichirou.png",
+   "2": "scenes/ghostchase/leo.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Hajime",
+    "pan": -0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Keiichirou",
+    "pan": 0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Leo",
+    "pan": 0,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 0.185,
+    "end": 3.545,
+    "chars": [
+     0
     ],
-    "lines": [
-      {
-        "t": 0.185,
-        "end": 3.545,
-        "chars": [
-          0
-        ],
-        "who": "Hajime",
-        "text": "That's What I'm Talking About PUMP PUMP PUMP",
-        "de": "Genau davon red ich! PUMP PUMP PUMP",
-        "orig": "scenes/ghostchase/lines/01.mp3"
-      },
-      {
-        "t": 3.48,
-        "end": 8.4,
-        "chars": [
-          1
-        ],
-        "who": "Keiichirou",
-        "text": "(Keiichirou Running)",
-        "de": "(Keiichirou rennt)",
-        "orig": "scenes/ghostchase/lines/02.mp3"
-      },
-      {
-        "t": 8.22,
-        "end": 10.5,
-        "chars": [
-          0
-        ],
-        "who": "Hajime",
-        "text": "Think Of A Big Black Man Chasing You",
-        "de": "Stell dir einen großen schwarzen Mann vor, der dich jagt",
-        "orig": "scenes/ghostchase/lines/03.mp3"
-      },
-      {
-        "t": 10.36,
-        "end": 14.97,
-        "chars": [
-          1
-        ],
-        "who": "Keiichirou",
-        "text": "(Keiichirou Running Screaming)",
-        "de": "(Keiichirou rennt schreiend)",
-        "orig": "scenes/ghostchase/lines/04.mp3"
-      },
-      {
-        "t": 14.863,
-        "end": 16.043,
-        "chars": [
-          0
-        ],
-        "who": "Hajime",
-        "text": "Well He's Not Racist",
-        "de": "Naja, er ist ja kein Rassist",
-        "orig": "scenes/ghostchase/lines/05.mp3"
-      },
-      {
-        "t": 15.997,
-        "end": 19.047,
-        "chars": [
-          2
-        ],
-        "who": "Leo",
-        "text": "I Guess Not He's Only 0.2 Seconds Faster",
-        "de": "Glaub kaum — er ist nur 0,2 Sekunden schneller",
-        "orig": "scenes/ghostchase/lines/06.mp3"
-      }
-    ]
-  }
+    "who": "Hajime",
+    "text": "That's What I'm Talking About PUMP PUMP PUMP",
+    "de": "Genau davon red ich! PUMP PUMP PUMP",
+    "orig": "scenes/ghostchase/lines/01.mp3"
+   },
+   {
+    "t": 3.48,
+    "end": 8.4,
+    "chars": [
+     1
+    ],
+    "who": "Keiichirou",
+    "text": "(Keiichirou Running)",
+    "de": "(Keiichirou rennt)",
+    "orig": "scenes/ghostchase/lines/02.mp3"
+   },
+   {
+    "t": 8.22,
+    "end": 10.5,
+    "chars": [
+     0
+    ],
+    "who": "Hajime",
+    "text": "Think Of A Big Black Man Chasing You",
+    "de": "Stell dir einen großen schwarzen Mann vor, der dich jagt",
+    "orig": "scenes/ghostchase/lines/03.mp3"
+   },
+   {
+    "t": 10.36,
+    "end": 14.97,
+    "chars": [
+     1
+    ],
+    "who": "Keiichirou",
+    "text": "(Keiichirou Running Screaming)",
+    "de": "(Keiichirou rennt schreiend)",
+    "orig": "scenes/ghostchase/lines/04.mp3"
+   },
+   {
+    "t": 14.863,
+    "end": 16.043,
+    "chars": [
+     0
+    ],
+    "who": "Hajime",
+    "text": "Well He's Not Racist",
+    "de": "Naja, er ist ja kein Rassist",
+    "orig": "scenes/ghostchase/lines/05.mp3"
+   },
+   {
+    "t": 15.997,
+    "end": 19.047,
+    "chars": [
+     2
+    ],
+    "who": "Leo",
+    "text": "I Guess Not He's Only 0.2 Seconds Faster",
+    "de": "Glaub kaum — er ist nur 0,2 Sekunden schneller",
+    "orig": "scenes/ghostchase/lines/06.mp3"
+   }
+  ]
+ },
+ {
+  "id": "muffinman",
+  "title": "Shrek — Muffin Man (5 Rollen)",
+  "videoUrl": "scenes/muffinman.mp4",
+  "avatars": {
+   "0": "scenes/muffinman/gingerbread_man.png",
+   "1": "scenes/muffinman/lord_farquaad.png",
+   "2": "scenes/muffinman/guard.png",
+   "3": "scenes/muffinman/mirror.png",
+   "4": "scenes/muffinman/thelonius.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Gingerbread Man",
+    "pan": -0.4,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Lord Farquaad",
+    "pan": 0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Guard",
+    "pan": -0.15,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 3,
+    "name": "Mirror",
+    "pan": 0.15,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 4,
+    "name": "Thelonius",
+    "pan": 0,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 0.312,
+    "end": 3.571,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "*drowning sounds*",
+    "de": "(Ertrinkgeräusche)",
+    "orig": "scenes/muffinman/lines/01.mp3"
+   },
+   {
+    "t": 3.554,
+    "end": 6.337,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "That's enough! He's ready to talk.",
+    "de": "Genug! Er ist bereit zu reden.",
+    "orig": "scenes/muffinman/lines/02.mp3"
+   },
+   {
+    "t": 6.612,
+    "end": 10.45,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "*choking and coughing*",
+    "de": "(würgt und hustet)",
+    "orig": "scenes/muffinman/lines/03.mp3"
+   },
+   {
+    "t": 10.456,
+    "end": 15.305,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "*laughing*",
+    "de": "(lacht)",
+    "orig": "scenes/muffinman/lines/04.mp3"
+   },
+   {
+    "t": 15.775,
+    "end": 16.975,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "AHEM!",
+    "de": "ÄHEM!",
+    "orig": "scenes/muffinman/lines/05.mp3"
+   },
+   {
+    "t": 19.412,
+    "end": 25.756,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Run run run, as fast as you can, you can't catch me, I'm the gingerbread man!",
+    "de": "Lauf, lauf, lauf, so schnell du kannst — du kriegst mich nicht, ich bin der Lebkuchenmann!",
+    "orig": "scenes/muffinman/lines/06.mp3"
+   },
+   {
+    "t": 25.725,
+    "end": 27.068,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "You're a monster!",
+    "de": "Du bist ein Monster!",
+    "orig": "scenes/muffinman/lines/07.mp3"
+   },
+   {
+    "t": 27.067,
+    "end": 29.244,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "I'm not a monster here - you are!",
+    "de": "Ich bin hier kein Monster — du bist eins!",
+    "orig": "scenes/muffinman/lines/08.mp3"
+   },
+   {
+    "t": 29.376,
+    "end": 33.979,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "You and the rest of that fairytale trash poisoning my perfect world.",
+    "de": "Du und der ganze Märchen-Müll, der meine perfekte Welt vergiftet.",
+    "orig": "scenes/muffinman/lines/09.mp3"
+   },
+   {
+    "t": 34.055,
+    "end": 35.805,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Now tell me, WHERE ARE THE OTHERS?",
+    "de": "Also sag mir: WO SIND DIE ANDEREN?",
+    "orig": "scenes/muffinman/lines/10.mp3"
+   },
+   {
+    "t": 35.618,
+    "end": 36.922,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "EAT ME! *spits*",
+    "de": "ISS MICH! (spuckt)",
+    "orig": "scenes/muffinman/lines/11.mp3"
+   },
+   {
+    "t": 36.939,
+    "end": 37.918,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "NARGH!",
+    "de": "NARGH!",
+    "orig": "scenes/muffinman/lines/12.mp3"
+   },
+   {
+    "t": 38.184,
+    "end": 45.013,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "I've tried to be fair to you creatures, now my patience has REACHED ITS END! Tell me or I'll...!",
+    "de": "Ich wollte fair zu euch Kreaturen sein, aber jetzt ist meine Geduld am ENDE! Sag's mir, oder ich reiß dir die Knöpfe ab — einen nach dem anderen!",
+    "orig": "scenes/muffinman/lines/13.mp3"
+   },
+   {
+    "t": 44.792,
+    "end": 48.424,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "NOOO, not the buttons...not my gumdrop ...buttons.",
+    "de": "NEEEIN, nicht die Knöpfe... nicht meine Gummibärchen-Knöpfe.",
+    "orig": "scenes/muffinman/lines/14.mp3"
+   },
+   {
+    "t": 48.15,
+    "end": 50.145,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "ALRIGHT THEN, who's hiding them?",
+    "de": "ALSO GUT — wer versteckt sie?",
+    "orig": "scenes/muffinman/lines/15.mp3"
+   },
+   {
+    "t": 50.384,
+    "end": 55.273,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "Okay, I'll tell you...do you know the muffin man?",
+    "de": "Okay, ich sag's dir... kennst du den Muffin-Mann?",
+    "orig": "scenes/muffinman/lines/16.mp3"
+   },
+   {
+    "t": 55.343,
+    "end": 56.385,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "The muffin man?",
+    "de": "Den Muffin-Mann?",
+    "orig": "scenes/muffinman/lines/17.mp3"
+   },
+   {
+    "t": 56.404,
+    "end": 57.699,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "The muffin man",
+    "de": "Den Muffin-Mann.",
+    "orig": "scenes/muffinman/lines/18.mp3"
+   },
+   {
+    "t": 57.686,
+    "end": 61.241,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Yes...I know the muffin man, who lives on Drury Lane?",
+    "de": "Ja... ich kenne den Muffin-Mann, der in der Drury Lane wohnt?",
+    "orig": "scenes/muffinman/lines/19.mp3"
+   },
+   {
+    "t": 61.247,
+    "end": 64.782,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "Well, she's married to the muffin man.",
+    "de": "Nun, sie ist mit dem Muffin-Mann verheiratet.",
+    "orig": "scenes/muffinman/lines/20.mp3"
+   },
+   {
+    "t": 64.765,
+    "end": 65.85,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "The muffin man?!",
+    "de": "Mit dem Muffin-Mann?!",
+    "orig": "scenes/muffinman/lines/21.mp3"
+   },
+   {
+    "t": 65.742,
+    "end": 67.166,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "THE MUFFIN MAN!",
+    "de": "MIT DEM MUFFIN-MANN!",
+    "orig": "scenes/muffinman/lines/22.mp3"
+   },
+   {
+    "t": 67.078,
+    "end": 69.334,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "She's married to the muffin man...",
+    "de": "Sie ist mit dem Muffin-Mann verheiratet...",
+    "orig": "scenes/muffinman/lines/23.mp3"
+   },
+   {
+    "t": 69.45,
+    "end": 69.7,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "*gasp*",
+    "de": "(keucht)",
+    "orig": "scenes/muffinman/lines/24.mp3"
+   },
+   {
+    "t": 69.678,
+    "end": 69.761,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "*gasp*",
+    "de": "(keucht)",
+    "orig": "scenes/muffinman/lines/25.mp3"
+   },
+   {
+    "t": 70.05,
+    "end": 72,
+    "chars": [
+     2
+    ],
+    "who": "Guard",
+    "text": "My lord! We found it.",
+    "de": "Mein Lord! Wir haben es gefunden.",
+    "orig": "scenes/muffinman/lines/26.mp3"
+   },
+   {
+    "t": 72.147,
+    "end": 74.585,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Then what are you waiting for? Bring it in.",
+    "de": "Worauf wartet ihr dann? Bringt es rein.",
+    "orig": "scenes/muffinman/lines/27.mp3"
+   },
+   {
+    "t": 75.019,
+    "end": 77.352,
+    "chars": [
+     2
+    ],
+    "who": "Guard",
+    "text": "*grunting*",
+    "de": "(stöhnt)",
+    "orig": "scenes/muffinman/lines/28.mp3"
+   },
+   {
+    "t": 86.32,
+    "end": 87.425,
+    "chars": [
+     2
+    ],
+    "who": "Guard",
+    "text": "Guards: *gasping in awe*",
+    "de": "(Wachen: staunen atemlos)",
+    "orig": "scenes/muffinman/lines/29.mp3"
+   },
+   {
+    "t": 87.632,
+    "end": 89.213,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "*gasping in awe*",
+    "de": "(staunt atemlos)",
+    "orig": "scenes/muffinman/lines/30.mp3"
+   },
+   {
+    "t": 89.682,
+    "end": 91.458,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Magic mirror...",
+    "de": "Zauberspiegel...",
+    "orig": "scenes/muffinman/lines/31.mp3"
+   },
+   {
+    "t": 91.438,
+    "end": 94.857,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "Don't tell him anything! NOOO!",
+    "de": "Sag ihm nichts! NEEEIN!",
+    "orig": "scenes/muffinman/lines/32.mp3"
+   },
+   {
+    "t": 93.893,
+    "end": 94.779,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "*grunts*",
+    "de": "(grunzt)",
+    "orig": "scenes/muffinman/lines/33.mp3"
+   },
+   {
+    "t": 95.716,
+    "end": 97.043,
+    "chars": [
+     0
+    ],
+    "who": "Gingerbread Man",
+    "text": "Owww!",
+    "de": "Aua!",
+    "orig": "scenes/muffinman/lines/34.mp3"
+   },
+   {
+    "t": 97.411,
+    "end": 105.221,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Evening...Mirror, mirror on the wall, is this not the most perfect kingdom of them all?",
+    "de": "Guten Abend... Spiegel, Spiegel an der Wand — ist dies nicht das perfekteste Königreich im ganzen Land?",
+    "orig": "scenes/muffinman/lines/35.mp3"
+   },
+   {
+    "t": 105.336,
+    "end": 108.045,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "Well, technically you're not a king.",
+    "de": "Na ja, technisch gesehen bist du kein König.",
+    "orig": "scenes/muffinman/lines/36.mp3"
+   },
+   {
+    "t": 108.125,
+    "end": 109.583,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Uh, Thelonius.",
+    "de": "Äh, Thelonius.",
+    "orig": "scenes/muffinman/lines/37.mp3"
+   },
+   {
+    "t": 111.348,
+    "end": 112.281,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "You were saying?",
+    "de": "Du wolltest sagen...?",
+    "orig": "scenes/muffinman/lines/38.mp3"
+   },
+   {
+    "t": 112.323,
+    "end": 114.9,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "What I mean is uh...you're not a king yet, ha!",
+    "de": "Ich meine... du bist noch kein König, ha!",
+    "orig": "scenes/muffinman/lines/39.mp3"
+   },
+   {
+    "t": 114.88,
+    "end": 118.834,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "But-But you can become one. All you have to do is marry a princess.",
+    "de": "Aber — aber du kannst einer werden. Du musst nur eine Prinzessin heiraten.",
+    "orig": "scenes/muffinman/lines/40.mp3"
+   },
+   {
+    "t": 119.368,
+    "end": 120.648,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Go on...",
+    "de": "Weiter...",
+    "orig": "scenes/muffinman/lines/41.mp3"
+   },
+   {
+    "t": 120.962,
+    "end": 132.76,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "Ha...SO, just sit back and relax, my lord, because it's time for you to meet today's eligible bachelorettes. And hereee they are!",
+    "de": "Ha... ALSO, lehn dich zurück und entspann dich, mein Lord — denn jetzt triffst du die heißesten Junggesellinnen des Tages. Und hier sind sie!",
+    "orig": "scenes/muffinman/lines/42.mp3"
+   },
+   {
+    "t": 133.357,
+    "end": 147.13,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "Bachelorette number one is a mentally abused shut-in from a kingdom far, far away. She likes sushi and hot tubbing anytime. Her hobbies include cooking and cleaning for her two evil sisters. Please welcome Cinderella!",
+    "de": "Kandidatin Nummer eins ist eine mental gequälte Einzelgängerin aus einem Königreich ganz, ganz weit weg. Sie mag Sushi und Whirlpool zu jeder Zeit. Ihre Hobbys: Kochen und Putzen für ihre zwei bösen Schwestern. Bitte begrüßt... Aschenputtel!",
+    "orig": "scenes/muffinman/lines/43.mp3"
+   },
+   {
+    "t": 147.419,
+    "end": 161.503,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "Bachelorette number two is a cape-wearing girl from the land of fancy. Although she lives with seven other men, she's not easy. Just kiss her dead, frozen lips find out what a live wire she is. Come on. Give it up for Snooow White!",
+    "de": "Kandidatin Nummer zwei ist ein Mädchen mit Umhang aus dem Land der Fantasie. Obwohl sie mit sieben anderen Männern zusammenwohnt — sie ist nicht leicht zu haben. Küss einfach ihre toten, gefrorenen Lippen und find raus, was für ein Energiebündel sie ist. Auf geht's — Applaus für Schneeeewittchen!",
+    "orig": "scenes/muffinman/lines/44.mp3"
+   },
+   {
+    "t": 161.554,
+    "end": 178.126,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "And last, but certainly not least, bachelorette number three is a fiery redhead from a dragon-guarded castle surrounded by hot boiling lava! But don't let that cool you off. She's a loaded pistol who likes pina coladas and getting caught in the rain. Yours for the rescuing, Princess Fiona!",
+    "de": "Und zu guter Letzt: Kandidatin Nummer drei ist eine feurige Rothaarige aus einer Drachenburg, umgeben von kochender Lava! Aber lass dich davon nicht abschrecken. Sie ist eine scharfe Pistole, mag Piña Coladas und im Regen erwischt zu werden. Deine zum Retten: Prinzessin Fiona!",
+    "orig": "scenes/muffinman/lines/45.mp3"
+   },
+   {
+    "t": 178.37,
+    "end": 184.359,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "So, will it be bachelorette number one, bachelorette number two or bachelorette number three?",
+    "de": "Also — wird's Kandidatin Nummer eins, Nummer zwei oder Nummer drei?",
+    "orig": "scenes/muffinman/lines/46.mp3"
+   },
+   {
+    "t": 184.429,
+    "end": 188.353,
+    "chars": [
+     2
+    ],
+    "who": "Guard",
+    "text": "Guards: Two! Two! Three! Three! Two! Two! Three!",
+    "de": "Wachen: Zwei! Zwei! Drei! Drei! Zwei! Zwei! Drei!",
+    "orig": "scenes/muffinman/lines/47.mp3"
+   },
+   {
+    "t": 185.431,
+    "end": 186.917,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "*mumbling*",
+    "de": "(murmelt)",
+    "orig": "scenes/muffinman/lines/48.mp3"
+   },
+   {
+    "t": 188.084,
+    "end": 190.194,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Three? One? NNGH Three?",
+    "de": "Drei? Eins? NNGH Drei?",
+    "orig": "scenes/muffinman/lines/49.mp3"
+   },
+   {
+    "t": 190.239,
+    "end": 192.615,
+    "chars": [
+     4
+    ],
+    "who": "Thelonius",
+    "text": "Three! Pick number three, my lord!",
+    "de": "Drei! Nimm Nummer drei, mein Lord!",
+    "orig": "scenes/muffinman/lines/50.mp3"
+   },
+   {
+    "t": 192.711,
+    "end": 195.976,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "O-Okay, okay, uh...number three!",
+    "de": "O-Okay, okay, äh... Nummer drei!",
+    "orig": "scenes/muffinman/lines/51.mp3"
+   },
+   {
+    "t": 196.124,
+    "end": 200.756,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "Lord Farquaad, you've chosen Princess Fiona.",
+    "de": "Lord Farquaad, du hast Prinzessin Fiona gewählt.",
+    "orig": "scenes/muffinman/lines/52.mp3"
+   },
+   {
+    "t": 200.913,
+    "end": 203.475,
+    "chars": [
+     2
+    ],
+    "who": "Guard",
+    "text": "Guards: *cheering*",
+    "de": "(Wachen: jubeln)",
+    "orig": "scenes/muffinman/lines/53.mp3"
+   },
+   {
+    "t": 204.336,
+    "end": 205.591,
+    "chars": [
+     4
+    ],
+    "who": "Thelonius",
+    "text": "*laughing and clapping*",
+    "de": "(lacht und klatscht)",
+    "orig": "scenes/muffinman/lines/54.mp3"
+   },
+   {
+    "t": 205.632,
+    "end": 214.324,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Princess...Fiona. She's perfect. All I have to do is just find someone who can go...",
+    "de": "Prinzessin... Fiona. Sie ist perfekt. Ich muss nur jemanden finden, der...",
+    "orig": "scenes/muffinman/lines/55.mp3"
+   },
+   {
+    "t": 212.532,
+    "end": 216.219,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "But I probably should mention the little thing that happens at night.",
+    "de": "Aber ich sollte vielleicht die kleine Sache erwähnen, die nachts passiert.",
+    "orig": "scenes/muffinman/lines/56.mp3"
+   },
+   {
+    "t": 215.609,
+    "end": 216.462,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "I'll do it!",
+    "de": "Ich mach's!",
+    "orig": "scenes/muffinman/lines/57.mp3"
+   },
+   {
+    "t": 216.298,
+    "end": 217.644,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "Yes, but after sunset...",
+    "de": "Ja, aber nach Sonnenuntergang...",
+    "orig": "scenes/muffinman/lines/58.mp3"
+   },
+   {
+    "t": 217.569,
+    "end": 225.98,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "SILENCE! I will make this Princess Fiona my queen, and DuLoc will finally have... the perfect king!",
+    "de": "RUHE! Ich mache Prinzessin Fiona zu meiner Königin — und DuLoc bekommt endlich... den perfekten König!",
+    "orig": "scenes/muffinman/lines/59.mp3"
+   },
+   {
+    "t": 217.868,
+    "end": 218.44,
+    "chars": [
+     3
+    ],
+    "who": "Mirror",
+    "text": "*gasps*",
+    "de": "(keucht)",
+    "orig": "scenes/muffinman/lines/60.mp3"
+   },
+   {
+    "t": 226.069,
+    "end": 231.827,
+    "chars": [
+     1
+    ],
+    "who": "Lord Farquaad",
+    "text": "Captain, assemble your finest men. We're going to have a tournament!",
+    "de": "Hauptmann, versammelt eure besten Männer. Wir veranstalten ein Turnier!",
+    "orig": "scenes/muffinman/lines/61.mp3"
+   }
+  ]
+ },
+ {
+  "id": "krustydog",
+  "title": "SpongeBob — Krusty Dog (6 Rollen)",
+  "videoUrl": "scenes/krustydog.mp4",
+  "avatars": {
+   "0": "scenes/krustydog/spongebob.png",
+   "1": "scenes/krustydog/mr_krabs.png",
+   "2": "scenes/krustydog/squidward.png",
+   "3": "scenes/krustydog/guest_1.png",
+   "4": "scenes/krustydog/guest_2.png",
+   "5": "scenes/krustydog/guest_3.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Spongebob",
+    "pan": -0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Mr Krabs",
+    "pan": 0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Squidward",
+    "pan": -0.15,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 3,
+    "name": "Guest 1",
+    "pan": 0.2,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 4,
+    "name": "Guest 2",
+    "pan": -0.25,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 5,
+    "name": "Guest 3",
+    "pan": 0.45,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 0,
+    "end": 1.833,
+    "chars": [
+     0
+    ],
+    "who": "Spongebob",
+    "text": "MR KRAAABSSS",
+    "de": "HERR KRAAAABS",
+    "orig": "scenes/krustydog/lines/01.mp3"
+   },
+   {
+    "t": 1.843,
+    "end": 5.676,
+    "chars": [
+     0
+    ],
+    "who": "Spongebob",
+    "text": "This Wiener tastes just like a Krabby Patty, maybe we can add them to the Menu!",
+    "de": "Das Würstchen schmeckt genau wie ein Krabbenburger — vielleicht können wir die auf die Karte setzen!",
+    "orig": "scenes/krustydog/lines/02.mp3"
+   },
+   {
+    "t": 5.573,
+    "end": 7.206,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "Im not impressed",
+    "de": "Beeindruckt mich nicht.",
+    "orig": "scenes/krustydog/lines/03.mp3"
+   },
+   {
+    "t": 7.072,
+    "end": 8.955,
+    "chars": [
+     0
+    ],
+    "who": "Spongebob",
+    "text": "I made it with leftover ingredients",
+    "de": "Ich hab's aus Resten gemacht.",
+    "orig": "scenes/krustydog/lines/04.mp3"
+   },
+   {
+    "t": 9.03,
+    "end": 10.513,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "Now im impressed!",
+    "de": "Jetzt bin ich beeindruckt!",
+    "orig": "scenes/krustydog/lines/05.mp3"
+   },
+   {
+    "t": 14.422,
+    "end": 17.539,
+    "chars": [
+     3
+    ],
+    "who": "Guest 1",
+    "text": "Hmm i could have sworn that sign said open",
+    "de": "Hmm, ich hätte schwören können, da stand 'offen'.",
+    "orig": "scenes/krustydog/lines/06.mp3"
+   },
+   {
+    "t": 18.574,
+    "end": 24.874,
+    "chars": [
+     2
+    ],
+    "who": "Squidward",
+    "text": "once in a while i need to breate in and not smell grease",
+    "de": "Ab und zu muss ich einatmen, ohne Fettgeruch.",
+    "orig": "scenes/krustydog/lines/07.mp3"
+   },
+   {
+    "t": 25.232,
+    "end": 28.665,
+    "chars": [
+     2
+    ],
+    "who": "Squidward",
+    "text": "Or the stench of my miserably failed life",
+    "de": "Oder den Gestank meines jämmerlich gescheiterten Lebens.",
+    "orig": "scenes/krustydog/lines/08.mp3"
+   },
+   {
+    "t": 30.316,
+    "end": 32.699,
+    "chars": [
+     2
+    ],
+    "who": "Squidward",
+    "text": "Talking to myself...again",
+    "de": "Rede wieder mit mir selbst...",
+    "orig": "scenes/krustydog/lines/09.mp3"
+   },
+   {
+    "t": 33.688,
+    "end": 36.955,
+    "chars": [
+     0
+    ],
+    "who": "Spongebob",
+    "text": "and then i just cook it like this",
+    "de": "Und dann brat ich's einfach so.",
+    "orig": "scenes/krustydog/lines/10.mp3"
+   },
+   {
+    "t": 38.646,
+    "end": 39.657,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "Go on",
+    "de": "Weiter.",
+    "orig": "scenes/krustydog/lines/11.mp3"
+   },
+   {
+    "t": 39.737,
+    "end": 43.535,
+    "chars": [
+     3
+    ],
+    "who": "Guest 1",
+    "text": "myyy, what an interesting shape. are those for sale?",
+    "de": "Meine Güte, was für eine interessante Form. Sind die zu verkaufen?",
+    "orig": "scenes/krustydog/lines/12.mp3"
+   },
+   {
+    "t": 43.588,
+    "end": 45.616,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "Why? Would you like to buy one?",
+    "de": "Warum? Möchtest du eins kaufen?",
+    "orig": "scenes/krustydog/lines/13.mp3"
+   },
+   {
+    "t": 45.645,
+    "end": 48.402,
+    "chars": [
+     3
+    ],
+    "who": "Guest 1",
+    "text": "Well that would depend on the price",
+    "de": "Nun, das hängt vom Preis ab.",
+    "orig": "scenes/krustydog/lines/14.mp3"
+   },
+   {
+    "t": 48.408,
+    "end": 50.321,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "would you pay the same as what a Krabby Patty costs?",
+    "de": "Würdest du dasselbe zahlen wie für einen Krabbenburger?",
+    "orig": "scenes/krustydog/lines/15.mp3"
+   },
+   {
+    "t": 50.416,
+    "end": 53.272,
+    "chars": [
+     3
+    ],
+    "who": "Guest 1",
+    "text": "Hmm, sure i suppose so",
+    "de": "Hmm, klar, warum nicht.",
+    "orig": "scenes/krustydog/lines/16.mp3"
+   },
+   {
+    "t": 53.465,
+    "end": 54.878,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "how about double?",
+    "de": "Und doppelt?",
+    "orig": "scenes/krustydog/lines/17.mp3"
+   },
+   {
+    "t": 55.088,
+    "end": 56.788,
+    "chars": [
+     3
+    ],
+    "who": "Guest 1",
+    "text": "Now you're talking!",
+    "de": "Jetzt reden wir!",
+    "orig": "scenes/krustydog/lines/18.mp3"
+   },
+   {
+    "t": 56.772,
+    "end": 58.272,
+    "chars": [
+     4
+    ],
+    "who": "Guest 2",
+    "text": "Krabby Pattys again?",
+    "de": "Schon wieder Krabbenburger?",
+    "orig": "scenes/krustydog/lines/19.mp3"
+   },
+   {
+    "t": 58.816,
+    "end": 61.918,
+    "chars": [
+     4
+    ],
+    "who": "Guest 2",
+    "text": "If only there was something else",
+    "de": "Wenn's doch nur mal was anderes gäbe.",
+    "orig": "scenes/krustydog/lines/20.mp3"
+   },
+   {
+    "t": 63.096,
+    "end": 64.796,
+    "chars": [
+     4
+    ],
+    "who": "Guest 2",
+    "text": "Hey whatcha got there Frank?",
+    "de": "Hey, was hast du da, Frank?",
+    "orig": "scenes/krustydog/lines/21.mp3"
+   },
+   {
+    "t": 64.735,
+    "end": 70.001,
+    "chars": [
+     3
+    ],
+    "who": "Guest 1",
+    "text": "Its new! tastes just like a krabby patty but its shaped like a WEENERR",
+    "de": "Ist neu! Schmeckt wie ein Krabbenburger — aber geformt wie ein WÜRSTCHEN!",
+    "orig": "scenes/krustydog/lines/22.mp3"
+   },
+   {
+    "t": 69.883,
+    "end": 72.87,
+    "chars": [
+     5
+    ],
+    "who": "Guest 3",
+    "text": "well that sounds very interesting! yeaa",
+    "de": "Na das klingt ja sehr interessant! Jaaa (Typ in der Mitte)",
+    "orig": "scenes/krustydog/lines/23.mp3"
+   },
+   {
+    "t": 70.036,
+    "end": 72.843,
+    "chars": [
+     3
+    ],
+    "who": "Guest 1",
+    "text": "idk what hes saying (guy on the right)",
+    "de": "(Typ rechts, undeutlich)",
+    "orig": "scenes/krustydog/lines/24.mp3"
+   },
+   {
+    "t": 70.086,
+    "end": 73.016,
+    "chars": [
+     4
+    ],
+    "who": "Guest 2",
+    "text": "guy on the left (idk what hes saying)",
+    "de": "(Typ links, undeutlich)",
+    "orig": "scenes/krustydog/lines/25.mp3"
+   },
+   {
+    "t": 73.137,
+    "end": 76.091,
+    "chars": [
+     5
+    ],
+    "who": "Guest 3",
+    "text": "Hey! i'd like to request a WEENER",
+    "de": "Hey! Ich hätte gerne ein WÜRSTCHEN!",
+    "orig": "scenes/krustydog/lines/26.mp3"
+   },
+   {
+    "t": 76.119,
+    "end": 77.319,
+    "chars": [
+     3
+    ],
+    "who": "Guest 1",
+    "text": "Me too!",
+    "de": "Ich auch!",
+    "orig": "scenes/krustydog/lines/27.mp3"
+   },
+   {
+    "t": 76.216,
+    "end": 77.416,
+    "chars": [
+     4
+    ],
+    "who": "Guest 2",
+    "text": "Me too!",
+    "de": "Ich auch!",
+    "orig": "scenes/krustydog/lines/28.mp3"
+   },
+   {
+    "t": 77.432,
+    "end": 80.534,
+    "chars": [
+     3
+    ],
+    "who": "Guest 1",
+    "text": "WEENERS WEENERS WEENERS",
+    "de": "WÜRSTCHEN WÜRSTCHEN WÜRSTCHEN",
+    "orig": "scenes/krustydog/lines/29.mp3"
+   },
+   {
+    "t": 77.465,
+    "end": 80.558,
+    "chars": [
+     4
+    ],
+    "who": "Guest 2",
+    "text": "WEENERS WEENERS WEENERS",
+    "de": "WÜRSTCHEN WÜRSTCHEN WÜRSTCHEN",
+    "orig": "scenes/krustydog/lines/30.mp3"
+   },
+   {
+    "t": 77.465,
+    "end": 80.599,
+    "chars": [
+     5
+    ],
+    "who": "Guest 3",
+    "text": "WEENERS WEENERS WEENERS",
+    "de": "WÜRSTCHEN WÜRSTCHEN WÜRSTCHEN",
+    "orig": "scenes/krustydog/lines/31.mp3"
+   },
+   {
+    "t": 80.58,
+    "end": 81.78,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "(mr krabs grunting)",
+    "de": "(Mr. Krabs stöhnt)",
+    "orig": "scenes/krustydog/lines/32.mp3"
+   },
+   {
+    "t": 84.793,
+    "end": 86.444,
+    "chars": [
+     0
+    ],
+    "who": "Spongebob",
+    "text": "Squidward whats that noise?",
+    "de": "Thaddäus, was ist das für ein Lärm?",
+    "orig": "scenes/krustydog/lines/33.mp3"
+   },
+   {
+    "t": 86.447,
+    "end": 87.868,
+    "chars": [
+     2
+    ],
+    "who": "Squidward",
+    "text": "excruciating",
+    "de": "Unerträglich.",
+    "orig": "scenes/krustydog/lines/34.mp3"
+   },
+   {
+    "t": 87.801,
+    "end": 89.886,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "Up here boy! take a look",
+    "de": "Hier oben, Junge! Schau mal!",
+    "orig": "scenes/krustydog/lines/35.mp3"
+   },
+   {
+    "t": 90.694,
+    "end": 93.435,
+    "chars": [
+     0
+    ],
+    "who": "Spongebob",
+    "text": "i can't read it from here mr krabs what's it say",
+    "de": "Von hier kann ich's nicht lesen, Mr. Krabs — was steht da?",
+    "orig": "scenes/krustydog/lines/36.mp3"
+   },
+   {
+    "t": 93.686,
+    "end": 100.009,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "it says krusty dogs only 3.99 or 4.99 with cheese",
+    "de": "Da steht: Krusty Dogs nur 3,99 — oder 4,99 mit Käse.",
+    "orig": "scenes/krustydog/lines/37.mp3"
+   },
+   {
+    "t": 100.063,
+    "end": 102.673,
+    "chars": [
+     2
+    ],
+    "who": "Squidward",
+    "text": "4.99? thats highway robbery!",
+    "de": "4,99? Das ist Wucher!",
+    "orig": "scenes/krustydog/lines/38.mp3"
+   },
+   {
+    "t": 102.608,
+    "end": 106.62,
+    "chars": [
+     1
+    ],
+    "who": "Mr Krabs",
+    "text": "avec fromage monsieur squidward avec fromage",
+    "de": "Avec fromage, Monsieur Squidward — avec fromage.",
+    "orig": "scenes/krustydog/lines/39.mp3"
+   }
+  ]
+ },
+ {
+  "id": "seabear",
+  "title": "SpongeBob — Sea Bear (4 Rollen)",
+  "videoUrl": "scenes/seabear.mp4",
+  "avatars": {
+   "0": "scenes/seabear/squidward.png",
+   "1": "scenes/seabear/spongebob.png",
+   "2": "scenes/seabear/patrick.png",
+   "3": "scenes/seabear/fish_bear.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Squidward",
+    "pan": -0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Spongebob",
+    "pan": 0.2,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Patrick",
+    "pan": 0.4,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 3,
+    "name": "Sea Bear",
+    "pan": 0,
+    "effect": "monster",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 0.05,
+    "end": 3.7,
+    "chars": [
+     0
+    ],
+    "who": "Squidward",
+    "text": "(Laughing)",
+    "de": "(lacht)",
+    "orig": "scenes/seabear/lines/01.mp3"
+   },
+   {
+    "t": 1.117,
+    "end": 3.017,
+    "chars": [
+     1
+    ],
+    "who": "Spongebob",
+    "text": "No, like that",
+    "de": "Nein, so nicht",
+    "orig": "scenes/seabear/lines/02.mp3"
+   },
+   {
+    "t": 3.009,
+    "end": 6.076,
+    "chars": [
+     3
+    ],
+    "who": "Sea Bear",
+    "text": "(Grumble)",
+    "de": "(knurrt)",
+    "orig": "scenes/seabear/lines/03.mp3"
+   },
+   {
+    "t": 5.266,
+    "end": 6.866,
+    "chars": [
+     0
+    ],
+    "who": "Squidward",
+    "text": "(Scream)",
+    "de": "(schreit)",
+    "orig": "scenes/seabear/lines/04.mp3"
+   },
+   {
+    "t": 6.552,
+    "end": 8.119,
+    "chars": [
+     3
+    ],
+    "who": "Sea Bear",
+    "text": "(Growl loud)",
+    "de": "(lautes Knurren)",
+    "orig": "scenes/seabear/lines/05.mp3"
+   },
+   {
+    "t": 8.153,
+    "end": 10.886,
+    "chars": [
+     0
+    ],
+    "who": "Squidward",
+    "text": "(Scream)",
+    "de": "(schreit)",
+    "orig": "scenes/seabear/lines/06.mp3"
+   },
+   {
+    "t": 9.431,
+    "end": 10.948,
+    "chars": [
+     3
+    ],
+    "who": "Sea Bear",
+    "text": "(Growl loud)",
+    "de": "(lautes Knurren)",
+    "orig": "scenes/seabear/lines/07.mp3"
+   },
+   {
+    "t": 11.142,
+    "end": 14.392,
+    "chars": [
+     0
+    ],
+    "who": "Squidward",
+    "text": "(Scream while being beat up)",
+    "de": "(schreit, wird verprügelt)",
+    "orig": "scenes/seabear/lines/08.mp3"
+   },
+   {
+    "t": 11.206,
+    "end": 14.388,
+    "chars": [
+     3
+    ],
+    "who": "Sea Bear",
+    "text": "(Growl)",
+    "de": "(knurrt)",
+    "orig": "scenes/seabear/lines/09.mp3"
+   },
+   {
+    "t": 16.515,
+    "end": 18.933,
+    "chars": [
+     1
+    ],
+    "who": "Spongebob",
+    "text": "Squidward, are you okay?",
+    "de": "Thaddäus, alles okay?",
+    "orig": "scenes/seabear/lines/10.mp3"
+   },
+   {
+    "t": 19.237,
+    "end": 20.819,
+    "chars": [
+     0
+    ],
+    "who": "Squidward",
+    "text": "Nooo (hurt)",
+    "de": "Neeein (verletzt)",
+    "orig": "scenes/seabear/lines/11.mp3"
+   },
+   {
+    "t": 20.961,
+    "end": 25.288,
+    "chars": [
+     1
+    ],
+    "who": "Spongebob",
+    "text": "Quick, jump inside our anti sea bear circle before he comes back!",
+    "de": "Schnell, spring in unseren Anti-Seebären-Kreis, bevor er zurückkommt!",
+    "orig": "scenes/seabear/lines/12.mp3"
+   },
+   {
+    "t": 25.224,
+    "end": 28.169,
+    "chars": [
+     2
+    ],
+    "who": "Patrick",
+    "text": "Yeah... Sea bears often attack more than once",
+    "de": "Ja... Seebären greifen oft mehr als einmal an",
+    "orig": "scenes/seabear/lines/13.mp3"
+   },
+   {
+    "t": 27.879,
+    "end": 29.697,
+    "chars": [
+     0
+    ],
+    "who": "Squidward",
+    "text": "Are you crazy?",
+    "de": "Seid ihr verrückt?",
+    "orig": "scenes/seabear/lines/14.mp3"
+   },
+   {
+    "t": 29.77,
+    "end": 32.588,
+    "chars": [
+     0
+    ],
+    "who": "Squidward",
+    "text": "A dirt circle won't stop that monster",
+    "de": "Ein Dreckkreis stoppt dieses Monster nicht",
+    "orig": "scenes/seabear/lines/15.mp3"
+   },
+   {
+    "t": 32.755,
+    "end": 34.755,
+    "chars": [
+     0
+    ],
+    "who": "Squidward",
+    "text": "I'm running for my life!!!",
+    "de": "Ich renne um mein Leben!!!",
+    "orig": "scenes/seabear/lines/16.mp3"
+   },
+   {
+    "t": 34.236,
+    "end": 35.527,
+    "chars": [
+     1
+    ],
+    "who": "Spongebob",
+    "text": "NOOOOO!!!!",
+    "de": "NEEEEIN!!!!",
+    "orig": "scenes/seabear/lines/17.mp3"
+   },
+   {
+    "t": 34.236,
+    "end": 35.545,
+    "chars": [
+     2
+    ],
+    "who": "Patrick",
+    "text": "NOOOO!!!",
+    "de": "NEEEIN!!!",
+    "orig": "scenes/seabear/lines/18.mp3"
+   },
+   {
+    "t": 35.854,
+    "end": 39.872,
+    "chars": [
+     3
+    ],
+    "who": "Sea Bear",
+    "text": "(Growl)",
+    "de": "(knurrt)",
+    "orig": "scenes/seabear/lines/19.mp3"
+   },
+   {
+    "t": 35.97,
+    "end": 38.952,
+    "chars": [
+     0
+    ],
+    "who": "Squidward",
+    "text": "(Scream while being beat up)",
+    "de": "(schreit, wird verprügelt)",
+    "orig": "scenes/seabear/lines/20.mp3"
+   }
+  ]
+ },
+ {
+  "id": "classroomelite",
+  "title": "Classroom of the Elite — Bruder-Konfrontation (3 Rollen)",
+  "videoUrl": "scenes/classroomelite.mp4",
+  "avatars": {
+   "0": "scenes/classroomelite/ayanokoji.png",
+   "1": "scenes/classroomelite/manabu.png",
+   "2": "scenes/classroomelite/suzune.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Ayanokoji",
+    "pan": 0,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Manabu",
+    "pan": -0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Suzune",
+    "pan": 0.35,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 0.1,
+    "end": 0.844,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "*Grunt*",
+    "de": "(Keuchlaut)",
+    "orig": "scenes/classroomelite/lines/01.mp3"
+   },
+   {
+    "t": 1.55,
+    "end": 4.718,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "Do you ever stop to think of the shame you bring this family?",
+    "de": "Denkst du jemals darüber nach, welche Schande du über diese Familie bringst?",
+    "orig": "scenes/classroomelite/lines/02.mp3"
+   },
+   {
+    "t": 5.02,
+    "end": 7.996,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "My own little sister in Class D? Pathetic...",
+    "de": "Meine eigene kleine Schwester in Klasse D? Erbärmlich...",
+    "orig": "scenes/classroomelite/lines/03.mp3"
+   },
+   {
+    "t": 7.57,
+    "end": 10.45,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "Withdraw from school if you know whats good for you.",
+    "de": "Verlass die Schule, wenn du weißt, was gut für dich ist.",
+    "orig": "scenes/classroomelite/lines/04.mp3"
+   },
+   {
+    "t": 10.46,
+    "end": 12.5,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "Brother... Please just listen!",
+    "de": "Bruder... Bitte hör mir nur zu!",
+    "orig": "scenes/classroomelite/lines/05.mp3"
+   },
+   {
+    "t": 12.45,
+    "end": 16.554,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "You don't have the right to better yourself, nor do you have the ability to do so.",
+    "de": "Du hast weder das Recht, dich zu verbessern, noch die Fähigkeit dazu.",
+    "orig": "scenes/classroomelite/lines/06.mp3"
+   },
+   {
+    "t": 17.07,
+    "end": 18.918,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "Some day you'll learn...",
+    "de": "Eines Tages wirst du es verstehen...",
+    "orig": "scenes/classroomelite/lines/07.mp3"
+   },
+   {
+    "t": 18.11,
+    "end": 18.662,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "*Prepares to get hit*",
+    "de": "(bereitet sich auf den Schlag vor)",
+    "orig": "scenes/classroomelite/lines/08.mp3"
+   },
+   {
+    "t": 21.53,
+    "end": 22.994,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "Ayanokoji don't!",
+    "de": "Ayanokoji, nicht!",
+    "orig": "scenes/classroomelite/lines/09.mp3"
+   },
+   {
+    "t": 23.17,
+    "end": 24.322,
+    "chars": [
+     0
+    ],
+    "who": "Ayanokoji",
+    "text": "Seriously?",
+    "de": "Ernsthaft?",
+    "orig": "scenes/classroomelite/lines/10.mp3"
+   },
+   {
+    "t": 24.22,
+    "end": 26.644,
+    "chars": [
+     0
+    ],
+    "who": "Ayanokoji",
+    "text": "You really were planning to hurt her weren't you?",
+    "de": "Du wolltest ihr wirklich wehtun, oder?",
+    "orig": "scenes/classroomelite/lines/11.mp3"
+   },
+   {
+    "t": 27.25,
+    "end": 28.834,
+    "chars": [
+     0
+    ],
+    "who": "Ayanokoji",
+    "text": "You better let her go now.",
+    "de": "Lass sie jetzt besser los.",
+    "orig": "scenes/classroomelite/lines/12.mp3"
+   },
+   {
+    "t": 30.2,
+    "end": 32.984,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "Go away, this doesn't concern you.",
+    "de": "Verschwinde, das geht dich nichts an.",
+    "orig": "scenes/classroomelite/lines/13.mp3"
+   },
+   {
+    "t": 34.24,
+    "end": 37.192,
+    "chars": [
+     0
+    ],
+    "who": "Ayanokoji",
+    "text": "She sounds like a completely different person.",
+    "de": "Sie klingt wie ein völlig anderer Mensch.",
+    "orig": "scenes/classroomelite/lines/14.mp3"
+   },
+   {
+    "t": 40.45,
+    "end": 41.458,
+    "chars": [
+     0
+    ],
+    "who": "Ayanokoji",
+    "text": "Close one.",
+    "de": "Knapp entkommen.",
+    "orig": "scenes/classroomelite/lines/15.mp3"
+   },
+   {
+    "t": 43,
+    "end": 44.032,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "*Grunts*",
+    "de": "(grunzt)",
+    "orig": "scenes/classroomelite/lines/16.mp3"
+   },
+   {
+    "t": 43.58,
+    "end": 43.964,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "*Shocked Grunt?*",
+    "de": "(überraschter Laut)",
+    "orig": "scenes/classroomelite/lines/17.mp3"
+   },
+   {
+    "t": 46.54,
+    "end": 50.092,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "You fight like an expert. Which of the Arts do you practice?",
+    "de": "Du kämpfst wie ein Experte. Welche Kampfkunst praktizierst du?",
+    "orig": "scenes/classroomelite/lines/18.mp3"
+   },
+   {
+    "t": 50.44,
+    "end": 52.36,
+    "chars": [
+     0
+    ],
+    "who": "Ayanokoji",
+    "text": "Piano and Calligraphy.",
+    "de": "Klavier und Kalligrafie.",
+    "orig": "scenes/classroomelite/lines/19.mp3"
+   },
+   {
+    "t": 52.44,
+    "end": 54.504,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "Ahhh, now i get it.",
+    "de": "Ahhh, jetzt versteh ich.",
+    "orig": "scenes/classroomelite/lines/20.mp3"
+   },
+   {
+    "t": 55.05,
+    "end": 56.898,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "I think I know who you are.",
+    "de": "Ich glaube, ich weiß, wer du bist.",
+    "orig": "scenes/classroomelite/lines/21.mp3"
+   },
+   {
+    "t": 57.06,
+    "end": 60.732,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "I'd heard there was a student that got fifties on all of his entrance exams.",
+    "de": "Ich hab gehört, da gibt's einen Schüler, der bei allen Aufnahmeprüfungen fünfzig Punkte hatte.",
+    "orig": "scenes/classroomelite/lines/22.mp3"
+   },
+   {
+    "t": 60.52,
+    "end": 64.624,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "The other day, you got a fifty on one of your quizzes in class as well",
+    "de": "Neulich hattest du in einem Quiz im Unterricht auch wieder eine Fünfzig.",
+    "orig": "scenes/classroomelite/lines/23.mp3"
+   },
+   {
+    "t": 64.35,
+    "end": 64.878,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "*Soft shocked exhale*",
+    "de": "(leises, schockiertes Ausatmen)",
+    "orig": "scenes/classroomelite/lines/24.mp3"
+   },
+   {
+    "t": 65.29,
+    "end": 70.354,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "Are you trying to make some kind of statement, scoring exactly half of what you should at this school?",
+    "de": "Willst du damit irgendein Statement setzen — genau die Hälfte von dem, was man erreichen sollte?",
+    "orig": "scenes/classroomelite/lines/25.mp3"
+   },
+   {
+    "t": 70.29,
+    "end": 72.522,
+    "chars": [
+     0
+    ],
+    "who": "Ayanokoji",
+    "text": "Wow, thats a strange coincidence.",
+    "de": "Wow, was für ein seltsamer Zufall.",
+    "orig": "scenes/classroomelite/lines/26.mp3"
+   },
+   {
+    "t": 72.4,
+    "end": 73.624,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "*VERY soft exhale*",
+    "de": "(sehr leises Ausatmen)",
+    "orig": "scenes/classroomelite/lines/27.mp3"
+   },
+   {
+    "t": 73.58,
+    "end": 76.316,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "You pride yourself on being unique i see.",
+    "de": "Du bist stolz darauf, etwas Besonderes zu sein, wie ich sehe.",
+    "orig": "scenes/classroomelite/lines/28.mp3"
+   },
+   {
+    "t": 77.17,
+    "end": 78.058,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "Suzune.",
+    "de": "Suzune.",
+    "orig": "scenes/classroomelite/lines/29.mp3"
+   },
+   {
+    "t": 78.06,
+    "end": 78.612,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "*Soft startled anime sound*",
+    "de": "(leiser, erschrockener Anime-Laut)",
+    "orig": "scenes/classroomelite/lines/30.mp3"
+   },
+   {
+    "t": 78.53,
+    "end": 82.466,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "I'm surprised you made a friend, although I assume you had you bribe him.",
+    "de": "Ich bin überrascht, dass du einen Freund hast — obwohl ich annehme, du hast ihn bestochen.",
+    "orig": "scenes/classroomelite/lines/31.mp3"
+   },
+   {
+    "t": 82.45,
+    "end": 86.17,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "You're wrong. He isn't my friend he's just a classmate...",
+    "de": "Du irrst dich. Er ist nicht mein Freund, nur ein Klassenkamerad...",
+    "orig": "scenes/classroomelite/lines/32.mp3"
+   },
+   {
+    "t": 86.24,
+    "end": 88.472,
+    "chars": [
+     2
+    ],
+    "who": "Suzune",
+    "text": "I don't need any friends, you know that.",
+    "de": "Ich brauche keine Freunde, das weißt du.",
+    "orig": "scenes/classroomelite/lines/33.mp3"
+   },
+   {
+    "t": 88.35,
+    "end": 93.534,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "As usual, your immaturity is leading you to mistake isolation for independence.",
+    "de": "Wie immer verwechselst du in deiner Unreife Isolation mit Unabhängigkeit.",
+    "orig": "scenes/classroomelite/lines/34.mp3"
+   },
+   {
+    "t": 93.43,
+    "end": 100.03,
+    "chars": [
+     1
+    ],
+    "who": "Manabu",
+    "text": "Anyway. If you truely wish to be in a less humiliating class, you're going to have to work a lot harder.",
+    "de": "Wie auch immer. Wenn du wirklich in eine weniger peinliche Klasse willst, musst du deutlich härter arbeiten.",
+    "orig": "scenes/classroomelite/lines/35.mp3"
+   }
+  ]
+ },
+ {
+  "id": "shinjiconfession",
+  "title": "Evangelion — Shinjis Geständnis (2 Rollen)",
+  "videoUrl": "scenes/shinjiconfession.mp4",
+  "avatars": {
+   "0": "scenes/shinjiconfession/shinji.png",
+   "1": "scenes/shinjiconfession/rei.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Shinji",
+    "pan": -0.3,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Rei",
+    "pan": 0.3,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 3.773,
+    "end": 6.806,
+    "chars": [
+     0
+    ],
+    "who": "Shinji",
+    "text": "Can I tell you something? If you don't think it's weird?",
+    "de": "Darf ich dir was sagen? Wenn du's nicht komisch findest?",
+    "orig": "scenes/shinjiconfession/lines/01.mp3"
+   },
+   {
+    "t": 6.796,
+    "end": 7.996,
+    "chars": [
+     1
+    ],
+    "who": "Rei",
+    "text": "I guess.",
+    "de": "Na gut.",
+    "orig": "scenes/shinjiconfession/lines/02.mp3"
+   },
+   {
+    "t": 8.356,
+    "end": 11.323,
+    "chars": [
+     0
+    ],
+    "who": "Shinji",
+    "text": "I like having my balls kicked. Did you see my message?",
+    "de": "Ich steh drauf, in die Eier getreten zu werden. Hast du meine Nachricht gesehen?",
+    "orig": "scenes/shinjiconfession/lines/03.mp3"
+   },
+   {
+    "t": 11.522,
+    "end": 12.722,
+    "chars": [
+     1
+    ],
+    "who": "Rei",
+    "text": "No, I didn't.",
+    "de": "Nein, hab ich nicht.",
+    "orig": "scenes/shinjiconfession/lines/04.mp3"
+   },
+   {
+    "t": 13.144,
+    "end": 14.811,
+    "chars": [
+     0
+    ],
+    "who": "Shinji",
+    "text": "I like having my balls kicked.",
+    "de": "Ich steh drauf, in die Eier getreten zu werden.",
+    "orig": "scenes/shinjiconfession/lines/05.mp3"
+   },
+   {
+    "t": 14.841,
+    "end": 16.408,
+    "chars": [
+     1
+    ],
+    "who": "Rei",
+    "text": "I didn't get your message.",
+    "de": "Ich hab deine Nachricht nicht bekommen.",
+    "orig": "scenes/shinjiconfession/lines/06.mp3"
+   },
+   {
+    "t": 16.587,
+    "end": 18.254,
+    "chars": [
+     0
+    ],
+    "who": "Shinji",
+    "text": "I like being kicked in the balls! (Joyful)",
+    "de": "Ich steh drauf, in die Eier getreten zu werden! (freudig)",
+    "orig": "scenes/shinjiconfession/lines/07.mp3"
+   }
+  ]
+ },
+ {
+  "id": "yeeyee",
+  "title": "GTA V — Yee-Yee-Ass Haircut (2 Rollen)",
+  "videoUrl": "scenes/yeeyee.mp4",
+  "avatars": {
+   "0": "scenes/yeeyee/lamar.png",
+   "1": "scenes/yeeyee/franklin.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Lamar",
+    "pan": -0.3,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Franklin",
+    "pan": 0.3,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 0.1,
+    "end": 2.182,
+    "chars": [
+     0
+    ],
+    "who": "Lamar",
+    "text": "Wassup, can a loc come up in your crib?",
+    "de": "Was geht, darf ein Loc bei dir reinschnacken?",
+    "orig": "scenes/yeeyee/lines/01.mp3"
+   },
+   {
+    "t": 2.17,
+    "end": 4.252,
+    "chars": [
+     1
+    ],
+    "who": "Franklin",
+    "text": "Man, fuck you. I'll see you at work.",
+    "de": "Mann, fick dich. Wir sehen uns auf Arbeit.",
+    "orig": "scenes/yeeyee/lines/02.mp3"
+   },
+   {
+    "t": 4.2,
+    "end": 10.559,
+    "chars": [
+     0
+    ],
+    "who": "Lamar",
+    "text": "Ah, nigga, don't hate me 'cause I'm beautiful, nigga. Maybe if you got rid of that old yee-yee ass haircut you got you'd get some bitches on your dick.",
+    "de": "Ah, Alter — hass mich nicht, weil ich schön bin. Vielleicht würdest du endlich mal was abkriegen, wenn du den alten Yee-Yee-Ass-Haarschnitt loswürdest.",
+    "orig": "scenes/yeeyee/lines/03.mp3"
+   },
+   {
+    "t": 10.4,
+    "end": 18.645,
+    "chars": [
+     0
+    ],
+    "who": "Lamar",
+    "text": "Oh, better yet, maybe Tanisha'll call your dog-ass if she ever stop fucking with that brain surgeon or lawyer she fucking with. Nigga...",
+    "de": "Oder noch besser: Vielleicht ruft Tanisha deinen Hundearsch an, wenn sie mal aufhört, mit dem Hirnchirurgen oder Anwalt rumzumachen...",
+    "orig": "scenes/yeeyee/lines/04.mp3"
+   },
+   {
+    "t": 19.4,
+    "end": 21.004,
+    "chars": [
+     1
+    ],
+    "who": "Franklin",
+    "text": "What?!",
+    "de": "Was?!",
+    "orig": "scenes/yeeyee/lines/05.mp3"
+   },
+   {
+    "t": 22.53,
+    "end": 24.809,
+    "chars": [
+     1
+    ],
+    "who": "Franklin",
+    "text": "Hmph, motherfucker.",
+    "de": "Hmpf, du Wichser.",
+    "orig": "scenes/yeeyee/lines/06.mp3"
+   }
+  ]
+ }
 ]
