@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.28";
+const APP_VERSION = "9.10.29";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -302,6 +302,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.29", items: [
+    "🎧 Pro Line: Stimme links / Mitte / rechts legen (Stereo) — gilt für Premiere & Speichern"
+  ]},
   { v: "9.10.28", items: [
     "⬇ Outtakes sofort speichern — Reel wird im Hintergrund fertiggeschnitten"
   ]},
@@ -2860,8 +2863,8 @@ function handleMsg(msg, conn) {
     }
     case "ready": { const p = players.find(p => p.id === conn.peer); if (p && p.role != null) p.ready = true; broadcastState(); break; }
     case "progress": { const p = players.find(p => p.id === conn.peer); if (p) { p.done = msg.done; p.total = msg.total; } broadcastState({ throttle: true }); break; }
-    case "tracks": collectTracks(msg.role, attachBoosts(msg.items, msg.boostByIdx), msg.outtakes, conn.peer); break;
-    case "trackUpdate": applyTrackUpdate(msg.role, msg.lineIdx, msg.startAt, msg.buf, msg.effect, msg.gate, msg.boost, msg.fxAmount); break;
+    case "tracks": collectTracks(msg.role, attachTrackMeta(msg.items, msg), msg.outtakes, conn.peer); break;
+    case "trackUpdate": applyTrackUpdate(msg.role, msg.lineIdx, msg.startAt, msg.buf, msg.effect, msg.gate, msg.boost, msg.fxAmount, msg.pan); break;
     case "ttt": tttHandle(msg.a, conn.peer); break;
     case "rps": rpsHandle(msg.a, conn.peer); break;
     case "dice": diceHandle(msg.a, conn.peer); break;
@@ -2886,7 +2889,7 @@ function handleMsg(msg, conn) {
       if (msg.a && msg.a.k === "start") { broadcast({ t: "cbGo" }); cbRun(); }
       if (msg.a && msg.a.k === "score") cbScore(conn.peer, msg.a.n);
       break;
-    case "duelSubmit": collectDuelSubmit(conn.peer, attachBoosts(msg.items, msg.boostByIdx)); break;
+    case "duelSubmit": collectDuelSubmit(conn.peer, attachTrackMeta(msg.items, msg)); break;
     case "duelVote": collectDuelVote(conn.peer, msg.choice); break;
 
     // — Gast ← Host —
@@ -3284,6 +3287,28 @@ const EFFECTS = {
 let myEffectOverrides = {};   // lineIdx -> Effekt-Key (nur gesetzt, wenn vom Standard abweichend)
 let myEffectAmounts = {};     // lineIdx -> Effekt-Staerke 0..1 (nur gesetzt, wenn abweichend von voll)
 let myLineGains = {};        // lineIdx -> Lautstaerke-Faktor (1 = unveraendert)
+let myLinePans = {};         // lineIdx -> Stereo-Pan -1..1 (nur gesetzt, wenn Spieler selbst wählt)
+// Einfache Stereo-Presets (kein echtes Oben/Unten — Kopfhörer/Boxen können nur links↔rechts)
+const LINE_PAN_PRESETS = [
+  { id: "auto", label: "Auto", tip: "Wie die Rolle (Standard)", pan: undefined },
+  { id: "L",    label: "Links", tip: "Ganzer linker Ohrhörer", pan: -1 },
+  { id: "l",    label: "Etwas L", tip: "Leicht nach links", pan: -0.5 },
+  { id: "C",    label: "Mitte", tip: "Genau in der Mitte", pan: 0 },
+  { id: "r",    label: "Etwas R", tip: "Leicht nach rechts", pan: 0.5 },
+  { id: "R",    label: "Rechts", tip: "Ganzer rechter Ohrhörer", pan: 1 },
+];
+function panPresetId(pan) {
+  if (pan === undefined || pan === null) return "auto";
+  const hit = LINE_PAN_PRESETS.find(p => p.id !== "auto" && p.pan === pan);
+  return hit ? hit.id : "auto";
+}
+function panLabel(pan) {
+  if (pan == null || pan === 0) return "Mitte";
+  if (pan <= -0.85) return "Links";
+  if (pan < 0) return "Etwas L";
+  if (pan >= 0.85) return "Rechts";
+  return "Etwas R";
+}
 // ── Noise Gate NACHTRÄGLICH auf eine fertige Aufnahme anwenden (wie ein Effekt, nicht live eingebrannt) ──
 // ═════════════════════════════════════════════════════════════
 // 🎙 STUDIO-AUFBEREITUNG — echte Rauschunterdrueckung im Frequenzbereich
@@ -3639,9 +3664,11 @@ function myEffectiveRole(l) {
   const base = roleOf(myRole()) || { pan: 0, effect: "none", gain: 1 };
   const amt = myEffectAmounts[l.idx];
   const boost = myLineGains[l.idx];
+  const panOv = myLinePans[l.idx];
   const withAmt = (r) => {
     let o = amt === undefined ? r : { ...r, fxAmount: amt };
     if (boost !== undefined && boost !== 1) o = { ...o, gain: (o.gain ?? 1) * boost };
+    if (panOv !== undefined) o = { ...o, pan: panOv };
     return o;
   };
   const chosen = myEffectOverrides[l.idx];
@@ -4173,7 +4200,7 @@ function startBooth() {
     return;
   }
   myLines = scene.lines.map((l, i) => ({ ...l, idx: i })).filter(l => l.chars.includes(rid));
-  curLine = 0; takes = {}; outtakes = []; myEffectOverrides = {}; myEffectAmounts = {}; myLineGains = {};
+  curLine = 0; takes = {}; outtakes = []; myEffectOverrides = {}; myEffectAmounts = {}; myLineGains = {}; myLinePans = {};
   const r = roleOf(rid);
   $("booth-rolename").textContent = r.name;
   const av = scene.avatars?.[String(rid)];
@@ -4231,6 +4258,7 @@ function renderLine() {
   }
   syncFxAmountUI(l);
   syncLineGainUI(l);
+  syncLinePanUI(l);
   stopFxPreview(); fxPreviewRaw = null; fxPreviewCacheKey = null;
   $("rectime-fill").style.width = "0";
   if (lineHasOrig(l)) previewRefViz(l); else { cancelAnimationFrame(vizRAF); const c = $("viz"); if (c) { const g = c.getContext("2d"); g.clearRect(0,0,c.width,c.height); } }
@@ -4647,6 +4675,30 @@ function syncLineGainUI(l) {
   }
 }
 
+function syncLinePanUI(l) {
+  const wrap = $("my-line-pan");
+  if (!wrap || !l) return;
+  const base = roleOf(myRole()) || { pan: 0 };
+  const rolePan = base.pan ?? 0;
+  const active = panPresetId(myLinePans[l.idx]);
+  wrap.innerHTML = LINE_PAN_PRESETS.map(p => {
+    const lab = p.id === "auto" ? ("Auto (" + panLabel(rolePan) + ")") : p.label;
+    return `<button type="button" class="pan-btn${p.id === active ? " on" : ""}" data-pan="${p.id}" title="${esc(p.tip)}">${esc(lab)}</button>`;
+  }).join("");
+  wrap.querySelectorAll(".pan-btn").forEach(btn => {
+    btn.onclick = () => {
+      const preset = LINE_PAN_PRESETS.find(p => p.id === btn.dataset.pan);
+      if (!preset) return;
+      if (preset.pan === undefined) delete myLinePans[l.idx];
+      else myLinePans[l.idx] = preset.pan;
+      syncLinePanUI(l);
+      fxPreviewCacheKey = null;
+      if (fxPreviewSrc) { clearTimeout(fxRestartT); fxRestartT = setTimeout(startFxPreview, 220); }
+      SFX.click();
+    };
+  });
+}
+
 function syncFxAmountUI(l) {
   const sl = $("my-effect-amount"), val = $("my-effect-amount-val");
   if (!sl || !l) return;
@@ -4735,7 +4787,7 @@ function startFxPreview() {
   const role = myEffectiveRole(l);
   // Aufbereitung kann bei „Studio" rechenintensiv sein -> Ergebnis je Einstellung merken,
   // damit man am Stärke-Regler ziehen kann, ohne dass es jedes Mal neu rechnet und hakt.
-  const key = role.effect + "|" + (role.fxAmount === undefined ? 1 : role.fxAmount) + "|" + (role.gain ?? 1) + "|" + micSettings.gate + "|" + (fxPreviewIsTake ? "t" : "o");
+  const key = role.effect + "|" + (role.fxAmount === undefined ? 1 : role.fxAmount) + "|" + (role.gain ?? 1) + "|" + (role.pan ?? 0) + "|" + micSettings.gate + "|" + (fxPreviewIsTake ? "t" : "o");
   let buf;
   if (fxPreviewCacheKey === key && fxPreviewCacheBuf) buf = fxPreviewCacheBuf;
   else {
@@ -4791,7 +4843,7 @@ function serializeOuttakes() {
   }));
 }
 
-/** Boost-Werte extra mitschicken — PeerJS verliert Nebenfelder neben ArrayBuffers manchmal. */
+/** Boost-/Pan-Werte extra mitschicken — PeerJS verliert Nebenfelder neben ArrayBuffers manchmal. */
 function boostMapFromItems(items) {
   const m = {};
   for (const it of items) {
@@ -4808,6 +4860,25 @@ function attachBoosts(items, boostByIdx) {
   }
   return items;
 }
+function panMapFromItems(items) {
+  const m = {};
+  for (const it of items) {
+    if (it.pan != null && it.idx != null) m[it.idx] = it.pan;
+  }
+  return m;
+}
+function attachPans(items, panByIdx) {
+  if (!items || !panByIdx) return items;
+  for (const it of items) {
+    if (it.pan != null) continue;
+    const p = panByIdx[it.idx] ?? panByIdx[String(it.idx)];
+    if (p != null) it.pan = p;
+  }
+  return items;
+}
+function attachTrackMeta(items, msg) {
+  return attachPans(attachBoosts(items, msg && msg.boostByIdx), msg && msg.panByIdx);
+}
 
 function finishBooth() {
   cancelAnimationFrame(vizRAF);
@@ -4817,17 +4888,18 @@ function finishBooth() {
   show("scr-wait");
   renderBoothPlayers();
   const items = myLines.filter(l => takes[l.idx] && takes[l.idx] !== "SKIP")
-    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: myEffectOverrides[l.idx] || undefined, fxAmount: myEffectAmounts[l.idx], boost: myLineGains[l.idx], gate: micSettings.gate }));
+    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: myEffectOverrides[l.idx] || undefined, fxAmount: myEffectAmounts[l.idx], boost: myLineGains[l.idx], pan: myLinePans[l.idx], gate: micSettings.gate }));
   const ots = serializeOuttakes();
   const boostByIdx = boostMapFromItems(items);
+  const panByIdx = panMapFromItems(items);
   if (match.mode === "duell" && duelInfo) {
     if (isHost) collectDuelSubmit(myId, items);
-    else sendHost({ t: "duelSubmit", playerId: myId, items, boostByIdx });
+    else sendHost({ t: "duelSubmit", playerId: myId, items, boostByIdx, panByIdx });
     status("wait-status", "🥊 Dein Take ist im Kasten! Warte auf den anderen Duellanten …");
     return;
   }
   if (isHost) collectTracks(myRole(), items, ots, myId);
-  else sendHost({ t: "tracks", role: myRole(), items, boostByIdx, outtakes: ots });
+  else sendHost({ t: "tracks", role: myRole(), items, boostByIdx, panByIdx, outtakes: ots });
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -6095,14 +6167,15 @@ function finishRedo() {
   const gate = micSettings.gate;
   const boost = myLineGains[l.idx];
   const fxAmount = myEffectAmounts[l.idx];
+  const pan = myLinePans[l.idx];
   redoMode = null;
   cancelAnimationFrame(vizRAF);
   $("onair").classList.remove("live");
   const back = redoReturnScreen || "scr-wait";
   show(back);
   if (buf && buf !== "SKIP") {
-    if (isHost) applyTrackUpdate(myRole(), lineIdx, startAt, buf, effect, gate, boost, fxAmount);
-    else sendHost({ t: "trackUpdate", role: myRole(), lineIdx, startAt, buf, effect, gate, boost, fxAmount });
+    if (isHost) applyTrackUpdate(myRole(), lineIdx, startAt, buf, effect, gate, boost, fxAmount, pan);
+    else sendHost({ t: "trackUpdate", role: myRole(), lineIdx, startAt, buf, effect, gate, boost, fxAmount, pan });
   }
   status(back === "scr-playback" ? "play-status" : "wait-status", "✅ Line aktualisiert! Wird im Endergebnis berücksichtigt.");
   renderRedoPanel("redo-panel-wait");
@@ -6129,12 +6202,12 @@ function renderRedoPanel(containerId) {
 }
 
 // ── Host: patcht einen einzelnen Take in den bestehenden Mix und verteilt neu ──
-async function applyTrackUpdate(role, lineIdx, startAt, rawBuf, effect, gate, boost, fxAmount) {
+async function applyTrackUpdate(role, lineIdx, startAt, rawBuf, effect, gate, boost, fxAmount, pan) {
   if (!finalTracksData) return;
   try {
     const ctx = getCtx();
     const ab = await toArrayBuffer(rawBuf);
-    const entry = { startAt, idx: lineIdx, buf: ab, effect, gate, boost, fxAmount };
+    const entry = { startAt, idx: lineIdx, buf: ab, effect, gate, boost, fxAmount, pan };
     finalTracksData = finalTracksData.map(track => {
       if (track.role !== role) return track;
       const items = track.items.filter(it => it.idx !== lineIdx);
@@ -6169,7 +6242,7 @@ async function decodeDuelData(data) {
     for (const item of track.items) {
       try {
         const ab = await toArrayBuffer(item.buf);
-        items.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: processTakeBuffer(ctx, await ctx.decodeAudioData(ab), item.gate, item.effect || (roleOf(track.role) || {}).effect, item.fxAmount), effect: item.effect, fxAmount: item.fxAmount, boost: item.boost });
+        items.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: processTakeBuffer(ctx, await ctx.decodeAudioData(ab), item.gate, item.effect || (roleOf(track.role) || {}).effect, item.fxAmount), effect: item.effect, fxAmount: item.fxAmount, boost: item.boost, pan: item.pan });
       } catch (e) { console.warn("Duell-Spur kaputt:", e); }
     }
   }
@@ -6410,7 +6483,7 @@ async function loadMix(data) {
     for (const item of track.items) {
       try {
         const ab = await toArrayBuffer(item.buf);
-        mixItems.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: processTakeBuffer(ctx, await ctx.decodeAudioData(ab), item.gate, item.effect || (roleOf(track.role) || {}).effect, item.fxAmount), effect: item.effect, fxAmount: item.fxAmount, boost: item.boost });
+        mixItems.push({ role: track.role, startAt: item.startAt, lineIdx: item.idx, buffer: processTakeBuffer(ctx, await ctx.decodeAudioData(ab), item.gate, item.effect || (roleOf(track.role) || {}).effect, item.fxAmount), effect: item.effect, fxAmount: item.fxAmount, boost: item.boost, pan: item.pan });
         okCount++;
       } catch (e) { failCount++; console.warn("Spur kaputt:", track.role, e); }
     }
@@ -6720,6 +6793,7 @@ async function exportAudioFast() {
       if (item.effect) role = { ...role, effect: item.effect };
       if (item.fxAmount !== undefined) role = { ...role, fxAmount: item.fxAmount };
       if (item.boost != null && item.boost !== 1) role = { ...role, gain: (role.gain ?? 1) * item.boost };
+      if (item.pan != null) role = { ...role, pan: item.pan };
       const src = offlineCtx.createBufferSource();
       src.buffer = item.buffer;
       src.playbackRate.value = effectPitch(role.effect);
@@ -7072,6 +7146,7 @@ async function playMix(opts) {
     if (item.fxAmount !== undefined) role = { ...role, fxAmount: item.fxAmount };
     // „Deine Lautstärke“ aus der Booth — fehlte hier bisher (Export hatte es, Premiere nicht)
     if (item.boost != null && item.boost !== 1) role = { ...role, gain: (role.gain ?? 1) * item.boost };
+    if (item.pan != null) role = { ...role, pan: item.pan };   // Spieler-Pan pro Line (links/mitte/rechts)
     const src = ctx.createBufferSource();
     src.buffer = item.buffer;
     src.playbackRate.value = effectPitch(role.effect);
