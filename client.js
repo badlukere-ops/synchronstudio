@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.65";
+const APP_VERSION = "9.10.66";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -541,6 +541,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.66", items: [
+    "⬇ Fix: Outtakes-Datei wieder in normaler Geschwindigkeit (Speichern hat vorher im Zeitraffer mitgeschnitten)"
+  ]},
   { v: "9.10.65", items: [
     "🎚 Premiere: Mitspieler-Lautstärke ist jetzt ein kleiner Knopf links unten (aufklappbar) — verdeckt keine Emojis mehr"
   ]},
@@ -7100,8 +7103,6 @@ const OUTTAKES_TRANS_MAX_MS = 220;
 const OUTTAKES_TRANS_EXPORT_MS = 70;
 /** Ab so vielen Outtakes nur noch jeden 2. Übergang (weniger Spam). */
 const OUTTAKES_TRANS_SPARSE_AT = 10;
-/** Stiller Schnitt: schneller abspielen (Stimme + Video), fertig bevor man wartet. */
-const OUTTAKES_EXPORT_RATE = 2.8;
 let outtakesTransPreload = null;
 let outtakesTransGainNode = null;
 let outtakesNoiseBuf = null;
@@ -7385,7 +7386,9 @@ async function playOuttakesReel(opts) {
       recStat.style.color = saveFile ? "var(--hot)" : "var(--amber)";
     } else recStat.style.display = "none";
   }
-  const exportRate = quiet ? OUTTAKES_EXPORT_RATE : 1;
+  // MediaRecorder misst Echtzeit — nie schneller abspielen beim Mitschnitt,
+  // sonst landet Zeitraffer (hohe Geschwindigkeit) in der gespeicherten Datei.
+  const exportRate = 1;
   const reportOtProg = (i, total, phase) => {
     const pct = total ? Math.max(1, Math.min(99, Math.round((i / total) * 100))) : 0;
     const msg = phase === "decode"
@@ -7400,7 +7403,7 @@ async function playOuttakesReel(opts) {
     const dl = $("btn-outtakes-dl");
     if (dl && (outtakesCachePending || quiet)) dl.textContent = "⬇ " + pct + "% …";
   };
-  if (quiet) status("play-status", "🎬 Outtakes werden schnell geschnitten …");
+  if (quiet) status("play-status", "🎬 Outtakes werden geschnitten …");
   updateOuttakesBtn();
 
   let vidGain = null, hearGain = null, recDest = null, frames = null, fileRec = null;
@@ -7569,10 +7572,10 @@ async function playOuttakesReel(opts) {
 
     if (fileRec && chunks.length && !outtakeAbort) {
       let blob = new Blob(chunks, { type: mime.split(";")[0] });
-      // Echte Aufnahme-Länge (bei Export-Rate schon „komprimierte“ Zeit)
+      // Echte Aufnahme-Länge in Echtzeit (exportRate ist immer 1 beim Mitschnitt)
       const durSec = outtakesRecT0
         ? Math.max(0.5, (performance.now() - outtakesRecT0) / 1000)
-        : reel.reduce((s, ot) => s + Math.max(0.8, (ot.end - ot.t) + 0.4), 0) / exportRate
+        : reel.reduce((s, ot) => s + Math.max(0.8, (ot.end - ot.t) + 0.4), 0)
           + countOuttakesTransitions(reel.length) * (outtakesTransMs(quiet) / 1000);
       try { blob = await withRecordedDuration(blob, durSec); } catch {}
       if (blob.size > 1000) {
