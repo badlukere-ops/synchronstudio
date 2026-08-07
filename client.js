@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.26";
+const APP_VERSION = "9.10.27";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -302,6 +302,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.27", items: [
+    "🎬 Outtakes: keine Doppel-/Dreifach-Clips mehr (pro Line nur der letzte Blooper)"
+  ]},
   { v: "9.10.26", items: [
     "🎬 Outtakes-Speichern: Bildspur gefixt (war nur Ton / wie MP3)"
   ]},
@@ -2934,11 +2937,12 @@ function handleMsg(msg, conn) {
     case "go": startRealtime(); break;
     case "mix": loadMix(msg.data); break;
     case "outtakesPool":
-      outtakes = Array.isArray(msg.items) ? msg.items : [];
+      outtakes = dedupeOuttakes(Array.isArray(msg.items) ? msg.items : []);
       updateOuttakesBtn();
       break;
     case "playOuttakes":
-      playOuttakesReel();
+      // Host spielt lokal selbst — Echo/Doppelstart vermeiden
+      if (!isHost) playOuttakesReel();
       break;
     case "tttState": ttt = msg.ttt; renderTTT(); break;
     case "rpsState": rps = msg.rps; renderRPS(); break;
@@ -4070,6 +4074,24 @@ let outtakes = [];   // verworfene Takes fürs Outtakes-Reel [{lineIdx,text,t,en
 const OUTTAKE_MAX = 8;          // pro Spieler in der Booth
 const OUTTAKE_POOL_MAX = 24;    // gemischter Pool für die Premiere (alle zusammen)
 let collectedOuttakes = new Map(); // host: peerId -> outtake[]
+function outtakeKey(o) {
+  return String(o.name || "?") + "|" + String(o.lineIdx);
+}
+/** Pro Sprecher+Line nur den neuesten Blooper behalten — sonst spielt dieselbe Szene 2–3×. */
+function dedupeOuttakes(list) {
+  const map = new Map();
+  for (const o of list || []) {
+    if (!o || o.lineIdx == null) continue;
+    map.set(outtakeKey(o), o);
+  }
+  return [...map.values()];
+}
+function pushLocalOuttake(ot) {
+  const key = outtakeKey(ot);
+  outtakes = outtakes.filter(o => outtakeKey(o) !== key);
+  outtakes.push(ot);
+  if (outtakes.length > OUTTAKE_MAX) outtakes.shift();
+}
 let lineRec = null, lineChunks = [], recTimer = null, recStartT = 0, recMax = 0;
 
 
@@ -4546,7 +4568,7 @@ async function onLineRecorded() {
   // Alten Take als Outtake behalten (Blooper-Reel nach der Premiere)
   if (prev && prev !== "SKIP" && prev.byteLength) {
     try {
-      outtakes.push({
+      pushLocalOuttake({
         lineIdx: l.idx,
         text: l.de || l.text || ("Line " + (l.idx + 1)),
         t: l.t,
@@ -4554,7 +4576,6 @@ async function onLineRecorded() {
         buf: prev.slice(0),
         name: myName
       });
-      if (outtakes.length > OUTTAKE_MAX) outtakes.shift();
       updateOuttakesBtn();
     } catch {}
   }
@@ -4754,7 +4775,7 @@ function sendProgress(force) {
 }
 
 function serializeOuttakes() {
-  return outtakes.map(o => ({
+  return dedupeOuttakes(outtakes).map(o => ({
     lineIdx: o.lineIdx,
     text: o.text,
     t: o.t,
@@ -5645,14 +5666,17 @@ let outtakesCache = null;   // { blob, endung }
 async function playOuttakesReel(opts) {
   const saveFile = !!(opts && opts.save);
   if (!outtakes.length || outtakesPlaying) return;
+  // Sofort sperren (vor jedem await), sonst Doppelklick/Broadcast = 2 parallele Reels
+  outtakesPlaying = true;
+  outtakeAbort = false;
+  outtakes = dedupeOuttakes(outtakes);
+  const reel = outtakes.slice();   // stabile Kopie — Array ändert sich nicht mitten im Abspielen
   const ov = $("outtakes-overlay");
   const v = $("outtakes-video");
   const lab = $("outtakes-label");
   const lineEl = $("outtakes-line");
   const recStat = $("outtakes-rec-status");
-  if (!ov || !v) return;
-  outtakeAbort = false;
-  outtakesPlaying = true;
+  if (!ov || !v) { outtakesPlaying = false; return; }
   ov.classList.add("show");
   if (recStat) recStat.style.display = saveFile ? "" : "none";
   v.src = sceneVideoSrc() || "";
@@ -5723,18 +5747,20 @@ async function playOuttakesReel(opts) {
     }
   }
 
-  for (let i = 0; i < outtakes.length; i++) {
+  for (let i = 0; i < reel.length; i++) {
     if (outtakeAbort) break;
-    const ot = outtakes[i];
+    const ot = reel[i];
     const who = ot.name ? (" · " + ot.name) : "";
-    if (lab) lab.textContent = "OUTTAKE " + (i + 1) + "/" + outtakes.length + who;
+    if (lab) lab.textContent = "OUTTAKE " + (i + 1) + "/" + reel.length + who;
     if (lineEl) lineEl.textContent = "„" + ot.text + "“";
+    let src = null;
     try {
+      v.pause();
       v.currentTime = Math.max(0, ot.t - 0.15);
       await new Promise(r => { const h = () => { v.removeEventListener("seeked", h); r(); }; v.addEventListener("seeked", h); setTimeout(r, 600); });
       if (frames) try { frames.paint(); } catch {}
       const buf = await ctx.decodeAudioData(await toArrayBuffer(ot.buf.slice ? ot.buf.slice(0) : ot.buf));
-      const src = ctx.createBufferSource();
+      src = ctx.createBufferSource();
       src.buffer = buf;
       const g = ctx.createGain(); g.gain.value = 1.1;
       src.connect(g); g.connect(ctx.destination);
@@ -5744,16 +5770,18 @@ async function playOuttakesReel(opts) {
       src.start();
       const dur = Math.min(buf.duration, Math.max(0.8, (ot.end - ot.t) + 0.4));
       await new Promise(r => {
-        const t = setTimeout(r, dur * 1000);
-        const skip = () => { clearTimeout(t); try { src.stop(); } catch {} r(); };
+        let done = false;
+        const finish = () => { if (done) return; done = true; clearTimeout(t); r(); };
+        const t = setTimeout(finish, dur * 1000);
+        const skip = () => { try { src.stop(); } catch {} finish(); };
         const btn = $("btn-outtakes-skip");
         if (btn) btn.onclick = skip;
-        src.onended = () => { clearTimeout(t); r(); };
+        src.onended = finish;
       });
-      // Nicht pausieren während Mitschnitt — sonst friert/stirbt die Bildspur in manchen Browsern
-      if (!fileRec) v.pause();
-      try { src.stop(); } catch {}
     } catch (e) { console.warn("Outtake skip:", e); }
+    try { if (src) src.stop(); } catch {}
+    v.pause();
+    if (frames) try { frames.paint(); } catch {}
   }
 
   if (fileRec && fileRec.state !== "inactive") {
@@ -6201,12 +6229,14 @@ function publishOuttakesPool() {
   for (const [, list] of collectedOuttakes) {
     for (const o of list) pool.push(o);
   }
+  // Doppelte derselben Line/Person raus (mehrfaches Neuaufnehmen)
+  const unique = dedupeOuttakes(pool);
   // Mischen, damit nicht immer derselbe Spieler zuerst kommt
-  for (let i = pool.length - 1; i > 0; i--) {
+  for (let i = unique.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    const tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+    const tmp = unique[i]; unique[i] = unique[j]; unique[j] = tmp;
   }
-  outtakes = pool.slice(0, OUTTAKE_POOL_MAX);
+  outtakes = unique.slice(0, OUTTAKE_POOL_MAX);
   collectedOuttakes.clear();
   updateOuttakesBtn();
   broadcast({ t: "outtakesPool", items: outtakes });
