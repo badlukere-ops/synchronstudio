@@ -228,6 +228,27 @@
     text-align:center;min-height:1.4em;
   }
   .outtakes-line{text-align:center;color:var(--text);font-size:.95rem;min-height:2.4em;margin:6px 0 0}
+  /* Outtakes-Leiste bei Premiere — schwer zu übersehen */
+  .outtakes-bar{
+    display:none;margin-top:14px;padding:12px 14px;gap:12px;flex-wrap:wrap;align-items:center;
+    border:2px solid var(--hot);border-radius:12px;
+    background:linear-gradient(180deg,#2a1216,#1a0e10);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 24px rgba(230,57,70,.18);
+  }
+  .outtakes-bar.show{display:flex}
+  .outtakes-bar .ot-hint{
+    flex:1 1 160px;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;
+    color:#e8a0a8;text-transform:uppercase;
+  }
+  .btn-outtakes-hot{
+    background:linear-gradient(180deg,#ff4d5a,#c42b36)!important;
+    border-color:#ff6b76!important;color:#fff!important;
+    font-family:var(--font-display)!important;letter-spacing:.04em;
+    box-shadow:0 4px 0 #6e1520,0 0 18px rgba(230,57,70,.35)!important;
+    min-width:200px;
+  }
+  .btn-outtakes-hot:hover{filter:brightness(1.08)}
+  .btn-outtakes-hot:active{transform:translateY(2px);box-shadow:0 2px 0 #6e1520!important}
 
   /* 🎵 Beat-Booth: Rhythmus-Minispiel im linken Panel */
   .bg-stage{position:relative;border:1px solid #2a2a33;border-radius:8px;overflow:hidden;
@@ -1359,9 +1380,13 @@
         <i id="dl-progress-bar" style="width:0%"></i>
       </div>
       <p class="tag" id="dl-progress-label" style="display:none"></p>
+      <div class="outtakes-bar" id="outtakes-bar">
+        <span class="ot-hint" id="outtakes-bar-hint">Blooper-Reel bereit</span>
+        <button class="big btn-outtakes-hot" id="btn-outtakes">🎬 Outtakes anschauen</button>
+        <button class="big btn-outtakes-hot" id="btn-outtakes-dl">⬇ Outtakes speichern</button>
+      </div>
       <div class="row" style="margin-top:16px">
         <button class="primary big" id="btn-replay">▶ Nochmal abspielen</button>
-        <button class="big" id="btn-outtakes" style="display:none">🎬 Outtakes</button>
         <button class="big" id="btn-download-audio">⚡ Nur Ton speichern (sofort)</button>
         <button class="big" id="btn-download">⬇ Komplettes Video speichern (meist sofort)</button>
         <button id="btn-again">Neue Runde (gleiche Szene)</button>
@@ -1446,8 +1471,10 @@
     <div class="outtakes-label" id="outtakes-label">OUTTAKE</div>
     <video id="outtakes-video" playsinline></video>
     <p class="outtakes-line" id="outtakes-line"></p>
-    <div class="row" style="justify-content:center;gap:10px;margin-top:12px">
+    <p class="tag" id="outtakes-rec-status" style="display:none;text-align:center;color:var(--hot);margin:8px 0 0">🔴 Nimmt Outtakes auf …</p>
+    <div class="row" style="justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap">
       <button class="ghost" id="btn-outtakes-skip">⏭ Weiter</button>
+      <button class="big btn-outtakes-hot" id="btn-outtakes-dl-overlay" style="display:none">⬇ Reel speichern</button>
       <button class="primary" id="btn-outtakes-close">Fertig</button>
     </div>
   </div>
@@ -1457,7 +1484,7 @@
 <!-- ?v= muss bei jeder Version mitgezählt werden (gleiche Zahl wie APP_VERSION in client.js).
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
-  <script src="client.js?v=9.10.23"></script>
+  <script src="client.js?v=9.10.24"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>
