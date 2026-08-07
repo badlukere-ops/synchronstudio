@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.46";
+const APP_VERSION = "9.10.47";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -477,6 +477,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.47", items: [
+    "🎥 Kinosaal + Glow wieder zuverlässig in Opera: Leiste nicht mehr „verschluckt“, Projektor-Schein als Fallback wenn Ambilight ausfällt"
+  ]},
   { v: "9.10.46", items: [
     "🎬 Neue Szenen: Interstellar Stay, Girls Can't Love Girls, Towelie Remembers"
   ]},
@@ -7065,8 +7068,22 @@ function waitCanPlayProgress(v, onProg, timeoutMs = 25000) {
 
 let ambilightRAF = 0;
 let ambilightOn = true;
+let ambilightCanvasOk = true; // false → CSS-Projektor-Glow als Fallback (Opera/CORS)
 try { ambilightOn = localStorage.getItem("ss_ambilight") !== "0"; } catch {}
 
+function get2dContext(canvas) {
+  if (!canvas) return null;
+  // desynchronized kann in manchen Chromium/Opera-Builds null/kaputt liefern
+  let ctx = null;
+  try { ctx = canvas.getContext("2d", { alpha: true, desynchronized: true }); } catch {}
+  if (!ctx) {
+    try { ctx = canvas.getContext("2d", { alpha: true }); } catch {}
+  }
+  if (!ctx) {
+    try { ctx = canvas.getContext("2d"); } catch {}
+  }
+  return ctx;
+}
 function stopAmbilight() {
   if (ambilightRAF) { cancelAnimationFrame(ambilightRAF); ambilightRAF = 0; }
 }
@@ -7077,11 +7094,15 @@ function syncGlowBtn() {
   btn.setAttribute("aria-pressed", ambilightOn ? "true" : "false");
   btn.title = ambilightOn ? "Glow aus" : "Glow an";
 }
+function setCinemaGlowFallback(on) {
+  document.body.classList.toggle("cinema-glow-fallback", !!on);
+}
 function setAmbilightEnabled(on) {
   ambilightOn = !!on;
   try { localStorage.setItem("ss_ambilight", ambilightOn ? "1" : "0"); } catch {}
   syncGlowBtn();
   document.body.classList.toggle("cinema-no-glow", !ambilightOn);
+  if (!ambilightOn) setCinemaGlowFallback(false);
   if (!document.body.classList.contains("cinema")) return;
   if (ambilightOn) startAmbilight();
   else stopAmbilight();
@@ -7090,15 +7111,31 @@ function startAmbilight() {
   stopAmbilight();
   const v = $("play-video");
   const c = $("play-ambilight");
-  if (!v || !c) return;
+  if (!v || !c) {
+    setCinemaGlowFallback(ambilightOn);
+    return;
+  }
   if (!ambilightOn) {
     document.body.classList.add("cinema-no-glow");
+    setCinemaGlowFallback(false);
     return;
   }
   document.body.classList.remove("cinema-no-glow");
-  const ctx = c.getContext("2d", { alpha: false, desynchronized: true });
-  if (!ctx) return;
+  // Ohne CORS-taugliche Quelle (oder bei Opera Battery Saver) Canvas oft tot —
+  // dann bleibt der CSS-Projektor-Schein sichtbar.
+  if (!ambilightCanvasOk) {
+    setCinemaGlowFallback(true);
+    return;
+  }
+  const ctx = get2dContext(c);
+  if (!ctx) {
+    ambilightCanvasOk = false;
+    setCinemaGlowFallback(true);
+    return;
+  }
+  setCinemaGlowFallback(false);
   let lastDraw = 0;
+  let failStreak = 0;
   const tick = (now) => {
     ambilightRAF = requestAnimationFrame(tick);
     if (!document.body.classList.contains("cinema") || !ambilightOn) return;
@@ -7112,9 +7149,15 @@ function startAmbilight() {
     if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
     try {
       ctx.drawImage(v, 0, 0, w, h);
+      failStreak = 0;
     } catch {
-      // CORS / tainted — stiller Abbruch, kein Spam
-      stopAmbilight();
+      failStreak++;
+      // CORS / tainted — nicht stumm aufgeben ohne Fallback
+      if (failStreak >= 2) {
+        ambilightCanvasOk = false;
+        stopAmbilight();
+        setCinemaGlowFallback(true);
+      }
     }
   };
   ambilightRAF = requestAnimationFrame(tick);
@@ -7122,9 +7165,15 @@ function startAmbilight() {
 function enterCinemaMode() {
   document.body.classList.add("cinema");
   document.body.classList.toggle("cinema-no-glow", !ambilightOn);
+  setCinemaGlowFallback(false);
   try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = "none"; } catch {}
   // Bubbles/Profilbilder aus dem Hintergrund — sonst fliegen sie übers Video
   try { const f = document.getElementById("floaties"); if (f) f.style.display = "none"; } catch {}
+  // Leiste sicher ans body hängen (falls HTML-Cache alt / falsch verschachtelt)
+  try {
+    const bar = $("cinema-vol");
+    if (bar && bar.parentElement !== document.body) document.body.appendChild(bar);
+  } catch {}
   syncCinemaVolSliders();
   syncGlowBtn();
   startAmbilight();
@@ -7132,6 +7181,7 @@ function enterCinemaMode() {
 function exitCinemaMode() {
   document.body.classList.remove("cinema");
   document.body.classList.remove("cinema-no-glow");
+  setCinemaGlowFallback(false);
   stopAmbilight();
   try { if ($("leave-btn")) $("leave-btn").style.pointerEvents = ""; } catch {}
   // Floaties wieder wie vom aktuellen Screen vorgesehen
@@ -7141,10 +7191,18 @@ function exitCinemaMode() {
     if (f) f.style.display = calm ? "none" : "";
   } catch {}
 }
-$("btn-cinema-glow") && ($("btn-cinema-glow").onclick = () => {
-  setAmbilightEnabled(!ambilightOn);
-  SFX.click();
-});
+function bindCinemaGlowBtn() {
+  const btn = $("btn-cinema-glow");
+  if (!btn || btn._ssGlowBound) return;
+  btn._ssGlowBound = true;
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setAmbilightEnabled(!ambilightOn);
+    try { SFX.click(); } catch {}
+  });
+}
+bindCinemaGlowBtn();
 syncGlowBtn();
 
 async function loadMix(data, metaMsg) {
@@ -7210,6 +7268,13 @@ async function loadMix(data, metaMsg) {
   reportPremLoad(55, false);
   // Video KOMPLETT vorladen, damit die Premiere bei allen gleichzeitig & ruckelfrei startet
   const pv = $("play-video");
+  // Neues Video → Ambilight erneut versuchen (vorheriger CORS-Fail gilt nicht mehr)
+  ambilightCanvasOk = true;
+  try {
+    const src = sceneVideoSrc() || "";
+    if (/^blob:/i.test(src)) pv.removeAttribute("crossorigin");
+    else pv.setAttribute("crossorigin", "anonymous");
+  } catch {}
   pv.src = sceneVideoSrc();
   attachPrompter(pv, $("play-prompter"), null);
   status("play-status", "⏳ Video wird vorgeladen …");

@@ -138,33 +138,44 @@
     background:#050508 !important;
   }
   body.cinema::before{
-    content:"";position:fixed;inset:0;z-index:1;pointer-events:none;
+    content:"";position:fixed;inset:0;z-index:40;pointer-events:none;
     background:radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,.78) 100%);
   }
   body.cinema header,
   body.cinema .side-panel,
   body.cinema #patchnotes-btn,
   body.cinema #leave-btn{
-    opacity:.04;pointer-events:none;filter:grayscale(.8);
+    opacity:.04;pointer-events:none;filter:grayscale(.8);-webkit-filter:grayscale(.8);
   }
+  /* Filmkorn/Vignette im Kinosaal stark runter — sonst liegt der Glow darunter / wirkt „aus“ (v. a. Opera GX) */
+  body.cinema .grain,
+  body.cinema .vignette{opacity:.03 !important;z-index:41}
   /* Hintergrund-Bubbles/Profilbilder im Kinosaal aus — fliegen sonst übers Bild */
   body.cinema .floaties{display:none !important}
   body.cinema .wrap{
     max-width:none;padding:0;margin:0;width:100%;
+    /* Stacking-Context anheben, damit Leinwand über dem Saal-Overlay liegt */
+    position:relative;z-index:45;
   }
   body.cinema #scr-playback{
-    position:fixed;inset:0;z-index:2;
+    position:fixed;inset:0;z-index:46;
     display:flex !important;align-items:center;justify-content:center;
-    width:100vw;height:100vh;margin:0;padding:0;
+    width:100%;height:100%;margin:0;padding:0;
     box-sizing:border-box;
+    /* 100dvh wenn unterstützt, sonst 100vh — Opera/Handy-Toolbars */
+    height:100vh;height:100dvh;
   }
   body.cinema #scr-playback.active{animation:none}
   body.cinema #scr-playback > .card{
     background:transparent;border-color:transparent;box-shadow:none;
     width:auto;max-width:none;margin:0;padding:0;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
+    /* Wichtig: cardin-Animation lässt transform stehen → position:fixed (Glow-Leiste)
+       hängt dann am Card statt am Viewport. In Opera oft unsichtbar/abgeschnitten. */
+    animation:none !important;transform:none !important;filter:none !important;
+    overflow:visible !important;
   }
-  body.cinema #scr-playback > .card > *:not(.prem-stage):not(#cinema-vol){
+  body.cinema #scr-playback > .card > *:not(.prem-stage):not(.cinema-persist){
     opacity:0 !important;pointer-events:none !important;
     max-height:0 !important;margin:0 !important;padding:0 !important;overflow:hidden !important;
     border:none !important;
@@ -176,7 +187,7 @@
     display:flex;flex-direction:column;align-items:center;
   }
   .prem-screen{
-    position:relative;isolation:isolate;overflow:visible;
+    position:relative;overflow:visible;
     width:100%;display:flex;justify-content:center;align-items:center;
   }
   .prem-screen #play-video{
@@ -185,22 +196,47 @@
   #play-ambilight{
     display:none;position:absolute;inset:0;z-index:0;
     width:100%;height:100%;
-    transform:scale(1.14);
-    pointer-events:none;border-radius:22px;
+    transform:scale(1.22);
+    pointer-events:none;border-radius:28px;
+    -webkit-filter:blur(46px) saturate(1.8) brightness(1.22);
     filter:blur(46px) saturate(1.8) brightness(1.22);
-    opacity:.92;will-change:contents,filter;
+    opacity:.92;
   }
   body.cinema #play-ambilight{display:block}
   body.cinema.cinema-no-glow #play-ambilight{display:none !important}
   body.cinema .prem-screen{
     width:min(88vw,980px,calc(62vh * 16 / 9));
   }
+  /* Projektor-Schein immer im Kinosaal (CSS) — Fallback wenn Canvas-Ambilight in Opera ausfällt */
   body.cinema .prem-screen #play-video{
     width:100%;height:auto;max-height:62vh;object-fit:contain;
-    margin:0 auto;box-shadow:0 18px 50px rgba(0,0,0,.75);
+    margin:0 auto;
+    box-shadow:
+      0 0 0 1px rgba(240,168,48,.22),
+      0 0 56px rgba(240,168,48,.16),
+      0 0 120px rgba(240,168,48,.08),
+      0 18px 50px rgba(0,0,0,.75);
+  }
+  body.cinema.cinema-no-glow .prem-screen #play-video{
+    box-shadow:0 18px 50px rgba(0,0,0,.75);
+  }
+  /* Starker CSS-Glow wenn Canvas-Ambilight nicht geht (CORS / Battery Saver / Filter aus) */
+  body.cinema.cinema-glow-fallback .prem-screen #play-video{
+    box-shadow:
+      0 0 0 1px rgba(240,168,48,.3),
+      0 0 70px rgba(240,168,48,.28),
+      0 0 140px rgba(230,57,70,.12),
+      0 18px 50px rgba(0,0,0,.75);
+  }
+  body.cinema.cinema-no-glow.cinema-glow-fallback .prem-screen #play-video{
+    box-shadow:0 18px 50px rgba(0,0,0,.75);
   }
   @media (prefers-reduced-motion:reduce){
-    #play-ambilight{filter:blur(28px) saturate(1.25) brightness(1.08);opacity:.55;transform:scale(1.08)}
+    #play-ambilight{
+      -webkit-filter:blur(28px) saturate(1.25) brightness(1.08);
+      filter:blur(28px) saturate(1.25) brightness(1.08);
+      opacity:.55;transform:scale(1.12);
+    }
   }
   body.cinema #prem-emoji-bar{
     justify-content:center;margin-top:12px !important;opacity:1 !important;
@@ -208,37 +244,48 @@
     width:100%;
   }
   body.cinema #prem-emoji-bar .emojibtn{pointer-events:auto}
-  /* Dezente Kinosaal-Lautstärke — sichtbar, aber unauffällig */
+  /* Kinosaal-Leiste: fest am Viewport, über Filmkorn, gut sichtbar (auch Opera-Toolbar) */
   #cinema-vol{
-    display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
-    z-index:5;gap:12px;align-items:center;justify-content:center;
+    display:none;position:fixed;left:50%;
+    bottom:max(18px, env(safe-area-inset-bottom, 0px));
+    transform:translateX(-50%);
+    z-index:80;gap:12px;align-items:center;justify-content:center;
     padding:8px 14px;border-radius:999px;
-    background:rgba(10,10,14,.42);border:1px solid rgba(255,255,255,.06);
+    background:rgba(10,10,14,.72);border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 8px 28px rgba(0,0,0,.55);
+    /* backdrop-filter ist Bonus — ohne (Opera Battery Saver) bleibt die Leiste lesbar */
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-    opacity:.38;transition:opacity .2s ease;
+    opacity:.82;transition:opacity .2s ease;
+    pointer-events:auto;
   }
-  body.cinema #cinema-vol{display:flex}
+  body.cinema #cinema-vol{
+    display:flex !important;visibility:visible !important;
+  }
   body.cinema #cinema-vol:hover,
-  body.cinema #cinema-vol:focus-within{opacity:.85}
+  body.cinema #cinema-vol:focus-within{opacity:1}
   #cinema-vol label{
     display:flex;align-items:center;gap:6px;
     font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em;
-    text-transform:uppercase;color:rgba(220,220,230,.55);white-space:nowrap;
+    text-transform:uppercase;color:rgba(220,220,230,.75);white-space:nowrap;
   }
   #cinema-vol input[type=range]{
     width:72px;accent-color:rgba(240,168,48,.7);opacity:.85;cursor:pointer;
   }
   #btn-cinema-glow{
-    width:30px;height:30px;border-radius:50%;padding:0;margin:0;
-    border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);
-    color:rgba(240,168,48,.85);font-size:.95rem;line-height:1;cursor:pointer;
+    width:34px;height:34px;border-radius:50%;padding:0;margin:0;
+    border:1px solid rgba(240,168,48,.35);background:rgba(240,168,48,.12);
+    color:rgba(240,168,48,.95);font-size:1rem;line-height:1;cursor:pointer;
     display:inline-flex;align-items:center;justify-content:center;
-    opacity:.9;flex-shrink:0;
+    opacity:1;flex-shrink:0;
   }
-  #btn-cinema-glow:hover{border-color:rgba(240,168,48,.45);background:rgba(240,168,48,.12)}
-  #btn-cinema-glow.off{color:rgba(180,180,190,.45);opacity:.7;filter:grayscale(.8)}
+  #btn-cinema-glow:hover{border-color:rgba(240,168,48,.65);background:rgba(240,168,48,.22)}
+  #btn-cinema-glow.off{
+    color:rgba(180,180,190,.55);opacity:.85;
+    filter:grayscale(.8);-webkit-filter:grayscale(.8);
+    border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.06);
+  }
   @media(max-width:600px){
-    #cinema-vol{gap:8px;padding:7px 10px;bottom:12px}
+    #cinema-vol{gap:8px;padding:7px 10px;bottom:max(12px, env(safe-area-inset-bottom, 0px))}
     #cinema-vol input[type=range]{width:56px}
     #cinema-vol .cv-label{display:none}
   }
@@ -1612,12 +1659,6 @@
         <span class="tag">🎙 Stimmen</span><input type="range" id="vol-voice" min="0" max="2" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
         <span class="tag">🎵 Musik</span><input type="range" id="vol-video" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
       </div>
-      <div id="cinema-vol" aria-label="Lautstärke">
-        <button type="button" id="btn-cinema-glow" title="Glow an/aus" aria-pressed="true" aria-label="Glow an/aus">🌈</button>
-        <label><span class="cv-label">Gesamt</span> 🔊 <input type="range" id="cin-vol-master" min="0" max="1.5" step="0.05" value="1"></label>
-        <label><span class="cv-label">Stimmen</span> 🎙 <input type="range" id="cin-vol-voice" min="0" max="2" step="0.05" value="1"></label>
-        <label><span class="cv-label">Musik</span> 🎵 <input type="range" id="cin-vol-video" min="0" max="1.5" step="0.05" value="1"></label>
-      </div>
       <div class="synccontrol">
         <label class="small" style="margin:0;white-space:nowrap">Lippen-Sync</label>
         <input type="range" id="sync-offset" min="-500" max="500" value="0" step="10">
@@ -1706,6 +1747,14 @@
   </div>
 </div>
 
+<!-- Kinosaal-Leiste bewusst AUSSERHALB der .card — sonst fängt cardin-transform
+     position:fixed ein (Glow/Lautstärke in Opera oft unsichtbar/abgeschnitten). -->
+<div id="cinema-vol" class="cinema-persist" aria-label="Lautstärke">
+  <button type="button" id="btn-cinema-glow" title="Glow an/aus" aria-pressed="true" aria-label="Glow an/aus">🌈</button>
+  <label><span class="cv-label">Gesamt</span> 🔊 <input type="range" id="cin-vol-master" min="0" max="1.5" step="0.05" value="1"></label>
+  <label><span class="cv-label">Stimmen</span> 🎙 <input type="range" id="cin-vol-voice" min="0" max="2" step="0.05" value="1"></label>
+  <label><span class="cv-label">Musik</span> 🎵 <input type="range" id="cin-vol-video" min="0" max="1.5" step="0.05" value="1"></label>
+</div>
 <div id="podium-blackout" class="podium-blackout"></div>
 <div id="cinema-curtains" class="cinema-curtains" aria-hidden="true">
   <div class="curtain-rod"></div>
@@ -1733,7 +1782,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.46"></script>
+  <script src="client.js?v=9.10.47"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>
