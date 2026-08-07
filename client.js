@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.45";
+const APP_VERSION = "9.10.46";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -477,6 +477,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.46", items: [
+    "🎬 Neue Szenen: Interstellar Stay, Girls Can't Love Girls, Towelie Remembers"
+  ]},
   { v: "9.10.45", items: [
     "⭐ Bewertung neu gestylt: saubere Sterne + klarer Buddy-Chip (weniger klobig)"
   ]},
@@ -1089,6 +1092,17 @@ const AVATAR_CHARS = [
   { img: "scenes/yutaryu/rika.png", label: "Rika (vs Ryu)" },
   { img: "scenes/opensesame/patrick.png", label: "Patrick (Open Sesame)" },
   { img: "scenes/opensesame/spongebob.png", label: "SpongeBob (Open Sesame)" },
+  { img: "scenes/interstellarstay/cooper.png", label: "Cooper" },
+  { img: "scenes/interstellarstay/murph.png", label: "Murph" },
+  { img: "scenes/interstellarstay/tars.png", label: "TARS" },
+  { img: "scenes/girlscantlove/madoka.png", label: "Madoka" },
+  { img: "scenes/girlscantlove/hitomi.png", label: "Hitomi" },
+  { img: "scenes/girlscantlove/sayaka.png", label: "Sayaka" },
+  { img: "scenes/girlscantlove/kyubey.png", label: "Kyubey" },
+  { img: "scenes/towelieremembers/towelie.png", label: "Towelie" },
+  { img: "scenes/towelieremembers/stan.png", label: "Stan" },
+  { img: "scenes/towelieremembers/cartman.png", label: "Cartman" },
+  { img: "scenes/towelieremembers/kyle.png", label: "Kyle" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
