@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.56";
+const APP_VERSION = "9.10.57";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -533,6 +533,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.57", items: [
+    "🎬 Outtakes: dezente Einblendung der gesprochenen Zeile + Link synchron-studio.github.io/synchronstudio/ (Anschauen & Speichern)"
+  ]},
   { v: "9.10.56", items: [
     "🐛 Fix: Start-Knopf in der Lobby war weg (Host konnte keine Szene mehr starten)"
   ]},
@@ -7064,7 +7067,9 @@ async function playOuttakesReel(opts) {
   const v = $("outtakes-video");
   const lab = $("outtakes-label");
   const lineEl = $("outtakes-line");
+  const capEl = $("outtakes-caption");
   const recStat = $("outtakes-rec-status");
+  outtakesOverlayLine = "";
   if (!ov || !v) {
     outtakesPlaying = false; outtakesQuietJob = false;
     resolveOuttakesCachePending(null);
@@ -7169,9 +7174,12 @@ async function playOuttakesReel(opts) {
       if (outtakeAbort) break;
       const ot = reel[i];
       const who = ot.name ? (" · " + ot.name) : "";
+      const lineTxt = String(ot.text || "").trim();
+      outtakesOverlayLine = lineTxt;
       if (!quiet) {
         if (lab) lab.textContent = "OUTTAKE " + (i + 1) + "/" + reel.length + who;
-        if (lineEl) lineEl.textContent = "„" + ot.text + "“";
+        if (lineEl) lineEl.textContent = lineTxt ? ("„" + lineTxt + "“") : "";
+        if (capEl) capEl.textContent = lineTxt ? ("„" + lineTxt + "“") : "";
       }
       let src = null;
       try {
@@ -7268,6 +7276,8 @@ async function playOuttakesReel(opts) {
     outtakesPlaying = false;
     outtakesQuietJob = false;
     if (auchCachen) resolveOuttakesCachePending(cacheOk);
+    outtakesOverlayLine = "";
+    if (capEl) capEl.textContent = "";
     if (recStat) { recStat.style.display = "none"; recStat.style.color = ""; }
     if (!quiet) ov.classList.remove("show");
     try { v.pause(); } catch {}
@@ -8517,21 +8527,85 @@ function startMediaRecorder(rec, timesliceFallbackMs) {
   }
 }
 
-/** Roter OUTTAKES-Schriftzug oben links — für Canvas-Export (gespeichertes Reel). */
-function drawOuttakesBadge(g2, w, h) {
+const OUTTAKES_SITE = "synchron-studio.github.io/synchronstudio/";
+/** Aktuelle Zeile für Canvas-Export (wird pro Clip gesetzt). */
+let outtakesOverlayLine = "";
+
+/** Zeile auf max. 2 Zeilen kürzen (Ellipsis) — für Canvas-Overlay. */
+function wrapOuttakeCaption(g2, text, maxW, maxLines) {
+  const raw = String(text || "").replace(/\s+/g, " ").trim();
+  if (!raw) return [];
+  const words = raw.split(" ");
+  const lines = [];
+  let cur = "";
+  for (let i = 0; i < words.length; i++) {
+    const next = cur ? cur + " " + words[i] : words[i];
+    if (g2.measureText(next).width <= maxW) { cur = next; continue; }
+    if (cur) lines.push(cur);
+    cur = words[i];
+    if (lines.length >= maxLines) { cur = ""; break; }
+    // Einzelwort zu lang → hart kürzen
+    while (cur && g2.measureText(cur).width > maxW) cur = cur.slice(0, -1);
+  }
+  if (cur && lines.length < maxLines) lines.push(cur);
+  // Rest → Ellipsis auf letzter Zeile
+  const used = lines.join(" ").length;
+  if (used < raw.length && lines.length) {
+    let last = lines[lines.length - 1];
+    while (last.length > 1 && g2.measureText(last + "…").width > maxW) last = last.slice(0, -1);
+    lines[lines.length - 1] = last + "…";
+  }
+  return lines.slice(0, maxLines);
+}
+
+/** OUTTAKES + Zeilentext + Site-URL — dezent, Ecken (Canvas-Export). */
+function drawOuttakesBadge(g2, w, h, lineText) {
   if (!g2 || !w || !h) return;
-  const size = Math.max(14, Math.round(Math.min(w, h) * 0.035));
-  const x = Math.round(w * 0.02);
-  const y = Math.round(h * 0.045);
+  const padX = Math.round(w * 0.02);
+  const padY = Math.round(h * 0.03);
+  const badgeSize = Math.max(14, Math.round(Math.min(w, h) * 0.035));
+
   g2.save();
-  g2.font = "700 " + size + "px Anton, Impact, sans-serif";
+  // OUTTAKES oben links
+  g2.font = "700 " + badgeSize + "px Anton, Impact, sans-serif";
   g2.textBaseline = "top";
   g2.letterSpacing = "0.12em";
-  g2.lineWidth = Math.max(2, Math.round(size / 6));
+  g2.lineWidth = Math.max(2, Math.round(badgeSize / 6));
   g2.strokeStyle = "rgba(0,0,0,.85)";
   g2.fillStyle = "#e63946";
-  try { g2.strokeText("OUTTAKES", x, y); } catch {}
-  try { g2.fillText("OUTTAKES", x, y); } catch {}
+  try { g2.strokeText("OUTTAKES", padX, padY); } catch {}
+  try { g2.fillText("OUTTAKES", padX, padY); } catch {}
+
+  // Site-URL unten rechts (ohne https://)
+  const siteSize = Math.max(10, Math.round(Math.min(w, h) * 0.018));
+  g2.font = "500 " + siteSize + "px \"Space Mono\", monospace";
+  g2.letterSpacing = "0";
+  g2.textAlign = "right";
+  g2.textBaseline = "bottom";
+  g2.fillStyle = "rgba(220,220,228,.38)";
+  g2.shadowColor = "rgba(0,0,0,.75)";
+  g2.shadowBlur = 3;
+  try { g2.fillText(OUTTAKES_SITE, w - padX, h - padY); } catch {}
+
+  // Gesprochene Zeile unten links (max. 2 Zeilen)
+  const caption = String(lineText != null ? lineText : outtakesOverlayLine || "").trim();
+  if (caption) {
+    const capSize = Math.max(12, Math.round(Math.min(w, h) * 0.028));
+    const maxW = w - padX * 2;
+    const siteReserve = siteSize * 1.8;
+    g2.shadowBlur = 4;
+    g2.font = "500 " + capSize + "px Barlow, sans-serif";
+    g2.textAlign = "left";
+    g2.textBaseline = "bottom";
+    g2.fillStyle = "rgba(245,245,248,.68)";
+    const lines = wrapOuttakeCaption(g2, "„" + caption + "“", maxW, 2);
+    const lineH = Math.round(capSize * 1.25);
+    let y = h - padY - siteReserve - (lines.length - 1) * lineH;
+    for (const ln of lines) {
+      try { g2.fillText(ln, padX, y); } catch {}
+      y += lineH;
+    }
+  }
   g2.restore();
 }
 
@@ -8556,7 +8630,7 @@ function frameSource(v, opts) {
     try {
       if (v.readyState >= 2) {
         g2.drawImage(v, 0, 0, c.width, c.height);
-        if (outtakesBadge) drawOuttakesBadge(g2, c.width, c.height);
+        if (outtakesBadge) drawOuttakesBadge(g2, c.width, c.height, outtakesOverlayLine);
         bilder++;
       }
     } catch {}
