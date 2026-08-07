@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.67";
+const APP_VERSION = "9.10.68";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -83,9 +83,21 @@ const CHUNK_SIZE = 128 * 1024;
 
 // ── State ────────────────────────────────────────────────────
 let peer = null, isHost = false, myName = "", myId = "";
+// isHost = Raum-Besitzer (PeerJS-Peer-ID = Raumcode, Netz-Zentrale). Bleibt beim
+// „Host geben“ erhalten — sonst fliegen alle raus. logicalHostKey = wer die Host-UI
+// darf (Start/Kicken/Einstellungen); kann jemand anders sein als isHost.
+let logicalHostKey = null;
 let hostConn = null;
 const conns = new Map();
 let players = [];                 // [{id,name,role,ready,done,total}]
+function iAmLogicalHost() { return !!(logicalHostKey && logicalHostKey === myKey); }
+function applyLogicalHostLabels() {
+  players.forEach(p => {
+    if (!p) return;
+    const base = stripHostTag(p.name);
+    p.name = (logicalHostKey && p.key === logicalHostKey) ? withHostTag(base) : base;
+  });
+}
 
 // ── Wiedererkennung über Verbindungsabbrüche hinweg ──────────
 // Die Peer-Adresse (myId) ist nach einem Abbruch eine andere. Damit der Host trotzdem
@@ -541,6 +553,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.68", items: [
+    "👑 FIX: Host geben — niemand fliegt mehr raus, gleicher Raumcode, alle bleiben in der Lobby",
+    "🔌 Host-Rolle ist jetzt nur ein Recht (Start/Kicken), die Raum-Verbindung bleibt stabil"
+  ]},
   { v: "9.10.67", items: [
     "👑 Host geben: alter Host bleibt Mitspieler in der Lobby (kein Rausflug mehr)",
     "👥 Nach Host-Wechsel: Spielerliste kommt beim Rejoin wieder zuverlässig (Namen/Avatare für alle)"
@@ -2143,6 +2159,7 @@ $("btn-create").onclick = () => {
   if (!myName) return status("start-status", "Erst Namen eingeben, digga 😄", true), SFX.err();
   saveName();
   isHost = true;
+  logicalHostKey = myKey;
   absichtlichWeg = false;
   hostHandoffActive = false;
   raumCode = randCode();
@@ -2156,6 +2173,7 @@ $("btn-join").onclick = () => {
   if (!/^\d{4}$/.test(code)) return status("start-status", "Der Raumcode hat 4 Ziffern.", true), SFX.err();
   saveName();
   absichtlichWeg = false; wvVersuch = 0; warSchonDrin = false; hostHandoffActive = false;
+  logicalHostKey = null;
   gastBeitreten(code, false, 0);
 };
 let warSchonDrin = false;   // erst nach einem geglückten Beitritt automatisch nachfassen
@@ -3062,6 +3080,7 @@ function leaveRoom(statusMsg) {
   absichtlichWeg = true;
   hostHandoffActive = false;
   handoffBrokerIdx = null;
+  logicalHostKey = null;
   raumCode = null;
   clearTimeout(wvTimer); wvVersuch = 0; wvBannerAus();
   clearJoinFailTimers();
@@ -3118,7 +3137,9 @@ function showConfirmDialog(text, confirmLabel, action) {
 }
 $("leave-btn").onclick = () => {
   showConfirmDialog(
-    "Raum wirklich verlassen?" + (isHost ? " Du bist Host — der Raum wird für alle geschlossen!" : ""),
+    "Raum wirklich verlassen?" + (isHost
+      ? " Du hältst die Raum-Verbindung — der Raum wird für alle geschlossen!"
+      : (iAmLogicalHost() ? " Deine Host-Rechte gehen dann an den Raum-Ersteller zurück." : "")),
     "🚪 Ja, verlassen",
     { type: "leave" }
   );
@@ -3137,7 +3158,7 @@ $("btn-leave-confirm").onclick = () => {
 };
 document.addEventListener("click", (e) => {
   const kick = e.target.closest("[data-kick]");
-  if (kick && isHost) {
+  if (kick && iAmLogicalHost()) {
     e.preventDefault();
     const pid = kick.getAttribute("data-kick");
     const p = players.find(x => x.id === pid);
@@ -3151,7 +3172,7 @@ document.addEventListener("click", (e) => {
     return;
   }
   const give = e.target.closest("[data-hostgive]");
-  if (give && isHost) {
+  if (give && iAmLogicalHost()) {
     e.preventDefault();
     const pid = give.getAttribute("data-hostgive");
     const p = players.find(x => x.id === pid);
@@ -3253,7 +3274,7 @@ function enterLobby(code) {
   show("scr-lobby");
   renderPlayers();
   $("leave-btn").style.display = "";
-  if (isHost) {
+  if (iAmLogicalHost()) {
     // Match-Stand zuerst in die UI spiegeln — sonst resettet hostSettingsChanged die Szene
     if ($("set-mode")) $("set-mode").value = match.mode;
     if ($("set-rounds")) $("set-rounds").value = String(match.rounds);
@@ -3263,7 +3284,9 @@ function enterLobby(code) {
     $("set-mode").onchange = hostSettingsChanged;
     $("set-rounds").onchange = hostSettingsChanged;
     $("set-roulette").onchange = hostSettingsChanged;
-    hostSettingsChanged();
+    // Nur Raum-Besitzer darf hostSettingsChanged voll ausführen (Broadcast).
+    // Sonst nur UI spiegeln — sonst sendet der neue Host sofort ein Proxy-Settings.
+    if (isHost) hostSettingsChanged();
   }
   // Host-Start-Karte & Host-UI: syncHostUi ist die Quelle der Wahrheit
   // (früher stand hier nur für Host host-start=anzeigen — das ging bei Host-Transfer verloren)
@@ -3327,13 +3350,15 @@ function setupHostConn(conn) {
 // darf die Runde ohne diese Person weiterlaufen.
 function endgueltigWeg(p) {
   if (!p || !players.includes(p)) return;
+  const wasLogical = !!(p.key && logicalHostKey && p.key === logicalHostKey);
   if (p.key) { clearTimeout(rueckkehrTimer.get(p.key)); rueckkehrTimer.delete(p.key); }
   players = players.filter(x => x !== p);
   conns.delete(p.id);
   broadcast({ t: "playerLeft", name: p.name });
   showToast("👋 " + p.name + " hat den Raum verlassen", "leave");
   SFX.leave();
-  broadcastState();
+  if (wasLogical && isHost) reclaimLogicalHost();
+  else broadcastState();
   maybeFinishTracks();
   if (duelInfo && document.querySelector("#scr-duel-vote.active")) maybeFinishDuelVote();
   updateRateProgress();
@@ -3343,6 +3368,14 @@ function endgueltigWeg(p) {
 
 // Host kickt jemanden: sofort raus (keine Gnadenfrist), Nachricht schicken, Verbindung zu.
 function kickPlayer(pid) {
+  if (!iAmLogicalHost() || !pid || pid === myId) return;
+  if (!isHost) {
+    sendHost({ t: "hostCmd", cmd: "kick", pid });
+    return;
+  }
+  doKickPlayer(pid);
+}
+function doKickPlayer(pid) {
   if (!isHost || !pid || pid === myId) return;
   const p = players.find(x => x.id === pid);
   if (!p) return;
@@ -3363,15 +3396,16 @@ function hostHandoffAllowed() {
 }
 function syncHostUi() {
   const inLobby = !!document.querySelector("#scr-lobby.active");
+  const hostUi = iAmLogicalHost();
   const rnd = match.mode === "rounds" || match.mode === "elimination";
   const duell = match.mode === "duell";
-  if ($("host-settings")) $("host-settings").style.display = (isHost && inLobby) ? "" : "none";
-  if ($("host-scene")) $("host-scene").style.display = (isHost && inLobby && !rnd && !duell) ? "" : "none";
-  if ($("host-start")) $("host-start").style.display = (isHost && inLobby) ? "" : "none";
-  if ($("duel-setup")) $("duel-setup").style.display = (isHost && inLobby && duell) ? "" : "none";
-  if ($("rounds-opts")) $("rounds-opts").style.display = (isHost && inLobby && match.mode === "rounds") ? "" : "none";
-  if ($("btn-roulette")) $("btn-roulette").style.display = (isHost && scene) ? "" : "none";
-  if (isHost && inLobby) {
+  if ($("host-settings")) $("host-settings").style.display = (hostUi && inLobby) ? "" : "none";
+  if ($("host-scene")) $("host-scene").style.display = (hostUi && inLobby && !rnd && !duell) ? "" : "none";
+  if ($("host-start")) $("host-start").style.display = (hostUi && inLobby) ? "" : "none";
+  if ($("duel-setup")) $("duel-setup").style.display = (hostUi && inLobby && duell) ? "" : "none";
+  if ($("rounds-opts")) $("rounds-opts").style.display = (hostUi && inLobby && match.mode === "rounds") ? "" : "none";
+  if ($("btn-roulette")) $("btn-roulette").style.display = (hostUi && scene) ? "" : "none";
+  if (hostUi && inLobby) {
     // DOM an Match-Stand anpassen, OHNE hostSettingsChanged (das würde die Szene resetten)
     if ($("set-mode")) $("set-mode").value = match.mode;
     if ($("set-rounds")) $("set-rounds").value = String(match.rounds);
@@ -3385,9 +3419,12 @@ function syncHostUi() {
   }
   renderSettingsView();
   renderPlayers();
+  if (hostUi) checkStartable();
 }
+// Host-Rolle weitergeben OHNE PeerJS-Raum zu zerstören.
+// Raum-Besitzer (isHost) behält die Leitung; nur logicalHostKey wandert.
 function transferHostTo(pid) {
-  if (!isHost || !pid || pid === myId || hostHandoffActive) return;
+  if (!iAmLogicalHost() || !pid || pid === myId) return;
   const target = players.find(p => p.id === pid);
   if (!target) return;
   if (!hostHandoffAllowed()) {
@@ -3405,229 +3442,202 @@ function transferHostTo(pid) {
     SFX.err();
     return;
   }
-  const code = raumCode;
-  if (!code) return;
-
-  const snapPlayers = players.map(p => ({
-    key: p.key,
-    name: stripHostTag(p.name),
-    avatar: p.avatar || null,
-    accessory: p.accessory || null,
-    role: p.role != null ? p.role : null,
-    ready: !!p.ready,
-    done: p.done | 0,
-    total: p.total | 0,
-    loadPct: p.loadPct | 0,
-    videoReady: !!p.videoReady,
-    eliminated: !!p.eliminated,
-    timesSpectated: p.timesSpectated | 0,
-    timesPlayed: p.timesPlayed | 0
-  }));
-
-  const payload = {
-    t: "hostHandoff",
-    newKey: target.key,
-    newName: stripHostTag(target.name),
-    oldKey: myKey,
-    code,
-    broker: activeBrokerIdx | 0,
-    phase: aktuellePhase(),
-    scene: scene || null,
-    match: {
-      mode: match.mode, rounds: match.rounds, round: match.round,
-      autoRoulette: match.autoRoulette,
-      totals: match.totals || {},
-      buddyGivers: match.buddyGivers || {},
-      blind: !!(scene && scene.blind)
-    },
-    duelInfo: duelInfo || null,
-    drawBoard: typeof drawBoard !== "undefined" ? drawBoard : { strokes: [] },
-    players: snapPlayers
-  };
-
-  hostHandoffActive = true;
-  handoffBrokerIdx = payload.broker;
-  absichtlichWeg = false;
-  broadcast(payload);
-  showToast("👑 Host geht an " + stripHostTag(target.name) + " …", "join");
-  wvBanner("👑 Host-Wechsel — du bleibst Mitspieler, verbinde neu …");
-
-  // Kurz warten, damit die Nachricht ankommt, dann Raum-ID freigeben und als Gast neu rein.
-  // hostHandoffActive bleibt true bis die Gast-Verbindung steht — kein leaveRoom dazwischen.
-  setTimeout(() => {
-    try { peer && peer.destroy(); } catch {}
-    peer = null;
-    hostConn = null;
-    conns.clear();
-    isHost = false;
-    myName = stripHostTag(myName);
-    // Spielerliste lokal behalten (sichtbar), bis der neue Host den Stand schickt
-    players.forEach(p => {
-      if (p.key === myKey) {
-        p.name = stripHostTag(p.name);
-        p.id = myId || p.id;
-      }
-    });
-    syncHostUi();
-    renderPlayers();
-    setTimeout(() => {
-      warSchonDrin = true;
-      absichtlichWeg = false;
-      wvVersuch = 0;
-      gastBeitreten(code, true, 0, handoffBrokerIdx);
-    }, 2200);
-  }, 500);
-}
-function onHostHandoffMsg(msg) {
-  if (!msg || !msg.code) return;
-  raumCode = msg.code;
-  absichtlichWeg = false;
-  clearTimeout(wvTimer);
-
-  if (msg.newKey && msg.newKey === myKey) {
-    becomeHostFromHandoff(msg);
+  if (!isHost) {
+    sendHost({ t: "hostCmd", cmd: "hostGive", pid });
     return;
   }
-
-  // Anderer Gast: auf neuen Host warten und neu verbinden (nicht leaveRoom!)
-  hostHandoffActive = true;
-  if (msg.broker != null) handoffBrokerIdx = msg.broker | 0;
-  wvBanner("👑 Host wechselt zu " + stripHostTag(msg.newName || "?") + " — verbinde neu …");
-  showToast("👑 Neuer Host: " + stripHostTag(msg.newName || "?"), "join");
-  setTimeout(() => {
-    try { peer && peer.destroy(); } catch {}
-    peer = null;
-    hostConn = null;
-    isHost = false;
-    warSchonDrin = true;
-    absichtlichWeg = false;
-    wvVersuch = 0;
-    // hostHandoffActive bleibt bis rejoined — Roster kommt mit rejoined/state
-    gastBeitreten(msg.code, true, 0, handoffBrokerIdx);
-  }, 2400);
+  commitLogicalHost(target.key, stripHostTag(target.name));
 }
-function becomeHostFromHandoff(msg) {
-  hostHandoffActive = true;
-  absichtlichWeg = false;
-  raumCode = msg.code;
-  if (msg.broker != null) handoffBrokerIdx = msg.broker | 0;
-  myName = stripHostTag(myName);
-  wvBanner("👑 Du wirst Host — übernehme den Raum …");
-  showToast("👑 Du wirst Host …", "join");
-
-  try { peer && peer.destroy(); } catch {}
-  peer = null;
-  hostConn = null;
-  conns.clear();
-
-  if (msg.match) {
-    match.mode = msg.match.mode || match.mode;
-    match.rounds = msg.match.rounds != null ? msg.match.rounds : match.rounds;
-    match.round = msg.match.round != null ? msg.match.round : match.round;
-    match.autoRoulette = !!msg.match.autoRoulette;
-    if (msg.match.totals) match.totals = msg.match.totals;
-    if (msg.match.buddyGivers) match.buddyGivers = msg.match.buddyGivers;
+function commitLogicalHost(newKey, newName) {
+  if (!isHost || !newKey) return;
+  const prev = logicalHostKey;
+  logicalHostKey = newKey;
+  applyLogicalHostLabels();
+  const payload = {
+    t: "hostHandoff",
+    newKey,
+    newName: stripHostTag(newName || ""),
+    oldKey: prev,
+    code: raumCode
+  };
+  broadcast(payload);
+  broadcastState();
+  syncHostUi();
+  const neu = stripHostTag(newName || "?");
+  if (newKey === myKey) {
+    showToast("👑 Du bist wieder Host!", "join");
+    status("lobby-status", "👑 Du bist wieder Host!");
+  } else {
+    showToast("👑 Host geht an " + neu, "join");
+    status("lobby-status", "👑 Host ist jetzt " + neu + " — du bleibst im Raum.");
   }
-  scene = msg.scene || null;
-  duelInfo = msg.duelInfo || null;
-  if (msg.drawBoard) drawBoard = msg.drawBoard;
-
-  // Etwas warten, bis der alte Host die Raum-ID freigibt — dann aggressiv claimen
-  setTimeout(() => claimHostRoom(msg, 0), 900);
+  SFX.ok();
+  wvBannerAus();
 }
-function claimHostRoom(msg, attempt) {
-  const code = msg.code;
-  if (!code) return;
-  if (peer) { try { peer.destroy(); } catch {} peer = null; }
-  isHost = true;
-  raumCode = code;
-  const tryNr = Math.max(0, attempt | 0);
-  const prefer = (msg.broker != null) ? (msg.broker | 0) : activeBrokerIdx;
-  const brokerIdx = (tryNr === 0) ? (prefer % PEER_BROKERS.length) : (tryNr % PEER_BROKERS.length);
-  activeBrokerIdx = brokerIdx;
-  peer = new Peer(PEER_PREFIX + code, makePeerConfig(false, brokerIdx));
-  wireHostPeerLifecycle();
-  peer.on("error", (e) => {
-    if (e.type === "unavailable-id" && tryNr < 12) {
-      try { peer.destroy(); } catch {}
-      peer = null;
-      setTimeout(() => claimHostRoom(msg, tryNr + 1), 700 + tryNr * 250);
-      return;
+function reclaimLogicalHost() {
+  if (!isHost || logicalHostKey === myKey) return;
+  commitLogicalHost(myKey, stripHostTag(myName));
+}
+// Host-UI-Aktionen vom logischen Host (Gast) → Raum-Besitzer führt aus.
+function handleHostCmd(msg, sender) {
+  if (!isHost || !msg || !msg.cmd) return;
+  switch (msg.cmd) {
+    case "kick":
+      if (msg.pid) doKickPlayer(msg.pid);
+      break;
+    case "hostGive": {
+      const target = players.find(p => p.id === msg.pid);
+      if (target && target.key && !target.offline && hostHandoffAllowed()) {
+        commitLogicalHost(target.key, stripHostTag(target.name));
+      }
+      break;
     }
-    console.error("claimHostRoom", e);
-    if (tryNr + 1 < PEER_BROKERS.length * 3) {
-      try { peer.destroy(); } catch {}
-      peer = null;
-      setTimeout(() => claimHostRoom(msg, tryNr + 1), 800);
-      return;
+    case "settings": {
+      const prevMode = match.mode;
+      if (msg.mode) match.mode = msg.mode;
+      if (msg.rounds != null) match.rounds = msg.rounds | 0;
+      match.autoRoulette = !!msg.autoRoulette;
+      if ($("set-mode")) $("set-mode").value = match.mode;
+      if ($("set-rounds")) $("set-rounds").value = String(match.rounds);
+      if ($("set-roulette")) $("set-roulette").checked = !!match.autoRoulette;
+      syncModePicker(match.mode);
+      const rnd = match.mode === "rounds" || match.mode === "elimination";
+      const duell = match.mode === "duell";
+      if ($("rounds-opts")) $("rounds-opts").style.display = (match.mode === "rounds") ? "" : "none";
+      if ($("host-scene")) $("host-scene").style.display = (rnd || duell) ? "none" : "";
+      if ($("duel-setup")) $("duel-setup").style.display = duell ? "" : "none";
+      if (match.mode !== prevMode) {
+        scene = null; clearSceneVideoState();
+        scenePool = []; duelInfo = null; duelStagedScene = null;
+        players.forEach(p => { p.role = null; p.ready = false; p.timesSpectated = 0; p.timesPlayed = 0; p.eliminated = false; });
+        if ($("scene-card")) $("scene-card").style.display = "none";
+        broadcast({ t: "sceneReset" });
+      }
+      broadcastSettings();
+      broadcastState();
+      break;
     }
-    wvBanner("❌ Host-Übernahme fehlgeschlagen — Seite neu laden (Strg+F5) und neu beitreten. " + BROKER_TIP, true);
-    hostHandoffActive = false;
-    isHost = false;
-  });
-  peer.on("open", () => {
-    myId = peer.id;
-    activeBrokerIdx = brokerIdx;
-    hostPeerStable = true;
-    hostHandoffActive = false;
-    wvVersuch = 0;
-    clearTimeout(wvTimer);
-    wvBannerAus();
-
-    const snap = Array.isArray(msg.players) ? msg.players : [];
-    const frist = gnadenfristMs();
-    players = snap.filter(p => p && p.key).map(p => {
-      const self = p.key === myKey;
-      return {
-        id: self ? myId : ("pending-" + p.key),
-        key: p.key,
-        name: self ? withHostTag(myName) : stripHostTag(p.name),
-        avatar: self ? myAvatar : (p.avatar || null),
-        accessory: self ? myAccessory : (p.accessory || null),
-        role: p.role != null ? p.role : null,
-        ready: !!p.ready,
-        done: p.done | 0,
-        total: p.total | 0,
-        loadPct: p.loadPct | 0,
-        videoReady: !!p.videoReady,
-        eliminated: !!p.eliminated,
-        timesSpectated: p.timesSpectated | 0,
-        timesPlayed: p.timesPlayed | 0,
-        offline: !self,
-        offlineBis: self ? undefined : Date.now() + frist
-      };
-    });
-    if (!players.some(p => p.key === myKey)) {
-      players.unshift({
-        id: myId, key: myKey, name: withHostTag(myName), avatar: myAvatar, accessory: myAccessory,
-        role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false
+    case "loadScene": {
+      const s = (msg.sceneId && sceneList.find(x => x.id === msg.sceneId))
+        || (msg.sceneIdx != null ? sceneList[msg.sceneIdx] : null);
+      if (!s) break;
+      resetForNewRound();
+      clearSceneCaches();
+      scene = JSON.parse(JSON.stringify(s));
+      scene.blind = !!msg.blind;
+      clearSceneVideoState();
+      resetRoles();
+      showScene(sceneVideoSrc());
+      broadcast({ t: "again" });
+      broadcast({ t: "scene", scene });
+      broadcastSettings();
+      broadcastState();
+      break;
+    }
+    case "roulette": {
+      if (!scene) break;
+      const shuffledPlayers = mischen(players);
+      const roleIds = mischen(scene.roles.map(r => r.id));
+      const n = Math.min(roleIds.length, shuffledPlayers.length);
+      players.forEach(p => { p.role = null; p.ready = false; });
+      for (let i = 0; i < n; i++) shuffledPlayers[i].role = roleIds[i];
+      broadcastState();
+      renderRoles();
+      break;
+    }
+    case "pickRandom":
+      pickRandomScene();
+      break;
+    case "start":
+      startSession();
+      break;
+    case "duelStart": {
+      if (!msg.sceneId || msg.roleId == null || !msg.aId || !msg.bId) break;
+      const s = sceneList.find(x => x.id === msg.sceneId);
+      if (!s) break;
+      duelStagedScene = JSON.parse(JSON.stringify(s));
+      duelInfo = { roleId: msg.roleId | 0, aId: msg.aId, bId: msg.bId };
+      scene = JSON.parse(JSON.stringify(duelStagedScene));
+      clearSceneVideoState();
+      players.forEach(p => {
+        p.role = (p.id === msg.aId || p.id === msg.bId) ? duelInfo.roleId : null;
+        p.ready = true;
+        p.loadPct = 0;
+        p.videoReady = false;
       });
+      Object.keys(duelSubs).forEach(k => delete duelSubs[k]);
+      Object.keys(duelVotes).forEach(k => delete duelVotes[k]);
+      broadcast({ t: "scene", scene });
+      showScene(sceneVideoSrc());
+      broadcast({ t: "duelSetupInfo", duelInfo });
+      broadcastState();
+      broadcast({ t: "goLines" });
+      queueOrStartBooth();
+      break;
     }
-
-    // Gnadenfrist für ausstehende Rejoins
-    players.forEach(p => {
-      if (!p.offline || !p.key) return;
-      clearTimeout(rueckkehrTimer.get(p.key));
-      rueckkehrTimer.set(p.key, setTimeout(() => endgueltigWeg(p), frist));
-    });
-
-    $("leave-btn").style.display = "";
-    if (msg.phase === "scr-wait") {
-      show("scr-wait");
-      if (scene) showScene(sceneVideoSrc());
-      syncHostUi();
-      status("wait-status", "👑 Du bist jetzt Host — warte auf die anderen …");
-    } else {
-      enterLobby(code);
-      if (scene) showScene(sceneVideoSrc());
-      else syncHostUi();
-      loadSceneList();
-      status("lobby-status", "👑 Du bist jetzt Host!");
-    }
+    case "forceMix":
+      maybeFinishTracks(true);
+      break;
+    case "again":
+      broadcast({ t: "again" });
+      resetForNewRound();
+      break;
+    case "backScene":
+      SFX.back();
+      scene = null;
+      broadcast({ t: "again" });
+      resetForNewRound();
+      if ($("scene-card")) $("scene-card").style.display = "none";
+      break;
+    case "matchLobby":
+      broadcast({ t: "matchLobby" });
+      backToLobby();
+      break;
+    case "premGo":
+      broadcast({ t: "premGo" });
+      premStart();
+      break;
+    case "premPause":
+      if (premPaused) premResumeAll(true);
+      else premPauseAll(true);
+      break;
+    case "premOrig":
+      premOrigOn = !!msg.on;
+      if (Array.isArray(msg.muted)) premOrigMuted = new Set(msg.muted);
+      if ($("prem-orig-master")) $("prem-orig-master").checked = premOrigOn;
+      renderPremOrigPanel();
+      broadcastPremOrig();
+      invalidatePremCache();
+      break;
+    case "playOuttakes":
+      broadcast({ t: "playOuttakes" });
+      break;
+    default:
+      console.warn("unbekannter hostCmd", msg.cmd);
+  }
+}
+function onHostHandoffMsg(msg) {
+  if (!msg || !msg.newKey) return;
+  absichtlichWeg = false;
+  hostHandoffActive = false;
+  clearTimeout(wvTimer);
+  wvBannerAus();
+  logicalHostKey = msg.newKey;
+  applyLogicalHostLabels();
+  syncHostUi();
+  renderPlayers();
+  renderRoles();
+  if (msg.newKey === myKey) {
     showToast("👑 Du bist jetzt Host!", "join");
     SFX.ok();
-    broadcastState();
-  });
+    if (document.querySelector("#scr-lobby.active")) {
+      status("lobby-status", "👑 Du bist jetzt Host!");
+    } else if (document.querySelector("#scr-wait.active")) {
+      status("wait-status", "👑 Du bist jetzt Host — warte auf die anderen …");
+    }
+  } else {
+    showToast("👑 Neuer Host: " + stripHostTag(msg.newName || "?"), "join");
+  }
 }
 
 // Beim Wiederkommen hat die Person eine neue Peer-Adresse. Alles, was noch unter der
@@ -3658,7 +3668,7 @@ let stateBroadcastTimer = null;
 function flushStateBroadcast() {
   clearTimeout(stateBroadcastTimer);
   stateBroadcastTimer = null;
-  broadcast({ t: "state", players });
+  broadcast({ t: "state", players, logicalHostKey });
   checkStartable();
   checkAllDone();
   if (isHost) renderPremState();
@@ -3681,7 +3691,7 @@ function broadcastState(opts) {
 const HOST_IN = new Set([
   "hello", "bye", "pickRole", "ready", "progress", "loadProg", "tracks", "trackUpdate",
   "ttt", "rps", "dice", "draw", "rate", "mg", "emoji", "premReady", "premProg", "cb",
-  "duelSubmit", "duelVote"
+  "duelSubmit", "duelVote", "hostCmd"
 ]);
 // Nachrichten, die Gäste vom Host annehmen dürfen
 const GUEST_IN = new Set([
@@ -3806,7 +3816,7 @@ function handleMsg(msg, conn) {
       // Verbindung sofort in conns — sonst verpasst broadcast den Neuankömmling
       if (conn && conn.peer) conns.set(conn.peer, conn);
       const pushRoster = () => {
-        try { if (conn && conn.open) conn.send({ t: "state", players }); } catch {}
+        try { if (conn && conn.open) conn.send({ t: "state", players, logicalHostKey }); } catch {}
       };
       const samePeer = players.find(p => p.id === conn.peer);
       if (samePeer) {
@@ -3814,6 +3824,7 @@ function handleMsg(msg, conn) {
         if (msg.avatar) samePeer.avatar = msg.avatar;
         if (msg.accessory) samePeer.accessory = msg.accessory;
         if (msg.key && !samePeer.key) samePeer.key = msg.key;
+        applyLogicalHostLabels();
         pushRoster();
         broadcastState();
         break;
@@ -3828,8 +3839,7 @@ function handleMsg(msg, conn) {
         if (msg.name) rueck.name = stripHostTag(msg.name);
         if (msg.avatar) rueck.avatar = msg.avatar;
         if (msg.accessory) rueck.accessory = msg.accessory;
-        // Alter Host nach Handoff: kein „(Host)“-Tag mehr
-        if (rueck.key !== myKey) rueck.name = stripHostTag(rueck.name);
+        applyLogicalHostLabels();
         idUmschreiben(alteId, conn.peer);
         players = players.filter(p => p === rueck || !p.key || p.key !== msg.key);
         const oldC = conns.get(alteId);
@@ -3843,6 +3853,7 @@ function handleMsg(msg, conn) {
           t: "rejoined", phase: aktuellePhase(), role: rueck.role,
           scene: scene || null,
           players,
+          logicalHostKey,
           hatVideoUebertragung: !!(scene && localVideoBuf),
           match: matchPayload(),
           duelInfo, mix: finalTracksData,
@@ -3861,6 +3872,7 @@ function handleMsg(msg, conn) {
       }
       if (players.length >= 8) { conn.send({ t: "full", cap: 8 }); setTimeout(() => conn.close(), 500); break; }
       players.push({ id: conn.peer, key: msg.key || null, name: stripHostTag(msg.name), avatar: msg.avatar || null, accessory: msg.accessory || null, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false });
+      applyLogicalHostLabels();
       if (scene) { if (localVideoBuf) sendLocalVideo(conn); else conn.send({ t: "scene", scene }); }
       conn.send({ t: "drawState", drawBoard });
       // Spät dazukommen mitten in der Runde → in die laufende Phase holen
@@ -3870,6 +3882,7 @@ function handleMsg(msg, conn) {
           t: "rejoined", phase: ph, role: null, forceRestore: true,
           scene: scene || null,
           players,
+          logicalHostKey,
           hatVideoUebertragung: !!(scene && localVideoBuf),
           match: matchPayload(),
           duelInfo, mix: finalTracksData,
@@ -3884,6 +3897,13 @@ function handleMsg(msg, conn) {
     case "bye": {
       const p = players.find(p => p.id === conn.peer);
       if (p) { p.gehtFreiwillig = true; endgueltigWeg(p); }
+      break;
+    }
+    case "hostCmd": {
+      if (!isHost || !msg.cmd) break;
+      const sender = players.find(p => p.id === conn.peer);
+      if (!sender || !sender.key || sender.key !== logicalHostKey) break;
+      handleHostCmd(msg, sender);
       break;
     }
     case "pickRole": {
@@ -3955,9 +3975,15 @@ function handleMsg(msg, conn) {
     case "state":
       hostHandoffActive = false;
       players = msg.players || [];
+      if (msg.logicalHostKey) logicalHostKey = msg.logicalHostKey;
       renderPlayers();
       renderRoles();
       renderBoothPlayers();
+      if (iAmLogicalHost()) {
+        syncHostUi();
+        checkStartable();
+        syncForceMixBtn();
+      }
       if (document.querySelector("#scr-playback.active")) renderPremStateGuest();
       break;
     case "scene": {
@@ -3967,6 +3993,7 @@ function handleMsg(msg, conn) {
         resetForNewRound();
       }
       showScene(sceneVideoSrc());
+      if (iAmLogicalHost()) { syncHostUi(); checkStartable(); }
       break;
     }
     case "playerLeft": showToast("👋 " + msg.name + " hat den Raum verlassen", "leave"); SFX.leave(); break;
@@ -3983,15 +4010,21 @@ function handleMsg(msg, conn) {
     case "rejoined":
       hostHandoffActive = false;
       wvVersuch = 0; clearTimeout(wvTimer); wvBannerAus();
+      if (msg.logicalHostKey) logicalHostKey = msg.logicalHostKey;
       if (Array.isArray(msg.players) && msg.players.length) {
         players = msg.players;
         renderPlayers();
         renderRoles();
         renderBoothPlayers();
       }
+      if (iAmLogicalHost()) syncHostUi();
       applyPhaseRestore(msg);
       break;
-    case "settings": match.mode = msg.mode; match.rounds = msg.rounds; match.round = msg.round; match.autoRoulette = msg.autoRoulette; renderSettingsView(msg); break;
+    case "settings":
+      match.mode = msg.mode; match.rounds = msg.rounds; match.round = msg.round; match.autoRoulette = msg.autoRoulette;
+      renderSettingsView(msg);
+      if (iAmLogicalHost()) syncHostUi();
+      break;
     case "sceneReset": {
       scene = null; clearSceneVideoState(); clearSceneCaches();
       const phRs = aktuellePhase();
@@ -4268,7 +4301,7 @@ function syncModePicker(mode) {
 }
 $("mode-picker") && $("mode-picker").querySelectorAll(".mode-btn").forEach(btn => {
   btn.onclick = () => {
-    if (!isHost) return;
+    if (!iAmLogicalHost()) return;
     syncModePicker(btn.dataset.mode);
     SFX.click();
     hostSettingsChanged();
@@ -4350,12 +4383,17 @@ $("btn-check-scenes") && ($("btn-check-scenes").onclick = async () => {
 
 $("btn-load-scene").onclick = () => {
   const s = sceneList[$("scene-select").value];
-  if (!s) return;
+  if (!s || !iAmLogicalHost()) return;
+  const blind = !!($("blind-mode") && $("blind-mode").checked);
+  if (!isHost) {
+    sendHost({ t: "hostCmd", cmd: "loadScene", sceneId: s.id, blind });
+    return;
+  }
   // Host lokal genauso zurücksetzen wie die Gäste (Premiere-Reste, Takes, …)
   resetForNewRound();
   clearSceneCaches();
   scene = JSON.parse(JSON.stringify(s));       // Kopie, damit Blind-Flag das Original nicht verändert
-  scene.blind = $("blind-mode").checked;
+  scene.blind = blind;
   clearSceneVideoState();
   resetRoles();
   showScene(sceneVideoSrc());
@@ -4880,7 +4918,7 @@ function showScene(src) {
   // Sonst kann der Teleprompter beim "Gleich kommt..."-Hinweis die falsche Person zeigen.
   if (scene.lines && scene.lines.length) scene.lines.sort((a, b) => a.t - b.t);
   $("scene-card").style.display = "";
-  $("btn-roulette").style.display = isHost ? "" : "none";
+  $("btn-roulette").style.display = iAmLogicalHost() ? "" : "none";
   const diff = sceneDifficulty(scene);
   $("scene-title").innerHTML = esc(scene.title) + (diff ? ` <span class="difftag diff-${diff.label.toLowerCase().replace(/[^a-z]/g,"")}">${diff.emoji} ${diff.label}</span>` : "");
   renderRoles();
@@ -4913,8 +4951,10 @@ function playerCard(p) {
     ? `<span class="tag offline-cd" data-offline-cd style="color:#e8a33d">${escOfflineCountdown(p)}</span>`
     : "";
   const loadingCls = (scene && scene.videoUrl && !p.videoReady) ? " loading" : "";
-  const showHostActs = isHost && p.id !== myId && !p.offline;
-  const kickBtn = showHostActs
+  const showHostActs = iAmLogicalHost() && p.id !== myId && !p.offline;
+  // Raum-Besitzer (Peer-ID = Raumcode) hält die Leitung — den kann man nicht kicken
+  const isRoomPeer = !!(raumCode && p.id === PEER_PREFIX + raumCode);
+  const kickBtn = (showHostActs && !isRoomPeer)
     ? `<button type="button" class="kick-btn" data-kick="${esc(p.id)}" title="Aus dem Raum kicken">Kicken</button>`
     : "";
   const hostGiveBtn = (showHostActs && p.key && hostHandoffAllowed())
@@ -4994,7 +5034,13 @@ function mischen(arr) {
 }
 
 $("btn-roulette").onclick = () => {
-  if (!isHost || !scene) return;
+  if (!iAmLogicalHost() || !scene) return;
+  if (!isHost) {
+    sendHost({ t: "hostCmd", cmd: "roulette" });
+    status("lobby-status", "🎲 Rollen werden ausgewürfelt …");
+    SFX.done();
+    return;
+  }
   const shuffledPlayers = mischen(players);
   // WICHTIG: auch die Rollen mischen — sonst kriegen 4 Spieler bei 20 Rollen
   // immer nur Rolle 1–4 („die obersten“), nie die weiter hinten.
@@ -5016,11 +5062,40 @@ let myBuddyUsed = false;   // SynchroBuddy nur 1× pro ganzem Match (nicht jede 
 const mgWins = {};   // Arena-Siege der Session
 
 function hostSettingsChanged() {
-  if (!isHost) return;
+  if (!iAmLogicalHost()) return;
+  const mode = $("set-mode").value;
+  const rounds = parseInt($("set-rounds").value);
+  const autoRoulette = $("set-roulette").checked;
+  if (!isHost) {
+    // Lokale UI sofort spiegeln; Autorität bleibt beim Raum-Besitzer
+    const prevMode = match.mode;
+    match.mode = mode;
+    match.rounds = rounds;
+    match.autoRoulette = autoRoulette;
+    syncModePicker(match.mode);
+    const rnd = match.mode === "rounds" || match.mode === "elimination";
+    const duell = match.mode === "duell";
+    $("rounds-opts").style.display = (match.mode === "rounds") ? "" : "none";
+    $("host-scene").style.display = (rnd || duell) ? "none" : "";
+    $("duel-setup").style.display = duell ? "" : "none";
+    if (duell) populateDuelSceneSelect();
+    if (!rnd && !duell) loadSceneList();
+    if (match.mode !== prevMode) {
+      scene = null; clearSceneVideoState();
+      scenePool = []; duelInfo = null; duelStagedScene = null;
+      players.forEach(p => { p.role = null; p.ready = false; p.timesSpectated = 0; p.timesPlayed = 0; p.eliminated = false; });
+      $("scene-card").style.display = "none";
+      $("btn-go-round").style.display = "none";
+      $("btn-start").style.display = "";
+    }
+    sendHost({ t: "hostCmd", cmd: "settings", mode, rounds, autoRoulette });
+    checkStartable();
+    return;
+  }
   const prevMode = match.mode;
-  match.mode = $("set-mode").value;
-  match.rounds = parseInt($("set-rounds").value);
-  match.autoRoulette = $("set-roulette").checked;
+  match.mode = mode;
+  match.rounds = rounds;
+  match.autoRoulette = autoRoulette;
   syncModePicker(match.mode);
   // Im Runden- UND Battle-Royale-Modus ist alles Zufall: Rollenwahl & Szenenwahl werden ausgeblendet
   const rnd = match.mode === "rounds" || match.mode === "elimination";
@@ -5060,13 +5135,13 @@ function renderSettingsView(s) {
   const bl = s ? s.blind : !!(scene && scene.blind);
   const activeLeft = players.filter(p => !p.eliminated).length;
   if (mode === "elimination") {
-    el.innerHTML = `🔪 <b>Battle Royale · Runde ${round}</b> · ${activeLeft} noch im Rennen · 🎲 Zufalls-Szenen &amp; -Rollen · 🕶 Blind: ${bl ? "an" : "aus"}` + (isHost ? "" : ' <span class="tag">(Host)</span>');
+    el.innerHTML = `🔪 <b>Battle Royale · Runde ${round}</b> · ${activeLeft} noch im Rennen · 🎲 Zufalls-Szenen &amp; -Rollen · 🕶 Blind: ${bl ? "an" : "aus"}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
   } else if (mode === "rounds") {
-    el.innerHTML = `🏆 <b>Match · Runde ${round}/${rounds}</b> · 🎲 Zufalls-Szenen &amp; -Rollen · 🕶 Blind: ${bl ? "an" : "aus"}` + (isHost ? "" : ' <span class="tag">(Host)</span>');
+    el.innerHTML = `🏆 <b>Match · Runde ${round}/${rounds}</b> · 🎲 Zufalls-Szenen &amp; -Rollen · 🕶 Blind: ${bl ? "an" : "aus"}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
   } else if (mode === "duell") {
-    el.innerHTML = `🥊 <b>Duell-Modus</b> · Host wählt Szene, Rolle &amp; die zwei Duellanten · Rest schaut zu &amp; stimmt danach ab` + (isHost ? "" : ' <span class="tag">(Host)</span>');
+    el.innerHTML = `🥊 <b>Duell-Modus</b> · Host wählt Szene, Rolle &amp; die zwei Duellanten · Rest schaut zu &amp; stimmt danach ab` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
   } else {
-    el.innerHTML = `🎮 <b>Freies Spiel</b> · Szene &amp; Rollen frei wählbar · 🕶 Blind: ${bl ? "an" : "aus"}` + (isHost ? "" : ' <span class="tag">(Host)</span>');
+    el.innerHTML = `🎮 <b>Freies Spiel</b> · Szene &amp; Rollen frei wählbar · 🕶 Blind: ${bl ? "an" : "aus"}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
   }
 }
 function renderWins() {
@@ -5101,7 +5176,7 @@ $("btn-ready").onclick = async () => {
 };
 
 function checkStartable() {
-  if (!isHost) return;
+  if (!iAmLogicalHost()) return;
   if (match.mode === "duell") {
     // Duell hat seinen eigenen Start-Button (🥊 Duell starten) — der normale Button bleibt aussen vor
     $("btn-start").style.display = "none";
@@ -5223,7 +5298,15 @@ function rouletteRoles() {
 }
 
 $("btn-start").onclick = async () => {
+  if (!iAmLogicalHost()) return;
   if ((match.mode === "rounds" || match.mode === "elimination") && !scene) {
+    if (!isHost) {
+      sendHost({ t: "hostCmd", cmd: "pickRandom" });
+      status("lobby-status", "🎲 Szene wird ausgewürfelt …");
+      $("btn-start").style.display = "none";
+      $("btn-go-round").style.display = "";
+      return;
+    }
     // Match-Kickoff: Zufalls-Szene laden, dann warten auf Bereit
     await pickRandomScene();
     const label = match.mode === "elimination" ? "🔪 Runde 1: Szene &amp; Rollen ausgewürfelt!" : "🎲 Runde 1: Szene &amp; Rollen ausgewürfelt!";
@@ -5232,10 +5315,19 @@ $("btn-start").onclick = async () => {
     $("btn-go-round").style.display = "";
     return;
   }
+  if (!isHost) {
+    sendHost({ t: "hostCmd", cmd: "start" });
+    return;
+  }
   startSession();
 };
-$("btn-go-round").onclick = () => startSession();
+$("btn-go-round").onclick = () => {
+  if (!iAmLogicalHost()) return;
+  if (!isHost) { sendHost({ t: "hostCmd", cmd: "start" }); return; }
+  startSession();
+};
 function startSession() {
+  if (!isHost) return;
   const speakers = players.filter(p => p.role != null);
   const anwesend = speakers.filter(p => !p.offline);
   if (!anwesend.length || !anwesend.every(p => p.ready && p.videoReady)) {
@@ -5331,9 +5423,15 @@ $("btn-duel-load-scene").onclick = () => {
   status("duel-setup-status", "Szene geladen — jetzt Rolle & beide Duellanten wählen.");
 };
 $("btn-duel-start").onclick = () => {
+  if (!iAmLogicalHost() || !duelStagedScene) return;
   const roleId = parseInt($("duel-role-select").value);
   const aId = $("duel-player-a").value, bId = $("duel-player-b").value;
   if (aId === bId) return status("duel-setup-status", "Duellant A und B müssen unterschiedlich sein!", true), SFX.err();
+  if (!isHost) {
+    sendHost({ t: "hostCmd", cmd: "duelStart", sceneId: duelStagedScene.id, roleId, aId, bId });
+    status("duel-setup-status", "🥊 Duell wird gestartet …");
+    return;
+  }
   duelInfo = { roleId, aId, bId };
   scene = JSON.parse(JSON.stringify(duelStagedScene));
   clearSceneVideoState();
@@ -6968,7 +7066,7 @@ function showFinal(list, rounds, championName) {
       <span class="fscore">${r.sum.toFixed(1)} ★</span>
     </div>`).join("");
 
-  if (isHost) $("btn-back-lobby").style.display = "";
+  if (iAmLogicalHost()) $("btn-back-lobby").style.display = "";
 
   // 🌑 Dunkel + Riser baut Spannung auf → Scheinwerfer → 3 → 2 → 1 → Applaus → 4./5.
   const blackout = $("podium-blackout");
@@ -7049,8 +7147,9 @@ function showFinal(list, rounds, championName) {
 }
 
 $("btn-back-lobby").onclick = () => {
-  if (!isHost) return;
+  if (!iAmLogicalHost()) return;
   SFX.back();
+  if (!isHost) { sendHost({ t: "hostCmd", cmd: "matchLobby" }); return; }
   broadcast({ t: "matchLobby" });
   backToLobby();
 };
@@ -7782,7 +7881,8 @@ async function downloadOuttakes() {
 $("btn-outtakes") && ($("btn-outtakes").onclick = () => {
   SFX.click();
   // Host startet für alle — Gäste dürfen lokal trotzdem nachstarten, falls sie verpasst haben
-  if (isHost) broadcast({ t: "playOuttakes" });
+  if (iAmLogicalHost() && !isHost) sendHost({ t: "hostCmd", cmd: "playOuttakes" });
+  else if (isHost) broadcast({ t: "playOuttakes" });
   playOuttakesReel();
 });
 $("btn-outtakes-dl") && ($("btn-outtakes-dl").onclick = () => { SFX.click(); downloadOuttakes(); });
@@ -8271,16 +8371,19 @@ function maybeFinishTracks(force) {
 function syncForceMixBtn() {
   const btn = $("btn-force-mix");
   if (!btn) return;
+  // Button nur beim logischen Host; collected.size kennt nur der Raum-Besitzer —
+  // deshalb zusätzlich State-Hinweis über wait-screen + Host-UI.
   const needed = new Set(players.filter(p => p.role != null && !p.offline).map(p => p.role)).size;
-  const waiting = isHost && collected.size > 0 &&
+  const waiting = iAmLogicalHost() && isHost && collected.size > 0 &&
     collected.size < needed &&
     !!document.querySelector("#scr-wait.active");
   btn.style.display = waiting ? "" : "none";
 }
 $("btn-force-mix") && ($("btn-force-mix").onclick = () => {
-  if (!isHost) return;
+  if (!iAmLogicalHost()) return;
   $("btn-force-mix").style.display = "none";
   status("wait-status", "🎬 Starte die Premiere mit den vorhandenen Spuren …");
+  if (!isHost) { sendHost({ t: "hostCmd", cmd: "forceMix" }); return; }
   maybeFinishTracks(true);
 });
 function checkAllDone() { /* Fortschritt läuft über state-Broadcasts */ }
@@ -8651,7 +8754,7 @@ function renderPremState() {
   if (el) {
     if (!total) el.textContent = "⏳ Premiere wird vorbereitet …";
     else if (allReady) {
-      el.textContent = isHost
+      el.textContent = iAmLogicalHost()
         ? "✅ Alle fertig geladen (" + ready + "/" + total + ") — du kannst starten!"
         : "✅ Alle fertig geladen — warte auf den Host!";
     } else {
@@ -8662,12 +8765,15 @@ function renderPremState() {
       el.textContent = "⏳ Premiere lädt … " + parts.join(" · ");
     }
   }
-  if (isHost) {
+  if (iAmLogicalHost()) {
     const btn = $("btn-prem-start");
     if (btn) {
       btn.style.display = "";
       btn.disabled = total > 0 && ready < total;
     }
+  } else {
+    const btn = $("btn-prem-start");
+    if (btn) btn.style.display = "none";
   }
 }
 
@@ -8707,7 +8813,7 @@ function renderPremOrigPanel() {
   const hasOrig = premOrigUnfilled.length > 0;
   panel.style.display = hasOrig ? "" : "none";
   master.checked = premOrigOn;
-  master.disabled = !isHost;
+  master.disabled = !iAmLogicalHost();
   rolesEl.innerHTML = "";
   for (const r of premOrigUnfilled) {
     const lab = document.createElement("label");
@@ -8715,13 +8821,17 @@ function renderPremOrigPanel() {
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.checked = premOrigOn && !premOrigMuted.has(r.id);
-    cb.disabled = !isHost || !premOrigOn;
+    cb.disabled = !iAmLogicalHost() || !premOrigOn;
     cb.dataset.roleId = String(r.id);
     cb.onchange = () => {
-      if (!isHost) return;
+      if (!iAmLogicalHost()) return;
       const id = +cb.dataset.roleId;
       if (cb.checked) premOrigMuted.delete(id);
       else premOrigMuted.add(id);
+      if (!isHost) {
+        sendHost({ t: "hostCmd", cmd: "premOrig", on: premOrigOn, muted: [...premOrigMuted] });
+        return;
+      }
       broadcastPremOrig();
       invalidatePremCache();
     };
@@ -8986,7 +9096,7 @@ function updatePremPauseBtn() {
   if (!btn) return;
   const v = $("play-video");
   const laeuft = premiereLocked && aktuellePhase() === "scr-playback" && v && !v.ended;
-  if (!isHost || !laeuft) {
+  if (!iAmLogicalHost() || !laeuft) {
     btn.style.display = "none";
     return;
   }
@@ -9048,17 +9158,25 @@ function premStart(opts) {
 }
 
 $("btn-prem-start").onclick = () => {
+  if (!iAmLogicalHost()) return;
+  if (!isHost) { sendHost({ t: "hostCmd", cmd: "premGo" }); return; }
   broadcast({ t: "premGo" });
   premStart();
 };
 $("btn-prem-pause") && ($("btn-prem-pause").onclick = () => {
-  if (!isHost || !premiereLocked) return;
+  if (!iAmLogicalHost() || !premiereLocked) return;
+  if (!isHost) { sendHost({ t: "hostCmd", cmd: "premPause" }); return; }
   if (premPaused) premResumeAll(true);
   else premPauseAll(true);
 });
 $("prem-orig-master") && ($("prem-orig-master").onchange = () => {
-  if (!isHost) return;
+  if (!iAmLogicalHost()) return;
   premOrigOn = !!$("prem-orig-master").checked;
+  if (!isHost) {
+    sendHost({ t: "hostCmd", cmd: "premOrig", on: premOrigOn });
+    renderPremOrigPanel();
+    return;
+  }
   renderPremOrigPanel();
   broadcastPremOrig();
   invalidatePremCache();
@@ -9969,12 +10087,14 @@ function attachPrompter(videoEl, promptEl, myRoleId) {
 // 10) NEUE RUNDE
 // ═════════════════════════════════════════════════════════════
 $("btn-again").onclick = () => {
-  if (isHost) { broadcast({ t: "again" }); resetForNewRound(); }
-  else status("play-status", "Nur der Host kann eine neue Runde starten.", true);
+  if (!iAmLogicalHost()) return status("play-status", "Nur der Host kann eine neue Runde starten.", true);
+  if (!isHost) { sendHost({ t: "hostCmd", cmd: "again" }); return; }
+  broadcast({ t: "again" }); resetForNewRound();
 };
 $("btn-back").onclick = () => {
-  if (isHost) { SFX.back(); scene = null; broadcast({ t: "again" }); resetForNewRound(); $("scene-card").style.display = "none"; }
-  else status("play-status", "Nur der Host kann die Szene wechseln.", true);
+  if (!iAmLogicalHost()) return status("play-status", "Nur der Host kann die Szene wechseln.", true);
+  if (!isHost) { sendHost({ t: "hostCmd", cmd: "backScene" }); return; }
+  SFX.back(); scene = null; broadcast({ t: "again" }); resetForNewRound(); $("scene-card").style.display = "none";
 };
 function resetForNewRound() {
   players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; p.premPct = 0; });
