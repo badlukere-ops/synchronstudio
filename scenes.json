@@ -23660,5 +23660,106 @@
     "orig": "scenes/towelieremembers/lines/06.mp3"
    }
   ]
- }
+ },
+  {
+    "id": "ghostchase",
+    "title": "Ghost Stories — Think Of A Big Black Man Chasing You (3 Rollen)",
+    "videoUrl": "scenes/ghostchase.mp4",
+    "avatars": {
+      "0": "scenes/ghostchase/hajime.png",
+      "1": "scenes/ghostchase/keiichirou.png",
+      "2": "scenes/ghostchase/leo.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Hajime",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Keiichirou",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Leo",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0.185,
+        "end": 3.545,
+        "chars": [
+          0
+        ],
+        "who": "Hajime",
+        "text": "That's What I'm Talking About PUMP PUMP PUMP",
+        "de": "Genau davon red ich! PUMP PUMP PUMP",
+        "orig": "scenes/ghostchase/lines/01.mp3"
+      },
+      {
+        "t": 3.48,
+        "end": 8.4,
+        "chars": [
+          1
+        ],
+        "who": "Keiichirou",
+        "text": "(Keiichirou Running)",
+        "de": "(Keiichirou rennt)",
+        "orig": "scenes/ghostchase/lines/02.mp3"
+      },
+      {
+        "t": 8.22,
+        "end": 10.5,
+        "chars": [
+          0
+        ],
+        "who": "Hajime",
+        "text": "Think Of A Big Black Man Chasing You",
+        "de": "Stell dir einen großen schwarzen Mann vor, der dich jagt",
+        "orig": "scenes/ghostchase/lines/03.mp3"
+      },
+      {
+        "t": 10.36,
+        "end": 14.97,
+        "chars": [
+          1
+        ],
+        "who": "Keiichirou",
+        "text": "(Keiichirou Running Screaming)",
+        "de": "(Keiichirou rennt schreiend)",
+        "orig": "scenes/ghostchase/lines/04.mp3"
+      },
+      {
+        "t": 14.863,
+        "end": 16.043,
+        "chars": [
+          0
+        ],
+        "who": "Hajime",
+        "text": "Well He's Not Racist",
+        "de": "Naja, er ist ja kein Rassist",
+        "orig": "scenes/ghostchase/lines/05.mp3"
+      },
+      {
+        "t": 15.997,
+        "end": 19.047,
+        "chars": [
+          2
+        ],
+        "who": "Leo",
+        "text": "I Guess Not He's Only 0.2 Seconds Faster",
+        "de": "Glaub kaum — er ist nur 0,2 Sekunden schneller",
+        "orig": "scenes/ghostchase/lines/06.mp3"
+      }
+    ]
+  }
 ]

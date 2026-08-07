@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.61";
+const APP_VERSION = "9.10.62";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -536,6 +536,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.62", items: [
+    "🎬 Neue Szene: Ghost Stories — Think Of A Big Black Man Chasing You (Hajime, Keiichirou, Leo)"
+  ]},
   { v: "9.10.61", items: [
     "📺 Outtakes: Beep durch kurzes, leises TV-Rauschen ersetzt (Schalter „Rauschen an/aus“)",
     "🎚 Fix: Mitspieler −/+ in der Premiere ändert die Stimme wirklich (auch im Kinosaal; Kompressor blockiert nicht mehr)"
@@ -1216,6 +1219,9 @@ const AVATAR_CHARS = [
   { img: "scenes/towelieremembers/stan.png", label: "Stan" },
   { img: "scenes/towelieremembers/cartman.png", label: "Cartman" },
   { img: "scenes/towelieremembers/kyle.png", label: "Kyle" },
+  { img: "scenes/ghostchase/hajime.png", label: "Hajime" },
+  { img: "scenes/ghostchase/keiichirou.png", label: "Keiichirou" },
+  { img: "scenes/ghostchase/leo.png", label: "Leo (Ghost Stories)" },
   { img: "scenes/profiles/kayleen.png", label: "Kayleen" },
   { img: "scenes/profiles/kayleen2.png", label: "Kayleen 2" },
   { img: "scenes/profiles/kenny1.png", label: "Kenny 1" },
