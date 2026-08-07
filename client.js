@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.50";
+const APP_VERSION = "9.10.51";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -504,6 +504,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.51", items: [
+    "😺 Neue Profilbilder: Kayleen, Kayleen 2, Kenny 1, Kenny 2"
+  ]},
   { v: "9.10.50", items: [
     "🚪 Host kann Mitspieler kicken (mit Nachfrage) — Kick-Knopf neben jedem Namen in der Spielerliste"
   ]},
@@ -1145,6 +1148,10 @@ const AVATAR_CHARS = [
   { img: "scenes/towelieremembers/stan.png", label: "Stan" },
   { img: "scenes/towelieremembers/cartman.png", label: "Cartman" },
   { img: "scenes/towelieremembers/kyle.png", label: "Kyle" },
+  { img: "scenes/profiles/kayleen.png", label: "Kayleen" },
+  { img: "scenes/profiles/kayleen2.png", label: "Kayleen 2" },
+  { img: "scenes/profiles/kenny1.png", label: "Kenny 1" },
+  { img: "scenes/profiles/kenny2.png", label: "Kenny 2" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
