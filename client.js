@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.27";
+const APP_VERSION = "9.10.28";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -302,6 +302,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.28", items: [
+    "⬇ Outtakes sofort speichern — Reel wird im Hintergrund fertiggeschnitten"
+  ]},
   { v: "9.10.27", items: [
     "🎬 Outtakes: keine Doppel-/Dreifach-Clips mehr (pro Line nur der letzte Blooper)"
   ]},
@@ -2938,7 +2941,10 @@ function handleMsg(msg, conn) {
     case "mix": loadMix(msg.data); break;
     case "outtakesPool":
       outtakes = dedupeOuttakes(Array.isArray(msg.items) ? msg.items : []);
+      outtakesCache = null;
+      resolveOuttakesCachePending(null);
       updateOuttakesBtn();
+      scheduleOuttakesPrecache();
       break;
     case "playOuttakes":
       // Host spielt lokal selbst — Echo/Doppelstart vermeiden
@@ -5633,6 +5639,9 @@ function showRateResult(results, eliminatedName) {
   updateOuttakesBtn();
 }
 
+function outtakesCacheReady() {
+  return !!(outtakesCache && outtakesCache.blob && outtakesCache.blob.size > 1000);
+}
 function updateOuttakesBtn() {
   const bar = $("outtakes-bar");
   const otBtn = $("btn-outtakes");
@@ -5647,68 +5656,135 @@ function updateOuttakesBtn() {
   if (bar) bar.classList.add("show");
   if (otBtn) otBtn.textContent = "🎬 Outtakes anschauen (" + outtakes.length + ")";
   if (dlBtn) {
-    dlBtn.textContent = outtakesCache
-      ? "⬇ Outtakes speichern (fertig!)"
-      : "⬇ Outtakes speichern (" + outtakes.length + ")";
+    if (outtakesCacheReady()) {
+      dlBtn.textContent = "⬇ Sofort speichern (fertig!)";
+    } else if (outtakesCachePending || (outtakesPlaying && outtakesQuietJob)) {
+      dlBtn.textContent = "⬇ Speichern (schneidet noch …)";
+    } else {
+      dlBtn.textContent = "⬇ Outtakes speichern (" + outtakes.length + ")";
+    }
   }
   if (hint) {
-    hint.textContent = outtakesCache
-      ? outtakes.length + " Bloopers · Speichern sofort bereit"
-      : outtakes.length + " Bloopers · anschauen oder direkt speichern";
+    hint.textContent = outtakesCacheReady()
+      ? outtakes.length + " Bloopers · Sofort speichern bereit"
+      : (outtakesCachePending || outtakesQuietJob)
+        ? outtakes.length + " Bloopers · wird im Hintergrund geschnitten …"
+        : outtakes.length + " Bloopers · Speichern schneidet kurz im Hintergrund";
   }
-  if (ovDl) ovDl.style.display = "";
+  if (ovDl) {
+    ovDl.style.display = "";
+    ovDl.textContent = outtakesCacheReady() ? "⬇ Sofort speichern" : "⬇ Reel speichern";
+  }
 }
 
-// ── Outtakes-Reel: verworfene Takes nacheinander mit Video abspielen (+ optional speichern) ──
+// ── Outtakes-Reel: anschauen + Hintergrund-Schnitt für Sofort-Speichern ──
 let outtakeAbort = false;
 let outtakesPlaying = false;
-let outtakesCache = null;   // { blob, endung }
+let outtakesQuietJob = false;     // true = stiller Hintergrund-Schnitt (kein Overlay)
+let outtakesCache = null;         // { blob, endung }
+let outtakesCachePending = null;  // Promise → cache, während Hintergrund läuft
+let outtakesCacheResolve = null;
+let outtakesPrecacheTimer = null;
+
+function resolveOuttakesCachePending(val) {
+  if (outtakesCacheResolve) {
+    const r = outtakesCacheResolve;
+    outtakesCacheResolve = null;
+    outtakesCachePending = null;
+    try { r(val); } catch {}
+  } else {
+    outtakesCachePending = null;
+  }
+}
+
+function scheduleOuttakesPrecache() {
+  clearTimeout(outtakesPrecacheTimer);
+  if (!outtakes.length || outtakesCacheReady()) return;
+  outtakesPrecacheTimer = setTimeout(() => {
+    if (!outtakes.length || outtakesCacheReady() || outtakesPlaying || outtakesCachePending) return;
+    // Stiller Schnitt im Hintergrund — Speichern danach sofort
+    playOuttakesReel({ quiet: true }).catch(e => console.warn("Outtakes-Precache:", e));
+  }, 800);
+}
+
 async function playOuttakesReel(opts) {
   const saveFile = !!(opts && opts.save);
-  if (!outtakes.length || outtakesPlaying) return;
-  // Sofort sperren (vor jedem await), sonst Doppelklick/Broadcast = 2 parallele Reels
+  const quiet = !!(opts && opts.quiet);   // Hintergrund: kein Overlay, kein Lautsprecher
+  // Sichtbares Anschauen unterbricht stillen Precache
+  if (outtakesPlaying) {
+    if (quiet) return;
+    if (outtakesQuietJob) {
+      outtakeAbort = true;
+      const t0 = performance.now();
+      while (outtakesPlaying && performance.now() - t0 < 8000) {
+        await new Promise(r => setTimeout(r, 50));
+      }
+      if (outtakesPlaying) return;
+    } else return;
+  }
+  if (!outtakes.length) return;
+
+  // Sofort sperren (vor jedem await)
   outtakesPlaying = true;
+  outtakesQuietJob = quiet;
   outtakeAbort = false;
   outtakes = dedupeOuttakes(outtakes);
-  const reel = outtakes.slice();   // stabile Kopie — Array ändert sich nicht mitten im Abspielen
+  const reel = outtakes.slice();
   const ov = $("outtakes-overlay");
   const v = $("outtakes-video");
   const lab = $("outtakes-label");
   const lineEl = $("outtakes-line");
   const recStat = $("outtakes-rec-status");
-  if (!ov || !v) { outtakesPlaying = false; return; }
-  ov.classList.add("show");
-  if (recStat) recStat.style.display = saveFile ? "" : "none";
+  if (!ov || !v) {
+    outtakesPlaying = false; outtakesQuietJob = false;
+    resolveOuttakesCachePending(null);
+    return;
+  }
+
+  const auchCachen = quiet || saveFile || !outtakesCacheReady();
+  if (auchCachen) {
+    outtakesCache = null;
+    if (!outtakesCachePending) {
+      outtakesCachePending = new Promise(res => { outtakesCacheResolve = res; });
+    }
+  }
+
+  if (!quiet) ov.classList.add("show");
+  if (recStat) {
+    if (quiet) {
+      recStat.style.display = "none";
+    } else if (saveFile || auchCachen) {
+      recStat.style.display = "";
+      recStat.textContent = saveFile ? "🔴 Nimmt Outtakes auf (Bild+Ton) …" : "💾 Schneidet mit — Speichern danach sofort";
+      recStat.style.color = saveFile ? "var(--hot)" : "var(--amber)";
+    } else recStat.style.display = "none";
+  }
+  if (quiet) status("play-status", "🎬 Outtakes werden im Hintergrund geschnitten — Speichern gleich sofort …");
+  updateOuttakesBtn();
+
   v.src = sceneVideoSrc() || "";
   try { await waitCanPlay(v, 8000); } catch {}
   const ctx = getCtx();
   if (ctx.state === "suspended") try { await ctx.resume(); } catch {}
 
-  // Video-Ton über WebAudio (für Mitschnitt) — Element stumm, sonst Doppel-Ton
   let vidGain = null;
   try {
     vidGain = ctx.createGain();
     vidGain.gain.value = 0.35;
     elementSource(ctx, v).connect(vidGain);
-    vidGain.connect(ctx.destination);
+    if (!quiet) vidGain.connect(ctx.destination);
   } catch (e) { console.warn("Outtakes video-audio:", e); }
   v.volume = 0;
   v.muted = true;
 
-  // Beim Anschauen schon mitschneiden → Speichern danach sofort
   let fileRec = null, frames = null, recDest = null, chunks = [];
   const mime = outtakesMime();
   const endung = mime.startsWith("video/mp4") ? "mp4" : "webm";
-  // Pro Durchlauf neu mitschneiden (kein alter „nur Ton“-Cache)
-  outtakesCache = null;
-  const auchCachen = true;
-  if (saveFile || auchCachen) {
+  if (auchCachen) {
     try {
       recDest = ctx.createMediaStreamDestination();
       if (vidGain) vidGain.connect(recDest);
-      // alwaysRaf: auch bei Pause/Seek zwischen Clips weiter Bilder liefern
       frames = frameSource(v, { alwaysRaf: true });
-      // Warten bis wirklich Videobilder da sind — sonst speichert der Browser nur Ton
       await new Promise(r => {
         const t0 = performance.now();
         const iv = setInterval(() => {
@@ -5727,19 +5803,11 @@ async function playOuttakesReel(opts) {
       fileRec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 3_500_000 });
       fileRec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
       fileRec.start(200);
-      if (recStat && saveFile) {
-        recStat.style.display = "";
-        recStat.textContent = "🔴 Nimmt Outtakes auf (Bild+Ton) …";
-        recStat.style.color = "var(--hot)";
-      } else if (recStat && auchCachen) {
-        recStat.style.display = "";
-        recStat.textContent = "💾 Schneidet mit (Bild+Ton) — Speichern danach sofort";
-        recStat.style.color = "var(--amber)";
-      }
+      holdPremWakeLock();
     } catch (e) {
       console.warn("Outtakes-Recorder startet nicht:", e);
       fileRec = null;
-      if (recStat && saveFile) {
+      if (!quiet && recStat && saveFile) {
         recStat.style.display = "";
         recStat.textContent = "⚠ Aufnehmen nicht möglich — nur Anschauen";
         recStat.style.color = "var(--hot)";
@@ -5751,8 +5819,10 @@ async function playOuttakesReel(opts) {
     if (outtakeAbort) break;
     const ot = reel[i];
     const who = ot.name ? (" · " + ot.name) : "";
-    if (lab) lab.textContent = "OUTTAKE " + (i + 1) + "/" + reel.length + who;
-    if (lineEl) lineEl.textContent = "„" + ot.text + "“";
+    if (!quiet) {
+      if (lab) lab.textContent = "OUTTAKE " + (i + 1) + "/" + reel.length + who;
+      if (lineEl) lineEl.textContent = "„" + ot.text + "“";
+    }
     let src = null;
     try {
       v.pause();
@@ -5763,7 +5833,8 @@ async function playOuttakesReel(opts) {
       src = ctx.createBufferSource();
       src.buffer = buf;
       const g = ctx.createGain(); g.gain.value = 1.1;
-      src.connect(g); g.connect(ctx.destination);
+      src.connect(g);
+      if (!quiet) g.connect(ctx.destination);
       if (recDest) g.connect(recDest);
       await v.play().catch(() => {});
       if (frames) try { frames.paint(); } catch {}
@@ -5775,7 +5846,7 @@ async function playOuttakesReel(opts) {
         const t = setTimeout(finish, dur * 1000);
         const skip = () => { try { src.stop(); } catch {} finish(); };
         const btn = $("btn-outtakes-skip");
-        if (btn) btn.onclick = skip;
+        if (btn && !quiet) btn.onclick = skip;
         src.onended = finish;
       });
     } catch (e) { console.warn("Outtake skip:", e); }
@@ -5789,52 +5860,80 @@ async function playOuttakesReel(opts) {
   }
   if (frames) frames.stop();
   if (recDest && vidGain) try { vidGain.disconnect(recDest); } catch {}
+  releasePremWakeLock();
 
-  if (fileRec && chunks.length) {
+  let cacheOk = null;
+  if (fileRec && chunks.length && !outtakeAbort) {
     const blob = new Blob(chunks, { type: mime.split(";")[0] });
     if (blob.size > 1000) {
       outtakesCache = { blob, endung };
+      cacheOk = outtakesCache;
       if (saveFile) {
         const name = (scene?.id || "synchro") + "_outtakes." + endung;
         const wie = await saveBlob(blob, name);
         if (wie === "abort") status("play-status", "Outtakes-Speichern abgebrochen.");
         else {
-          status("play-status", endung === "mp4"
-            ? "✅ Outtakes gespeichert als MP4!"
-            : "✅ Outtakes gespeichert (.webm)!");
+          status("play-status", "✅ Outtakes gespeichert!");
           SFX.done();
         }
+      } else if (quiet) {
+        status("play-status", "✅ Outtakes fertiggeschnitten — Sofort speichern bereit!");
       } else {
         status("play-status", "✅ Outtakes durch — Speichern ist jetzt sofort bereit!");
       }
     } else if (saveFile) {
       status("play-status", "⚠ Outtakes-Mitschnitt war leer — Fenster im Vordergrund lassen und nochmal versuchen.", true);
     }
+  } else if (outtakeAbort && quiet) {
+    // abgebrochen zugunsten sichtbarem Anschauen — ok
   }
 
+  if (auchCachen) resolveOuttakesCachePending(cacheOk);
+
   if (recStat) { recStat.style.display = "none"; recStat.style.color = ""; }
-  ov.classList.remove("show");
+  if (!quiet) ov.classList.remove("show");
   v.pause();
   outtakesPlaying = false;
+  outtakesQuietJob = false;
   updateOuttakesBtn();
-  if (!saveFile) SFX.ok();
+  if (!saveFile && !quiet) SFX.ok();
 }
+
 async function downloadOuttakes() {
   if (!outtakes.length) return;
-  if (outtakesCache && outtakesCache.blob && outtakesCache.blob.size > 1000) {
+  // Schon fertig vom Hintergrund-Schnitt?
+  if (outtakesCacheReady()) {
     const name = (scene?.id || "synchro") + "_outtakes." + outtakesCache.endung;
     const wie = await saveBlob(outtakesCache.blob, name);
     if (wie === "abort") return status("play-status", "Outtakes-Speichern abgebrochen.");
-    status("play-status", "✅ Outtakes gespeichert!");
+    status("play-status", "✅ Outtakes sofort gespeichert!");
     SFX.done();
     return;
   }
-  if (outtakesPlaying) {
-    status("play-status", "Outtakes laufen noch — danach speichern, oder nochmal auf Speichern tippen.", true);
+  // Hintergrund läuft noch → warten, dann speichern (kein zweites Abspielen)
+  if (outtakesCachePending) {
+    status("play-status", "⏳ Outtakes werden noch fertiggeschnitten — einen Moment …");
+    updateOuttakesBtn();
+    try {
+      const c = await outtakesCachePending;
+      if (c && c.blob && c.blob.size > 1000) {
+        const name = (scene?.id || "synchro") + "_outtakes." + c.endung;
+        const wie = await saveBlob(c.blob, name);
+        if (wie === "abort") return status("play-status", "Outtakes-Speichern abgebrochen.");
+        status("play-status", "✅ Outtakes gespeichert!");
+        SFX.done();
+        updateOuttakesBtn();
+        return;
+      }
+    } catch {}
+  }
+  if (outtakesPlaying && !outtakesQuietJob) {
+    status("play-status", "Outtakes laufen noch — danach ist Speichern sofort bereit.", true);
     return;
   }
-  status("play-status", "🎬 Schneide Outtakes-Reel … Fenster bitte offen lassen");
-  await playOuttakesReel({ save: true });
+  // Noch kein Cache → still im Hintergrund schneiden und direkt speichern
+  status("play-status", "🎬 Schneide Outtakes im Hintergrund — Fenster offen lassen …");
+  await playOuttakesReel({ quiet: true, save: true });
 }
 $("btn-outtakes") && ($("btn-outtakes").onclick = () => {
   SFX.click();
@@ -6238,8 +6337,11 @@ function publishOuttakesPool() {
   }
   outtakes = unique.slice(0, OUTTAKE_POOL_MAX);
   collectedOuttakes.clear();
+  outtakesCache = null;
+  resolveOuttakesCachePending(null);
   updateOuttakesBtn();
   broadcast({ t: "outtakesPool", items: outtakes });
+  scheduleOuttakesPrecache();
 }
 // Getrennt aufrufbar, damit auch ein Verbindungsabbruch die Premiere auslösen kann:
 // wer weg ist, wird nicht mehr gebraucht — sonst wartet die Runde endlos auf seine Spur.
@@ -7231,6 +7333,8 @@ $("btn-back").onclick = () => {
 function resetForNewRound() {
   players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; });
   mixItems = []; collected.clear(); collectedOuttakes.clear(); takes = {}; outtakes = []; outtakesCache = null;
+  clearTimeout(outtakesPrecacheTimer); outtakesPrecacheTimer = null;
+  outtakeAbort = true; resolveOuttakesCachePending(null);
   premOrigOn = true; premOrigUnfilled = []; premOrigMuted = new Set(); premPaused = false;
   invalidatePremCache();
   clearSceneCaches();
