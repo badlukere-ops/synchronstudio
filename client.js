@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.41";
+const APP_VERSION = "9.10.42";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -477,6 +477,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.42", items: [
+    "🎧 Stimmen-Richtung Standard jetzt Mitte — links/rechts nur noch, wenn du es in den Line-Einstellungen änderst"
+  ]},
   { v: "9.10.41", items: [
     "🌈 Kinosaal: kleiner Glow-Knopf zum An/Aus; Hintergrund-Bubbles & Profilbilder fliegen nicht mehr übers Bild"
   ]},
@@ -3561,21 +3564,24 @@ const EFFECTS = {
 let myEffectOverrides = {};   // lineIdx -> Effekt-Key (nur gesetzt, wenn vom Standard abweichend)
 let myEffectAmounts = {};     // lineIdx -> Effekt-Staerke 0..1 (nur gesetzt, wenn abweichend von voll)
 let myLineGains = {};        // lineIdx -> Lautstaerke-Faktor (1 = unveraendert)
-let myLinePans = {};         // lineIdx -> Stereo-Pan -1..1 (nur gesetzt, wenn Spieler selbst wählt)
+let myLinePans = {};         // lineIdx -> Stereo-Pan -1..1 (nur gesetzt, wenn Spieler selbst wählt; sonst Mitte)
 let stripRoleFx = false;     // true = Szenen-/Rollen-Effekt aus (z.B. kein Monster bei Kaigaku), außer man wählt selbst einen
-// Einfache Stereo-Presets (kein echtes Oben/Unten — Kopfhörer/Boxen können nur links↔rechts)
+// Einfache Stereo-Presets — Standard ist immer Mitte (Rollen-Pan aus scenes.json greift nicht mehr)
 const LINE_PAN_PRESETS = [
-  { id: "auto", label: "Auto", tip: "Wie die Rolle (Standard)", pan: undefined },
+  { id: "C",    label: "Mitte", tip: "Standard — genau in der Mitte", pan: 0 },
   { id: "L",    label: "Links", tip: "Ganzer linker Ohrhörer", pan: -1 },
   { id: "l",    label: "Etwas L", tip: "Leicht nach links", pan: -0.5 },
-  { id: "C",    label: "Mitte", tip: "Genau in der Mitte", pan: 0 },
   { id: "r",    label: "Etwas R", tip: "Leicht nach rechts", pan: 0.5 },
   { id: "R",    label: "Rechts", tip: "Ganzer rechter Ohrhörer", pan: 1 },
 ];
 function panPresetId(pan) {
-  if (pan === undefined || pan === null) return "auto";
-  const hit = LINE_PAN_PRESETS.find(p => p.id !== "auto" && p.pan === pan);
-  return hit ? hit.id : "auto";
+  if (pan === undefined || pan === null) return "C";
+  const hit = LINE_PAN_PRESETS.find(p => p.pan === pan);
+  return hit ? hit.id : "C";
+}
+/** Pan für Mix/Submit: Mitte (0), außer Spieler hat es in den Line-Einstellungen geändert. */
+function submitPanFor(l) {
+  return myLinePans[l.idx] !== undefined ? myLinePans[l.idx] : 0;
 }
 function panLabel(pan) {
   if (pan == null || pan === 0) return "Mitte";
@@ -3936,6 +3942,7 @@ function applyGateToBuffer(ctx, buffer, gateAmount) {
 
 function myEffectiveRole(l) {
   // Reihenfolge: Spieler-Wahl > (optional Strip) > Szenen-Autor-Override (l.effect) > Rollen-Standard
+  // Pan: immer Mitte, außer in den Line-Einstellungen anders gewählt (kein Auto/Rollen-Pan mehr)
   const base = roleOf(myRole()) || { pan: 0, effect: "none", gain: 1 };
   const amt = myEffectAmounts[l.idx];
   const boost = myLineGains[l.idx];
@@ -3943,7 +3950,7 @@ function myEffectiveRole(l) {
   const withAmt = (r) => {
     let o = amt === undefined ? r : { ...r, fxAmount: amt };
     if (boost !== undefined && boost !== 1) o = { ...o, gain: (o.gain ?? 1) * boost };
-    if (panOv !== undefined) o = { ...o, pan: panOv };
+    o = { ...o, pan: panOv !== undefined ? panOv : 0 };
     return o;
   };
   const chosen = myEffectOverrides[l.idx];
@@ -5008,18 +5015,16 @@ function syncLineGainUI(l) {
 function syncLinePanUI(l) {
   const wrap = $("my-line-pan");
   if (!wrap || !l) return;
-  const base = roleOf(myRole()) || { pan: 0 };
-  const rolePan = base.pan ?? 0;
   const active = panPresetId(myLinePans[l.idx]);
-  wrap.innerHTML = LINE_PAN_PRESETS.map(p => {
-    const lab = p.id === "auto" ? ("Auto (" + panLabel(rolePan) + ")") : p.label;
-    return `<button type="button" class="pan-btn${p.id === active ? " on" : ""}" data-pan="${p.id}" title="${esc(p.tip)}">${esc(lab)}</button>`;
-  }).join("");
+  wrap.innerHTML = LINE_PAN_PRESETS.map(p =>
+    `<button type="button" class="pan-btn${p.id === active ? " on" : ""}" data-pan="${p.id}" title="${esc(p.tip)}">${esc(p.label)}</button>`
+  ).join("");
   wrap.querySelectorAll(".pan-btn").forEach(btn => {
     btn.onclick = () => {
       const preset = LINE_PAN_PRESETS.find(p => p.id === btn.dataset.pan);
       if (!preset) return;
-      if (preset.pan === undefined) delete myLinePans[l.idx];
+      // Mitte = Standard → Eintrag löschen; alles andere speichern
+      if (preset.pan === 0) delete myLinePans[l.idx];
       else myLinePans[l.idx] = preset.pan;
       syncLinePanUI(l);
       fxPreviewCacheKey = null;
@@ -5267,7 +5272,7 @@ function finishBooth() {
   show("scr-wait");
   renderBoothPlayers();
   const items = myLines.filter(l => takes[l.idx] && takes[l.idx] !== "SKIP")
-    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: submitEffectFor(l), fxAmount: myEffectAmounts[l.idx], boost: myLineGains[l.idx], pan: myLinePans[l.idx], gate: micSettings.gate }));
+    .map(l => ({ startAt: l.t, idx: l.idx, buf: takes[l.idx], effect: submitEffectFor(l), fxAmount: myEffectAmounts[l.idx], boost: myLineGains[l.idx], pan: submitPanFor(l), gate: micSettings.gate }));
   const ots = serializeOuttakes();
   const boostByIdx = boostMapFromItems(items);
   const panByIdx = panMapFromItems(items);
@@ -6664,7 +6669,7 @@ function finishRedo() {
   const gate = micSettings.gate;
   const boost = myLineGains[l.idx];
   const fxAmount = myEffectAmounts[l.idx];
-  const pan = myLinePans[l.idx];
+  const pan = submitPanFor(l);
   redoMode = null;
   cancelAnimationFrame(vizRAF);
   $("onair").classList.remove("live");
@@ -7501,7 +7506,8 @@ async function exportAudioFast() {
       if (item.effect) role = { ...role, effect: item.effect };
       if (item.fxAmount !== undefined) role = { ...role, fxAmount: item.fxAmount };
       if (item.boost != null && item.boost !== 1) role = { ...role, gain: (role.gain ?? 1) * item.boost };
-      if (item.pan != null) role = { ...role, pan: item.pan };
+      if (!item.isOrig) role = { ...role, pan: item.pan != null ? item.pan : 0 };
+      else if (item.pan != null) role = { ...role, pan: item.pan };
       const src = offlineCtx.createBufferSource();
       src.buffer = item.buffer;
       src.playbackRate.value = effectPitch(role.effect);
@@ -7908,7 +7914,9 @@ async function playMix(opts) {
     if (item.fxAmount !== undefined) role = { ...role, fxAmount: item.fxAmount };
     // „Deine Lautstärke“ aus der Booth — fehlte hier bisher (Export hatte es, Premiere nicht)
     if (item.boost != null && item.boost !== 1) role = { ...role, gain: (role.gain ?? 1) * item.boost };
-    if (item.pan != null) role = { ...role, pan: item.pan };   // Spieler-Pan pro Line (links/mitte/rechts)
+    // Spieler-Stimmen: Pan aus der Booth (Default Mitte). Original-Lücken behalten Szenen-Pan.
+    if (!item.isOrig) role = { ...role, pan: item.pan != null ? item.pan : 0 };
+    else if (item.pan != null) role = { ...role, pan: item.pan };
     const src = ctx.createBufferSource();
     src.buffer = item.buffer;
     src.playbackRate.value = effectPitch(role.effect);
