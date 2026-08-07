@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.48";
+const APP_VERSION = "9.10.49";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -504,6 +504,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.49", items: [
+    "🔊 „Deine Lautstärke“ geht jetzt bis 5 % runter (vorher nur bis 40 %) — hilft, wenn Effekte die Stimme lauter machen"
+  ]},
   { v: "9.10.48", items: [
     "🎬 Outtakes: „Abbrechen“ mitten in der Line speichert den Fehlversuch als Blooper (alter Take bleibt)",
     "🎬 Mehrere Bloopers pro Line möglich — nicht nur der letzte Fehlversuch",
