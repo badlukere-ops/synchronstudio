@@ -308,18 +308,23 @@
     .cinema-curtains .curtain{transition:none}
   }
 
-  /* SynchroBuddy-Sticker */
+  /* SynchroBuddy */
   .buddy-btn{
-    font-size:1.35rem;padding:4px 8px;background:transparent;border:1px dashed #3a3a46;
-    border-radius:8px;cursor:pointer;opacity:.45;transition:opacity .15s, border-color .15s, transform .15s, background .15s;
+    display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+    font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+    padding:7px 11px;border-radius:999px;cursor:pointer;
+    color:#8a8a98;background:rgba(255,255,255,.03);
+    border:1px solid #33333f;
+    transition:color .15s, border-color .15s, background .15s, box-shadow .15s;
   }
-  .buddy-btn:hover{opacity:.85;border-color:var(--amber)}
+  .buddy-btn::before{content:"🤝";font-size:.95rem;letter-spacing:0}
+  .buddy-btn:hover{color:var(--amber);border-color:rgba(240,168,48,.45);background:rgba(240,168,48,.06)}
   .buddy-btn.on{
-    opacity:1;border-style:solid;border-color:var(--amber);
-    background:rgba(240,168,48,.12);transform:scale(1.08);
-    box-shadow:0 0 14px rgba(240,168,48,.25);
+    color:#1a1208;border-color:var(--amber);
+    background:linear-gradient(180deg,#f0c060,var(--amber));
+    box-shadow:0 0 14px rgba(240,168,48,.3);
   }
-  .buddy-hint{font-size:.78rem;color:var(--muted);margin:0 0 10px}
+  .buddy-hint{font-size:.78rem;color:var(--muted);margin:0 0 12px;line-height:1.4}
   .buddy-badge{
     display:inline-flex;align-items:center;gap:4px;margin-top:2px;
     font-size:.72rem;color:var(--amber);letter-spacing:.04em;
@@ -845,92 +850,46 @@
   .podium-blackout.out{opacity:0;transition:opacity 2.8s ease-out}
   @media (prefers-reduced-motion:reduce){.podium-blackout{display:none!important}}
 
-  /* 🎛 Jury-Pult — Bewertung wie Hardware am Mischpult */
+  /* Bewertung — clean, studio-mäßig, ohne klobige Schalter */
   #rate-card.jury-desk{
-    background:
-      repeating-linear-gradient(90deg,transparent 0 3px,rgba(255,255,255,.015) 3px 4px),
-      linear-gradient(180deg,#1a1a22 0%,#121218 55%,#0e0e14 100%);
-    border-color:#2e2e38;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.06),
-      inset 0 -2px 0 rgba(0,0,0,.35),
-      0 12px 40px rgba(0,0,0,.45);
+    background:linear-gradient(180deg,#16161e 0%,#121218 100%);
+    border-color:#2a2a34;
   }
-  #rate-card.jury-desk h2{margin-bottom:6px}
+  #rate-card.jury-desk h2{margin-bottom:4px}
   .jury-sub{
-    font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
-    color:#6a6a78;margin:0 0 12px;
+    font-family:var(--font-mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
+    color:#5a5a68;margin:0 0 10px;
   }
   .raterow{
-    display:flex;align-items:center;gap:12px;
-    background:
-      linear-gradient(180deg,#1c1c26 0%,#15151c 100%);
-    border:1px solid #2a2a34;border-radius:10px;padding:12px 14px;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 4px 0 #0a0a0e;
-    transition:border-color .2s, box-shadow .2s;
-    position:relative;
+    display:flex;align-items:center;gap:14px;
+    background:#14141b;border:1px solid #262632;border-radius:12px;
+    padding:14px 16px;transition:border-color .2s, background .2s;
   }
-  .raterow::before{
-    content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;
-    background:#2a2a34;border-radius:0 2px 2px 0;
-  }
-  .raterow:hover{border-color:#3a3a48}
-  .raterow.rated{
-    border-color:rgba(240,168,48,.45);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 4px 0 #0a0a0e, 0 0 18px rgba(240,168,48,.12);
-  }
-  .raterow.rated::before{background:var(--amber);box-shadow:0 0 8px rgba(240,168,48,.55)}
-  .rate-led{
-    width:10px;height:10px;border-radius:50%;flex-shrink:0;
-    background:#2a2a34;border:1px solid #1a1a22;
-    box-shadow:inset 0 1px 2px rgba(0,0,0,.5);
-  }
-  .raterow.rated .rate-led{
-    background:var(--vu);
-    box-shadow:0 0 8px rgba(95,227,161,.75), inset 0 1px 0 rgba(255,255,255,.25);
-  }
-  .rateinfo{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
-  .ratename{font-weight:700;font-size:.95rem}
-  .starrow{
-    display:flex;gap:5px;padding:5px 7px;border-radius:8px;
-    background:#0c0c12;border:1px solid #22222c;
-    box-shadow:inset 0 2px 6px rgba(0,0,0,.55);
-  }
+  .raterow:hover{border-color:#343444;background:#16161f}
+  .raterow.rated{border-color:rgba(240,168,48,.4);background:rgba(240,168,48,.04)}
+  .rate-led{display:none}
+  .rateinfo{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+  .ratename{font-weight:700;font-size:1rem;letter-spacing:.01em}
+  .starrow{display:flex;gap:4px;align-items:center}
   .starbtn{
-    width:34px;height:34px;padding:0;margin:0;
-    font-size:1.15rem;line-height:1;cursor:pointer;
-    color:#3a3a46;
-    background:linear-gradient(180deg,#2a2a34 0%,#1a1a22 100%);
-    border:1px solid #3a3a46;border-radius:7px;
-    box-shadow:0 2px 0 #0a0a0e, inset 0 1px 0 rgba(255,255,255,.08);
-    transition:transform .08s, color .12s, background .12s, border-color .12s, box-shadow .12s;
+    width:32px;height:32px;padding:0;margin:0;border:none;background:transparent;
+    font-size:1.45rem;line-height:1;cursor:pointer;color:#2e2e3a;
+    transition:color .12s, transform .12s, text-shadow .12s;
   }
-  .starbtn:hover{color:#7a7a88;border-color:#4a4a58;transform:translateY(-1px)}
-  .starbtn:active{transform:translateY(1px);box-shadow:0 0 0 #0a0a0e, inset 0 2px 4px rgba(0,0,0,.45)}
+  .starbtn:hover{color:#5a5a6a;transform:scale(1.12)}
   .starbtn.on{
-    color:#1a1208;
-    background:linear-gradient(180deg,#f0c060 0%, var(--amber) 55%, #c07820 100%);
-    border-color:#f0c060;
-    box-shadow:0 2px 0 #5a3a10, inset 0 1px 0 rgba(255,255,255,.35), 0 0 12px rgba(240,168,48,.35);
-    text-shadow:none;
+    color:var(--amber);
+    text-shadow:0 0 12px rgba(240,168,48,.55);
   }
-  .starbtn.on:hover{color:#1a1208;transform:translateY(-1px)}
-  .starbtn.pop{animation:starpop .32s ease}
-  @keyframes starpop{0%{transform:scale(1)}40%{transform:scale(1.18) translateY(-2px)}100%{transform:scale(1)}}
-  #rate-card .buddy-btn{
-    width:36px;height:36px;border-radius:8px;font-size:1.15rem;
-    background:linear-gradient(180deg,#2a2a34,#1a1a22);
-    border:1px solid #3a3a46;box-shadow:0 2px 0 #0a0a0e;
-  }
-  #rate-card .buddy-btn.on{
-    border-color:var(--amber);background:rgba(240,168,48,.18);
-    box-shadow:0 2px 0 #5a3a10, 0 0 12px rgba(240,168,48,.25);
-  }
+  .starbtn.on:hover{color:#f5c45a}
+  .starbtn.pop{animation:starpop .3s ease}
+  @keyframes starpop{0%{transform:scale(1)}45%{transform:scale(1.28)}100%{transform:scale(1)}}
   .resultrow.winner{border-color:var(--amber);box-shadow:0 0 20px rgba(255,201,92,.3)}
   .resultscore{font-family:var(--font-display);color:var(--amber);font-size:1.1rem;white-space:nowrap}
   @media(max-width:600px){
-    .starbtn{width:28px;height:28px;font-size:1rem}
-    .starrow{gap:3px;padding:4px 5px}
+    .raterow{flex-wrap:wrap;gap:10px}
+    .starrow{order:3;width:100%;justify-content:flex-start}
+    .buddy-btn{margin-left:auto}
   }
 
   /* 🏆 Podium-Bühne — Awards-Show statt flacher Kacheln */
@@ -1683,10 +1642,10 @@
       <p class="status" id="play-status"></p>
     </div>
     <div class="card jury-desk" id="rate-card" style="display:none">
-      <h2>🎛 Jury-Pult</h2>
-      <p class="jury-sub">Studio-Bewertung · 1–5 Sterne pro Sprecher</p>
-      <p class="sub">Jeder Sprecher bekommt Sterne — dich selbst kannst du nicht bewerten.</p>
-      <p class="buddy-hint" id="buddy-hint" style="display:none">🤝 Optional: gib <b>einem</b> Sprecher einen <b>SynchroBuddy</b>-Sticker (nur <b>1× pro Match</b>) — Extra-Punkte!</p>
+      <h2>⭐ Bewertung</h2>
+      <p class="jury-sub">1–5 Sterne pro Sprecher</p>
+      <p class="sub">Tippe die Sterne — dich selbst kannst du nicht bewerten.</p>
+      <p class="buddy-hint" id="buddy-hint" style="display:none">Optional: einem Sprecher <b>SynchroBuddy</b> geben (nur 1× pro Match) — Extra-Punkte.</p>
       <div id="rate-rows" style="display:grid;gap:10px"></div>
       <p class="status" id="rate-progress" style="margin-top:8px"></p>
       <div class="row" style="margin-top:14px">
@@ -1774,7 +1733,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.44"></script>
+  <script src="client.js?v=9.10.45"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>
