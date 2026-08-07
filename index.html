@@ -612,11 +612,35 @@
     input[type=text],select{font-size:16px} /* verhindert Auto-Zoom in iOS Safari */
   }
 
-  .rectime{height:6px;background:#1c1c25;border-radius:99px;overflow:hidden;margin-bottom:14px}
+  .rectime{height:6px;background:#1c1c25;border-radius:99px;overflow:hidden;margin:10px 0 8px}
   .rectime i{display:block;height:100%;width:0;background:var(--grad)}
 
-  .boothbtns{display:flex;gap:10px;flex-wrap:wrap}
+  .boothbtns{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px}
   #btn-line-rec.recording{background:var(--grad);border:none;color:#14060a;animation:pulse 1.1s infinite}
+
+  /* Booth: Einstellungen unter den Aktionsknöpfen, einklappbar */
+  .booth-settings{
+    margin-top:12px;border:1px solid var(--line);border-radius:12px;
+    background:
+      repeating-linear-gradient(96deg,rgba(255,255,255,.014) 0 1px,transparent 1px 4px),
+      linear-gradient(180deg,#16161c,#101014);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .booth-settings > summary{
+    cursor:pointer;list-style:none;padding:12px 14px;
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--amber);user-select:none;display:flex;align-items:center;gap:8px;
+  }
+  .booth-settings > summary::-webkit-details-marker{display:none}
+  .booth-settings > summary::before{
+    content:"";width:0;height:0;border-style:solid;border-width:5px 0 5px 7px;
+    border-color:transparent transparent transparent var(--amber);opacity:.85;
+    transition:transform .12s ease;
+  }
+  .booth-settings[open] > summary::before{transform:rotate(90deg)}
+  .booth-settings .booth-settings-body{padding:2px 14px 14px;border-top:1px solid var(--line)}
+  #scr-booth .lineplate{margin-top:12px;margin-bottom:12px}
+  #scr-booth canvas.viz{margin-top:8px}
 
   .prompter{margin-top:14px;min-height:60px}
   .pline{display:flex;gap:14px;align-items:center;background:#14141b;border:1px solid var(--line);border-radius:12px;padding:12px 16px;transition:.2s}
@@ -1142,13 +1166,6 @@
         <div class="linecount" id="booth-count">1/1<small>Voiceline</small></div>
       </div>
 
-      <div class="lineplate">
-        <div class="lwho" id="line-who">—</div>
-        <div class="lcap" id="line-text">—</div>
-        <div class="lde" id="line-de" style="margin-top:8px;font-size:1rem;color:var(--amber)"></div>
-        <div class="ldur" id="line-dur"></div>
-      </div>
-
       <div class="video-wipe-host" style="max-height:260px">
         <video id="booth-video" playsinline preload="auto" style="max-height:260px;width:100%;display:block"></video>
         <div class="wipe-cd" id="wipe-booth" aria-hidden="true">
@@ -1158,65 +1175,14 @@
         </div>
       </div>
       <div class="bar" id="booth-bar" style="display:none"><i></i></div>
-      <canvas class="viz" id="viz"></canvas>
-      <p class="tag" style="margin:2px 0 0"><span style="color:#c84bff">■ Original oben</span> &nbsp; <span style="color:#5aaaff">■ Deine Stimme unten</span> &nbsp; <span style="opacity:.65">gestrichelt = hier ist das Original fertig</span></p>
-      <label class="tag" style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
-        🎚 Noise Gate (Pausen + Nebengeräusche): <span id="booth-gate-val">50%</span>
-        <input type="range" id="booth-gate" min="0" max="1" step="0.05" value="0.5" style="flex:1;max-width:220px;accent-color:var(--amber)">
-        <span id="booth-gate-lamp" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#3a3a46" title="grün = Gate offen (du bist hörbar)"></span>
-      </label>
-      <p class="tag" style="margin:2px 0 0;opacity:.75">Mittel = Tastatur/Rauschen in Pausen weg. Sehr hoch dämpft auch neben der Stimme — zu hoch kann dumpf klingen.</p>
-      <div class="rectime"><i id="rectime-fill"></i></div>
 
-      <div class="row" style="margin-bottom:10px;gap:16px">
-        <span class="tag">Übungs-Tempo:</span>
-        <button class="rolebtn speedbtn mine" data-s="1" style="width:auto;padding:6px 12px">1×</button>
-        <button class="rolebtn speedbtn" data-s="0.75" style="width:auto;padding:6px 12px">0.75×</button>
-        <button class="rolebtn speedbtn" data-s="0.5" style="width:auto;padding:6px 12px">0.5×</button>
-        <span style="flex:1"></span>
-        <span class="tag">🔊 Video</span>
-        <input type="range" id="booth-vol" min="0" max="1" step="0.05" value="0.55" style="width:120px;accent-color:var(--amber)">
+      <div class="lineplate">
+        <div class="lwho" id="line-who">—</div>
+        <div class="lcap" id="line-text">—</div>
+        <div class="lde" id="line-de" style="margin-top:8px;font-size:1rem;color:var(--amber)"></div>
+        <div class="ldur" id="line-dur"></div>
       </div>
-      <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-bottom:8px;font-size:.9rem;color:var(--muted)">
-        <input type="checkbox" id="rec-timer" checked style="accent-color:var(--amber);width:17px;height:17px">
-        ⏱ 3-Sek.-Countdown vor der Aufnahme · Leertaste = Aufnehmen / Stoppen
-      </label>
-      <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-bottom:8px;font-size:.9rem;color:var(--muted)">
-        <input type="checkbox" id="rec-wipe" style="accent-color:var(--amber);width:17px;height:17px">
-        ⬜ Weiße Balken-Countdown (wie Synchronstudios) — statt Zahlen
-      </label>
-      <div id="rec-cue-wrap" style="margin-bottom:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#121218">
-        <label style="display:flex;gap:8px;align-items:center;cursor:pointer;font-size:.92rem;font-weight:600">
-          <input type="checkbox" id="rec-cue-orig" style="accent-color:var(--amber);width:17px;height:17px">
-          🗣 Original mithören beim Aufnehmen
-        </label>
-        <p class="tag" style="margin:6px 0 8px;opacity:.8">Nur als Hilfe im Ohr — landet nicht im Take. Am besten mit Kopfhörern.</p>
-        <label class="tag" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          Cue-Lautstärke: <span id="rec-cue-vol-val">45%</span>
-          <input type="range" id="rec-cue-vol" min="0" max="1" step="0.05" value="0.45" style="flex:1;max-width:220px;accent-color:var(--amber)">
-        </label>
-      </div>
-      <label class="tag" style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
-        🎚 Dein Effekt für diese Line:
-        <select id="my-effect-select" style="flex:1;max-width:260px"></select>
-      </label>
-      <div class="row" style="margin:0 0 10px;gap:10px;align-items:center">
-        <span class="tag">Stärke</span>
-        <input type="range" id="my-effect-amount" min="0" max="1" step="0.05" value="1" style="flex:1;max-width:200px">
-        <span class="tag" id="my-effect-amount-val" style="min-width:38px">100%</span>
-        <button class="ghost" id="btn-fx-preview" style="padding:6px 12px;font-size:.82rem">🔊 Vorhören</button>
-      </div>
-      <div class="row" style="margin:0 0 10px;gap:10px;align-items:center">
-        <span class="tag">🔊 Deine Lautstärke</span>
-        <input type="range" id="my-line-gain" min="0.4" max="4" step="0.1" value="1" style="flex:1;max-width:200px" title="Zu leise aufgenommen? Hier lauter drehen.">
-        <span class="tag" id="my-line-gain-val" style="min-width:44px">100%</span>
-        <span class="tag" id="my-line-gain-warn" style="color:var(--hot);display:none">⚠ übersteuert</span>
-      </div>
-      <div style="margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#121218">
-        <div class="tag" style="margin-bottom:8px">🎧 Wo kommt die Stimme her? (Stereo)</div>
-        <div class="pan-btns" id="my-line-pan"></div>
-        <p class="tag" style="margin:8px 0 0;opacity:.75;text-transform:none;letter-spacing:.02em;font-size:.72rem;line-height:1.35">Nur links ↔ rechts (Kopfhörer/Boxen). Am besten mit „Vorhören“ oder „Anhören“ testen — gilt auch für Premiere &amp; Speichern.</p>
-      </div>
+
       <div class="boothbtns">
         <button class="big ghost" id="btn-line-prev">⬅ Vorherige</button>
         <button class="big" id="btn-line-scene">🎬 Szene ansehen</button>
@@ -1227,6 +1193,72 @@
         <button class="big ghost" id="btn-line-skip" style="display:none">⏭ Skip (Original behalten)</button>
       </div>
       <p class="status" id="booth-status">Unendlich Versuche — nimm auf, bis es sitzt.</p>
+      <div class="rectime"><i id="rectime-fill"></i></div>
+
+      <canvas class="viz" id="viz"></canvas>
+      <p class="tag" style="margin:2px 0 0"><span style="color:#c84bff">■ Original oben</span> &nbsp; <span style="color:#5aaaff">■ Deine Stimme unten</span> &nbsp; <span style="opacity:.65">gestrichelt = hier ist das Original fertig</span></p>
+
+      <details class="booth-settings">
+        <summary>🎚 Einstellungen</summary>
+        <div class="booth-settings-body">
+          <label class="tag" style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
+            🎚 Noise Gate (Pausen + Nebengeräusche): <span id="booth-gate-val">50%</span>
+            <input type="range" id="booth-gate" min="0" max="1" step="0.05" value="0.5" style="flex:1;max-width:220px;accent-color:var(--amber)">
+            <span id="booth-gate-lamp" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#3a3a46" title="grün = Gate offen (du bist hörbar)"></span>
+          </label>
+          <p class="tag" style="margin:2px 0 0;opacity:.75">Mittel = Tastatur/Rauschen in Pausen weg. Sehr hoch dämpft auch neben der Stimme — zu hoch kann dumpf klingen.</p>
+
+          <div class="row" style="margin:12px 0 10px;gap:16px">
+            <span class="tag">Übungs-Tempo:</span>
+            <button class="rolebtn speedbtn mine" data-s="1" style="width:auto;padding:6px 12px">1×</button>
+            <button class="rolebtn speedbtn" data-s="0.75" style="width:auto;padding:6px 12px">0.75×</button>
+            <button class="rolebtn speedbtn" data-s="0.5" style="width:auto;padding:6px 12px">0.5×</button>
+            <span style="flex:1"></span>
+            <span class="tag">🔊 Video</span>
+            <input type="range" id="booth-vol" min="0" max="1" step="0.05" value="0.55" style="width:120px;accent-color:var(--amber)">
+          </div>
+          <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-bottom:8px;font-size:.9rem;color:var(--muted)">
+            <input type="checkbox" id="rec-timer" checked style="accent-color:var(--amber);width:17px;height:17px">
+            ⏱ 3-Sek.-Countdown vor der Aufnahme · Leertaste = Aufnehmen / Stoppen
+          </label>
+          <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-bottom:8px;font-size:.9rem;color:var(--muted)">
+            <input type="checkbox" id="rec-wipe" style="accent-color:var(--amber);width:17px;height:17px">
+            ⬜ Weiße Balken-Countdown (wie Synchronstudios) — statt Zahlen
+          </label>
+          <div id="rec-cue-wrap" style="margin-bottom:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#121218">
+            <label style="display:flex;gap:8px;align-items:center;cursor:pointer;font-size:.92rem;font-weight:600">
+              <input type="checkbox" id="rec-cue-orig" style="accent-color:var(--amber);width:17px;height:17px">
+              🗣 Original mithören beim Aufnehmen
+            </label>
+            <p class="tag" style="margin:6px 0 8px;opacity:.8">Nur als Hilfe im Ohr — landet nicht im Take. Am besten mit Kopfhörern.</p>
+            <label class="tag" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              Cue-Lautstärke: <span id="rec-cue-vol-val">45%</span>
+              <input type="range" id="rec-cue-vol" min="0" max="1" step="0.05" value="0.45" style="flex:1;max-width:220px;accent-color:var(--amber)">
+            </label>
+          </div>
+          <label class="tag" style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+            🎚 Dein Effekt für diese Line:
+            <select id="my-effect-select" style="flex:1;max-width:260px"></select>
+          </label>
+          <div class="row" style="margin:0 0 10px;gap:10px;align-items:center">
+            <span class="tag">Stärke</span>
+            <input type="range" id="my-effect-amount" min="0" max="1" step="0.05" value="1" style="flex:1;max-width:200px">
+            <span class="tag" id="my-effect-amount-val" style="min-width:38px">100%</span>
+            <button class="ghost" id="btn-fx-preview" style="padding:6px 12px;font-size:.82rem">🔊 Vorhören</button>
+          </div>
+          <div class="row" style="margin:0 0 10px;gap:10px;align-items:center">
+            <span class="tag">🔊 Deine Lautstärke</span>
+            <input type="range" id="my-line-gain" min="0.4" max="4" step="0.1" value="1" style="flex:1;max-width:200px" title="Zu leise aufgenommen? Hier lauter drehen.">
+            <span class="tag" id="my-line-gain-val" style="min-width:44px">100%</span>
+            <span class="tag" id="my-line-gain-warn" style="color:var(--hot);display:none">⚠ übersteuert</span>
+          </div>
+          <div style="margin:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#121218">
+            <div class="tag" style="margin-bottom:8px">🎧 Wo kommt die Stimme her? (Stereo)</div>
+            <div class="pan-btns" id="my-line-pan"></div>
+            <p class="tag" style="margin:8px 0 0;opacity:.75;text-transform:none;letter-spacing:.02em;font-size:.72rem;line-height:1.35">Nur links ↔ rechts (Kopfhörer/Boxen). Am besten mit „Vorhören“ oder „Anhören“ testen — gilt auch für Premiere &amp; Speichern.</p>
+          </div>
+        </div>
+      </details>
     </div>
     <div class="card">
       <h2>Studio-Status</h2>
@@ -1521,7 +1553,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.33"></script>
+  <script src="client.js?v=9.10.34"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>

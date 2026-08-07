@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.33";
+const APP_VERSION = "9.10.34";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -476,6 +476,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.34", items: [
+    "🎛 Booth: Aufnehmen/Anhören/Weiter jetzt direkt unter dem Video — Einstellungen darunter einklappbar"
+  ]},
   { v: "9.10.33", items: [
     "⏱ Gespeicherte Videos zeigen wieder die Gesamtlänge in der Zeitleiste (WebM-Duration-Metadaten)",
     "🎬 Outtakes: Ton + Speichern (mit v9.10.32)"
