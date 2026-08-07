@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.20";
+const APP_VERSION = "9.10.21";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -298,6 +298,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.21", items: [
+    "🎀 Neue Szene: My Dress-Up Darling — Kawaii Kaiwai Outro (4× Marin)"
+  ]},
   { v: "9.10.20", items: [
     "🎬 Neue Szenen: Ghost Stories (Rabbit), Spider-Man NWH Organic Web, SpongeBob Menacingly"
   ]},
@@ -815,6 +818,10 @@ const AVATAR_CHARS = [
   { img: "scenes/nwhorganic/tobey.png", label: "Tobey Spidey" },
   { img: "scenes/sbmenacing/patrick.png", label: "Patrick (Menacing)" },
   { img: "scenes/sbmenacing/spongebob.png", label: "SpongeBob (Menacing)" },
+  { img: "scenes/kawaimarin/marin1.png", label: "Marin 1" },
+  { img: "scenes/kawaimarin/marin2.png", label: "Marin 2" },
+  { img: "scenes/kawaimarin/marin3.png", label: "Marin 3" },
+  { img: "scenes/kawaimarin/marin4.png", label: "Marin 4" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {

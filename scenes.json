@@ -21844,5 +21844,320 @@
     "orig": "scenes/sbmenacing/lines/50.mp3"
    }
   ]
+ },
+ {
+  "id": "kawaimarin",
+  "title": "My Dress-Up Darling — Kawaii Kaiwai Outro (4× Marin)",
+  "videoUrl": "scenes/kawaimarin.mp4",
+  "voiceTrack": "scenes/kawaimarin_voices.mp3",
+  "avatars": {
+   "1": "scenes/kawaimarin/marin1.png",
+   "2": "scenes/kawaimarin/marin2.png",
+   "3": "scenes/kawaimarin/marin3.png",
+   "4": "scenes/kawaimarin/marin4.png"
+  },
+  "roles": [
+   {
+    "id": 1,
+    "name": "Marin 1",
+    "pan": -0.55,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Marin 2",
+    "pan": -0.2,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 3,
+    "name": "Marin 3",
+    "pan": 0.2,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 4,
+    "name": "Marin 4",
+    "pan": 0.55,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 1.45,
+    "end": 3.26,
+    "chars": [
+     1
+    ],
+    "who": "Marin 1",
+    "text": "Kawaii Kawai!",
+    "de": "Kawaii Kawai!"
+   },
+   {
+    "t": 4.98,
+    "end": 7.29,
+    "chars": [
+     2
+    ],
+    "who": "Marin 2",
+    "text": "Kawaii Kawai!",
+    "de": "Kawaii Kawai!"
+   },
+   {
+    "t": 8.6,
+    "end": 10.74,
+    "chars": [
+     3
+    ],
+    "who": "Marin 3",
+    "text": "Kawaii Kawai!",
+    "de": "Kawaii Kawai!"
+   },
+   {
+    "t": 12.41,
+    "end": 14.43,
+    "chars": [
+     4
+    ],
+    "who": "Marin 4",
+    "text": "Kawaii Kawai!",
+    "de": "Kawaii Kawai!"
+   },
+   {
+    "t": 15.25,
+    "end": 18,
+    "chars": [
+     1
+    ],
+    "who": "Marin 1",
+    "text": "Kawaii Kawai!",
+    "de": "Kawaii Kawai!"
+   },
+   {
+    "t": 22.4,
+    "end": 25.36,
+    "chars": [
+     2
+    ],
+    "who": "Marin 2",
+    "text": "Kawaii Kawai!",
+    "de": "Kawaii Kawai!"
+   },
+   {
+    "t": 30.27,
+    "end": 34.02,
+    "chars": [
+     3
+    ],
+    "who": "Marin 3",
+    "text": "Kagami no naka no egao no watashi",
+    "de": "Das lächelnde Ich im Spiegel"
+   },
+   {
+    "t": 34.05,
+    "end": 37.95,
+    "chars": [
+     4
+    ],
+    "who": "Marin 4",
+    "text": "Kinou to wa chigau kagayaiteru",
+    "de": "Anders als gestern — ich strahle"
+   },
+   {
+    "t": 37.98,
+    "end": 41.54,
+    "chars": [
+     1
+    ],
+    "who": "Marin 1",
+    "text": "Dokidoki shiteru kono kimochi wa",
+    "de": "Dieses Herzklopfen, dieses Gefühl"
+   },
+   {
+    "t": 41.61,
+    "end": 45.24,
+    "chars": [
+     2
+    ],
+    "who": "Marin 2",
+    "text": "Kimi ni tsutaetai denki no haato",
+    "de": "Dir will ich mein elektrisches Herz sagen"
+   },
+   {
+    "t": 45.33,
+    "end": 51.8,
+    "chars": [
+     3
+    ],
+    "who": "Marin 3",
+    "text": "Atarashii fuku de... atarashii watashi",
+    "de": "In neuen Klamotten… ein neues Ich"
+   },
+   {
+    "t": 52.49,
+    "end": 59.5,
+    "chars": [
+     4
+    ],
+    "who": "Marin 4",
+    "text": "Kokoro mo kikaete new, new, new, new",
+    "de": "Auch das Herz umgezogen: neu, neu, neu, neu"
+   },
+   {
+    "t": 59.6,
+    "end": 64.21,
+    "chars": [
+     1
+    ],
+    "who": "Marin 1",
+    "text": "Kawaii kaiwai... tokimeki kanjite",
+    "de": "Kawaii-Viertel… Herzklopfen spüren"
+   },
+   {
+    "t": 59.6,
+    "end": 64.21,
+    "chars": [
+     2
+    ],
+    "who": "Marin 2",
+    "text": "Kawaii kaiwai... tokimeki kanjite",
+    "de": "Kawaii-Viertel… Herzklopfen spüren"
+   },
+   {
+    "t": 59.6,
+    "end": 64.21,
+    "chars": [
+     3
+    ],
+    "who": "Marin 3",
+    "text": "Kawaii kaiwai... tokimeki kanjite",
+    "de": "Kawaii-Viertel… Herzklopfen spüren"
+   },
+   {
+    "t": 59.6,
+    "end": 64.21,
+    "chars": [
+     4
+    ],
+    "who": "Marin 4",
+    "text": "Kawaii kaiwai... tokimeki kanjite",
+    "de": "Kawaii-Viertel… Herzklopfen spüren"
+   },
+   {
+    "t": 64.25,
+    "end": 68.36,
+    "chars": [
+     1
+    ],
+    "who": "Marin 1",
+    "text": "Kimi kara no henshin matte iru no",
+    "de": "Ich warte auf deine Antwort"
+   },
+   {
+    "t": 67.01,
+    "end": 72.1,
+    "chars": [
+     2
+    ],
+    "who": "Marin 2",
+    "text": "Kawaii kaiwai mune mo takanaru",
+    "de": "Kawaii-Viertel — Herz schlägt höher"
+   },
+   {
+    "t": 71.34,
+    "end": 75.81,
+    "chars": [
+     3
+    ],
+    "who": "Marin 3",
+    "text": "Umarekawaru yo kimi to kawaru yo",
+    "de": "Ich werde neu geboren, mit dir zusammen"
+   },
+   {
+    "t": 73.41,
+    "end": 75.81,
+    "chars": [
+     4
+    ],
+    "who": "Marin 4",
+    "text": "kimi to kawaru yo",
+    "de": "mit dir zusammen"
+   },
+   {
+    "t": 77.72,
+    "end": 80.63,
+    "chars": [
+     1
+    ],
+    "who": "Marin 1",
+    "text": "Kawaii Kawai!",
+    "de": "Kawaii Kawai!"
+   },
+   {
+    "t": 77.72,
+    "end": 80.63,
+    "chars": [
+     2
+    ],
+    "who": "Marin 2",
+    "text": "Kawaii Kawai!",
+    "de": "Kawaii Kawai!"
+   },
+   {
+    "t": 77.72,
+    "end": 80.63,
+    "chars": [
+     3
+    ],
+    "who": "Marin 3",
+    "text": "Kawaii Kawai!",
+    "de": "Kawaii Kawai!"
+   },
+   {
+    "t": 82.05,
+    "end": 87.55,
+    "chars": [
+     1
+    ],
+    "who": "Marin 1",
+    "text": "Doki, doki, doki, doki",
+    "de": "Doki, doki, doki, doki"
+   },
+   {
+    "t": 82.05,
+    "end": 87.55,
+    "chars": [
+     2
+    ],
+    "who": "Marin 2",
+    "text": "Doki, doki, doki, doki",
+    "de": "Doki, doki, doki, doki"
+   },
+   {
+    "t": 82.05,
+    "end": 87.55,
+    "chars": [
+     3
+    ],
+    "who": "Marin 3",
+    "text": "Doki, doki, doki, doki",
+    "de": "Doki, doki, doki, doki"
+   },
+   {
+    "t": 82.05,
+    "end": 87.55,
+    "chars": [
+     4
+    ],
+    "who": "Marin 4",
+    "text": "Doki, doki, doki, doki",
+    "de": "Doki, doki, doki, doki"
+   }
+  ],
+  "difficultyOverride": "hard"
  }
 ]
