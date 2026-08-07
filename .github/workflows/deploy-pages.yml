@@ -11,6 +11,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 concurrency:
   group: pages
@@ -30,13 +31,17 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          # Alles außer .git / Workflow-Kram / Deploy-Staging
+          # Alles außer .git / Workflow-Kram / Deploy-Staging / lokale Testreste
           rsync -a \
             --exclude '.git' \
             --exclude '.github' \
             --exclude '_site' \
             --exclude '.cursor' \
             --exclude 'node_modules' \
+            --exclude '_turn_probe.html' \
+            --exclude '_turn_probe_cdp.js' \
+            --exclude 'package-lock.json' \
+            --exclude 'package.json' \
             ./ _site/
           # Große Szenen-Videos raus — Client lädt sie von jsDelivr
           find _site/scenes -type f -name '*.mp4' -print -delete
@@ -49,7 +54,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: _site
 

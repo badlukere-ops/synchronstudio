@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.53";
+const APP_VERSION = "9.10.54";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -29,27 +29,42 @@ function sceneVideoSrc() {
   return videoBlobUrl || assetUrl(scene && scene.videoUrl);
 }
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  TURN-RELAY — HIER DEINE EIGENEN ZUGANGSDATEN EINTRAGEN!          ║
-// ║  Nötig, wenn "Raum gefunden, aber Verbindung kommt nicht durch"   ║
-// ║  (typisch bei DS-Lite/CGNAT, z. B. Vodafone Kabel oder O2).       ║
-// ║                                                                    ║
-// ║  Anbieter: ExpressTurn — https://www.expressturn.com              ║
-// ║  1 TB/Monat gratis, ohne Kreditkarte (Stand: Umstellung von uns).  ║
+// ║  VERMITTLUNG (PeerJS) + TURN-RELAY                                 ║
+// ║  Wenn „Raum erstellen“ schon scheitert → Broker/Netz blockiert.   ║
+// ║  Wenn Join hängt → oft NAT; dann helfen die TURN-Relays unten.    ║
 // ╚══════════════════════════════════════════════════════════════════╝
-const TURN_USER = "000000002101101430";
-const TURN_CRED = "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=";
+const EXPRESS_USER = "000000002101101430";
+const EXPRESS_CRED = "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=";
+// Alter Metered-Account (weiter nutzbar, inkl. TURNS/443 — gut bei strengen Firewalls)
+const METERED_USER = "784a2cacd45f00da0669d578";
+const METERED_CRED = "ix7IinZzU+ItucbO";
 const MY_TURN = [
-  // TCP/443 zuerst — hilft bei Avast / UDP-blockierenden Firewalls
-  { urls: "turn:free.expressturn.com:443?transport=tcp", username: TURN_USER, credential: TURN_CRED },
-  { urls: "turn:free.expressturn.com:3478?transport=tcp", username: TURN_USER, credential: TURN_CRED },
-  { urls: "turn:free.expressturn.com:3478?transport=udp", username: TURN_USER, credential: TURN_CRED },
+  // Metered TURNS zuerst (ICE-Probe: Relay ok) — hilft bei CGNAT/Schulnetz
+  { urls: "turns:global.relay.metered.ca:443?transport=tcp", username: METERED_USER, credential: METERED_CRED },
+  { urls: "turn:global.relay.metered.ca:443", username: METERED_USER, credential: METERED_CRED },
+  { urls: "turn:global.relay.metered.ca:80?transport=tcp", username: METERED_USER, credential: METERED_CRED },
+  { urls: "turn:global.relay.metered.ca:80", username: METERED_USER, credential: METERED_CRED },
+  // ExpressTurn Free (ICE-Probe: 3478 udp+tcp ok; free:443 tcp war kaputt → weggelassen)
+  { urls: "turn:free.expressturn.com:3478?transport=tcp", username: EXPRESS_USER, credential: EXPRESS_CRED },
+  { urls: "turn:free.expressturn.com:3478?transport=udp", username: EXPRESS_USER, credential: EXPRESS_CRED },
   { urls: "stun:stun.expressturn.com:3478" },
 ];
-const JOIN_MAX_TRIES = 3;
-const NETZ_TIP = "Tipp Avast Secure Browser: WebRTC erlauben, Real-Time Shield prüfen, Firewall-Ausnahme für synchron-studio.github.io — oder Chrome/Edge nutzen. Sonst: VPN aus, anderes Netz (Handy-Hotspot), Brave-Shields aus.";
-function makePeerConfig(forceRelay) {
+// PeerJS-Cloud: 0 und 1 — falls ein Netz einen Host blockiert, den anderen versuchen
+const PEER_BROKERS = [
+  { host: "0.peerjs.com", port: 443, path: "/", secure: true, label: "Cloud-0" },
+  { host: "1.peerjs.com", port: 443, path: "/", secure: true, label: "Cloud-1" },
+];
+let activeBrokerIdx = 0;
+const JOIN_MAX_TRIES = 4; // 2 Broker × (normal + Relay)
+const BROKER_TIP = "Vermutlich blockiert dein Netz den Spiel-Server (Firewall, Schulnetz, Router, Avast). Schnelltest: Handy-Hotspot an, Seite mit Strg+F5 neu laden, nochmal „Raum erstellen“. Wenn Hotspot geht → das andere Netz ist schuld.";
+const NETZ_TIP = "Tipp: VPN aus, Handy-Hotspot testen, Avast/Firewall für synchron-studio.github.io erlauben, Chrome/Edge ohne Extra-Shields.";
+function makePeerConfig(forceRelay, brokerIdx) {
+  const b = PEER_BROKERS[Math.max(0, brokerIdx | 0) % PEER_BROKERS.length] || PEER_BROKERS[0];
   return {
-    secure: true,
+    host: b.host,
+    port: b.port,
+    path: b.path,
+    secure: !!b.secure,
     config: {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
@@ -62,7 +77,6 @@ function makePeerConfig(forceRelay) {
     }
   };
 }
-const PEER_CONFIG = makePeerConfig(false);
 const CHUNK_SIZE = 128 * 1024;
 
 // ── State ────────────────────────────────────────────────────
@@ -519,6 +533,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.54", items: [
+    "🌐 Verbindung: zweiter Spiel-Server (Fallback), bessere Meldungen wenn Raum-Erstellen schon scheitert, doppelte TURN-Relays",
+    "📦 Deploy-Fix: Kenny 3 + Kritzel-Board-Fix aus 9.10.53 endlich online (Pages-Upload war vorher fehlgeschlagen)"
+  ]},
   { v: "9.10.53", items: [
     "🐹 Neues Profilbild: Kenny 3 (Hamster)",
     "🎨 Kritzel-Board: kein Flackern mehr in Opera (Board bleibt sichtbar beim Mitmalen)"
@@ -1937,6 +1955,133 @@ document.addEventListener("click", micKickstart);
 // ═════════════════════════════════════════════════════════════
 // 1) RAUM ERSTELLEN / BEITRETEN
 // ═════════════════════════════════════════════════════════════
+const HOST_CREATE_MAX = PEER_BROKERS.length * 2; // jeden Broker 2× versuchen
+let hostCreateTimer = null;
+function clearHostCreateTimer() {
+  if (hostCreateTimer) { clearTimeout(hostCreateTimer); hostCreateTimer = null; }
+}
+let hostPeerStable = false; // erst nach erfolgreichem open — verhindert Close-Races beim Retry
+function wireHostPeerLifecycle() {
+  peer.on("connection", (conn) => setupHostConn(conn));
+  peer.on("disconnected", () => {
+    if (absichtlichWeg || hostHandoffActive || !peer || peer.destroyed) return;
+    wvBanner("📴 Leitung zum Vermittlungsserver weg — melde neu an …");
+    try { peer.reconnect(); } catch {}
+    setTimeout(() => { if (peer && !peer.disconnected) wvBannerAus(); }, 2500);
+  });
+  // Peer komplett tot → Raum-ID neu anmelden (sonst können Freunde nicht mehr rein)
+  peer.on("close", () => {
+    if (!hostPeerStable || absichtlichWeg || hostHandoffActive || !isHost || !raumCode) return;
+    hostPeerStable = false;
+    wvBanner("📴 Spiel-Server-Verbindung weg — öffne Raum neu …");
+    setTimeout(() => {
+      if (absichtlichWeg || hostHandoffActive || !isHost || !raumCode) return;
+      startHostPeer(0, true);
+    }, 900);
+  });
+}
+function startHostPeer(attempt, reopenOnly) {
+  clearHostCreateTimer();
+  hostPeerStable = false;
+  if (peer) { try { peer.destroy(); } catch {} peer = null; }
+  const tryNr = Math.max(0, attempt | 0);
+  const brokerIdx = tryNr % PEER_BROKERS.length;
+  activeBrokerIdx = brokerIdx;
+  const broker = PEER_BROKERS[brokerIdx];
+  const code = raumCode;
+  if (!code) return;
+
+  if (!reopenOnly) {
+    if (tryNr === 0) status("start-status", "① Verbinde zum Spiel-Server …");
+    else status("start-status", "🔄 Anderer Spiel-Server / nochmal … (" + (tryNr + 1) + "/" + HOST_CREATE_MAX + " · " + broker.label + ")");
+  } else {
+    wvBanner("🔄 Melde Raum am Spiel-Server neu an …");
+  }
+
+  let opened = false, finished = false;
+  hostCreateTimer = setTimeout(() => {
+    if (opened || finished) return;
+    finished = true;
+    try { peer && peer.destroy(); } catch {}
+    peer = null;
+    if (tryNr + 1 < HOST_CREATE_MAX) {
+      startHostPeer(tryNr + 1, !!reopenOnly);
+      return;
+    }
+    if (reopenOnly) {
+      wvBanner("❌ Spiel-Server weiter blockiert. " + BROKER_TIP, true);
+      return;
+    }
+    status("start-status", "❌ Spiel-Server nicht erreichbar — Raum konnte nicht erstellt werden. " + BROKER_TIP, true);
+    SFX.err();
+  }, 11000);
+
+  peer = new Peer(PEER_PREFIX + code, makePeerConfig(false, brokerIdx));
+  wireHostPeerLifecycle();
+  peer.on("open", () => {
+    if (finished) return;
+    opened = true;
+    finished = true;
+    clearHostCreateTimer();
+    myId = peer.id;
+    activeBrokerIdx = brokerIdx;
+    hostPeerStable = true;
+    if (reopenOnly) {
+      // Spielerliste behalten, nur ID aktualisieren
+      const me = players.find(p => p.key === myKey) || players[0];
+      if (me) me.id = myId;
+      wvBannerAus();
+      broadcastState();
+      return;
+    }
+    players = [{ id: myId, key: myKey, name: withHostTag(myName), avatar: myAvatar, accessory: myAccessory, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false }];
+    enterLobby(code);
+    loadSceneList();
+  });
+  peer.on("error", (e) => {
+    console.error("host peer error", e);
+    if (finished) return;
+    if (e.type === "unavailable-id") {
+      finished = true;
+      clearHostCreateTimer();
+      hostPeerStable = false;
+      try { peer.destroy(); } catch {}
+      peer = null;
+      if (reopenOnly) {
+        // ID noch belegt — kurz warten und gleichen Code nochmal
+        setTimeout(() => startHostPeer(tryNr, true), 1200);
+        return;
+      }
+      raumCode = randCode();
+      startHostPeer(tryNr, false);
+      return;
+    }
+    if (e.type === "browser-incompatible") {
+      finished = true;
+      clearHostCreateTimer();
+      status("start-status", "❌ Dieser Browser kann keine Live-Verbindung (WebRTC). Bitte Chrome oder Edge.", true);
+      return;
+    }
+    // network / websocket / server-error → nächsten Versuch
+    if (!opened) {
+      finished = true;
+      clearHostCreateTimer();
+      try { peer && peer.destroy(); } catch {}
+      peer = null;
+      if (tryNr + 1 < HOST_CREATE_MAX) {
+        setTimeout(() => startHostPeer(tryNr + 1, !!reopenOnly), 700);
+        return;
+      }
+      if (reopenOnly) {
+        wvBanner("❌ Spiel-Server-Fehler (" + (e.type || "?") + "). " + BROKER_TIP, true);
+        return;
+      }
+      status("start-status", "❌ Spiel-Server blockiert (" + (e.type || "Netzwerk") + "). " + BROKER_TIP, true);
+      SFX.err();
+    }
+  });
+}
+
 $("btn-create").onclick = () => {
   myName = $("in-name").value.trim();
   if (!myName) return status("start-status", "Erst Namen eingeben, digga 😄", true), SFX.err();
@@ -1944,34 +2089,8 @@ $("btn-create").onclick = () => {
   isHost = true;
   absichtlichWeg = false;
   hostHandoffActive = false;
-  const code = randCode();
-  raumCode = code;
-  status("start-status", "① Verbinde zum Vermittlungsserver …");
-  let opened = false;
-  setTimeout(() => {
-    if (!opened) status("start-status", "❌ Kein Kontakt zum Vermittlungsserver. " + NETZ_TIP, true);
-  }, 14000);
-  peer = new Peer(PEER_PREFIX + code, makePeerConfig(false));
-  peer.on("open", () => {
-    opened = true;
-    myId = peer.id;
-    players = [{ id: myId, key: myKey, name: withHostTag(myName), avatar: myAvatar, accessory: myAccessory, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false }];
-    enterLobby(code);
-    loadSceneList();
-  });
-  peer.on("connection", (conn) => setupHostConn(conn));
-  // Verliert der Host kurz die Leitung zum Vermittlungsserver, könnte danach niemand
-  // mehr beitreten oder zurückkommen. Deshalb sofort wieder anmelden.
-  peer.on("disconnected", () => {
-    if (absichtlichWeg || hostHandoffActive || !peer || peer.destroyed) return;
-    wvBanner("📴 Leitung zum Vermittlungsserver weg — melde neu an …");
-    try { peer.reconnect(); } catch {}
-    setTimeout(() => { if (peer && !peer.disconnected) wvBannerAus(); }, 2500);
-  });
-  peer.on("error", (e) => {
-    if (e.type === "unavailable-id") { peer.destroy(); $("btn-create").click(); }
-    else status("start-status", "Verbindungsfehler: " + e.type + " — " + NETZ_TIP, true);
-  });
+  raumCode = randCode();
+  startHostPeer(0, false);
 };
 
 $("btn-join").onclick = () => {
@@ -1994,24 +2113,31 @@ function withHostTag(name) {
 }
 
 // Verbindet als Gast mit einem Raum. Wird auch für jeden Wiederverbindungs-Versuch
-// benutzt — bei einer Wiederkehr bleibt der aktuelle Bildschirm dabei unangetastet,
-// damit schon aufgenommene Lines und die Stelle in der Szene erhalten bleiben.
-// attempt: 0..JOIN_MAX_TRIES-1 — letzter Versuch forciert TURN-Relay (hilft bei Avast/UDP-Block).
+// benutzt — bei einer Wiederkehr bleibt der aktuelle Bildschirm dabei unangetastet.
+// attempt: rotiert PeerJS-Broker (0/1) und ab der 2. Runde forciert TURN-Relay.
 let iceWatchTimer = null;
 let joinFailTimers = [];
 function clearJoinFailTimers() {
   joinFailTimers.forEach(t => clearTimeout(t));
   joinFailTimers = [];
 }
-function gastBeitreten(code, wiederkehr, attempt) {
+function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
   isHost = false;
   raumCode = code;
   const tryNr = Math.max(0, attempt | 0);
-  const forceRelay = !wiederkehr && tryNr >= JOIN_MAX_TRIES - 1;
+  const nBrokers = PEER_BROKERS.length;
+  const brokerIdx = (preferBroker != null && tryNr === 0)
+    ? (preferBroker | 0) % nBrokers
+    : tryNr % nBrokers;
+  const forceRelay = !wiederkehr && tryNr >= nBrokers;
+  activeBrokerIdx = brokerIdx;
+  const broker = PEER_BROKERS[brokerIdx];
   if (iceWatchTimer) { clearInterval(iceWatchTimer); iceWatchTimer = null; }
   clearJoinFailTimers();
-  if (peer) { try { peer.destroy(); } catch {} }
+  if (peer) { try { peer.destroy(); } catch {} peer = null; }
   let opened = false, joined = false, finished = false;
+  let sawPeerUnavailable = false;
+  let iceFailed = false;
   const melde = (msg, err) => { if (!wiederkehr) status("start-status", msg, err); };
 
   function failJoin(msg, opts) {
@@ -2023,53 +2149,60 @@ function gastBeitreten(code, wiederkehr, attempt) {
     if (!wiederkehr && !noRetry && tryNr < JOIN_MAX_TRIES - 1) {
       const next = tryNr + 1;
       melde("🔄 Verbindung wird nochmal versucht… (" + (next + 1) + "/" + JOIN_MAX_TRIES + ")");
-      setTimeout(() => gastBeitreten(code, false, next), 1100 + tryNr * 700);
+      setTimeout(() => gastBeitreten(code, false, next), 900 + tryNr * 500);
       return;
     }
-    const tip = ((opts && opts.skipTip) || /Avast|Tipp/.test(msg)) ? "" : " " + NETZ_TIP;
+    const tip = ((opts && opts.skipTip) || /Hotspot|blockiert|Tipp/.test(msg)) ? "" : " " + NETZ_TIP;
     melde(msg + tip, true);
     if (wiederkehr) planeWiederverbindung();
   }
 
   if (!wiederkehr && tryNr > 0) {
-    melde("🔄 Verbindung wird nochmal versucht… (" + (tryNr + 1) + "/" + JOIN_MAX_TRIES + ")" + (forceRelay ? " · nur Relay" : ""));
+    melde("🔄 Nochmal … (" + (tryNr + 1) + "/" + JOIN_MAX_TRIES + " · " + broker.label + (forceRelay ? " · nur Relay" : "") + ")");
   } else {
-    melde("① Verbinde zum Vermittlungsserver …");
+    melde("① Verbinde zum Spiel-Server …");
   }
-  peer = new Peer(makePeerConfig(forceRelay));
+  peer = new Peer(makePeerConfig(forceRelay, brokerIdx));
 
-  // Schritt 1 hängt → Server nicht erreichbar (Avast / Brave-Shields / Adblocker / Firewall)
+  // Schritt 1: Broker/WebSocket — wenn das schon scheitert, kann er auch keine Lobby hosten
   joinFailTimers.push(setTimeout(() => {
-    if (!opened) failJoin("❌ Kein Kontakt zum Vermittlungsserver.");
-  }, 14000));
+    if (!opened) failJoin("❌ Spiel-Server nicht erreichbar (Vermittlung blockiert). " + BROKER_TIP, { skipTip: true });
+  }, 12000));
 
   peer.on("open", () => {
     opened = true;
     myId = peer.id;
-    melde("② Server OK — suche Raum " + code + " …");
+    melde("② Spiel-Server OK (" + broker.label + ") — suche Raum " + code + " …");
     hostConn = peer.connect(PEER_PREFIX + code, { reliable: true });
 
-    // Schritt 2 hängt → Raum existiert, aber Peer-Verbindung kommt nicht durch (NAT/Firewall/Avast)
+    // Schritt 2: Broker kennt den Host evtl., aber ICE/NAT blockiert die Datenverbindung
     joinFailTimers.push(setTimeout(() => {
-      if (!joined) failJoin("❌ Raum gefunden, aber die Verbindung zum Host kommt nicht durch.");
-    }, 20000));
+      if (joined) return;
+      if (sawPeerUnavailable) {
+        failJoin("Raum " + code + " nicht gefunden. Läuft der Host noch? Code richtig? (Host: neuer Raum nach Strg+F5)", { skipTip: true });
+        return;
+      }
+      if (iceFailed) {
+        failJoin("❌ Spiel-Server ok, aber Direktverbindung blockiert (Router/Firewall/NAT). " + BROKER_TIP, { skipTip: true });
+        return;
+      }
+      failJoin("❌ Spiel-Server ok, aber Verbindung zum Host kommt nicht durch (oft Router/Firewall). Beide am gleichen Handy-Hotspot testen.", { skipTip: true });
+    }, 18000));
 
     hostConn.on("open", () => {
       joined = true;
       finished = true;
       clearJoinFailTimers();
       warSchonDrin = true;
+      activeBrokerIdx = brokerIdx;
       sendHost({ t: "hello", name: stripHostTag(myName), avatar: myAvatar, accessory: myAccessory, key: myKey });
       if (wiederkehr) {
-        // Der Host antwortet mit "rejoined" und sagt darin, wie es weitergeht.
-        // Bis dahin nichts anfassen.
         wvBanner("🔌 Wieder verbunden — hole den Stand …");
       } else {
         wvVersuch = 0; wvBannerAus();
         enterLobby(code);
       }
     });
-    // ICE-Status: vor dem Join + danach (Avast kann den Kanal kurz kappen)
     let iceTicks = 0;
     iceWatchTimer = setInterval(() => {
       iceTicks++;
@@ -2080,8 +2213,9 @@ function gastBeitreten(code, wiederkehr, attempt) {
       }
       const st = pc.iceConnectionState;
       if (!joined && (st === "failed" || st === "closed")) {
+        iceFailed = true;
         clearInterval(iceWatchTimer); iceWatchTimer = null;
-        failJoin("❌ ICE failed — Direktverbindung UND TURN-Relay fehlgeschlagen.");
+        failJoin("❌ Spiel-Server ok, aber Direktverbindung UND Relay blockiert. " + BROKER_TIP, { skipTip: true });
         return;
       }
       if (joined && (st === "failed" || st === "closed")) {
@@ -2090,7 +2224,6 @@ function gastBeitreten(code, wiederkehr, attempt) {
         return;
       }
       if (joined && iceTicks > 90) {
-        // Nach stabilem Join nur noch selten prüfen
         clearInterval(iceWatchTimer); iceWatchTimer = null;
       }
     }, 2000);
@@ -2103,7 +2236,6 @@ function gastBeitreten(code, wiederkehr, attempt) {
     });
   });
   peer.on("disconnected", () => {
-    // Nur die Leitung zum Vermittlungsserver ist weg — die lässt sich direkt wiederholen
     if (!absichtlichWeg && !hostHandoffActive && peer && !peer.destroyed) {
       try { peer.reconnect(); } catch {}
     }
@@ -2111,13 +2243,20 @@ function gastBeitreten(code, wiederkehr, attempt) {
   peer.on("error", (e) => {
     console.error("peer error", e);
     if (e.type === "peer-unavailable") {
-      // Beim Host-Wechsel ist die ID kurz weg — dann weiter versuchen
+      sawPeerUnavailable = true;
       if (wiederkehr || hostHandoffActive) {
         planeWiederverbindung();
         return;
       }
-      // Ein Soft-Retry (Timing), danach klarer Abbruch ohne Avast-Tipp-Spam
-      failJoin("Raum " + code + " nicht gefunden. Läuft der Host noch? Code richtig?", { noRetry: tryNr >= 1, skipTip: true });
+      // Anderen Broker / nächsten Versuch — Host kann auf Cloud-1 sein
+      failJoin("Raum " + code + " hier nicht gefunden — prüfe anderen Server…", {
+        noRetry: tryNr >= JOIN_MAX_TRIES - 1,
+        skipTip: true
+      });
+      return;
+    }
+    if (e.type === "network" || e.type === "socket-error" || e.type === "server-error") {
+      if (!joined) failJoin("❌ Spiel-Server-Fehler (" + e.type + "). " + BROKER_TIP, { skipTip: true });
       return;
     }
     if (!joined) failJoin("Verbindungsfehler: " + e.type + ".");
@@ -3172,6 +3311,7 @@ function transferHostTo(pid) {
     newName: stripHostTag(target.name),
     oldKey: myKey,
     code,
+    broker: activeBrokerIdx | 0,
     phase: aktuellePhase(),
     scene: scene || null,
     match: {
@@ -3265,31 +3405,37 @@ function becomeHostFromHandoff(msg) {
 function claimHostRoom(msg, attempt) {
   const code = msg.code;
   if (!code) return;
-  if (peer) { try { peer.destroy(); } catch {} }
+  if (peer) { try { peer.destroy(); } catch {} peer = null; }
   isHost = true;
   raumCode = code;
-  peer = new Peer(PEER_PREFIX + code, makePeerConfig(false));
-  peer.on("connection", (conn) => setupHostConn(conn));
-  peer.on("disconnected", () => {
-    if (absichtlichWeg || hostHandoffActive || !peer || peer.destroyed) return;
-    wvBanner("📴 Leitung zum Vermittlungsserver weg — melde neu an …");
-    try { peer.reconnect(); } catch {}
-    setTimeout(() => { if (peer && !peer.disconnected) wvBannerAus(); }, 2500);
-  });
+  const tryNr = Math.max(0, attempt | 0);
+  const prefer = (msg.broker != null) ? (msg.broker | 0) : activeBrokerIdx;
+  const brokerIdx = (tryNr === 0) ? (prefer % PEER_BROKERS.length) : (tryNr % PEER_BROKERS.length);
+  activeBrokerIdx = brokerIdx;
+  peer = new Peer(PEER_PREFIX + code, makePeerConfig(false, brokerIdx));
+  wireHostPeerLifecycle();
   peer.on("error", (e) => {
-    if (e.type === "unavailable-id" && attempt < 10) {
+    if (e.type === "unavailable-id" && tryNr < 12) {
       try { peer.destroy(); } catch {}
       peer = null;
-      setTimeout(() => claimHostRoom(msg, attempt + 1), 700 + attempt * 250);
+      setTimeout(() => claimHostRoom(msg, tryNr + 1), 700 + tryNr * 250);
       return;
     }
     console.error("claimHostRoom", e);
-    wvBanner("❌ Host-Übernahme fehlgeschlagen — Seite neu laden (Strg+F5) und neu beitreten.", true);
+    if (tryNr + 1 < PEER_BROKERS.length * 3) {
+      try { peer.destroy(); } catch {}
+      peer = null;
+      setTimeout(() => claimHostRoom(msg, tryNr + 1), 800);
+      return;
+    }
+    wvBanner("❌ Host-Übernahme fehlgeschlagen — Seite neu laden (Strg+F5) und neu beitreten. " + BROKER_TIP, true);
     hostHandoffActive = false;
     isHost = false;
   });
   peer.on("open", () => {
     myId = peer.id;
+    activeBrokerIdx = brokerIdx;
+    hostPeerStable = true;
     hostHandoffActive = false;
     wvVersuch = 0;
     clearTimeout(wvTimer);
