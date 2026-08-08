@@ -25851,5 +25851,1053 @@
     "orig": "scenes/yeeyee/lines/06.mp3"
    }
   ]
+ },
+ {
+  "id": "ishowspeedgod",
+  "title": "IShowSpeed — Do You Love God? (2 Rollen)",
+  "videoUrl": "scenes/ishowspeedgod.mp4",
+  "avatars": {
+   "0": "scenes/ishowspeedgod/speed.png",
+   "1": "scenes/ishowspeedgod/ben.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "IShowSpeed",
+    "pan": -0.3,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Ben",
+    "pan": 0.3,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 0.446,
+    "end": 1.303,
+    "chars": [
+     0
+    ],
+    "who": "IShowSpeed",
+    "text": "Do you love God?",
+    "de": "Liebst du Gott?",
+    "orig": "scenes/ishowspeedgod/lines/01.mp3"
+   },
+   {
+    "t": 1.746,
+    "end": 3.216,
+    "chars": [
+     1
+    ],
+    "who": "Ben",
+    "text": "(Laugh)",
+    "de": "(lacht)",
+    "orig": "scenes/ishowspeedgod/lines/02.mp3"
+   },
+   {
+    "t": 3.56,
+    "end": 4.449,
+    "chars": [
+     0
+    ],
+    "who": "IShowSpeed",
+    "text": "Do you love God?",
+    "de": "Liebst du Gott?",
+    "orig": "scenes/ishowspeedgod/lines/03.mp3"
+   },
+   {
+    "t": 6.316,
+    "end": 7.503,
+    "chars": [
+     0
+    ],
+    "who": "IShowSpeed",
+    "text": "DO YOU LOVE GOD?",
+    "de": "LIEBST DU GOTT?",
+    "orig": "scenes/ishowspeedgod/lines/04.mp3"
+   },
+   {
+    "t": 7.871,
+    "end": 8.698,
+    "chars": [
+     1
+    ],
+    "who": "Ben",
+    "text": "No.",
+    "de": "Nein.",
+    "orig": "scenes/ishowspeedgod/lines/05.mp3"
+   },
+   {
+    "t": 12.702,
+    "end": 13.996,
+    "chars": [
+     0
+    ],
+    "who": "IShowSpeed",
+    "text": "Am I gonna die next week?",
+    "de": "Sterb ich nächste Woche?",
+    "orig": "scenes/ishowspeedgod/lines/06.mp3"
+   }
+  ]
+ },
+ {
+  "id": "sukunashibuya",
+  "title": "Jujutsu Kaisen — Sukuna erwacht in Shibuya (3 Rollen)",
+  "videoUrl": "scenes/sukunashibuya.mp4",
+  "avatars": {
+   "0": "scenes/sukunashibuya/jogo.png",
+   "1": "scenes/sukunashibuya/mimiko_nanako.png",
+   "2": "scenes/sukunashibuya/sukuna.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Jogo",
+    "pan": -0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Mimiko & Nanako",
+    "pan": 0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Sukuna",
+    "pan": 0,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 0,
+    "end": 5.983,
+    "chars": [
+     0
+    ],
+    "who": "Jogo",
+    "text": "I fed him all 10 fingers, which means by now there should be at least 15 inside Yuji Itadori.",
+    "de": "Ich hab ihm alle 10 Finger gefüttert — also sollten jetzt mindestens 15 in Yuji Itadori stecken.",
+    "orig": "scenes/sukunashibuya/lines/01.mp3"
+   },
+   {
+    "t": 5.483,
+    "end": 7.3,
+    "chars": [
+     1
+    ],
+    "who": "Mimiko & Nanako",
+    "text": "(Gasping for Air)",
+    "de": "(keucht nach Luft)",
+    "orig": "scenes/sukunashibuya/lines/02.mp3"
+   },
+   {
+    "t": 7.267,
+    "end": 15.05,
+    "chars": [
+     0
+    ],
+    "who": "Jogo",
+    "text": "You're both still alive. Do not waste my time any longer. (Gasp)",
+    "de": "Ihr lebt immer noch beide. Verschwendet nicht weiter meine Zeit. (keucht)",
+    "orig": "scenes/sukunashibuya/lines/03.mp3"
+   },
+   {
+    "t": 14.933,
+    "end": 20.683,
+    "chars": [
+     2
+    ],
+    "who": "Sukuna",
+    "text": "I'll give you one second. Move.",
+    "de": "Ich geb euch eine Sekunde. Weg da.",
+    "orig": "scenes/sukunashibuya/lines/04.mp3"
+   },
+   {
+    "t": 19.567,
+    "end": 35.684,
+    "chars": [
+     0
+    ],
+    "who": "Jogo",
+    "text": "So this is Sukuna... His strength is of a different kind than even Satoru Gojo's. It's overwhelmingly evil. I fear that any move we make now might result in sudden death.",
+    "de": "Also das ist Sukuna... Seine Stärke ist von einer ganz anderen Art als sogar bei Satoru Gojo. Überwältigend böse. Ich fürchte, jeder Zug von uns jetzt könnte plötzlichen Tod bedeuten.",
+    "orig": "scenes/sukunashibuya/lines/05.mp3"
+   },
+   {
+    "t": 34.7,
+    "end": 40.117,
+    "chars": [
+     1
+    ],
+    "who": "Mimiko & Nanako",
+    "text": "It's okay. Breathe, breathe... He won't kill us for that, right?",
+    "de": "Ist okay. Atmen, atmen... Dafür bringt er uns nicht um, oder?",
+    "orig": "scenes/sukunashibuya/lines/06.mp3"
+   },
+   {
+    "t": 39.533,
+    "end": 41.966,
+    "chars": [
+     2
+    ],
+    "who": "Sukuna",
+    "text": "You hold your heads quite high.",
+    "de": "Ihr tragt die Nasen ganz schön hoch.",
+    "orig": "scenes/sukunashibuya/lines/07.mp3"
+   },
+   {
+    "t": 43.333,
+    "end": 49,
+    "chars": [
+     2
+    ],
+    "who": "Sukuna",
+    "text": "Did you believe taking one knee was enough? The boughs that bear most hang lowest.",
+    "de": "Habt ihr ernsthaft gedacht, ein Knie wäre genug? Die Äste, die am meisten tragen, hängen am tiefsten.",
+    "orig": "scenes/sukunashibuya/lines/08.mp3"
+   }
+  ]
+ },
+ {
+  "id": "yujitodohanami",
+  "title": "Jujutsu Kaisen — Yuji & Todo vs Hanami (5 Rollen)",
+  "videoUrl": "scenes/yujitodohanami.mp4",
+  "avatars": {
+   "0": "scenes/yujitodohanami/yuji.png",
+   "1": "scenes/yujitodohanami/todo.png",
+   "2": "scenes/yujitodohanami/hanami.png",
+   "3": "scenes/yujitodohanami/juzo.png",
+   "4": "scenes/yujitodohanami/gojo.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Yuji",
+    "pan": -0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 1,
+    "name": "Todo",
+    "pan": 0.35,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 2,
+    "name": "Hanami",
+    "pan": 0,
+    "effect": "monster",
+    "gain": 1
+   },
+   {
+    "id": 3,
+    "name": "Juzo",
+    "pan": -0.2,
+    "effect": "none",
+    "gain": 1
+   },
+   {
+    "id": 4,
+    "name": "Gojo",
+    "pan": 0.2,
+    "effect": "none",
+    "gain": 1
+   }
+  ],
+  "lines": [
+   {
+    "t": 5.333,
+    "end": 11.1,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(Groans)",
+    "de": "(stöhnt)",
+    "orig": "scenes/yujitodohanami/lines/01.mp3"
+   },
+   {
+    "t": 10.683,
+    "end": 14.066,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Damn it!",
+    "de": "Verdammt!",
+    "orig": "scenes/yujitodohanami/lines/02.mp3"
+   },
+   {
+    "t": 23.483,
+    "end": 25.866,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Ah!",
+    "de": "Ah!",
+    "orig": "scenes/yujitodohanami/lines/03.mp3"
+   },
+   {
+    "t": 25.25,
+    "end": 28.417,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Hah! rah!",
+    "de": "Ha! Rah!",
+    "orig": "scenes/yujitodohanami/lines/04.mp3"
+   },
+   {
+    "t": 27.717,
+    "end": 29.65,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(Noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/05.mp3"
+   },
+   {
+    "t": 33.283,
+    "end": 35.433,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "hmph",
+    "de": "hmph",
+    "orig": "scenes/yujitodohanami/lines/06.mp3"
+   },
+   {
+    "t": 33.85,
+    "end": 37.433,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Rah!",
+    "de": "Rah!",
+    "orig": "scenes/yujitodohanami/lines/07.mp3"
+   },
+   {
+    "t": 37.9,
+    "end": 40,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Huh?",
+    "de": "Hä?",
+    "orig": "scenes/yujitodohanami/lines/08.mp3"
+   },
+   {
+    "t": 37.95,
+    "end": 40,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Huh?",
+    "de": "Hä?",
+    "orig": "scenes/yujitodohanami/lines/09.mp3"
+   },
+   {
+    "t": 41.183,
+    "end": 44.616,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "I messed up!",
+    "de": "Mist, das war doof!",
+    "orig": "scenes/yujitodohanami/lines/10.mp3"
+   },
+   {
+    "t": 44.683,
+    "end": 46.483,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Hah!",
+    "de": "Ha!",
+    "orig": "scenes/yujitodohanami/lines/11.mp3"
+   },
+   {
+    "t": 44.717,
+    "end": 46.434,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Hah!",
+    "de": "Ha!",
+    "orig": "scenes/yujitodohanami/lines/12.mp3"
+   },
+   {
+    "t": 46.267,
+    "end": 49.15,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "They dodged that?",
+    "de": "Die sind dem ausgewichen?",
+    "orig": "scenes/yujitodohanami/lines/13.mp3"
+   },
+   {
+    "t": 49.25,
+    "end": 52.433,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Hey, Todo!",
+    "de": "Hey, Todo!",
+    "orig": "scenes/yujitodohanami/lines/14.mp3"
+   },
+   {
+    "t": 51.8,
+    "end": 54.983,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "I'm just fine.",
+    "de": "Mir geht's bestens.",
+    "orig": "scenes/yujitodohanami/lines/15.mp3"
+   },
+   {
+    "t": 55.067,
+    "end": 61.367,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(Noises) He just expended a ton of cursed energy!",
+    "de": "(Geräusche) Der hat gerade eine Menge Fluchenergie verbraucht!",
+    "orig": "scenes/yujitodohanami/lines/16.mp3"
+   },
+   {
+    "t": 62.983,
+    "end": 66.783,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(noises) Mighty...",
+    "de": "(Geräusche) Mächtig...",
+    "orig": "scenes/yujitodohanami/lines/17.mp3"
+   },
+   {
+    "t": 63,
+    "end": 64.617,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/18.mp3"
+   },
+   {
+    "t": 66.1,
+    "end": 68.883,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Are you good to go, brother?",
+    "de": "Bist du bereit, Bruder?",
+    "orig": "scenes/yujitodohanami/lines/19.mp3"
+   },
+   {
+    "t": 68.167,
+    "end": 70.717,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Yeah, you bet!",
+    "de": "Klar, und wie!",
+    "orig": "scenes/yujitodohanami/lines/20.mp3"
+   },
+   {
+    "t": 69.8,
+    "end": 72.483,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "That's excellent. Me, too.",
+    "de": "Exzellent. Ich auch.",
+    "orig": "scenes/yujitodohanami/lines/21.mp3"
+   },
+   {
+    "t": 73.15,
+    "end": 74.75,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Huh?",
+    "de": "Hä?",
+    "orig": "scenes/yujitodohanami/lines/22.mp3"
+   },
+   {
+    "t": 74.65,
+    "end": 76.883,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "Hah!",
+    "de": "Ha!",
+    "orig": "scenes/yujitodohanami/lines/23.mp3"
+   },
+   {
+    "t": 76.15,
+    "end": 78.383,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Whoa!",
+    "de": "Whoa!",
+    "orig": "scenes/yujitodohanami/lines/24.mp3"
+   },
+   {
+    "t": 76.9,
+    "end": 78.75,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(Noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/25.mp3"
+   },
+   {
+    "t": 78.133,
+    "end": 83.366,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/26.mp3"
+   },
+   {
+    "t": 84.983,
+    "end": 88.766,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "(noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/27.mp3"
+   },
+   {
+    "t": 89.283,
+    "end": 92.316,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Whoa, Todo?!",
+    "de": "Whoa, Todo?!",
+    "orig": "scenes/yujitodohanami/lines/28.mp3"
+   },
+   {
+    "t": 91.617,
+    "end": 97.534,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Yes. It's simply swapping my position for that of my opponent's.",
+    "de": "Ja. Ich tausche einfach meine Position mit der meines Gegners.",
+    "orig": "scenes/yujitodohanami/lines/29.mp3"
+   },
+   {
+    "t": 97.633,
+    "end": 99.033,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/30.mp3"
+   },
+   {
+    "t": 101.217,
+    "end": 110.017,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/31.mp3"
+   },
+   {
+    "t": 101.25,
+    "end": 109.967,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/32.mp3"
+   },
+   {
+    "t": 112.3,
+    "end": 117.917,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(Fighting noises)",
+    "de": "(Kampfgeräusche)",
+    "orig": "scenes/yujitodohanami/lines/33.mp3"
+   },
+   {
+    "t": 113.1,
+    "end": 115.283,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "ah!",
+    "de": "ah!",
+    "orig": "scenes/yujitodohanami/lines/34.mp3"
+   },
+   {
+    "t": 117.217,
+    "end": 120.867,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Fighting noises)",
+    "de": "(Kampfgeräusche)",
+    "orig": "scenes/yujitodohanami/lines/35.mp3"
+   },
+   {
+    "t": 126.9,
+    "end": 130.5,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "They're using that again?!",
+    "de": "Die nutzen das schon wieder?!",
+    "orig": "scenes/yujitodohanami/lines/36.mp3"
+   },
+   {
+    "t": 130.583,
+    "end": 134.283,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Black Flash!",
+    "de": "Black Flash!",
+    "orig": "scenes/yujitodohanami/lines/37.mp3"
+   },
+   {
+    "t": 134.367,
+    "end": 137.6,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Black Flash!",
+    "de": "Black Flash!",
+    "orig": "scenes/yujitodohanami/lines/38.mp3"
+   },
+   {
+    "t": 137.567,
+    "end": 139.334,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "hah!",
+    "de": "hah!",
+    "orig": "scenes/yujitodohanami/lines/39.mp3"
+   },
+   {
+    "t": 139.4,
+    "end": 141.417,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "Don't get cocky!",
+    "de": "Werdet nicht übermütig!",
+    "orig": "scenes/yujitodohanami/lines/40.mp3"
+   },
+   {
+    "t": 142.683,
+    "end": 149.016,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Just 'cause I clap my hands doesn't always mean I'm activating my technique.",
+    "de": "Nur weil ich in die Hände klatsche, heißt das nicht immer, dass ich meine Technik aktiviere.",
+    "orig": "scenes/yujitodohanami/lines/41.mp3"
+   },
+   {
+    "t": 152.35,
+    "end": 154.667,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Black.. Flash",
+    "de": "Black... Flash",
+    "orig": "scenes/yujitodohanami/lines/42.mp3"
+   },
+   {
+    "t": 160.45,
+    "end": 164.55,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Fighting Noises)",
+    "de": "(Kampfgeräusche)",
+    "orig": "scenes/yujitodohanami/lines/43.mp3"
+   },
+   {
+    "t": 164.5,
+    "end": 166.367,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "Huh?",
+    "de": "Hä?",
+    "orig": "scenes/yujitodohanami/lines/44.mp3"
+   },
+   {
+    "t": 164.533,
+    "end": 166.4,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Huh?",
+    "de": "Hä?",
+    "orig": "scenes/yujitodohanami/lines/45.mp3"
+   },
+   {
+    "t": 171.933,
+    "end": 173.916,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Groans)",
+    "de": "(stöhnt)",
+    "orig": "scenes/yujitodohanami/lines/46.mp3"
+   },
+   {
+    "t": 179.883,
+    "end": 181.9,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Hah",
+    "de": "Ha",
+    "orig": "scenes/yujitodohanami/lines/47.mp3"
+   },
+   {
+    "t": 184.667,
+    "end": 186.184,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "???",
+    "de": "???",
+    "orig": "scenes/yujitodohanami/lines/48.mp3"
+   },
+   {
+    "t": 188,
+    "end": 190.983,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(Fighting noises)",
+    "de": "(Kampfgeräusche)",
+    "orig": "scenes/yujitodohanami/lines/49.mp3"
+   },
+   {
+    "t": 190.483,
+    "end": 192.516,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Fighting noises)",
+    "de": "(Kampfgeräusche)",
+    "orig": "scenes/yujitodohanami/lines/50.mp3"
+   },
+   {
+    "t": 192.033,
+    "end": 194,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "Hah!!",
+    "de": "Ha!!",
+    "orig": "scenes/yujitodohanami/lines/51.mp3"
+   },
+   {
+    "t": 196.183,
+    "end": 197.566,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "???",
+    "de": "???",
+    "orig": "scenes/yujitodohanami/lines/52.mp3"
+   },
+   {
+    "t": 200.45,
+    "end": 202.6,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "What the hell?!",
+    "de": "Was zur Hölle?!",
+    "orig": "scenes/yujitodohanami/lines/53.mp3"
+   },
+   {
+    "t": 202.35,
+    "end": 206.617,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Woah, did I just swap places with a fish?!",
+    "de": "Wow — hab ich gerade mit einem Fisch die Plätze getauscht?!",
+    "orig": "scenes/yujitodohanami/lines/54.mp3"
+   },
+   {
+    "t": 206.15,
+    "end": 208.1,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Groans)",
+    "de": "(stöhnt)",
+    "orig": "scenes/yujitodohanami/lines/55.mp3"
+   },
+   {
+    "t": 212.283,
+    "end": 214.883,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/56.mp3"
+   },
+   {
+    "t": 217.4,
+    "end": 219.217,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Gasps)",
+    "de": "(keucht)",
+    "orig": "scenes/yujitodohanami/lines/57.mp3"
+   },
+   {
+    "t": 223.733,
+    "end": 226.116,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "Domain Ex-",
+    "de": "Domain Ex-",
+    "orig": "scenes/yujitodohanami/lines/58.mp3"
+   },
+   {
+    "t": 228.6,
+    "end": 229.8,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(Noises)",
+    "de": "(Geräusche)",
+    "orig": "scenes/yujitodohanami/lines/59.mp3"
+   },
+   {
+    "t": 229.517,
+    "end": 234.3,
+    "chars": [
+     3
+    ],
+    "who": "Juzo",
+    "text": "If it isn't my slick new coat rack floating right up there?",
+    "de": "Ist das nicht mein schicker neuer Garderobenständer da oben?",
+    "orig": "scenes/yujitodohanami/lines/60.mp3"
+   },
+   {
+    "t": 237.55,
+    "end": 241.4,
+    "chars": [
+     4
+    ],
+    "who": "Gojo",
+    "text": "So... where should I start?",
+    "de": "Also... wo fang ich an?",
+    "orig": "scenes/yujitodohanami/lines/61.mp3"
+   },
+   {
+    "t": 242.233,
+    "end": 245.616,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "Huh? Gojo, is that you?",
+    "de": "Hä? Gojo, bist du das?",
+    "orig": "scenes/yujitodohanami/lines/62.mp3"
+   },
+   {
+    "t": 248.283,
+    "end": 256.25,
+    "chars": [
+     4
+    ],
+    "who": "Gojo",
+    "text": "Yuji's on a much higher level than he was before. Which means my priority should be...",
+    "de": "Yuji ist auf einem viel höheren Level als vorher. Das heißt, meine Priorität sollte sein...",
+    "orig": "scenes/yujitodohanami/lines/63.mp3"
+   },
+   {
+    "t": 261.45,
+    "end": 263.683,
+    "chars": [
+     3
+    ],
+    "who": "Juzo",
+    "text": "(Noises of pain)",
+    "de": "(Schmerzenslaute)",
+    "orig": "scenes/yujitodohanami/lines/64.mp3"
+   },
+   {
+    "t": 263.867,
+    "end": 270.1,
+    "chars": [
+     4
+    ],
+    "who": "Gojo",
+    "text": "Technique Amplification: Blue. Technique Reversal: Red.",
+    "de": "Technik-Verstärkung: Blau. Technik-Umkehr: Rot.",
+    "orig": "scenes/yujitodohanami/lines/65.mp3"
+   },
+   {
+    "t": 273.35,
+    "end": 275.55,
+    "chars": [
+     4
+    ],
+    "who": "Gojo",
+    "text": "Hollow...",
+    "de": "Hollow...",
+    "orig": "scenes/yujitodohanami/lines/66.mp3"
+   },
+   {
+    "t": 279.333,
+    "end": 282.283,
+    "chars": [
+     2
+    ],
+    "who": "Hanami",
+    "text": "(Noises of Pain)",
+    "de": "(Schmerzenslaute)",
+    "orig": "scenes/yujitodohanami/lines/67.mp3"
+   },
+   {
+    "t": 283.433,
+    "end": 285.05,
+    "chars": [
+     0
+    ],
+    "who": "Yuji",
+    "text": "(Gasp)",
+    "de": "(keucht)",
+    "orig": "scenes/yujitodohanami/lines/68.mp3"
+   },
+   {
+    "t": 289.4,
+    "end": 290.6,
+    "chars": [
+     1
+    ],
+    "who": "Todo",
+    "text": "(Noise)",
+    "de": "(Laut)",
+    "orig": "scenes/yujitodohanami/lines/69.mp3"
+   },
+   {
+    "t": 289.75,
+    "end": 291.9,
+    "chars": [
+     3
+    ],
+    "who": "Juzo",
+    "text": "(Noises) Quiet!",
+    "de": "(Geräusche) Ruhe!",
+    "orig": "scenes/yujitodohanami/lines/70.mp3"
+   },
+   {
+    "t": 291.55,
+    "end": 295.933,
+    "chars": [
+     4
+    ],
+    "who": "Gojo",
+    "text": "Yay! That should settle everything!",
+    "de": "Yay! Das sollte alles erledigen!",
+    "orig": "scenes/yujitodohanami/lines/71.mp3"
+   }
+  ]
  }
 ]

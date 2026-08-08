@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.70";
+const APP_VERSION = "9.10.71";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -1295,6 +1295,16 @@ const AVATAR_CHARS = [
   { img: "scenes/shinjiconfession/rei.png", label: "Rei" },
   { img: "scenes/yeeyee/lamar.png", label: "Lamar" },
   { img: "scenes/yeeyee/franklin.png", label: "Franklin" },
+  { img: "scenes/ishowspeedgod/speed.png", label: "IShowSpeed" },
+  { img: "scenes/ishowspeedgod/ben.png", label: "Ben" },
+  { img: "scenes/sukunashibuya/jogo.png", label: "Jogo" },
+  { img: "scenes/sukunashibuya/mimiko_nanako.png", label: "Mimiko & Nanako" },
+  { img: "scenes/sukunashibuya/sukuna.png", label: "Sukuna" },
+  { img: "scenes/yujitodohanami/yuji.png", label: "Yuji (vs Hanami)" },
+  { img: "scenes/yujitodohanami/todo.png", label: "Todo (vs Hanami)" },
+  { img: "scenes/yujitodohanami/hanami.png", label: "Hanami" },
+  { img: "scenes/yujitodohanami/juzo.png", label: "Juzo" },
+  { img: "scenes/yujitodohanami/gojo.png", label: "Gojo (vs Hanami)" },
   { img: "scenes/profiles/kayleen.png", label: "Kayleen" },
   { img: "scenes/profiles/kayleen2.png", label: "Kayleen 2" },
   { img: "scenes/profiles/kenny1.png", label: "Kenny 1" },
