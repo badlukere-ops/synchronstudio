@@ -26899,5 +26899,258 @@
     "orig": "scenes/yujitodohanami/lines/71.mp3"
    }
   ]
+ },
+ {
+  "id": "ichigovsbayakuya",
+  "title": "Bleach — Ichigo vs Byakuya Bankai (4 Rollen)",
+  "videoUrl": "scenes/ichigovsbayakuya.mp4",
+  "avatars": {
+   "0": "scenes/ichigovsbayakuya/ichigo.png",
+   "1": "scenes/ichigovsbayakuya/byakuya.png",
+   "2": "scenes/ichigovsbayakuya/orihime.png",
+   "3": "scenes/ichigovsbayakuya/uryu.png"
+  },
+  "roles": [
+   {
+    "id": 0,
+    "name": "Ichigo",
+    "pan": -0.2,
+    "effect": "none",
+    "gain": 1.05
+   },
+   {
+    "id": 1,
+    "name": "Byakuya",
+    "pan": 0.25,
+    "effect": "none",
+    "gain": 1.0
+   },
+   {
+    "id": 2,
+    "name": "Orihime",
+    "pan": -0.4,
+    "effect": "none",
+    "gain": 1.0
+   },
+   {
+    "id": 3,
+    "name": "Uryu",
+    "pan": 0.4,
+    "effect": "none",
+    "gain": 1.0
+   }
+  ],
+  "lines": [
+   {
+    "t": 0.27,
+    "end": 8.65,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "*breaths* damn... i thought i could do better than that...",
+    "de": "*atmet* verdammt... ich dachte, ich könnte das besser...",
+    "orig": "scenes/ichigovsbayakuya/lines/01.mp3"
+   },
+   {
+    "t": 8.71,
+    "end": 12.48,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "I should've known I couldn't do it... *little breath* just had to try though",
+    "de": "Ich hätte wissen müssen, dass ich's nicht schaffe... *kurzer Atemzug* musste es aber versuchen",
+    "orig": "scenes/ichigovsbayakuya/lines/02.mp3"
+   },
+   {
+    "t": 12.7,
+    "end": 19.01,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "*struggling breaths* guess it's foolish to think I could ever beat a bankai while only using my shikai...",
+    "de": "*keucht* naiv zu glauben, ich könnte jemals ein Bankai knacken — und das nur mit meinem Shikai...",
+    "orig": "scenes/ichigovsbayakuya/lines/03.mp3"
+   },
+   {
+    "t": 19.1,
+    "end": 25.94,
+    "chars": [
+     1
+    ],
+    "who": "Byakuya",
+    "text": "That arrogant mouth of yours is going to be the death of you... you talk as if you already achieved bankai level...",
+    "de": "Dieses arrogante Maul wird noch dein Tod sein... du redest, als hättest du schon Bankai-Niveau...",
+    "orig": "scenes/ichigovsbayakuya/lines/04.mp3"
+   },
+   {
+    "t": 26.01,
+    "end": 26.84,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "Yeahhhhh",
+    "de": "Jaaaaaa",
+    "orig": "scenes/ichigovsbayakuya/lines/05.mp3"
+   },
+   {
+    "t": 26.88,
+    "end": 27.47,
+    "chars": [
+     1
+    ],
+    "who": "Byakuya",
+    "text": "Mhm?",
+    "de": "Mhm?",
+    "orig": "scenes/ichigovsbayakuya/lines/06.mp3"
+   },
+   {
+    "t": 27.9,
+    "end": 31.64,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "You catch on pretty quickly... Byakuya Kuchiki",
+    "de": "Du merkst's ziemlich schnell... Byakuya Kuchiki",
+    "orig": "scenes/ichigovsbayakuya/lines/07.mp3"
+   },
+   {
+    "t": 34.81,
+    "end": 36.8,
+    "chars": [
+     1
+    ],
+    "who": "Byakuya",
+    "text": "What did you say?",
+    "de": "Was hast du gesagt?",
+    "orig": "scenes/ichigovsbayakuya/lines/08.mp3"
+   },
+   {
+    "t": 37.14,
+    "end": 45.67,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "Don't make me repeat myself... I think you heard me *struggling breath* you just don't want to believe it... do you?",
+    "de": "Lass mich das nicht wiederholen... ich denk, du hast mich gehört *keucht* du willst es nur nicht glauben... oder?",
+    "orig": "scenes/ichigovsbayakuya/lines/09.mp3"
+   },
+   {
+    "t": 46.55,
+    "end": 51.63,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "Then again, I don't care whether you believe me or not. I'm not gonna say it again...",
+    "de": "Andererseits ist mir egal, ob du mir glaubst oder nicht. Ich sag's nicht nochmal...",
+    "orig": "scenes/ichigovsbayakuya/lines/10.mp3"
+   },
+   {
+    "t": 51.88,
+    "end": 56.07,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "You'll believe it once you see it yourself.... Byakuya Kuchiki",
+    "de": "Du glaubst es, wenn du es selbst siehst.... Byakuya Kuchiki",
+    "orig": "scenes/ichigovsbayakuya/lines/11.mp3"
+   },
+   {
+    "t": 61.87,
+    "end": 65.08,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "*hard step* *scream your lungs out*",
+    "de": "*harter Schritt* *schrei dir die Seele aus dem Leib*",
+    "orig": "scenes/ichigovsbayakuya/lines/12.mp3"
+   },
+   {
+    "t": 65.08,
+    "end": 66.61,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "*focusing / concentrate sound*",
+    "de": "*Konzentrationsgeräusch*",
+    "orig": "scenes/ichigovsbayakuya/lines/13.mp3"
+   },
+   {
+    "t": 74.1,
+    "end": 76.72,
+    "chars": [
+     2
+    ],
+    "who": "Orihime",
+    "text": "That must be Ichigo... right?",
+    "de": "Das muss Ichigo sein... oder?",
+    "orig": "scenes/ichigovsbayakuya/lines/14.mp3"
+   },
+   {
+    "t": 77.02,
+    "end": 80.95,
+    "chars": [
+     3
+    ],
+    "who": "Uryu",
+    "text": "No one else I know fights like that... no one's that crazy...",
+    "de": "Niemand sonst, den ich kenne, kämpft so... niemand ist so verrückt...",
+    "orig": "scenes/ichigovsbayakuya/lines/15.mp3"
+   },
+   {
+    "t": 83.33,
+    "end": 84.42,
+    "chars": [
+     1
+    ],
+    "who": "Byakuya",
+    "text": "*nonchalant shock*",
+    "de": "*lässiger Schock*",
+    "orig": "scenes/ichigovsbayakuya/lines/16.mp3"
+   },
+   {
+    "t": 97.42,
+    "end": 99.75,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "Ban...Kai",
+    "de": "Ban...Kai",
+    "orig": "scenes/ichigovsbayakuya/lines/17.mp3"
+   },
+   {
+    "t": 104.6,
+    "end": 105.31,
+    "chars": [
+     1
+    ],
+    "who": "Byakuya",
+    "text": "*Tsk...* (nonchalant)",
+    "de": "*Tsk...* (lässig)",
+    "orig": "scenes/ichigovsbayakuya/lines/18.mp3"
+   },
+   {
+    "t": 146.83,
+    "end": 149.43,
+    "chars": [
+     0
+    ],
+    "who": "Ichigo",
+    "text": "Tensa Zangetsu...",
+    "de": "Tensa Zangetsu...",
+    "orig": "scenes/ichigovsbayakuya/lines/19.mp3"
+   }
+  ],
+  "difficultyOverride": "medium"
  }
 ]
