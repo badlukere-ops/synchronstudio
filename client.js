@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.71";
+const APP_VERSION = "9.10.72";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -553,6 +553,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.72", items: [
+    "🛠 Szenen-Editor komplett überarbeitet: 5 klare Schritte, weniger Chaos, deutsche Hilfetexte",
+    "Pack / Video / alte Szene wählen → Rollen → Text → Zeiten → Export — Erweitert-Kram eingeklappt",
+    "Checkliste vor dem Speichern, Bestätigung vor Löschen, Teleprompter-Vorschau",
+    "Link zum Editor jetzt auch auf dem Startbildschirm"
+  ]},
   { v: "9.10.69", items: [
     "🎬 Neue Szene: Shrek — Muffin Man (Lebkuchenmann, Farquaad, Wache, Spiegel, Thelonius)",
     "🎬 Neue Szene: SpongeBob — Krusty Dog (SpongeBob, Krabs, Squidward + 3 Gäste)",
