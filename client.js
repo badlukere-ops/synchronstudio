@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.69";
+const APP_VERSION = "9.10.70";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -560,6 +560,10 @@ const PATCH_NOTES = [
     "🎬 Neue Szene: Classroom of the Elite — Bruder-Konfrontation (Ayanokoji, Manabu, Suzune)",
     "🎬 Neue Szene: Evangelion — Shinjis Geständnis (Shinji, Rei)",
     "🎬 Neue Szene: GTA V — Yee-Yee-Ass Haircut (Lamar, Franklin)"
+  ]},
+  { v: "9.10.70", items: [
+    "📺 FIX: Outtakes-Rauschen — Bild und Ton gleich lang, Ende wird beim Speichern nicht mehr abgeschnitten",
+    "🎬 FIX: Premiere/Original-Mix ohne TV-Rauschen zwischen den Lines (Rauschen nur noch in Outtakes)"
   ]},
   { v: "9.10.68", items: [
     "👑 FIX: Host geben — niemand fliegt mehr raus, gleicher Raumcode, alle bleiben in der Lobby",
@@ -7287,18 +7291,21 @@ let outtakesDidSaveBlob = false;   // letzter Lauf hat saveBlob bereits ausgelö
 /** Optional: kurzes Rausch-Audio (Bild kommt immer aus Canvas — Datei war oft grün/kaputt). */
 const OUTTAKES_TRANS_URL = "sfx/outtakes-static.mp4";
 const OUTTAKES_TRANS_GAIN = 0.55;
-/** Sichtbarer Übergang (Anschauen). */
-const OUTTAKES_TRANS_MAX_MS = 220;
-/** Beim stillen Speichern/Precache: kurz, sonst fühlt sich Speichern „ewig“ an. */
-const OUTTAKES_TRANS_EXPORT_MS = 70;
+/**
+ * Ein Dauerwert für Anschauen UND Speichern — Bild + Ton müssen gleich lang sein.
+ * Früher Export 70ms bei ~350ms Noise-Buffer → Bild viel kürzer / Ton abgeschnitten.
+ */
+const OUTTAKES_TRANS_MS = 220;
 /** Ab so vielen Outtakes nur noch jeden 2. Übergang (weniger Spam). */
 const OUTTAKES_TRANS_SPARSE_AT = 10;
 let outtakesTransPreload = null;
 let outtakesTransGainNode = null;
 let outtakesNoiseBuf = null;
-/** frameSource malt grau/SW-TV-Rauschen statt Szene-Video. */
+let outtakesNoiseBufDur = 0;
+/** Nur Outtakes-frameSource darf das lesen — Premiere nie (sonst Rauschen im Original-Mix). */
 let outtakesDrawTrans = false;
 let outtakesStaticRaf = null;
+let outtakesNoiseSrc = null;
 /** Nutzer-Schalter „Rauschen an/aus“ (lokal, merkt sich localStorage). */
 let outtakesBeepOn = true;
 try {
@@ -7330,8 +7337,23 @@ function countOuttakesTransitions(reelLen) {
   for (let i = 0; i < reelLen - 1; i++) if (shouldPlayOuttakesTransition(i, reelLen)) n++;
   return n;
 }
-function outtakesTransMs(quiet) {
-  return quiet ? OUTTAKES_TRANS_EXPORT_MS : OUTTAKES_TRANS_MAX_MS;
+function outtakesTransMs() {
+  return OUTTAKES_TRANS_MS;
+}
+/** Premiere läuft / schneidet mit — Outtakes-Hintergrund dann pausieren. */
+function premIsBusy() {
+  return !!(premCachePending || premActiveRecorder);
+}
+function stopOuttakesNoiseSrc() {
+  try { if (outtakesNoiseSrc) outtakesNoiseSrc.stop(); } catch {}
+  outtakesNoiseSrc = null;
+}
+function silenceOuttakesTransBus() {
+  outtakesDrawTrans = false;
+  stopOuttakesNoiseSrc();
+  try { if (outtakesTransGainNode) outtakesTransGainNode.disconnect(); } catch {}
+  try { if (outtakesTransGainNode) outtakesTransGainNode.gain.value = 0; } catch {}
+  showOuttakesStaticOverlay(false);
 }
 
 /** Grau/Schwarzweiß-TV-Rauschen (nie die kaputte grüne MP4-Bildspur). */
@@ -7403,13 +7425,23 @@ function preloadOuttakesTransition() {
   return outtakesTransPreload;
 }
 
-function ensureOuttakesNoiseBuf(ctx) {
-  if (outtakesNoiseBuf && outtakesNoiseBuf.sampleRate === ctx.sampleRate) return outtakesNoiseBuf;
-  const len = Math.max(1, Math.floor(ctx.sampleRate * 0.35));
+function ensureOuttakesNoiseBuf(ctx, durSec) {
+  const sec = Math.max(0.05, durSec || OUTTAKES_TRANS_MS / 1000);
+  if (outtakesNoiseBuf
+      && outtakesNoiseBuf.sampleRate === ctx.sampleRate
+      && Math.abs(outtakesNoiseBufDur - sec) < 0.001) {
+    return outtakesNoiseBuf;
+  }
+  const len = Math.max(1, Math.floor(ctx.sampleRate * sec));
   const buf = ctx.createBuffer(1, len, ctx.sampleRate);
   const ch = buf.getChannelData(0);
-  for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * 0.35;
+  for (let i = 0; i < len; i++) {
+    // Leichtes Fade-Out am Ende, damit MediaRecorder nichts abrupt abschneidet
+    const fade = i > len - 64 ? (len - i) / 64 : 1;
+    ch[i] = (Math.random() * 2 - 1) * 0.35 * fade;
+  }
   outtakesNoiseBuf = buf;
+  outtakesNoiseBufDur = sec;
   return buf;
 }
 
@@ -7431,11 +7463,12 @@ function connectOuttakesTransBus(hearGain, recDest) {
   if (!outtakesTransGainNode) return;
   try { outtakesTransGainNode.disconnect(); } catch {}
   outtakesTransGainNode.gain.value = OUTTAKES_TRANS_GAIN;
+  // Nur Outtakes-Bus — nie an Premiere-masterGain / ctx.destination direkt
   if (hearGain) try { outtakesTransGainNode.connect(hearGain); } catch {}
   if (recDest) try { outtakesTransGainNode.connect(recDest); } catch {}
 }
 
-/** Spielt grau/SW-Rauschen (Canvas) + synthetisches Audio — kein hängendes Video-play(). */
+/** Spielt grau/SW-Rauschen (Canvas) + synthetisches Audio — Bilddauer = Tondauer. */
 async function playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, ctx, hearGain, recDest }) {
   if (outtakeAbort) return;
   outtakesOverlayLine = "";
@@ -7445,23 +7478,31 @@ async function playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, c
     if (capEl) capEl.textContent = "";
   }
   if (outtakeAbort) return;
-  const durMs = outtakesTransMs(quiet);
+  const durMs = outtakesTransMs();
+  const durSec = durMs / 1000;
   ensureOuttakesTransGain(ctx);
   connectOuttakesTransBus(hearGain, recDest);
+  stopOuttakesNoiseSrc();
   let noiseSrc = null;
   try {
     if (ctx && outtakesTransGainNode) {
       if (ctx.state === "suspended") try { await ctx.resume(); } catch {}
-      const buf = ensureOuttakesNoiseBuf(ctx);
+      const buf = ensureOuttakesNoiseBuf(ctx, durSec);
       noiseSrc = ctx.createBufferSource();
       noiseSrc.buffer = buf;
       noiseSrc.connect(outtakesTransGainNode);
-      noiseSrc.start();
+      const t0 = ctx.currentTime;
+      noiseSrc.start(t0);
+      noiseSrc.stop(t0 + durSec);
+      outtakesNoiseSrc = noiseSrc;
+      noiseSrc.onended = () => { if (outtakesNoiseSrc === noiseSrc) outtakesNoiseSrc = null; };
     }
   } catch (e) { console.warn("Outtakes-Noise:", e); }
+  // Bildflag erst NACH Audio-Start — gleiche Clock für A/V
   outtakesDrawTrans = true;
   if (!quiet) showOuttakesStaticOverlay(true);
   if (frames) try { frames.paint(); } catch {}
+  const wall0 = performance.now();
   await new Promise(r => {
     let done = false;
     const finish = () => {
@@ -7472,12 +7513,25 @@ async function playOuttakesTransitionClip({ quiet, lab, lineEl, capEl, frames, c
     };
     const t = setTimeout(finish, durMs);
     const btn = $("btn-outtakes-skip");
-    if (btn && !quiet) btn.onclick = () => finish();
+    if (btn && !quiet) {
+      btn.onclick = () => {
+        try { if (noiseSrc) noiseSrc.stop(); } catch {}
+        finish();
+      };
+    }
   });
+  // Falls Timeout etwas früher als Audio-Ende: kurz nachziehen (kein abgeschnittener Ton)
+  const remain = durMs - (performance.now() - wall0);
+  if (remain > 8 && !outtakeAbort) await new Promise(r => setTimeout(r, Math.min(remain, 40)));
   outtakesDrawTrans = false;
-  try { if (noiseSrc) noiseSrc.stop(); } catch {}
+  if (outtakesNoiseSrc === noiseSrc) outtakesNoiseSrc = null;
   if (!quiet) showOuttakesStaticOverlay(false);
-  if (frames) try { frames.paint(); } catch {}
+  // Ein Extra-Frame ohne Rauschen, damit MediaRecorder das Ende sauber schließt
+  if (frames) {
+    try { frames.paint(); } catch {}
+    await new Promise(r => setTimeout(r, 34));
+    if (frames) try { frames.paint(); } catch {}
+  }
 }
 
 /** Kopie der Outtake-Audiodaten — decodeAudioData darf das Original nie detach'en. */
@@ -7510,7 +7564,11 @@ function scheduleOuttakesPrecache() {
   if (!outtakes.length || outtakesCacheReady()) return;
   outtakesPrecacheTimer = setTimeout(() => {
     if (!outtakes.length || outtakesCacheReady() || outtakesPlaying || outtakesCachePending) return;
-    // Stiller Schnell-Schnitt im Hintergrund — Speichern danach sofort
+    // Nie parallel zur Premiere — sonst malt outtakesDrawTrans Rauschen in den Original-Mix
+    if (premIsBusy()) {
+      scheduleOuttakesPrecache();
+      return;
+    }
     playOuttakesReel({ quiet: true }).catch(e => console.warn("Outtakes-Precache:", e));
   }, 350);
 }
@@ -7518,6 +7576,11 @@ function scheduleOuttakesPrecache() {
 async function playOuttakesReel(opts) {
   let saveFile = !!(opts && opts.save);
   const quiet = !!(opts && opts.quiet);   // Hintergrund: kein Overlay, Lautsprecher stumm (Gain 0)
+  // Stiller Precache nie parallel zur Premiere (Rauschen/Bus sonst im falschen Mix)
+  if (quiet && !saveFile && premIsBusy()) {
+    scheduleOuttakesPrecache();
+    return;
+  }
   // Schon ein Durchlauf aktiv?
   if (outtakesPlaying) {
     // Zweiter stiller Job: Speichern vormerken statt stillem No-Op
@@ -7766,7 +7829,7 @@ async function playOuttakesReel(opts) {
       const durSec = outtakesRecT0
         ? Math.max(0.5, (performance.now() - outtakesRecT0) / 1000)
         : reel.reduce((s, ot) => s + Math.max(0.8, (ot.end - ot.t) + 0.4), 0)
-          + countOuttakesTransitions(reel.length) * (outtakesTransMs(quiet) / 1000);
+          + countOuttakesTransitions(reel.length) * (outtakesTransMs() / 1000);
       try { blob = await withRecordedDuration(blob, durSec); } catch {}
       if (blob.size > 1000) {
         outtakesCache = { blob, endung };
@@ -7804,17 +7867,15 @@ async function playOuttakesReel(opts) {
     console.warn("Outtakes-Reel Fehler:", e);
     if (saveFile) status("play-status", "⚠ Outtakes-Fehler — bitte nochmal speichern.", true);
   } finally {
-    outtakesDrawTrans = false;
-    showOuttakesStaticOverlay(false);
+    silenceOuttakesTransBus();
     try { v.playbackRate = 1; } catch {}
     try {
       if (fileRec && fileRec.state !== "inactive") fileRec.stop();
     } catch {}
     try {
       const tv = $("outtakes-transition");
-      if (tv) { tv.pause(); tv.classList.remove("show"); }
+      if (tv) { tv.pause(); tv.classList.remove("show"); tv.removeAttribute("src"); tv.load(); }
     } catch {}
-    try { if (outtakesTransGainNode) outtakesTransGainNode.disconnect(); } catch {}
     try { if (frames) frames.stop(); } catch {}
     try { if (vidGain && recDest) vidGain.disconnect(recDest); } catch {}
     try { if (vidGain && hearGain) vidGain.disconnect(hearGain); } catch {}
@@ -7824,6 +7885,10 @@ async function playOuttakesReel(opts) {
     outtakesPlaying = false;
     outtakesQuietJob = false;
     if (auchCachen) resolveOuttakesCachePending(cacheOk);
+    // Nach abgebrochenem Precache (wegen Premiere) später nochmal versuchen
+    if (!cacheOk && outtakes.length && !outtakesCacheReady()) {
+      try { scheduleOuttakesPrecache(); } catch {}
+    }
     outtakesOverlayLine = "";
     if (capEl) capEl.textContent = "";
     if (recStat) { recStat.style.display = "none"; recStat.style.color = ""; }
@@ -7919,8 +7984,7 @@ $("btn-outtakes-dl") && ($("btn-outtakes-dl").onclick = () => { SFX.click(); dow
 $("btn-outtakes-dl-overlay") && ($("btn-outtakes-dl-overlay").onclick = () => { SFX.click(); downloadOuttakes(); });
 $("btn-outtakes-close") && ($("btn-outtakes-close").onclick = () => {
   outtakeAbort = true;
-  outtakesDrawTrans = false;
-  showOuttakesStaticOverlay(false);
+  silenceOuttakesTransBus();
   $("outtakes-overlay").classList.remove("show");
   const v = $("outtakes-video"); if (v) v.pause();
 });
@@ -9507,10 +9571,12 @@ function frameSource(v, opts) {
       c.width = v.videoWidth; c.height = v.videoHeight;
     }
     try {
-      if (outtakesDrawTrans) {
-        // Immer grau/SW-Rauschen zeichnen — nie die (oft grüne) Transition-MP4
+      // WICHTIG: Rauschen nur auf Outtakes-Canvas (outtakesBadge).
+      // Premiere nutzt dieselbe frameSource — global outtakesDrawTrans darf dort NIE greifen,
+      // sonst landet TV-Rauschen zwischen den Lines im Original-Mix.
+      if (outtakesBadge && outtakesDrawTrans) {
         drawTvStatic(g2, c.width, c.height);
-        if (outtakesBadge) drawOuttakesBadge(g2, c.width, c.height, "");
+        drawOuttakesBadge(g2, c.width, c.height, "");
         bilder++;
       } else if (v.readyState >= 2) {
         g2.drawImage(v, 0, 0, c.width, c.height);
@@ -9707,6 +9773,9 @@ async function playMix(opts) {
   playNodes.forEach(n => { try { n.stop(); } catch {} });
   playNodes = [];
   premPaused = false;
+  // Outtakes-Hintergrundschnitt stoppen — Rausch-Bus/Flag darf Premiere nicht verunreinigen
+  if (outtakesPlaying && outtakesQuietJob) outtakeAbort = true;
+  silenceOuttakesTransBus();
   try { await ctx.resume(); } catch {}
   updatePremPauseBtn();
 
@@ -10132,6 +10201,7 @@ function resetForNewRound() {
   clearTimeout(outtakesPrecacheTimer); outtakesPrecacheTimer = null;
   outtakeAbort = true; outtakesPlaying = false; outtakesQuietJob = false;
   outtakesSaveWhenReady = false; outtakesDidSaveBlob = false;
+  silenceOuttakesTransBus();
   resolveOuttakesCachePending(null);
   premOrigOn = true; premOrigUnfilled = []; premOrigMuted = new Set(); premPaused = false;
   resetPremPlayerGains();
