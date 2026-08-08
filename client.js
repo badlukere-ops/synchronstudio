@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.73";
+const APP_VERSION = "9.10.74";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -553,6 +553,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.74", items: [
+    "🎬 Neue Szene: The Quintessential Quintuplets — Opening (Ichika, Nino, Miku, Yotsuba, Itsuki)"
+  ]},
   { v: "9.10.73", items: [
     "🎬 Neue Szene: Bleach — Ichigo vs Byakuya Bankai (Ichigo, Byakuya, Orihime, Uryu)"
   ]},
@@ -1318,6 +1321,11 @@ const AVATAR_CHARS = [
   { img: "scenes/ichigovsbayakuya/byakuya.png", label: "Byakuya" },
   { img: "scenes/ichigovsbayakuya/orihime.png", label: "Orihime" },
   { img: "scenes/ichigovsbayakuya/uryu.png", label: "Uryu" },
+  { img: "scenes/the_quintessential_quintuplets/ichika.png", label: "Ichika" },
+  { img: "scenes/the_quintessential_quintuplets/nino.png", label: "Nino" },
+  { img: "scenes/the_quintessential_quintuplets/miku.png", label: "Miku" },
+  { img: "scenes/the_quintessential_quintuplets/yotsuba.png", label: "Yotsuba" },
+  { img: "scenes/the_quintessential_quintuplets/itsuki.png", label: "Itsuki" },
   { img: "scenes/profiles/kayleen.png", label: "Kayleen" },
   { img: "scenes/profiles/kayleen2.png", label: "Kayleen 2" },
   { img: "scenes/profiles/kenny1.png", label: "Kenny 1" },
