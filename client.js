@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.77";
+const APP_VERSION = "9.10.78";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -578,6 +578,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.78", items: [
+    "🎬 Your Name: Zeile 2 und 5 sind jetzt Mitsuha (statt Taki)"
+  ]},
   { v: "9.10.77", items: [
     "🛠 Szenen-Editor wieder wie früher (ohne 5-Schritt-Chaos) — Springen-Knopf bleibt"
   ]},

@@ -29323,9 +29323,9 @@
         "t": 24.49,
         "end": 26.3,
         "chars": [
-          0
+          1
         ],
-        "who": "Taki",
+        "who": "Mitsuha",
         "text": "*another silent shock breath*",
         "de": "*noch ein stiller Schock-Atemzug*",
         "orig": "scenes/yourname/lines/02.mp3"
@@ -29356,9 +29356,9 @@
         "t": 31.6,
         "end": 33.2,
         "chars": [
-          0
+          1
         ],
-        "who": "Taki",
+        "who": "Mitsuha",
         "text": "Someone!",
         "de": "Jemanden!",
         "orig": "scenes/yourname/lines/05.mp3"
