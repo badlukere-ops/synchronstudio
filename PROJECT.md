@@ -10,7 +10,7 @@ Privates Online-Synchronisations-Spiel für Freunde. Freunde treten einem Raum b
 
 - Statisch auf GitHub Pages — kein Server/Backend
 - PeerJS/WebRTC für die Verbindung zwischen Spielern (Host = Autorität, Gäste verbinden sich zu ihm)
-- TURN-Relay: ExpressTurn (seit v8.3, vorher Metered), Zugangsdaten in `client.js` in der `MY_TURN`-Konstante
+- TURN-Relay: ExpressTurn Free (primär) + Open Relay Static-Auth Backup (TURNS/443); alter Metered-Trial entfernt. Zugangsdaten/`MY_TURN` in `client.js`
 - Web Audio API für Effekte, Panning, Aufnahme, Mixing
 - Vanilla JS, kein Framework
 

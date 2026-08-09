@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.74";
+const APP_VERSION = "9.10.75";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -32,23 +32,47 @@ function sceneVideoSrc() {
 // ║  VERMITTLUNG (PeerJS) + TURN-RELAY                                 ║
 // ║  Wenn „Raum erstellen“ schon scheitert → Broker/Netz blockiert.   ║
 // ║  Wenn Join hängt → oft NAT; dann helfen die TURN-Relays unten.    ║
+// ║  Metered-Trial-Account entfernt (Credentials tot → ICE-Verzögerung).║
+// ║  Primär: ExpressTurn Free (1 TB/Mo). Backup: Open Relay (TURNS/443).║
 // ╚══════════════════════════════════════════════════════════════════╝
 const EXPRESS_USER = "000000002101101430";
 const EXPRESS_CRED = "/NtVFzNcrMKmrE1oqCWjY8Kd7RQ=";
-// Alter Metered-Account (weiter nutzbar, inkl. TURNS/443 — gut bei strengen Firewalls)
-const METERED_USER = "784a2cacd45f00da0669d578";
-const METERED_CRED = "ix7IinZzU+ItucbO";
+// Open Relay Static-Auth — öffentlich dokumentiert (openrelayproject.org / Metered Docs)
+const OPENRELAY_STATIC_SECRET = "openrelayprojectsecret";
 const MY_TURN = [
-  // Metered TURNS zuerst (ICE-Probe: Relay ok) — hilft bei CGNAT/Schulnetz
-  { urls: "turns:global.relay.metered.ca:443?transport=tcp", username: METERED_USER, credential: METERED_CRED },
-  { urls: "turn:global.relay.metered.ca:443", username: METERED_USER, credential: METERED_CRED },
-  { urls: "turn:global.relay.metered.ca:80?transport=tcp", username: METERED_USER, credential: METERED_CRED },
-  { urls: "turn:global.relay.metered.ca:80", username: METERED_USER, credential: METERED_CRED },
-  // ExpressTurn Free (ICE-Probe: 3478 udp+tcp ok; free:443 tcp war kaputt → weggelassen)
+  // ExpressTurn Free zuerst (UDP+TCP 3478; großzügiges Free-Kontingent)
   { urls: "turn:free.expressturn.com:3478?transport=tcp", username: EXPRESS_USER, credential: EXPRESS_CRED },
   { urls: "turn:free.expressturn.com:3478?transport=udp", username: EXPRESS_USER, credential: EXPRESS_CRED },
   { urls: "stun:stun.expressturn.com:3478" },
 ];
+// Open Relay: zeitlich begrenzte Creds aus öffentlichem Static-Secret (TURNS:443 für strenge Firewalls)
+let openRelayTurn = [];
+async function refreshOpenRelayTurn() {
+  try {
+    if (!globalThis.crypto || !crypto.subtle) { openRelayTurn = []; return; }
+    const ttlSec = 12 * 3600;
+    const username = `${Math.floor(Date.now() / 1000) + ttlSec}:synchronstudio`;
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(OPENRELAY_STATIC_SECRET),
+      { name: "HMAC", hash: "SHA-1" },
+      false,
+      ["sign"]
+    );
+    const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(username));
+    const credential = btoa(String.fromCharCode(...new Uint8Array(mac)));
+    openRelayTurn = [
+      { urls: "turns:staticauth.openrelay.metered.ca:443?transport=tcp", username, credential },
+      { urls: "turn:staticauth.openrelay.metered.ca:443", username, credential },
+      { urls: "turn:staticauth.openrelay.metered.ca:80?transport=tcp", username, credential },
+      { urls: "turn:staticauth.openrelay.metered.ca:80", username, credential },
+    ];
+  } catch (_) {
+    openRelayTurn = [];
+  }
+}
+refreshOpenRelayTurn();
+try { setInterval(refreshOpenRelayTurn, 6 * 3600 * 1000); } catch (_) {}
 // PeerJS-Cloud: 0 und 1 — falls ein Netz einen Host blockiert, den anderen versuchen
 const PEER_BROKERS = [
   { host: "0.peerjs.com", port: 443, path: "/", secure: true, label: "Cloud-0" },
@@ -72,7 +96,8 @@ function makePeerConfig(forceRelay, brokerIdx) {
         { urls: "stun:stun.l.google.com:19302" },
         { urls: "stun:stun1.l.google.com:19302" },
         { urls: "stun:stun2.l.google.com:19302" },
-        ...MY_TURN
+        ...MY_TURN,
+        ...openRelayTurn
       ],
       iceCandidatePoolSize: 8,
       ...(forceRelay ? { iceTransportPolicy: "relay" } : {})
@@ -553,6 +578,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.75", items: [
+    "🌐 Verbindung: abgelaufenen Metered-TURN entfernt (hat nur Zeit gekostet), ExpressTurn bleibt Haupt-Server, Open-Relay-Backup mit TURNS/443 für schwierige Netze"
+  ]},
   { v: "9.10.74", items: [
     "🎬 Neue Szene: The Quintessential Quintuplets — Opening (Ichika, Nino, Miku, Yotsuba, Itsuki)"
   ]},
