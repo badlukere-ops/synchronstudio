@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.78";
+const APP_VERSION = "9.10.79";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -578,6 +578,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.79", items: [
+    "🎬 Neue Szene: Ghost Stories — Gay Pajamas (Keiichirou, Satsuki)",
+    "🎬 Neue Szene: Ghost Stories — I Have an Itch (Satsuki, Keiichirou)",
+    "🎬 Neue Szene: SpongeBob — Girly Teengirl (Pearl, Girly Teengirl, Mr. Krabs, SpongeBob)",
+    "🔄 Speed-Meme getauscht: Velocidad Necesito Esto → My Mom Is Kinda Homeless (gleiche Szene-ID)"
+  ]},
   { v: "9.10.78", items: [
     "🎬 Your Name: Zeile 2 und 5 sind jetzt Mitsuha (statt Taki)"
   ]},
@@ -1370,6 +1376,16 @@ const AVATAR_CHARS = [
   { img: "scenes/profiles/kenny1.png", label: "Kenny 1" },
   { img: "scenes/profiles/kenny2.png", label: "Kenny 2" },
   { img: "scenes/profiles/kenny3.png", label: "Kenny 3" },
+  { img: "scenes/ghostpajamas/keiichirou.png", label: "Keiichirou (Gay Pajamas)" },
+  { img: "scenes/ghostpajamas/satsuki.png", label: "Satsuki (Gay Pajamas)" },
+  { img: "scenes/ghostitch/satsuki.png", label: "Satsuki (Itch)" },
+  { img: "scenes/ghostitch/keiichirou.png", label: "Keiichirou (Itch)" },
+  { img: "scenes/girlyteengirl/pearl.png", label: "Pearl (Girly Teengirl)" },
+  { img: "scenes/girlyteengirl/girly_teengirl.png", label: "Girly Teengirl" },
+  { img: "scenes/girlyteengirl/mr_krabs.png", label: "Mr. Krabs (Girly Teengirl)" },
+  { img: "scenes/girlyteengirl/spongebob.png", label: "SpongeBob (Girly Teengirl)" },
+  { img: "scenes/velocidad/kid_1.png", label: "Kid 1 (Homeless Meme)" },
+  { img: "scenes/velocidad/kid_2.png", label: "Kid 2 (Homeless Meme)" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {

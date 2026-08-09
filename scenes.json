@@ -842,119 +842,105 @@
   },
   {
     "id": "velocidad",
-    "title": "Velocidad Necesito Esto — Speed-Meme, Spanisch! (3 Rollen)",
+    "title": "My Mom Is Kinda Homeless — Speed Meme (2 Rollen)",
     "videoUrl": "scenes/velocidad.mp4",
+    "avatars": {
+      "0": "scenes/velocidad/kid_1.png",
+      "1": "scenes/velocidad/kid_2.png"
+    },
     "roles": [
       {
+        "id": 0,
+        "name": "Kid 1",
+        "pan": -0.3,
+        "effect": "none",
+        "gain": 1
+      },
+      {
         "id": 1,
-        "name": "Velocidad (Speed)",
-        "pan": -0.4,
-        "effect": "none",
-        "gain": 1
-      },
-      {
-        "id": 2,
-        "name": "Niño",
-        "pan": 0.3,
-        "effect": "none",
-        "gain": 1
-      },
-      {
-        "id": 3,
-        "name": "Espectador",
-        "pan": 0.6,
+        "name": "Kid 2",
+        "pan": 0.35,
         "effect": "none",
         "gain": 1
       }
     ],
     "lines": [
       {
-        "t": 2.36,
-        "end": 3.42,
+        "t": 0.441,
+        "end": 2.658,
         "chars": [
-          1
+          0
         ],
-        "who": "Velocidad",
-        "text": "GG bro... GG",
-        "de": "GG Bro… GG",
+        "who": "Kid 1",
+        "text": "*incoherent yelling*",
+        "de": "*undeutliches Geschrei*",
         "orig": "scenes/velocidad/lines/01.mp3"
       },
       {
-        "t": 3.42,
-        "end": 9.41,
+        "t": 3.246,
+        "end": 5.879,
         "chars": [
-          2
+          0
         ],
-        "who": "Niño",
-        "text": "Oh Dios mio voy a perder",
-        "de": "Oh mein Gott, ich werde verlieren",
+        "who": "Kid 1",
+        "text": "PLEASE SPEED I NEED THIS",
+        "de": "BITTE SPEED, ICH BRAUCH DAS",
         "orig": "scenes/velocidad/lines/02.mp3"
       },
       {
-        "t": 9.41,
-        "end": 12.14,
+        "t": 6.723,
+        "end": 7.123,
         "chars": [
-          2
+          0
         ],
-        "who": "Niño",
-        "text": "AaAaahAhh",
-        "de": "AaAaahAhh",
+        "who": "Kid 1",
+        "text": "*breathes in*",
+        "de": "*atmet ein*",
         "orig": "scenes/velocidad/lines/03.mp3"
       },
       {
-        "t": 12.14,
-        "end": 15.89,
+        "t": 7.221,
+        "end": 9.454,
         "chars": [
-          2
+          0
         ],
-        "who": "Niño",
-        "text": "Velocidad necesito esto",
-        "de": "Speed, ich brauche das",
+        "who": "Kid 1",
+        "text": "My mom is kinda homeless",
+        "de": "Meine Mom ist irgendwie obdachlos",
         "orig": "scenes/velocidad/lines/04.mp3"
       },
       {
-        "t": 15.89,
-        "end": 21.28,
+        "t": 12.4,
+        "end": 14.917,
         "chars": [
-          2
+          0
         ],
-        "who": "Niño",
-        "text": "Mi madre esta sin hogar",
-        "de": "Meine Mutter ist obdachlos",
+        "who": "Kid 1",
+        "text": "I live with my dad. I wanna help her out",
+        "de": "Ich wohn bei meinem Dad. Ich will ihr helfen",
         "orig": "scenes/velocidad/lines/05.mp3"
       },
       {
-        "t": 21.28,
-        "end": 24.52,
+        "t": 15.282,
+        "end": 20.549,
         "chars": [
-          2
+          1
         ],
-        "who": "Niño",
-        "text": "Y vivo con mi padre quiero ayudarla",
-        "de": "Und ich lebe bei meinem Vater, ich will ihr helfen",
+        "who": "Kid 2",
+        "text": "Speed, why you trying not to laugh, brooo? That's disrespectful as shit, bruh",
+        "de": "Speed, warum versuchst du nicht zu lachen, Brooo? Das ist mega respektlos, Bruder",
         "orig": "scenes/velocidad/lines/06.mp3"
       },
       {
-        "t": 24.52,
-        "end": 27.51,
+        "t": 20.796,
+        "end": 22.617,
         "chars": [
-          3
+          1
         ],
-        "who": "Espectador",
-        "text": "¡Velocidad estoy viendo tu directo te estas riendo!",
-        "de": "Speed, ich schaue deinen Stream — du lachst!",
+        "who": "Kid 2",
+        "text": "The fuck wrong with you, bruh",
+        "de": "Was zum Teufel stimmt nicht mit dir, Bruder",
         "orig": "scenes/velocidad/lines/07.mp3"
-      },
-      {
-        "t": 27.51,
-        "end": 31.87,
-        "chars": [
-          3
-        ],
-        "who": "Espectador",
-        "text": "¡Eso es irrespetuoso hermano, eso es irrespetuoso HERMANO!",
-        "de": "Das ist respektlos, Bruder, das ist respektlos, BRUDER!",
-        "orig": "scenes/velocidad/lines/08.mp3"
       }
     ]
   },
@@ -29297,14 +29283,14 @@
         "name": "Taki",
         "pan": -0.25,
         "effect": "none",
-        "gain": 1.0
+        "gain": 1
       },
       {
         "id": 1,
         "name": "Mitsuha",
         "pan": 0.25,
         "effect": "none",
-        "gain": 1.0
+        "gain": 1
       }
     ],
     "lines": [
@@ -29331,7 +29317,7 @@
         "orig": "scenes/yourname/lines/02.mp3"
       },
       {
-        "t": 27.0,
+        "t": 27,
         "end": 29.07,
         "chars": [
           0
@@ -29431,7 +29417,7 @@
       },
       {
         "t": 108.52,
-        "end": 111.0,
+        "end": 111,
         "chars": [
           0
         ],
@@ -29464,5 +29450,509 @@
       }
     ],
     "difficultyOverride": "easy"
+  },
+  {
+    "id": "ghostpajamas",
+    "title": "Ghost Stories — Gay Pajamas (2 Rollen)",
+    "videoUrl": "scenes/ghostpajamas.mp4",
+    "avatars": {
+      "0": "scenes/ghostpajamas/keiichirou.png",
+      "1": "scenes/ghostpajamas/satsuki.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Keiichirou",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Satsuki",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 2.512,
+        "end": 4.129,
+        "chars": [
+          0
+        ],
+        "who": "Keiichirou",
+        "text": "You're gonna die",
+        "de": "Du wirst sterben",
+        "orig": "scenes/ghostpajamas/lines/01.mp3"
+      },
+      {
+        "t": 4.205,
+        "end": 5.605,
+        "chars": [
+          1
+        ],
+        "who": "Satsuki",
+        "text": "I'm not gonna die",
+        "de": "Ich sterb nicht",
+        "orig": "scenes/ghostpajamas/lines/02.mp3"
+      },
+      {
+        "t": 6.397,
+        "end": 8.514,
+        "chars": [
+          0
+        ],
+        "who": "Keiichirou",
+        "text": "Are you sure you're not gonna die?",
+        "de": "Bist du sicher, dass du nicht stirbst?",
+        "orig": "scenes/ghostpajamas/lines/03.mp3"
+      },
+      {
+        "t": 8.523,
+        "end": 10.376,
+        "chars": [
+          1
+        ],
+        "who": "Satsuki",
+        "text": "Are you talking about the piano ghost?",
+        "de": "Meinst du den Klavier-Geist?",
+        "orig": "scenes/ghostpajamas/lines/04.mp3"
+      },
+      {
+        "t": 10.376,
+        "end": 11.359,
+        "chars": [
+          0
+        ],
+        "who": "Keiichirou",
+        "text": "*scream*",
+        "de": "*Schrei*",
+        "orig": "scenes/ghostpajamas/lines/05.mp3"
+      },
+      {
+        "t": 11.692,
+        "end": 16.818,
+        "chars": [
+          1
+        ],
+        "who": "Satsuki",
+        "text": "I'm sure I'll live a long miserable life of heartbreak and alcoholism before a ghost takes me out",
+        "de": "Ich bin mir sicher, ich leb noch ein langes, elendes Leben voller Herzschmerz und Alkohol, bevor mich ein Geist holt",
+        "orig": "scenes/ghostpajamas/lines/06.mp3"
+      },
+      {
+        "t": 16.818,
+        "end": 21.818,
+        "chars": [
+          0
+        ],
+        "who": "Keiichirou",
+        "text": "If you're lying — thank you *cry*",
+        "de": "Wenn du lügst — danke *weint*",
+        "orig": "scenes/ghostpajamas/lines/07.mp3"
+      },
+      {
+        "t": 21.953,
+        "end": 24.742,
+        "chars": [
+          0
+        ],
+        "who": "Keiichirou",
+        "text": "*cry* Because his pajamas are gay",
+        "de": "*weint* Weil seine Pyjamas schwul sind",
+        "orig": "scenes/ghostpajamas/lines/08.mp3"
+      },
+      {
+        "t": 24.742,
+        "end": 28.309,
+        "chars": [
+          1
+        ],
+        "who": "Satsuki",
+        "text": "I told you I'm going to be fine — why are you still crying?",
+        "de": "Ich hab dir gesagt, mir geht's gut — warum heulst du immer noch?",
+        "orig": "scenes/ghostpajamas/lines/09.mp3"
+      },
+      {
+        "t": 30.436,
+        "end": 30.806,
+        "chars": [
+          1
+        ],
+        "who": "Satsuki",
+        "text": "Yah...",
+        "de": "Ja...",
+        "orig": "scenes/ghostpajamas/lines/10.mp3"
+      },
+      {
+        "t": 30.806,
+        "end": 34.289,
+        "chars": [
+          0
+        ],
+        "who": "Keiichirou",
+        "text": "*stops crying* Yeah, you think so too",
+        "de": "*hört auf zu weinen* Ja, findest du auch",
+        "orig": "scenes/ghostpajamas/lines/11.mp3"
+      },
+      {
+        "t": 34.289,
+        "end": 37.284,
+        "chars": [
+          0
+        ],
+        "who": "Keiichirou",
+        "text": "Thanks, I thought it was just me. Good night",
+        "de": "Danke, ich dachte, nur ich seh das so. Gute Nacht",
+        "orig": "scenes/ghostpajamas/lines/12.mp3"
+      }
+    ]
+  },
+  {
+    "id": "ghostitch",
+    "title": "Ghost Stories — I Have an Itch (2 Rollen)",
+    "videoUrl": "scenes/ghostitch.mp4",
+    "avatars": {
+      "0": "scenes/ghostitch/satsuki.png",
+      "1": "scenes/ghostitch/keiichirou.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Satsuki",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Keiichirou",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0,
+        "end": 1.433,
+        "chars": [
+          0
+        ],
+        "who": "Satsuki",
+        "text": "Get your ass down here!",
+        "de": "Komm sofort runter!",
+        "orig": "scenes/ghostitch/lines/01.mp3"
+      },
+      {
+        "t": 1.442,
+        "end": 2.109,
+        "chars": [
+          1
+        ],
+        "who": "Keiichirou",
+        "text": "What?",
+        "de": "Was?",
+        "orig": "scenes/ghostitch/lines/02.mp3"
+      },
+      {
+        "t": 2.109,
+        "end": 5.192,
+        "chars": [
+          0
+        ],
+        "who": "Satsuki",
+        "text": "Don't what me — when I call you, say yes ma'am",
+        "de": "Kein Was — wenn ich dich rufe, sagst du Ja, Ma'am",
+        "orig": "scenes/ghostitch/lines/03.mp3"
+      },
+      {
+        "t": 6.297,
+        "end": 8.459,
+        "chars": [
+          1
+        ],
+        "who": "Keiichirou",
+        "text": "You're such a bitch",
+        "de": "Du bist so 'ne Zicke",
+        "orig": "scenes/ghostitch/lines/04.mp3"
+      },
+      {
+        "t": 8.459,
+        "end": 9.509,
+        "chars": [
+          0
+        ],
+        "who": "Satsuki",
+        "text": "What did you say?",
+        "de": "Was hast du gesagt?",
+        "orig": "scenes/ghostitch/lines/05.mp3"
+      },
+      {
+        "t": 9.509,
+        "end": 10.709,
+        "chars": [
+          1
+        ],
+        "who": "Keiichirou",
+        "text": "I have an itch",
+        "de": "Ich hab's juckend",
+        "orig": "scenes/ghostitch/lines/06.mp3"
+      },
+      {
+        "t": 10.726,
+        "end": 11.013,
+        "chars": [
+          0
+        ],
+        "who": "Satsuki",
+        "text": "Mmmmh...",
+        "de": "Mmmmh...",
+        "orig": "scenes/ghostitch/lines/07.mp3"
+      }
+    ]
+  },
+  {
+    "id": "girlyteengirl",
+    "title": "SpongeBob — Girly Teengirl (4 Rollen)",
+    "videoUrl": "scenes/girlyteengirl.mp4",
+    "avatars": {
+      "0": "scenes/girlyteengirl/pearl.png",
+      "1": "scenes/girlyteengirl/girly_teengirl.png",
+      "2": "scenes/girlyteengirl/mr_krabs.png",
+      "3": "scenes/girlyteengirl/spongebob.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Pearl",
+        "pan": -0.4,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Girly Teengirl",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Mr. Krabs",
+        "pan": -0.15,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 3,
+        "name": "SpongeBob",
+        "pan": 0.15,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0.784,
+        "end": 3.967,
+        "chars": [
+          0
+        ],
+        "who": "Pearl",
+        "text": "*laughter*",
+        "de": "*Lachen*",
+        "orig": "scenes/girlyteengirl/lines/01.mp3"
+      },
+      {
+        "t": 4.952,
+        "end": 5.885,
+        "chars": [
+          0
+        ],
+        "who": "Pearl",
+        "text": "Hello!?",
+        "de": "Hallo!?",
+        "orig": "scenes/girlyteengirl/lines/02.mp3"
+      },
+      {
+        "t": 5.901,
+        "end": 8.234,
+        "chars": [
+          1
+        ],
+        "who": "Girly Teengirl",
+        "text": "Hi! I'm here for the slumber party",
+        "de": "Hi! Ich bin hier für die Übernachtungsparty",
+        "orig": "scenes/girlyteengirl/lines/03.mp3"
+      },
+      {
+        "t": 8.234,
+        "end": 9.401,
+        "chars": [
+          0
+        ],
+        "who": "Pearl",
+        "text": "Do I know you!?",
+        "de": "Kenn ich dich!?",
+        "orig": "scenes/girlyteengirl/lines/04.mp3"
+      },
+      {
+        "t": 9.472,
+        "end": 11.072,
+        "chars": [
+          1
+        ],
+        "who": "Girly Teengirl",
+        "text": "My name is... um",
+        "de": "Mein Name ist... ähm",
+        "orig": "scenes/girlyteengirl/lines/05.mp3"
+      },
+      {
+        "t": 11.423,
+        "end": 13.082,
+        "chars": [
+          1
+        ],
+        "who": "Girly Teengirl",
+        "text": "Girly Teengirl?",
+        "de": "Girly Teengirl?",
+        "orig": "scenes/girlyteengirl/lines/06.mp3"
+      },
+      {
+        "t": 13.082,
+        "end": 14.632,
+        "chars": [
+          0
+        ],
+        "who": "Pearl",
+        "text": "Uh huhhh! *aggressive*",
+        "de": "Ahaaa! *aggressiv*",
+        "orig": "scenes/girlyteengirl/lines/07.mp3"
+      },
+      {
+        "t": 14.689,
+        "end": 19.09,
+        "chars": [
+          1
+        ],
+        "who": "Girly Teengirl",
+        "text": "Um, I just moved here from... um, Far Awayville!",
+        "de": "Ähm, ich bin gerade hergezogen aus... ähm Far Awayville!",
+        "orig": "scenes/girlyteengirl/lines/08.mp3"
+      },
+      {
+        "t": 19.09,
+        "end": 22.394,
+        "chars": [
+          0
+        ],
+        "who": "Pearl",
+        "text": "I know it's you, SpongeBob SquarePants!",
+        "de": "Ich weiß, dass du das bist, SpongeBob Schwammkopf!",
+        "orig": "scenes/girlyteengirl/lines/09.mp3"
+      },
+      {
+        "t": 22.394,
+        "end": 24.594,
+        "chars": [
+          1
+        ],
+        "who": "Girly Teengirl",
+        "text": "I don't know what you're talking about!",
+        "de": "Ich weiß nicht, wovon du redest!",
+        "orig": "scenes/girlyteengirl/lines/10.mp3"
+      },
+      {
+        "t": 24.673,
+        "end": 26.29,
+        "chars": [
+          1
+        ],
+        "who": "Girly Teengirl",
+        "text": "*scream*",
+        "de": "*Schrei*",
+        "orig": "scenes/girlyteengirl/lines/11.mp3"
+      },
+      {
+        "t": 26.29,
+        "end": 29.223,
+        "chars": [
+          0
+        ],
+        "who": "Pearl",
+        "text": "You were sent to spy on me by my dad!",
+        "de": "Mein Vater hat dich geschickt, um mich auszuspionieren!",
+        "orig": "scenes/girlyteengirl/lines/12.mp3"
+      },
+      {
+        "t": 29.365,
+        "end": 30.555,
+        "chars": [
+          0
+        ],
+        "who": "Pearl",
+        "text": "Get him, girl!",
+        "de": "Schnapp ihn dir, Girl!",
+        "orig": "scenes/girlyteengirl/lines/13.mp3"
+      },
+      {
+        "t": 30.555,
+        "end": 32.288,
+        "chars": [
+          1
+        ],
+        "who": "Girly Teengirl",
+        "text": "*scream*",
+        "de": "*Schrei*",
+        "orig": "scenes/girlyteengirl/lines/14.mp3"
+      },
+      {
+        "t": 32.546,
+        "end": 34.105,
+        "chars": [
+          1
+        ],
+        "who": "Girly Teengirl",
+        "text": "*crying*",
+        "de": "*weint*",
+        "orig": "scenes/girlyteengirl/lines/15.mp3"
+      },
+      {
+        "t": 34.105,
+        "end": 36.972,
+        "chars": [
+          1
+        ],
+        "who": "Girly Teengirl",
+        "text": "I am so going back to Far Awayville!",
+        "de": "Ich geh echt zurück nach Far Awayville!",
+        "orig": "scenes/girlyteengirl/lines/16.mp3"
+      },
+      {
+        "t": 38.066,
+        "end": 39.388,
+        "chars": [
+          2
+        ],
+        "who": "Mr. Krabs",
+        "text": "Who the heck is that!?",
+        "de": "Wer zum Teufel ist das!?",
+        "orig": "scenes/girlyteengirl/lines/17.mp3"
+      },
+      {
+        "t": 39.388,
+        "end": 42.193,
+        "chars": [
+          3
+        ],
+        "who": "SpongeBob",
+        "text": "I dunno! But she is uglyyyy!",
+        "de": "Keine Ahnung! Aber die ist hässlichhhh!",
+        "orig": "scenes/girlyteengirl/lines/18.mp3"
+      }
+    ]
   }
 ]
