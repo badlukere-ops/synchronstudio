@@ -29282,5 +29282,187 @@
         "orig": "scenes/the_quintessential_quintuplets/lines/189.mp3"
       }
     ]
+  },
+  {
+    "id": "yourname",
+    "title": "Your Name — What Is Your Name (2 Rollen)",
+    "videoUrl": "scenes/yourname.mp4",
+    "avatars": {
+      "0": "scenes/yourname/taki.png",
+      "1": "scenes/yourname/mitsuha.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Taki",
+        "pan": -0.25,
+        "effect": "none",
+        "gain": 1.0
+      },
+      {
+        "id": 1,
+        "name": "Mitsuha",
+        "pan": 0.25,
+        "effect": "none",
+        "gain": 1.0
+      }
+    ],
+    "lines": [
+      {
+        "t": 19.4,
+        "end": 22.42,
+        "chars": [
+          1
+        ],
+        "who": "Mitsuha",
+        "text": "*silent shock breaths*",
+        "de": "*stiller Schock, Atemzüge*",
+        "orig": "scenes/yourname/lines/01.mp3"
+      },
+      {
+        "t": 24.49,
+        "end": 26.3,
+        "chars": [
+          0
+        ],
+        "who": "Taki",
+        "text": "*another silent shock breath*",
+        "de": "*noch ein stiller Schock-Atemzug*",
+        "orig": "scenes/yourname/lines/02.mp3"
+      },
+      {
+        "t": 27.0,
+        "end": 29.07,
+        "chars": [
+          0
+        ],
+        "who": "Taki",
+        "text": "I was always searching",
+        "de": "Ich hab immer gesucht",
+        "orig": "scenes/yourname/lines/03.mp3"
+      },
+      {
+        "t": 29.28,
+        "end": 30.7,
+        "chars": [
+          1
+        ],
+        "who": "Mitsuha",
+        "text": "searching for...",
+        "de": "gesucht nach...",
+        "orig": "scenes/yourname/lines/04.mp3"
+      },
+      {
+        "t": 31.6,
+        "end": 33.2,
+        "chars": [
+          0
+        ],
+        "who": "Taki",
+        "text": "Someone!",
+        "de": "Jemanden!",
+        "orig": "scenes/yourname/lines/05.mp3"
+      },
+      {
+        "t": 55.83,
+        "end": 57.73,
+        "chars": [
+          0
+        ],
+        "who": "Taki",
+        "text": "*exhausted breaths*",
+        "de": "*erschöpfte Atemzüge*",
+        "orig": "scenes/yourname/lines/06.mp3"
+      },
+      {
+        "t": 64.12,
+        "end": 66.41,
+        "chars": [
+          1
+        ],
+        "who": "Mitsuha",
+        "text": "*exhausted but relieved breath*",
+        "de": "*erschöpft, aber erleichtert*",
+        "orig": "scenes/yourname/lines/07.mp3"
+      },
+      {
+        "t": 78.1,
+        "end": 80.5,
+        "chars": [
+          1
+        ],
+        "who": "Mitsuha",
+        "text": "*silent shock*",
+        "de": "*stiller Schock*",
+        "orig": "scenes/yourname/lines/08.mp3"
+      },
+      {
+        "t": 81.19,
+        "end": 83.09,
+        "chars": [
+          0
+        ],
+        "who": "Taki",
+        "text": "*silent disappointed breath*",
+        "de": "*still enttäuschter Atemzug*",
+        "orig": "scenes/yourname/lines/09.mp3"
+      },
+      {
+        "t": 89.6,
+        "end": 96.4,
+        "chars": [
+          0
+        ],
+        "who": "Taki",
+        "text": "*courage breath* excuse me... haven't we... have I met you somewhere?",
+        "de": "*fasst Mut* Entschuldigung... haben wir... hab ich dich irgendwo schon mal gesehen?",
+        "orig": "scenes/yourname/lines/10.mp3"
+      },
+      {
+        "t": 96.42,
+        "end": 107.84,
+        "chars": [
+          1
+        ],
+        "who": "Mitsuha",
+        "text": "*many shocks and breaths* I thought so too *crying after that*",
+        "de": "*viele Schocks und Atemzüge* ich dachte das auch *weint danach*",
+        "orig": "scenes/yourname/lines/11.mp3"
+      },
+      {
+        "t": 108.52,
+        "end": 111.0,
+        "chars": [
+          0
+        ],
+        "who": "Taki",
+        "text": "*crying in joy*",
+        "de": "*weint vor Freude*",
+        "orig": "scenes/yourname/lines/12.mp3"
+      },
+      {
+        "t": 111.01,
+        "end": 114.6,
+        "chars": [
+          0
+        ],
+        "who": "Taki",
+        "text": "Could I ask you... your name?",
+        "de": "Darf ich dich fragen... wie heißt du?",
+        "orig": "scenes/yourname/lines/13.mp3"
+      },
+      {
+        "t": 111.01,
+        "end": 114.6,
+        "chars": [
+          1
+        ],
+        "who": "Mitsuha",
+        "text": "Could I ask you... your name?",
+        "de": "Darf ich dich fragen... wie heißt du?",
+        "orig": "scenes/yourname/lines/14.mp3"
+      }
+    ],
+    "difficultyOverride": "easy"
   }
 ]

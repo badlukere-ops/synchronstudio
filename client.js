@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.75";
+const APP_VERSION = "9.10.77";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -578,6 +578,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.77", items: [
+    "🛠 Szenen-Editor wieder wie früher (ohne 5-Schritt-Chaos) — Springen-Knopf bleibt"
+  ]},
+  { v: "9.10.76", items: [
+    "🎬 Neue Szene: Your Name — What Is Your Name (Taki, Mitsuha)"
+  ]},
   { v: "9.10.75", items: [
     "🌐 Verbindung: abgelaufenen Metered-TURN entfernt (hat nur Zeit gekostet), ExpressTurn bleibt Haupt-Server, Open-Relay-Backup mit TURNS/443 für schwierige Netze"
   ]},
@@ -1354,6 +1360,8 @@ const AVATAR_CHARS = [
   { img: "scenes/the_quintessential_quintuplets/miku.png", label: "Miku" },
   { img: "scenes/the_quintessential_quintuplets/yotsuba.png", label: "Yotsuba" },
   { img: "scenes/the_quintessential_quintuplets/itsuki.png", label: "Itsuki" },
+  { img: "scenes/yourname/taki.png", label: "Taki" },
+  { img: "scenes/yourname/mitsuha.png", label: "Mitsuha" },
   { img: "scenes/profiles/kayleen.png", label: "Kayleen" },
   { img: "scenes/profiles/kayleen2.png", label: "Kayleen 2" },
   { img: "scenes/profiles/kenny1.png", label: "Kenny 1" },
