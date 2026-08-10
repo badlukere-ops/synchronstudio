@@ -29954,5 +29954,1071 @@
         "orig": "scenes/girlyteengirl/lines/18.mp3"
       }
     ]
+  },
+  {
+    "id": "ghostweight",
+    "title": "Ghost Stories — You Lose Weight You'd Move Faster (3 Rollen)",
+    "videoUrl": "scenes/ghostweight.mp4",
+    "avatars": {
+      "0": "scenes/ghostweight/hajime.png",
+      "1": "scenes/ghostweight/satsuki.png",
+      "2": "scenes/ghostweight/music_teacher.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Hajime",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Satsuki",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Music Teacher",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0,
+        "end": 2.784,
+        "chars": [
+          0
+        ],
+        "who": "Hajime",
+        "text": "(laugh) You'll have to catch me first fat ass",
+        "de": "(lacht) Erst musst du mich kriegen, Fettarsch",
+        "orig": "scenes/ghostweight/lines/01.mp3"
+      },
+      {
+        "t": 2.768,
+        "end": 5.101,
+        "chars": [
+          1
+        ],
+        "who": "Satsuki",
+        "text": "Come back here you coward",
+        "de": "Komm zurück, du Feigling",
+        "orig": "scenes/ghostweight/lines/02.mp3"
+      },
+      {
+        "t": 6.224,
+        "end": 8.141,
+        "chars": [
+          0
+        ],
+        "who": "Hajime",
+        "text": "You lose weight you'd move faster",
+        "de": "Wenn du abnimmst, wärst du schneller",
+        "orig": "scenes/ghostweight/lines/03.mp3"
+      },
+      {
+        "t": 6.651,
+        "end": 8.595,
+        "chars": [
+          1
+        ],
+        "who": "Satsuki",
+        "text": "Scream",
+        "de": "*Schrei*",
+        "orig": "scenes/ghostweight/lines/04.mp3"
+      },
+      {
+        "t": 8.144,
+        "end": 9.774,
+        "chars": [
+          2
+        ],
+        "who": "Music Teacher",
+        "text": "Hold it right there",
+        "de": "Sofort stehen bleiben",
+        "orig": "scenes/ghostweight/lines/05.mp3"
+      },
+      {
+        "t": 9.801,
+        "end": 12.83,
+        "chars": [
+          0
+        ],
+        "who": "Hajime",
+        "text": "Oh the music teacher what a bitch",
+        "de": "Oh, die Musiklehrerin — was für eine Zicke",
+        "orig": "scenes/ghostweight/lines/06.mp3"
+      }
+    ]
+  },
+  {
+    "id": "iamkira",
+    "title": "Death Note — I Am Kira (2 Rollen)",
+    "videoUrl": "scenes/iamkira.mp4",
+    "avatars": {
+      "0": "scenes/iamkira/naomi.png",
+      "1": "scenes/iamkira/light.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Naomi",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Light",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 7.78,
+        "end": 12.197,
+        "chars": [
+          0
+        ],
+        "who": "Naomi",
+        "text": "Uh so, if you don't mind me asking, why do you keep checking your watch?",
+        "de": "Äh, wenn ich fragen darf — warum schaust du ständig auf deine Uhr?",
+        "orig": "scenes/iamkira/lines/01.mp3"
+      },
+      {
+        "t": 12.475,
+        "end": 14.475,
+        "chars": [
+          1
+        ],
+        "who": "Light",
+        "text": "Oh, well.",
+        "de": "Oh, nun ja.",
+        "orig": "scenes/iamkira/lines/02.mp3"
+      },
+      {
+        "t": 15.073,
+        "end": 17.49,
+        "chars": [
+          1
+        ],
+        "who": "Light",
+        "text": "I guess it's because...",
+        "de": "Ich schätz, weil...",
+        "orig": "scenes/iamkira/lines/03.mp3"
+      },
+      {
+        "t": 19.537,
+        "end": 21.971,
+        "chars": [
+          1
+        ],
+        "who": "Light",
+        "text": "Because I'm Kira.",
+        "de": "Weil ich Kira bin.",
+        "orig": "scenes/iamkira/lines/04.mp3"
+      },
+      {
+        "t": 22.45,
+        "end": 23.65,
+        "chars": [
+          0
+        ],
+        "who": "Naomi",
+        "text": "(Quiet Gasp)",
+        "de": "*leises Keuchen*",
+        "orig": "scenes/iamkira/lines/05.mp3"
+      }
+    ]
+  },
+  {
+    "id": "megapunk",
+    "title": "Megamind — You're the Punk I've Heard About (5 Rollen)",
+    "videoUrl": "scenes/megapunk.mp4",
+    "avatars": {
+      "0": "scenes/megapunk/roxanne.png",
+      "1": "scenes/megapunk/tighten.png",
+      "2": "scenes/megapunk/metroman.png",
+      "3": "scenes/megapunk/megamind.png",
+      "4": "scenes/megapunk/minion.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Roxanne",
+        "pan": -0.4,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Tighten",
+        "pan": 0.4,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Metroman",
+        "pan": -0.15,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 3,
+        "name": "Megamind",
+        "pan": 0.2,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 4,
+        "name": "Minion",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 1.177,
+        "end": 2.377,
+        "chars": [
+          0
+        ],
+        "who": "Roxanne",
+        "text": "No.",
+        "de": "Nein.",
+        "orig": "scenes/megapunk/lines/01.mp3"
+      },
+      {
+        "t": 5.637,
+        "end": 7.27,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "Well that was easy.",
+        "de": "Na, das war ja einfach.",
+        "orig": "scenes/megapunk/lines/02.mp3"
+      },
+      {
+        "t": 7.361,
+        "end": 9.694,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "Looks like there's only one loose end now.",
+        "de": "Sieht aus, als gäb's nur noch ein loses Ende.",
+        "orig": "scenes/megapunk/lines/03.mp3"
+      },
+      {
+        "t": 9.673,
+        "end": 10.873,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "(GRUNT)",
+        "de": "*Grunz*",
+        "orig": "scenes/megapunk/lines/04.mp3"
+      },
+      {
+        "t": 20.434,
+        "end": 24.017,
+        "chars": [
+          2
+        ],
+        "who": "Metroman",
+        "text": "Please, let's have a little respect for public transportation.",
+        "de": "Bitte, ein bisschen Respekt vor dem öffentlichen Nahverkehr.",
+        "orig": "scenes/megapunk/lines/05.mp3"
+      },
+      {
+        "t": 24.839,
+        "end": 26.272,
+        "chars": [
+          0
+        ],
+        "who": "Roxanne",
+        "text": "You came back!",
+        "de": "Du bist zurückgekommen!",
+        "orig": "scenes/megapunk/lines/06.mp3"
+      },
+      {
+        "t": 26.326,
+        "end": 27.959,
+        "chars": [
+          2
+        ],
+        "who": "Metroman",
+        "text": "You were right, Roxanne",
+        "de": "Du hattest recht, Roxanne",
+        "orig": "scenes/megapunk/lines/07.mp3"
+      },
+      {
+        "t": 28.202,
+        "end": 29.669,
+        "chars": [
+          2
+        ],
+        "who": "Metroman",
+        "text": "I never should have left.",
+        "de": "Ich hätte nie gehen sollen.",
+        "orig": "scenes/megapunk/lines/08.mp3"
+      },
+      {
+        "t": 29.614,
+        "end": 32.164,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "Woah! I—I thought you were dead!",
+        "de": "Wow! I-Ich dachte, du wärst tot!",
+        "orig": "scenes/megapunk/lines/09.mp3"
+      },
+      {
+        "t": 32.145,
+        "end": 35.445,
+        "chars": [
+          2
+        ],
+        "who": "Metroman",
+        "text": "My death was... greatly exaggerated.",
+        "de": "Mein Tod war... stark übertrieben.",
+        "orig": "scenes/megapunk/lines/10.mp3"
+      },
+      {
+        "t": 35.544,
+        "end": 39.027,
+        "chars": [
+          2
+        ],
+        "who": "Metroman",
+        "text": "So, you're the punk I've heard about.",
+        "de": "Also bist du der Punk, von dem ich gehört hab.",
+        "orig": "scenes/megapunk/lines/11.mp3"
+      },
+      {
+        "t": 40.149,
+        "end": 41.449,
+        "chars": [
+          0
+        ],
+        "who": "Roxanne",
+        "text": "(THIS GUY SHIT HIMSELF)",
+        "de": "(DER HAT SICH EINGESCHISSEN)",
+        "orig": "scenes/megapunk/lines/12.mp3"
+      },
+      {
+        "t": 50.328,
+        "end": 51.528,
+        "chars": [
+          3
+        ],
+        "who": "Megamind",
+        "text": "(MOAN)",
+        "de": "*Stöhnen*",
+        "orig": "scenes/megapunk/lines/13.mp3"
+      },
+      {
+        "t": 51.811,
+        "end": 55.194,
+        "chars": [
+          3
+        ],
+        "who": "Megamind",
+        "text": "I'm sorry. I did the best I could.",
+        "de": "Tut mir leid. Ich hab mein Bestes gegeben.",
+        "orig": "scenes/megapunk/lines/14.mp3"
+      },
+      {
+        "t": 55.697,
+        "end": 59.197,
+        "chars": [
+          0
+        ],
+        "who": "Roxanne",
+        "text": "(sniffles) I'm so proud of you.",
+        "de": "*schnieft* Ich bin so stolz auf dich.",
+        "orig": "scenes/megapunk/lines/15.mp3"
+      },
+      {
+        "t": 62.761,
+        "end": 63.961,
+        "chars": [
+          0
+        ],
+        "who": "Roxanne",
+        "text": "Minion?",
+        "de": "Minion?",
+        "orig": "scenes/megapunk/lines/16.mp3"
+      },
+      {
+        "t": 64.584,
+        "end": 67.851,
+        "chars": [
+          4
+        ],
+        "who": "Minion",
+        "text": "Surprise. Heh heh heh..",
+        "de": "Überraschung. Heh heh heh..",
+        "orig": "scenes/megapunk/lines/17.mp3"
+      },
+      {
+        "t": 67.714,
+        "end": 70.314,
+        "chars": [
+          4
+        ],
+        "who": "Minion",
+        "text": "He's the real hero.",
+        "de": "Er ist der echte Held.",
+        "orig": "scenes/megapunk/lines/18.mp3"
+      },
+      {
+        "t": 72.328,
+        "end": 73.445,
+        "chars": [
+          0
+        ],
+        "who": "Roxanne",
+        "text": "(GASP)",
+        "de": "*Keuchen*",
+        "orig": "scenes/megapunk/lines/19.mp3"
+      },
+      {
+        "t": 76.964,
+        "end": 78.164,
+        "chars": [
+          0
+        ],
+        "who": "Roxanne",
+        "text": "Megamind!",
+        "de": "Megamind!",
+        "orig": "scenes/megapunk/lines/20.mp3"
+      },
+      {
+        "t": 79.792,
+        "end": 80.875,
+        "chars": [
+          2
+        ],
+        "who": "Metroman",
+        "text": "Going somewhere?",
+        "de": "Irgendwohin unterwegs?",
+        "orig": "scenes/megapunk/lines/21.mp3"
+      },
+      {
+        "t": 81.295,
+        "end": 82.078,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "AH!",
+        "de": "AH!",
+        "orig": "scenes/megapunk/lines/22.mp3"
+      },
+      {
+        "t": 82.061,
+        "end": 83.494,
+        "chars": [
+          2
+        ],
+        "who": "Metroman",
+        "text": "Besides jail?",
+        "de": "Außer ins Gefängnis?",
+        "orig": "scenes/megapunk/lines/23.mp3"
+      },
+      {
+        "t": 83.478,
+        "end": 85.345,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "(SCREAM)",
+        "de": "*Schrei*",
+        "orig": "scenes/megapunk/lines/24.mp3"
+      },
+      {
+        "t": 87.784,
+        "end": 88.467,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "AH!",
+        "de": "AH!",
+        "orig": "scenes/megapunk/lines/25.mp3"
+      },
+      {
+        "t": 90.24,
+        "end": 90.99,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "a",
+        "de": "a",
+        "orig": "scenes/megapunk/lines/26.mp3"
+      },
+      {
+        "t": 90.969,
+        "end": 92.736,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "No, not in the face man, please!",
+        "de": "Nein, nicht ins Gesicht, Mann, bitte!",
+        "orig": "scenes/megapunk/lines/27.mp3"
+      },
+      {
+        "t": 92.528,
+        "end": 96.128,
+        "chars": [
+          2
+        ],
+        "who": "Metroman",
+        "text": "If you know what's good for you, Tighten, you'll stay out of Metrocity.",
+        "de": "Wenn du weißt, was gut für dich ist, Tighten, bleibst du aus Metrocity raus.",
+        "orig": "scenes/megapunk/lines/28.mp3"
+      },
+      {
+        "t": 96.13,
+        "end": 96.613,
+        "chars": [
+          1
+        ],
+        "who": "Tighten",
+        "text": "You got it!",
+        "de": "Verstanden!",
+        "orig": "scenes/megapunk/lines/29.mp3"
+      },
+      {
+        "t": 96.602,
+        "end": 97.802,
+        "chars": [
+          2
+        ],
+        "who": "Metroman",
+        "text": "For good!",
+        "de": "Für immer!",
+        "orig": "scenes/megapunk/lines/30.mp3"
+      }
+    ]
+  },
+  {
+    "id": "dxdasia",
+    "title": "High School DxD — Asia Is Staying at Issei's Home (5 Rollen)",
+    "videoUrl": "scenes/dxdasia.mp4",
+    "avatars": {
+      "0": "scenes/dxdasia/issei.png",
+      "1": "scenes/dxdasia/asia.png",
+      "2": "scenes/dxdasia/rias.png",
+      "3": "scenes/dxdasia/isseis_dad.png",
+      "4": "scenes/dxdasia/isseis_mom.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Issei",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Asia",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Rias",
+        "pan": -0.15,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 3,
+        "name": "Issei's Dad",
+        "pan": 0.2,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 4,
+        "name": "Issei's Mom",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0.35,
+        "end": 2.617,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "Uhh who's boxes are these",
+        "de": "Äh, wessen Kisten sind das?",
+        "orig": "scenes/dxdasia/lines/01.mp3"
+      },
+      {
+        "t": 2.434,
+        "end": 4.267,
+        "chars": [
+          1
+        ],
+        "who": "Asia",
+        "text": "Yeah that's all my stuff",
+        "de": "Ja, das ist alles mein Zeug",
+        "orig": "scenes/dxdasia/lines/02.mp3"
+      },
+      {
+        "t": 4.149,
+        "end": 4.832,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "Yours?",
+        "de": "Deins?",
+        "orig": "scenes/dxdasia/lines/03.mp3"
+      },
+      {
+        "t": 4.634,
+        "end": 7.384,
+        "chars": [
+          1
+        ],
+        "who": "Asia",
+        "text": "Apparently I had more than I thought I did",
+        "de": "Anscheinend hatte ich mehr dabei, als ich dachte",
+        "orig": "scenes/dxdasia/lines/04.mp3"
+      },
+      {
+        "t": 6.861,
+        "end": 9.694,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "But why did you bring it here what's going on",
+        "de": "Aber warum hast du das hierher gebracht, was geht hier ab?",
+        "orig": "scenes/dxdasia/lines/05.mp3"
+      },
+      {
+        "t": 9.374,
+        "end": 13.191,
+        "chars": [
+          2
+        ],
+        "who": "Rias",
+        "text": "Well as of today Asia is going to be moving in with you and your parents",
+        "de": "Nun, ab heute zieht Asia bei dir und deinen Eltern ein",
+        "orig": "scenes/dxdasia/lines/06.mp3"
+      },
+      {
+        "t": 12.889,
+        "end": 14.156,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "She's what?",
+        "de": "Sie macht was?",
+        "orig": "scenes/dxdasia/lines/07.mp3"
+      },
+      {
+        "t": 13.75,
+        "end": 16.2,
+        "chars": [
+          1
+        ],
+        "who": "Asia",
+        "text": "It's very sweet of you to let me",
+        "de": "Das ist echt lieb von dir, dass du mich lässt",
+        "orig": "scenes/dxdasia/lines/08.mp3"
+      },
+      {
+        "t": 15.867,
+        "end": 19.7,
+        "chars": [
+          2
+        ],
+        "who": "Rias",
+        "text": "When I asked her where she'd like to live the first thing she said is Issei's house",
+        "de": "Als ich sie gefragt hab, wo sie wohnen will, war das Erste, was sie gesagt hat: bei Issei",
+        "orig": "scenes/dxdasia/lines/09.mp3"
+      },
+      {
+        "t": 19.317,
+        "end": 22.5,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "Hey who the hell said I was looking for a roommate",
+        "de": "Hey, wer zum Teufel hat gesagt, dass ich 'nen Mitbewohner suche",
+        "orig": "scenes/dxdasia/lines/10.mp3"
+      },
+      {
+        "t": 22.584,
+        "end": 25.367,
+        "chars": [
+          3
+        ],
+        "who": "Issei's Dad",
+        "text": "Sorry what was your name again, was it Asia",
+        "de": "Sorry, wie war nochmal dein Name — Asia?",
+        "orig": "scenes/dxdasia/lines/11.mp3"
+      },
+      {
+        "t": 25,
+        "end": 26.5,
+        "chars": [
+          1
+        ],
+        "who": "Asia",
+        "text": "Close it's Asia",
+        "de": "Fast — Asia",
+        "orig": "scenes/dxdasia/lines/12.mp3"
+      },
+      {
+        "t": 26.317,
+        "end": 31.967,
+        "chars": [
+          3
+        ],
+        "who": "Issei's Dad",
+        "text": "Right uh listen Asia surely there is a better long term bigger situation than moving in with my son",
+        "de": "Richtig, äh hör zu Asia, sicher gibt's 'ne bessere langfristige Lösung, als bei meinem Sohn einzuziehen",
+        "orig": "scenes/dxdasia/lines/13.mp3"
+      },
+      {
+        "t": 31.534,
+        "end": 34.551,
+        "chars": [
+          1
+        ],
+        "who": "Asia",
+        "text": "The thing is I owe your son and I need to pay him back",
+        "de": "Die Sache ist: ich schulde deinem Sohn was und muss es ihm zurückzahlen",
+        "orig": "scenes/dxdasia/lines/14.mp3"
+      },
+      {
+        "t": 34.85,
+        "end": 35.933,
+        "chars": [
+          3
+        ],
+        "who": "Issei's Dad",
+        "text": "Owe him?",
+        "de": "Schuldest ihm was?",
+        "orig": "scenes/dxdasia/lines/15.mp3"
+      },
+      {
+        "t": 35.843,
+        "end": 41.126,
+        "chars": [
+          1
+        ],
+        "who": "Asia",
+        "text": "Yeah I came to this town all by myself and I don't know what I would've done if it wasn't for him",
+        "de": "Ja, ich bin ganz allein in die Stadt gekommen und ich weiß nicht, was passiert wäre ohne ihn",
+        "orig": "scenes/dxdasia/lines/16.mp3"
+      },
+      {
+        "t": 41.078,
+        "end": 45.595,
+        "chars": [
+          1
+        ],
+        "who": "Asia",
+        "text": "He took care of me and now if it's okay I'd like to have the chance to take care of him",
+        "de": "Er hat sich um mich gekümmert und jetzt, wenn's okay ist, würde ich mich gerne um ihn kümmern",
+        "orig": "scenes/dxdasia/lines/17.mp3"
+      },
+      {
+        "t": 45.45,
+        "end": 47.433,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "Wow that's so nice",
+        "de": "Wow, das ist so nett",
+        "orig": "scenes/dxdasia/lines/18.mp3"
+      },
+      {
+        "t": 47.267,
+        "end": 50.367,
+        "chars": [
+          1
+        ],
+        "who": "Asia",
+        "text": "But if it puts you out in any way I can go somewhere else",
+        "de": "Aber wenn ich irgendwie störe, kann ich auch woanders hin",
+        "orig": "scenes/dxdasia/lines/19.mp3"
+      },
+      {
+        "t": 50.082,
+        "end": 55.632,
+        "chars": [
+          4
+        ],
+        "who": "Issei's Mom",
+        "text": "Oh darling we're not saying you can't stay here lord knows we have the room it's just the issue of our son",
+        "de": "Oh Schatz, wir sagen nicht, dass du nicht bleiben kannst — Platz haben wir, es geht nur um unseren Sohn",
+        "orig": "scenes/dxdasia/lines/20.mp3"
+      },
+      {
+        "t": 55.45,
+        "end": 59.867,
+        "chars": [
+          3
+        ],
+        "who": "Issei's Dad",
+        "text": "Issei is an abnormally horny child he's a pervert and he's not to be trusted",
+        "de": "Issei ist ein unnormal geiler Bengel, er ist ein Perverser und man kann ihm nicht trauen",
+        "orig": "scenes/dxdasia/lines/21.mp3"
+      },
+      {
+        "t": 59.784,
+        "end": 60.984,
+        "chars": [
+          4
+        ],
+        "who": "Issei's Mom",
+        "text": "Well put",
+        "de": "Gut gesagt",
+        "orig": "scenes/dxdasia/lines/22.mp3"
+      },
+      {
+        "t": 60.769,
+        "end": 64.286,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "Eh come on dad how can you say that about your own son",
+        "de": "Eh komm schon Dad, wie kannst du so was über deinen eigenen Sohn sagen",
+        "orig": "scenes/dxdasia/lines/23.mp3"
+      },
+      {
+        "t": 64.017,
+        "end": 68.217,
+        "chars": [
+          2
+        ],
+        "who": "Rias",
+        "text": "In addition to room and board there's something else she can get out of living here with you",
+        "de": "Neben Kost und Logis kann sie hier bei euch noch was anderes lernen",
+        "orig": "scenes/dxdasia/lines/24.mp3"
+      },
+      {
+        "t": 68.313,
+        "end": 70.096,
+        "chars": [
+          2
+        ],
+        "who": "Rias",
+        "text": "She can learn to be a good wife",
+        "de": "Sie kann lernen, eine gute Ehefrau zu sein",
+        "orig": "scenes/dxdasia/lines/25.mp3"
+      },
+      {
+        "t": 69.85,
+        "end": 71.6,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "She can learn what?",
+        "de": "Sie kann was lernen?",
+        "orig": "scenes/dxdasia/lines/26.mp3"
+      },
+      {
+        "t": 69.85,
+        "end": 71.6,
+        "chars": [
+          3
+        ],
+        "who": "Issei's Dad",
+        "text": "She can learn what?",
+        "de": "Sie kann was lernen?",
+        "orig": "scenes/dxdasia/lines/27.mp3"
+      },
+      {
+        "t": 69.85,
+        "end": 71.6,
+        "chars": [
+          4
+        ],
+        "who": "Issei's Mom",
+        "text": "She can learn what?",
+        "de": "Sie kann was lernen?",
+        "orig": "scenes/dxdasia/lines/28.mp3"
+      },
+      {
+        "t": 71.8,
+        "end": 77.667,
+        "chars": [
+          3
+        ],
+        "who": "Issei's Dad",
+        "text": "All these years I never thought we'd actually find someone willing to sleep with this big idiot",
+        "de": "All die Jahre dachte ich nie, wir finden tatsächlich jemanden, der mit diesem großen Idioten schlafen will",
+        "orig": "scenes/dxdasia/lines/29.mp3"
+      },
+      {
+        "t": 77.517,
+        "end": 78.5,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "Dad",
+        "de": "Dad",
+        "orig": "scenes/dxdasia/lines/30.mp3"
+      },
+      {
+        "t": 78.21,
+        "end": 82.21,
+        "chars": [
+          4
+        ],
+        "who": "Issei's Mom",
+        "text": "Maybe a marriage will get rid of his unhealthy obsession with the pornography",
+        "de": "Vielleicht bringt eine Heirat seine ungesunde Porno-Obsession weg",
+        "orig": "scenes/dxdasia/lines/31.mp3"
+      },
+      {
+        "t": 81.997,
+        "end": 83.43,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "Mom you're killing me",
+        "de": "Mom, du bringst mich um",
+        "orig": "scenes/dxdasia/lines/32.mp3"
+      },
+      {
+        "t": 83.584,
+        "end": 87.934,
+        "chars": [
+          1
+        ],
+        "who": "Asia",
+        "text": "I'm sure you both know but I wanted to say your son is a great guy",
+        "de": "Ihr wisst's bestimmt schon, aber ich wollte sagen: euer Sohn ist ein toller Typ",
+        "orig": "scenes/dxdasia/lines/33.mp3"
+      },
+      {
+        "t": 87.798,
+        "end": 89.715,
+        "chars": [
+          3
+        ],
+        "who": "Issei's Dad",
+        "text": "*chuckles*",
+        "de": "*kichert*",
+        "orig": "scenes/dxdasia/lines/34.mp3"
+      },
+      {
+        "t": 87.8,
+        "end": 88.55,
+        "chars": [
+          4
+        ],
+        "who": "Issei's Mom",
+        "text": "Awhh",
+        "de": "Aww",
+        "orig": "scenes/dxdasia/lines/35.mp3"
+      },
+      {
+        "t": 88.65,
+        "end": 90.867,
+        "chars": [
+          4
+        ],
+        "who": "Issei's Mom",
+        "text": "Well isn't she cute as a button",
+        "de": "Na, ist die nicht knuffig",
+        "orig": "scenes/dxdasia/lines/36.mp3"
+      },
+      {
+        "t": 90.464,
+        "end": 96.731,
+        "chars": [
+          3
+        ],
+        "who": "Issei's Dad",
+        "text": "Sure is Miss Rias we would love to take in Asia and let her live with our pervert son this is perfect",
+        "de": "Stimmt, Miss Rias — wir nehmen Asia gerne auf und lassen sie bei unserem perversen Sohn wohnen, perfekt",
+        "orig": "scenes/dxdasia/lines/37.mp3"
+      },
+      {
+        "t": 96.417,
+        "end": 101.634,
+        "chars": [
+          2
+        ],
+        "who": "Rias",
+        "text": "Thank you very much for your kindness Mr. and Ms. Hyoudou I guess that settles it",
+        "de": "Vielen Dank für Ihre Freundlichkeit, Herr und Frau Hyoudou — dann ist das wohl erledigt",
+        "orig": "scenes/dxdasia/lines/38.mp3"
+      },
+      {
+        "t": 102.9,
+        "end": 108.033,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "Uhh just cause everyone's talking about marriage doesn't mean we're really doing it right?",
+        "de": "Äh nur weil alle von Heirat reden, heißt das nicht, dass wir das wirklich machen, oder?",
+        "orig": "scenes/dxdasia/lines/39.mp3"
+      },
+      {
+        "t": 111.2,
+        "end": 112.583,
+        "chars": [
+          2
+        ],
+        "who": "Rias",
+        "text": "If you're lucky",
+        "de": "Wenn du Glück hast",
+        "orig": "scenes/dxdasia/lines/40.mp3"
+      },
+      {
+        "t": 112.384,
+        "end": 113.584,
+        "chars": [
+          0
+        ],
+        "who": "Issei",
+        "text": "You okay?",
+        "de": "Alles klar bei dir?",
+        "orig": "scenes/dxdasia/lines/41.mp3"
+      }
+    ]
   }
 ]

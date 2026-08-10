@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.79";
+const APP_VERSION = "9.10.80";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -578,6 +578,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.80", items: [
+    "🎬 Neue Szene: Ghost Stories — You Lose Weight You'd Move Faster (Hajime, Satsuki, Music Teacher)",
+    "🎬 Neue Szene: Death Note — I Am Kira (Naomi, Light) — kaputtes Pack normalisiert",
+    "🎬 Neue Szene: Megamind — You're the Punk I've Heard About (Roxanne, Tighten, Metroman, Megamind, Minion)",
+    "🎬 Neue Szene: High School DxD — Asia Is Staying at Issei's Home (Issei, Asia, Rias, Dad, Mom)"
+  ]},
   { v: "9.10.79", items: [
     "🎬 Neue Szene: Ghost Stories — Gay Pajamas (Keiichirou, Satsuki)",
     "🎬 Neue Szene: Ghost Stories — I Have an Itch (Satsuki, Keiichirou)",
@@ -1386,6 +1392,21 @@ const AVATAR_CHARS = [
   { img: "scenes/girlyteengirl/spongebob.png", label: "SpongeBob (Girly Teengirl)" },
   { img: "scenes/velocidad/kid_1.png", label: "Kid 1 (Homeless Meme)" },
   { img: "scenes/velocidad/kid_2.png", label: "Kid 2 (Homeless Meme)" },
+  { img: "scenes/ghostweight/hajime.png", label: "Hajime (Lose Weight)" },
+  { img: "scenes/ghostweight/satsuki.png", label: "Satsuki (Lose Weight)" },
+  { img: "scenes/ghostweight/music_teacher.png", label: "Music Teacher" },
+  { img: "scenes/iamkira/naomi.png", label: "Naomi Misora" },
+  { img: "scenes/iamkira/light.png", label: "Light Yagami" },
+  { img: "scenes/megapunk/roxanne.png", label: "Roxanne" },
+  { img: "scenes/megapunk/tighten.png", label: "Tighten" },
+  { img: "scenes/megapunk/metroman.png", label: "Metroman" },
+  { img: "scenes/megapunk/megamind.png", label: "Megamind (Punk)" },
+  { img: "scenes/megapunk/minion.png", label: "Minion" },
+  { img: "scenes/dxdasia/issei.png", label: "Issei" },
+  { img: "scenes/dxdasia/asia.png", label: "Asia" },
+  { img: "scenes/dxdasia/rias.png", label: "Rias" },
+  { img: "scenes/dxdasia/isseis_dad.png", label: "Issei's Dad" },
+  { img: "scenes/dxdasia/isseis_mom.png", label: "Issei's Mom" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
