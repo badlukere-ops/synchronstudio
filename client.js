@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.80";
+const APP_VERSION = "9.10.81";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -578,6 +578,13 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.81", items: [
+    "🎬 Neue Szene: Ghost Stories — Let's See Seven (Keiichirou, Satsuki)",
+    "🎬 Neue Szene: Sag Wallah Trymacs (Kandidat, Trymacs)",
+    "🎬 Neue Szene: Jujutsu Kaisen — Sukuna vs Mahoraga (Megumi, Haruta, Mahoraga, Sukuna)",
+    "🎬 Neue Szene: Ted — Ted And Sam (Ted, Sam)",
+    "🎬 Neue Szene: Jujutsu Kaisen — Sukuna vs Jogo PT 1 (Sukuna, Jogo, Geto)"
+  ]},
   { v: "9.10.80", items: [
     "🎬 Neue Szene: Ghost Stories — You Lose Weight You'd Move Faster (Hajime, Satsuki, Music Teacher)",
     "🎬 Neue Szene: Death Note — I Am Kira (Naomi, Light) — kaputtes Pack normalisiert",
@@ -1407,6 +1414,19 @@ const AVATAR_CHARS = [
   { img: "scenes/dxdasia/rias.png", label: "Rias" },
   { img: "scenes/dxdasia/isseis_dad.png", label: "Issei's Dad" },
   { img: "scenes/dxdasia/isseis_mom.png", label: "Issei's Mom" },
+  { img: "scenes/ghostseven/keiichirou.png", label: "Keiichirou (Let's See Seven)" },
+  { img: "scenes/ghostseven/satsuki.png", label: "Satsuki (Let's See Seven)" },
+  { img: "scenes/sagwallah/kandidat.png", label: "Kandidat" },
+  { img: "scenes/sagwallah/trymacs.png", label: "Trymacs" },
+  { img: "scenes/sukunamahoraga/megumi.png", label: "Megumi (vs Mahoraga)" },
+  { img: "scenes/sukunamahoraga/haruta.png", label: "Haruta (vs Mahoraga)" },
+  { img: "scenes/sukunamahoraga/mahoraga.png", label: "Mahoraga (vs Mahoraga)" },
+  { img: "scenes/sukunamahoraga/sukuna.png", label: "Sukuna (vs Mahoraga)" },
+  { img: "scenes/tedsam/ted.png", label: "Ted" },
+  { img: "scenes/tedsam/sam.png", label: "Sam" },
+  { img: "scenes/sukunajogo1/sukuna.png", label: "Sukuna (vs Jogo PT1)" },
+  { img: "scenes/sukunajogo1/jogo.png", label: "Jogo (vs Jogo PT1)" },
+  { img: "scenes/sukunajogo1/geto.png", label: "Geto (vs Jogo PT1)" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
