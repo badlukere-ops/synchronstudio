@@ -6290,7 +6290,7 @@ async function onLineRecorded() {
     try {
       pushLocalOuttake({
         lineIdx: l.idx,
-        text: l.de || l.text || ("Line " + (l.idx + 1)),
+        text: linePrimaryText(l) || ("Line " + (l.idx + 1)),
         t: l.t,
         end: l.end,
         buf: prev.slice(0),
