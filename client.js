@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.85";
+const APP_VERSION = "9.10.86";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -2787,6 +2787,8 @@ document.addEventListener("ss-langchange", () => {
       renderRedoPanel("redo-panel-prem");
     }
     if (typeof renderPremState === "function") renderPremState();
+    if (typeof updateOuttakesBtn === "function") updateOuttakesBtn();
+    if (typeof updateDownloadBtnLabel === "function") updateDownloadBtnLabel();
     const pv = $("play-video");
     if (pv && typeof pv.ontimeupdate === "function") pv.ontimeupdate();
   } catch {}
@@ -7537,26 +7539,28 @@ function updateOuttakesBtn() {
   }
   if (bar) bar.classList.add("show");
   try { preloadOuttakesTransition(); } catch {}
-  if (otBtn) otBtn.textContent = "🎬 Outtakes anschauen (" + outtakes.length + ")";
+  if (otBtn) otBtn.textContent = tt("🎬 Watch outtakes (", "🎬 Outtakes anschauen (") + outtakes.length + ")";
   if (dlBtn) {
     if (outtakesCacheReady()) {
-      dlBtn.textContent = "⬇ Sofort speichern (fertig!)";
+      dlBtn.textContent = tt("⬇ Save now (ready!)", "⬇ Sofort speichern (fertig!)");
     } else if (outtakesCachePending || (outtakesPlaying && outtakesQuietJob)) {
-      dlBtn.textContent = "⬇ Speichern (schneidet noch …)";
+      dlBtn.textContent = tt("⬇ Save (still cutting …)", "⬇ Speichern (schneidet noch …)");
     } else {
-      dlBtn.textContent = "⬇ Outtakes speichern (" + outtakes.length + ")";
+      dlBtn.textContent = tt("⬇ Save outtakes (", "⬇ Outtakes speichern (") + outtakes.length + ")";
     }
   }
   if (hint) {
     hint.textContent = outtakesCacheReady()
-      ? outtakes.length + " Bloopers · Sofort speichern bereit"
+      ? outtakes.length + tt(" bloopers · ready to save now", " Bloopers · Sofort speichern bereit")
       : (outtakesCachePending || outtakesQuietJob)
-        ? outtakes.length + " Bloopers · wird im Hintergrund geschnitten …"
-        : outtakes.length + " Bloopers · Speichern schneidet kurz im Hintergrund";
+        ? outtakes.length + tt(" bloopers · cutting in background …", " Bloopers · wird im Hintergrund geschnitten …")
+        : outtakes.length + tt(" bloopers · saving cuts briefly in background", " Bloopers · Speichern schneidet kurz im Hintergrund");
   }
   if (ovDl) {
     ovDl.style.display = "";
-    ovDl.textContent = outtakesCacheReady() ? "⬇ Sofort speichern" : "⬇ Reel speichern";
+    ovDl.textContent = outtakesCacheReady()
+      ? tt("⬇ Save now", "⬇ Sofort speichern")
+      : tt("⬇ Save reel", "⬇ Reel speichern");
   }
 }
 
@@ -7918,7 +7922,9 @@ async function playOuttakesReel(opts) {
       recStat.style.display = "none";
     } else if (saveFile || auchCachen) {
       recStat.style.display = "";
-      recStat.textContent = saveFile ? "🔴 Nimmt Outtakes auf (Bild+Ton) …" : "💾 Schneidet mit — Speichern danach sofort";
+      recStat.textContent = saveFile
+        ? tt("🔴 Recording outtakes (video+audio) …", "🔴 Nimmt Outtakes auf (Bild+Ton) …")
+        : tt("💾 Cutting along — save will be instant after", "💾 Schneidet mit — Speichern danach sofort");
       recStat.style.color = saveFile ? "var(--hot)" : "var(--amber)";
     } else recStat.style.display = "none";
   }
@@ -7928,8 +7934,8 @@ async function playOuttakesReel(opts) {
   const reportOtProg = (i, total, phase) => {
     const pct = total ? Math.max(1, Math.min(99, Math.round((i / total) * 100))) : 0;
     const msg = phase === "decode"
-      ? ("🎬 Outtakes vorbereiten … " + pct + "%")
-      : ("🎬 Outtakes speichern … " + (i + 1) + "/" + total + " (" + pct + "%)");
+      ? (tt("🎬 Preparing outtakes … ", "🎬 Outtakes vorbereiten … ") + pct + "%")
+      : (tt("🎬 Saving outtakes … ", "🎬 Outtakes speichern … ") + (i + 1) + "/" + total + " (" + pct + "%)");
     if (quiet || saveFile) status("play-status", msg);
     if (recStat && (quiet || saveFile || auchCachen)) {
       recStat.style.display = "";
@@ -7939,7 +7945,7 @@ async function playOuttakesReel(opts) {
     const dl = $("btn-outtakes-dl");
     if (dl && (outtakesCachePending || quiet)) dl.textContent = "⬇ " + pct + "% …";
   };
-  if (quiet) status("play-status", "🎬 Outtakes werden geschnitten …");
+  if (quiet) status("play-status", tt("🎬 Cutting outtakes …", "🎬 Outtakes werden geschnitten …"));
   updateOuttakesBtn();
 
   let vidGain = null, hearGain = null, recDest = null, frames = null, fileRec = null;
@@ -8029,7 +8035,7 @@ async function playOuttakesReel(opts) {
         fileRec = null;
         if (!quiet && recStat && saveFile) {
           recStat.style.display = "";
-          recStat.textContent = "⚠ Aufnehmen nicht möglich — nur Anschauen";
+          recStat.textContent = tt("⚠ Can't record — watch only", "⚠ Aufnehmen nicht möglich — nur Anschauen");
           recStat.style.color = "var(--hot)";
         }
       }
@@ -8124,31 +8130,31 @@ async function playOuttakesReel(opts) {
           try {
             const wie = await saveBlob(blob, name);
             outtakesDidSaveBlob = true;
-            if (wie === "abort") status("play-status", "Outtakes-Speichern abgebrochen.");
+            if (wie === "abort") status("play-status", tt("Outtakes save cancelled.", "Outtakes-Speichern abgebrochen."));
             else {
-              status("play-status", "✅ Outtakes gespeichert!");
+              status("play-status", tt("✅ Outtakes saved!", "✅ Outtakes gespeichert!"));
               SFX.done();
             }
           } catch (e) {
             console.warn("Outtakes saveBlob:", e);
-            status("play-status", "⚠ Outtakes-Speichern fehlgeschlagen — nochmal versuchen.", true);
+            status("play-status", tt("⚠ Outtakes save failed — try again.", "⚠ Outtakes-Speichern fehlgeschlagen — nochmal versuchen."), true);
           }
         } else if (wantSave) {
-          status("play-status", "✅ Outtakes fertiggeschnitten — Speichern startet …");
+          status("play-status", tt("✅ Outtakes cut — starting download …", "✅ Outtakes fertiggeschnitten — Speichern startet …"));
         } else if (quiet) {
-          status("play-status", "✅ Outtakes fertiggeschnitten — Sofort speichern bereit!");
+          status("play-status", tt("✅ Outtakes cut — ready to save now!", "✅ Outtakes fertiggeschnitten — Sofort speichern bereit!"));
         } else {
-          status("play-status", "✅ Outtakes durch — Speichern ist jetzt sofort bereit!");
+          status("play-status", tt("✅ Outtakes done — ready to save now!", "✅ Outtakes durch — Speichern ist jetzt sofort bereit!"));
         }
       } else if (wantSave) {
-        status("play-status", "⚠ Outtakes-Mitschnitt war leer — Fenster im Vordergrund lassen und nochmal versuchen.", true);
+        status("play-status", tt("⚠ Outtakes capture was empty — keep the window in front and try again.", "⚠ Outtakes-Mitschnitt war leer — Fenster im Vordergrund lassen und nochmal versuchen."), true);
       }
     } else if (wantSave && !outtakeAbort) {
-      status("play-status", "⚠ Outtakes-Mitschnitt fehlgeschlagen — Tab im Vordergrund lassen und nochmal speichern.", true);
+      status("play-status", tt("⚠ Outtakes capture failed — keep the tab in front and save again.", "⚠ Outtakes-Mitschnitt fehlgeschlagen — Tab im Vordergrund lassen und nochmal speichern."), true);
     }
   } catch (e) {
     console.warn("Outtakes-Reel Fehler:", e);
-    if (saveFile) status("play-status", "⚠ Outtakes-Fehler — bitte nochmal speichern.", true);
+    if (saveFile) status("play-status", tt("⚠ Outtakes error — please save again.", "⚠ Outtakes-Fehler — bitte nochmal speichern."), true);
   } finally {
     silenceOuttakesTransBus();
     try { v.playbackRate = 1; } catch {}
@@ -8188,15 +8194,15 @@ async function downloadOuttakes() {
   if (outtakesCacheReady()) {
     const name = (scene?.id || "synchro") + "_outtakes." + outtakesCache.endung;
     const wie = await saveBlob(outtakesCache.blob, name);
-    if (wie === "abort") return status("play-status", "Outtakes-Speichern abgebrochen.");
-    status("play-status", "✅ Outtakes sofort gespeichert!");
+    if (wie === "abort") return status("play-status", tt("Outtakes save cancelled.", "Outtakes-Speichern abgebrochen."));
+    status("play-status", tt("✅ Outtakes saved instantly!", "✅ Outtakes sofort gespeichert!"));
     SFX.done();
     return;
   }
   // Hintergrund läuft noch → warten, dann speichern (kein zweites Abspielen)
   if (outtakesCachePending || (outtakesPlaying && outtakesQuietJob)) {
     outtakesSaveWhenReady = true;
-    status("play-status", "⏳ Outtakes werden noch geschnitten — Fortschritt steht oben …");
+    status("play-status", tt("⏳ Outtakes still cutting — progress is above …", "⏳ Outtakes werden noch geschnitten — Fortschritt steht oben …"));
     updateOuttakesBtn();
     try {
       if (outtakesCachePending) {
@@ -8206,8 +8212,8 @@ async function downloadOuttakes() {
           if (!outtakesCacheReady()) outtakesCache = c;
           const name = (scene?.id || "synchro") + "_outtakes." + c.endung;
           const wie = await saveBlob(c.blob, name);
-          if (wie === "abort") return status("play-status", "Outtakes-Speichern abgebrochen.");
-          status("play-status", "✅ Outtakes gespeichert!");
+          if (wie === "abort") return status("play-status", tt("Outtakes save cancelled.", "Outtakes-Speichern abgebrochen."));
+          status("play-status", tt("✅ Outtakes saved!", "✅ Outtakes gespeichert!"));
           SFX.done();
           updateOuttakesBtn();
           return;
@@ -8221,8 +8227,8 @@ async function downloadOuttakes() {
         if (outtakesCacheReady()) {
           const name = (scene?.id || "synchro") + "_outtakes." + outtakesCache.endung;
           const wie = await saveBlob(outtakesCache.blob, name);
-          if (wie === "abort") return status("play-status", "Outtakes-Speichern abgebrochen.");
-          status("play-status", "✅ Outtakes gespeichert!");
+          if (wie === "abort") return status("play-status", tt("Outtakes save cancelled.", "Outtakes-Speichern abgebrochen."));
+          status("play-status", tt("✅ Outtakes saved!", "✅ Outtakes gespeichert!"));
           SFX.done();
           updateOuttakesBtn();
           return;
@@ -8231,11 +8237,11 @@ async function downloadOuttakes() {
     } catch {}
   }
   if (outtakesPlaying && !outtakesQuietJob) {
-    status("play-status", "Outtakes laufen noch — danach ist Speichern sofort bereit.", true);
+    status("play-status", tt("Outtakes still playing — save will be ready right after.", "Outtakes laufen noch — danach ist Speichern sofort bereit."), true);
     return;
   }
   // Noch kein Cache → still im Hintergrund schneiden und direkt speichern
-  status("play-status", "🎬 Schneide Outtakes im Hintergrund — Fenster offen lassen …");
+  status("play-status", tt("🎬 Cutting outtakes in background — keep the window open …", "🎬 Schneide Outtakes im Hintergrund — Fenster offen lassen …"));
   await playOuttakesReel({ quiet: true, save: true });
   if (outtakesDidSaveBlob) return;
   // Race: stiller Job lief schon → Save war nur vorgemerkt; auf Cache warten
@@ -8249,8 +8255,8 @@ async function downloadOuttakes() {
     outtakesSaveWhenReady = false;
     const name = (scene?.id || "synchro") + "_outtakes." + outtakesCache.endung;
     const wie = await saveBlob(outtakesCache.blob, name);
-    if (wie === "abort") return status("play-status", "Outtakes-Speichern abgebrochen.");
-    status("play-status", "✅ Outtakes gespeichert!");
+    if (wie === "abort") return status("play-status", tt("Outtakes save cancelled.", "Outtakes-Speichern abgebrochen."));
+    status("play-status", tt("✅ Outtakes saved!", "✅ Outtakes gespeichert!"));
     SFX.done();
   } else if (!outtakesPlaying) {
     await playOuttakesReel({ quiet: true, save: true });
@@ -9942,18 +9948,18 @@ function updateDownloadBtnLabel() {
   const btn = $("btn-download");
   if (!btn) return;
   if (premCachePending) {
-    btn.textContent = "⬇ Video speichern (schneidet noch …)";
-    btn.title = "Mitschnitt vom ersten Anschauen läuft — Klick wartet kurz, dann sofort fertig";
+    btn.textContent = tt("⬇ Save video (still cutting …)", "⬇ Video speichern (schneidet noch …)");
+    btn.title = tt("Capture from first watch is running — click waits briefly, then finishes", "Mitschnitt vom ersten Anschauen läuft — Klick wartet kurz, dann sofort fertig");
   } else if (premCacheReady(premCache) && !premCacheDirty && premCache.volSig === premVolSig()) {
-    btn.textContent = "⬇ Sofort speichern (fertig!)";
-    btn.title = "Schon beim ersten Anschauen mitgeschnitten — Download startet sofort (auch nach Outtakes)";
+    btn.textContent = tt("⬇ Save now (ready!)", "⬇ Sofort speichern (fertig!)");
+    btn.title = tt("Already captured on first watch — download starts immediately (also after outtakes)", "Schon beim ersten Anschauen mitgeschnitten — Download startet sofort (auch nach Outtakes)");
   } else if (premCacheReady(premCache)) {
     // Dirty / Lautstärke geändert: trotzdem Sofort-Save vom Anschauen — kein erneutes Durchsitzen
-    btn.textContent = "⬇ Sofort speichern (wie angeschaut)";
-    btn.title = "Speichert den Mitschnitt vom Anschauen sofort. Für neue Lautstärke: „Nochmal abspielen“, dann speichern.";
+    btn.textContent = tt("⬇ Save now (as watched)", "⬇ Sofort speichern (wie angeschaut)");
+    btn.title = tt("Saves the capture from watching immediately. For new volume: replay, then save.", "Speichert den Mitschnitt vom Anschauen sofort. Für neue Lautstärke: „Nochmal abspielen“, dann speichern.");
   } else {
-    btn.textContent = "⬇ Komplettes Video speichern";
-    btn.title = "Schneidet einmal im Hintergrund (Fenster bitte offen lassen)";
+    btn.textContent = tt("⬇ Save full video", "⬇ Komplettes Video speichern");
+    btn.title = tt("Cuts once in the background (please keep the window open)", "Schneidet einmal im Hintergrund (Fenster bitte offen lassen)");
   }
 }
 async function holdPremWakeLock() {
@@ -9994,7 +10000,7 @@ async function downloadPremiere() {
   const nameBase = (scene?.id || "synchro") + "_dub.";
   // Noch am Mitschneiden vom ersten Anschauen? Darauf warten — kein Zweitdurchlauf.
   if (premCachePending) {
-    status("play-status", "⏳ Schneide noch vom ersten Anschauen fertig — einen Moment …");
+    status("play-status", tt("⏳ Still finishing the cut from first watch — one moment …", "⏳ Schneide noch vom ersten Anschauen fertig — einen Moment …"));
     $("dl-progress").style.display = "";
     try {
       const c = await premCachePending;
@@ -10003,10 +10009,10 @@ async function downloadPremiere() {
       if (!premCacheReady(c) && !premCacheReady(premCache)) throw new Error("leer");
       const use = premCacheReady(premCache) ? premCache : c;
       const wie = await saveBlob(use.blob, nameBase + use.endung);
-      if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
+      if (wie === "abort") return status("play-status", tt("Save cancelled.", "Speichern abgebrochen."));
       status("play-status", use.endung === "mp4"
-        ? "✅ Gespeichert als MP4 — vom Anschauen, kein zweites Mal nötig."
-        : "✅ Gespeichert!");
+        ? tt("✅ Saved as MP4 — from watching, no second pass needed.", "✅ Gespeichert als MP4 — vom Anschauen, kein zweites Mal nötig.")
+        : tt("✅ Saved!", "✅ Gespeichert!"));
       SFX.done();
       updateDownloadBtnLabel();
     } catch {
@@ -10014,13 +10020,13 @@ async function downloadPremiere() {
       // Nur wenn wirklich nichts da ist: stiller Hintergrund-Schnitt (kein „nochmal angucken“)
       if (premCacheReady(premCache)) {
         const wie = await saveBlob(premCache.blob, nameBase + premCache.endung);
-        if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
-        status("play-status", "✅ Gespeichert (Mitschnitt vom Anschauen)!");
+        if (wie === "abort") return status("play-status", tt("Save cancelled.", "Speichern abgebrochen."));
+        status("play-status", tt("✅ Saved (capture from watching)!", "✅ Gespeichert (Mitschnitt vom Anschauen)!"));
         SFX.done();
         updateDownloadBtnLabel();
         return;
       }
-      status("play-status", "Schnitt vom ersten Lauf hat nicht geklappt — einmal neu im Hintergrund …", true);
+      status("play-status", tt("First-pass cut failed — redoing once in the background …", "Schnitt vom ersten Lauf hat nicht geklappt — einmal neu im Hintergrund …"), true);
       await playMix({ save: true, quiet: true });
     }
     return;
@@ -10029,20 +10035,20 @@ async function downloadPremiere() {
   // Früher: dirty → Cache löschen → ganzes Video nochmal durchlaufen. Das war der Bug.
   if (premCacheReady(premCache)) {
     const dirtyNote = (premCacheDirty || premCache.volSig !== premVolSig())
-      ? " (wie angeschaut — für neue Lautstärke: Nochmal abspielen, dann speichern)"
+      ? tt(" (as watched — for new volume: replay, then save)", " (wie angeschaut — für neue Lautstärke: Nochmal abspielen, dann speichern)")
       : "";
     const wie = await saveBlob(premCache.blob, nameBase + premCache.endung);
-    if (wie === "abort") return status("play-status", "Speichern abgebrochen.");
-    if (premCache.fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein. Bitte Fenster im Vordergrund lassen und Premiere nochmal anschauen.", true);
+    if (wie === "abort") return status("play-status", tt("Save cancelled.", "Speichern abgebrochen."));
+    if (premCache.fps < 5) status("play-status", tt("⚠ Saved, but the picture may stutter or be black. Keep the window in front and watch the premiere again.", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein. Bitte Fenster im Vordergrund lassen und Premiere nochmal anschauen."), true);
     else status("play-status", (premCache.endung === "mp4"
-      ? "✅ Sofort gespeichert als MP4 — vom Anschauen."
-      : "✅ Sofort gespeichert! Dein Browser kann nur .webm — für TikTok/Insta ggf. einmal in CapCut zu MP4.") + dirtyNote);
+      ? tt("✅ Saved instantly as MP4 — from watching.", "✅ Sofort gespeichert als MP4 — vom Anschauen.")
+      : tt("✅ Saved instantly! Your browser only does .webm — for TikTok/Insta convert once to MP4 in CapCut.", "✅ Sofort gespeichert! Dein Browser kann nur .webm — für TikTok/Insta ggf. einmal in CapCut zu MP4.")) + dirtyNote);
     SFX.done();
     updateDownloadBtnLabel();
     return;
   }
   // Gar kein Cache → einmal im Hintergrund neu schneiden (Audio stumm, Fenster offen lassen)
-  status("play-status", "🎬 Schneide Video im Hintergrund — musst nicht zuschauen, Fenster aber bitte offen lassen …");
+  status("play-status", tt("🎬 Cutting video in background — you don't have to watch, but keep the window open …", "🎬 Schneide Video im Hintergrund — musst nicht zuschauen, Fenster aber bitte offen lassen …"));
   await playMix({ save: true, quiet: true });
 }
 
