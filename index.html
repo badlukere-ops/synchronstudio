@@ -633,7 +633,7 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%238d8da0' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat:no-repeat;background-position:right 13px center;padding-right:34px;cursor:pointer;
   }
-  input.code{width:130px;text-align:center;font-family:var(--font-display);letter-spacing:.22em;font-size:1.15rem}
+  input.code{width:168px;text-align:center;font-family:var(--font-display);letter-spacing:.18em;font-size:1.15rem}
 
   /* Einheitliche, hübschere Regler */
   input[type=range]{
@@ -1360,11 +1360,15 @@
       <h2>Raum beitreten</h2>
       <p class="sub" id="invite-note" style="display:none;color:var(--amber)"></p>
       <div class="row">
-        <input type="text" class="code" id="in-code" placeholder="0000" maxlength="4" inputmode="numeric">
+        <input type="text" class="code" id="in-code" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="off">
         <button id="btn-join">Beitreten</button>
       </div>
     </div>
     <p class="status" id="start-status"></p>
+    <p class="sub" style="text-align:center;margin-top:18px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.45">
+      Fan-Projekt zum privaten Spaß mit Freunden — wir verdienen nichts damit.
+      Die Clips gehören den jeweiligen Rechteinhabern; auf Wunsch entfernen wir Szenen.
+    </p>
     <p style="text-align:center;margin-top:14px">
       <a href="editor.html" style="color:var(--muted);font-size:.85rem;text-decoration:none;border-bottom:1px dashed var(--metal)">🛠 Szenen-Editor</a>
     </p>
@@ -1375,12 +1379,12 @@
     <div class="card">
       <span class="tag">Raumcode</span>
       <div style="display:flex;align-items:center;gap:10px">
-        <div class="roomcode-big" id="lobby-code">0000</div>
+        <div class="roomcode-big" id="lobby-code">000000</div>
         <button class="ghost" id="btn-toggle-code" title="Raumcode verstecken / zeigen" style="font-size:1.15rem;padding:6px 10px">👁</button>
         <button class="ghost" id="btn-copy-code" title="Raumcode kopieren" style="font-size:1.1rem;padding:6px 10px">📋</button>
       </div>
       <button class="primary" id="btn-copy-link" style="margin-top:10px">🔗 Einladungs-Link kopieren</button>
-      <p class="sub">Link in den Gruppenchat werfen — wer draufklickt, landet direkt in deinem Raum. (Oder den Code oben durchgeben.)</p>
+      <p class="sub">Link nur an Freunde schicken — es gibt keinen öffentlichen Lobby-Browser. Wer den Code hat, kann rein.</p>
       <div class="players" id="player-list"></div>
       <div class="row" style="margin-top:14px;gap:6px" id="emoji-bar">
         <span class="tag" style="margin-right:4px">Reagieren:</span>
@@ -1957,7 +1961,7 @@
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.81"></script>
+  <script src="client.js?v=9.10.82"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>

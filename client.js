@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.81";
+const APP_VERSION = "9.10.82";
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -83,6 +83,7 @@ const JOIN_MAX_TRIES = 4; // 2 Broker × (normal + Relay)
 const ROOM_SEARCH_MS = 9000; // „suche Raum“ — danach klarer Fehler / nächster Broker (nicht ewig hängen)
 const ICE_WAIT_MS = 16000;   // Datenkanal/ICE nach gefundenem Host
 const BROKER_TIP = "Dein Netz blockiert die Spiel-Verbindung. Hotspot vom Handy geht bei dir — dann liegt’s am normalen WLAN/Router/Firewall (z. B. Avast), nicht am Browser. Lösung: zum Spielen Hotspot nutzen, oder Avast/Firewall für synchron-studio.github.io + WebRTC erlauben.";
+const SERVER_BUSY_TIP = "Spiel-Server gerade voll oder kurz weg. 30 Sekunden warten, Strg+F5, dann nochmal. VPN aus hilft oft.";
 const NETZ_TIP = "Tipp: Anderes Netz (Handy-Hotspot), Avast/Firewall lockern — Browser wechseln allein reicht oft nicht.";
 function makePeerConfig(forceRelay, brokerIdx) {
   const b = PEER_BROKERS[Math.max(0, brokerIdx | 0) % PEER_BROKERS.length] || PEER_BROKERS[0];
@@ -194,7 +195,9 @@ function clearSceneCaches() {
   try { voiceTrackLoading.clear(); } catch {}
   try { refPeaksCache.clear(); } catch {}
 }
-const randCode = () => String(Math.floor(1000 + Math.random() * 9000));
+// 6 Ziffern — schwerer zu erraten als 4 (kein öffentlicher Lobby-Browser, nur Freunde mit Code)
+const randCode = () => String(Math.floor(100000 + Math.random() * 900000));
+const isRoomCode = (c) => /^\d{6}$/.test(String(c || "").trim());
 const esc = (s) => String(s).replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 
 
@@ -578,6 +581,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.82", items: [
+    "🔒 Raumcodes jetzt 6 Ziffern (schwerer zu erraten) — Code nur an Freunde weitergeben",
+    "🌐 Klarere Meldung wenn der Spiel-Server überlastet / kurz weg ist",
+    "📝 Fan-Projekt-Hinweis auf der Startseite (kein Geldverdienen, privat mit Freunden)",
+    "🍌 GameBanana-ready: Texte zum Paste in GAMEBANANA.md"
+  ]},
   { v: "9.10.81", items: [
     "🎬 Neue Szene: Ghost Stories — Let's See Seven (Keiichirou, Satsuki)",
     "🎬 Neue Szene: Sag Wallah Trymacs (Kandidat, Trymacs)",
@@ -2245,7 +2254,7 @@ function startHostPeer(attempt, reopenOnly) {
       wvBanner("❌ Spiel-Server weiter blockiert. " + BROKER_TIP, true);
       return;
     }
-    status("start-status", "❌ Spiel-Server nicht erreichbar — Raum konnte nicht erstellt werden. " + BROKER_TIP, true);
+      status("start-status", "❌ Spiel-Server nicht erreichbar — Raum konnte nicht erstellt werden. " + SERVER_BUSY_TIP + " " + BROKER_TIP, true);
     SFX.err();
   }, 11000);
 
@@ -2309,7 +2318,8 @@ function startHostPeer(attempt, reopenOnly) {
         wvBanner("❌ Spiel-Server-Fehler (" + (e.type || "?") + "). " + BROKER_TIP, true);
         return;
       }
-      status("start-status", "❌ Spiel-Server blockiert (" + (e.type || "Netzwerk") + "). " + BROKER_TIP, true);
+      const busy = (e.type === "server-error" || e.type === "socket-error" || e.type === "network");
+      status("start-status", "❌ Spiel-Server blockiert (" + (e.type || "Netzwerk") + "). " + (busy ? SERVER_BUSY_TIP + " " : "") + BROKER_TIP, true);
       SFX.err();
     }
   });
@@ -2331,7 +2341,7 @@ $("btn-join").onclick = () => {
   myName = $("in-name").value.trim();
   const code = $("in-code").value.trim();
   if (!myName) return status("start-status", "Erst Namen eingeben 🙂", true), SFX.err();
-  if (!/^\d{4}$/.test(code)) return status("start-status", "Der Raumcode hat 4 Ziffern.", true), SFX.err();
+  if (!isRoomCode(code)) return status("start-status", "Der Raumcode hat 6 Ziffern.", true), SFX.err();
   saveName();
   absichtlichWeg = false; wvVersuch = 0; warSchonDrin = false; hostHandoffActive = false;
   logicalHostKey = null;
@@ -2408,7 +2418,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
 
   // Schritt 1: Broker/WebSocket — wenn das schon scheitert, kann er auch keine Lobby hosten
   joinFailTimers.push(setTimeout(() => {
-    if (!opened) failJoin("❌ Spiel-Server nicht erreichbar (Vermittlung blockiert). " + BROKER_TIP, { skipTip: true });
+    if (!opened) failJoin("❌ Spiel-Server nicht erreichbar (Vermittlung blockiert). " + SERVER_BUSY_TIP + " " + BROKER_TIP, { skipTip: true });
   }, 12000));
 
   peer.on("open", () => {
@@ -2530,7 +2540,10 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
       return;
     }
     if (e.type === "network" || e.type === "socket-error" || e.type === "server-error") {
-      if (!joined) failJoin("❌ Spiel-Server-Fehler (" + e.type + "). " + BROKER_TIP, { skipTip: true });
+      if (!joined) {
+        const busy = (e.type === "server-error" || e.type === "socket-error" || e.type === "network");
+        failJoin("❌ Spiel-Server-Fehler (" + e.type + "). " + (busy ? SERVER_BUSY_TIP + " " : "") + BROKER_TIP, { skipTip: true });
+      }
       return;
     }
     if (!joined) failJoin("Verbindungsfehler: " + e.type + ".");
@@ -2749,6 +2762,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // ── Rotierende Tipps/Fun Facts, während man in der Lobby wartet ──
 const LOBBY_TIPS = [
+  "🔒 Raumcode nur an Freunde schicken — es gibt keinen öffentlichen Lobby-Browser.",
   "💡 Tipp: Kopfhörer aufsetzen — sonst hört dein Mikro den Video-Sound mit!",
   "🎲 Rollen-Roulette würfelt die Besetzung zufällig — gut gegen Diskussionen.",
   "🕶 Blind-Modus: keine Übersetzung, kein Original — reines Improvisieren.",
@@ -3403,7 +3417,7 @@ $("btn-copy-link") && ($("btn-copy-link").onclick = async () => {
 // Wer über einen Einladungs-Link kommt, findet den Code schon eingetragen vor.
 // Kein Auto-Beitritt: das Mikro braucht erst eine Freigabe durch eine echte Nutzergeste.
 const invitedCode = (() => {
-  const m = /^\d{4}$/.exec(new URLSearchParams(location.search).get("raum") || "");
+  const m = /^\d{6}$/.exec(new URLSearchParams(location.search).get("raum") || "");
   return m ? m[0] : null;
 })();
 if (invitedCode) whenReady(() => {
@@ -3416,7 +3430,7 @@ if (invitedCode) whenReady(() => {
     if (v === invitedCode) {
       note.textContent = "🎬 Du wurdest in Raum " + invitedCode + " eingeladen — Code steht schon drin, einfach auf „Beitreten“.";
       note.style.display = "";
-    } else if (/^\d{4}$/.test(v)) {
+    } else if (isRoomCode(v)) {
       note.textContent = "ℹ️ Einladungs-Link war Raum " + invitedCode + " — du suchst jetzt " + v + " (alter Link zählt nicht).";
       note.style.display = "";
     } else {
