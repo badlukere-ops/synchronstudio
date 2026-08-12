@@ -5,7 +5,16 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.82";
+const APP_VERSION = "9.10.84";
+/* i18n helpers — provided by i18n.js; tiny fallback if script missing */
+if (typeof tt !== "function") {
+  window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
+  window.t = (k) => k;
+  window.tt = (en, de) => (getLang() === "de" ? de : en);
+  window.applyDomI18n = () => {};
+  window.setLang = (l) => { try { localStorage.setItem("ss-lang", l === "de" ? "de" : "en"); } catch {} };
+}
+
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
@@ -82,9 +91,24 @@ let activeBrokerIdx = 0;
 const JOIN_MAX_TRIES = 4; // 2 Broker × (normal + Relay)
 const ROOM_SEARCH_MS = 9000; // „suche Raum“ — danach klarer Fehler / nächster Broker (nicht ewig hängen)
 const ICE_WAIT_MS = 16000;   // Datenkanal/ICE nach gefundenem Host
-const BROKER_TIP = "Dein Netz blockiert die Spiel-Verbindung. Hotspot vom Handy geht bei dir — dann liegt’s am normalen WLAN/Router/Firewall (z. B. Avast), nicht am Browser. Lösung: zum Spielen Hotspot nutzen, oder Avast/Firewall für synchron-studio.github.io + WebRTC erlauben.";
-const SERVER_BUSY_TIP = "Spiel-Server gerade voll oder kurz weg. 30 Sekunden warten, Strg+F5, dann nochmal. VPN aus hilft oft.";
-const NETZ_TIP = "Tipp: Anderes Netz (Handy-Hotspot), Avast/Firewall lockern — Browser wechseln allein reicht oft nicht.";
+function BROKER_TIP() {
+  return tt(
+    "Your network is blocking the game connection. Phone hotspot works for you — then it’s the normal Wi‑Fi/router/firewall (e.g. Avast), not the browser. Fix: use hotspot to play, or allow synchron-studio.github.io + WebRTC in Avast/firewall.",
+    "Dein Netz blockiert die Spiel-Verbindung. Hotspot vom Handy geht bei dir — dann liegt’s am normalen WLAN/Router/Firewall (z. B. Avast), nicht am Browser. Lösung: zum Spielen Hotspot nutzen, oder Avast/Firewall für synchron-studio.github.io + WebRTC erlauben."
+  );
+}
+function SERVER_BUSY_TIP() {
+  return tt(
+    "Game server is full or briefly down. Wait 30 seconds, Ctrl+F5, try again. Turning VPN off often helps.",
+    "Spiel-Server gerade voll oder kurz weg. 30 Sekunden warten, Strg+F5, dann nochmal. VPN aus hilft oft."
+  );
+}
+function NETZ_TIP() {
+  return tt(
+    "Tip: try another network (phone hotspot), loosen Avast/firewall — switching browsers alone often isn’t enough.",
+    "Tipp: Anderes Netz (Handy-Hotspot), Avast/Firewall lockern — Browser wechseln allein reicht oft nicht."
+  );
+}
 function makePeerConfig(forceRelay, brokerIdx) {
   const b = PEER_BROKERS[Math.max(0, brokerIdx | 0) % PEER_BROKERS.length] || PEER_BROKERS[0];
   return {
@@ -195,9 +219,9 @@ function clearSceneCaches() {
   try { voiceTrackLoading.clear(); } catch {}
   try { refPeaksCache.clear(); } catch {}
 }
-// 6 Ziffern — schwerer zu erraten als 4 (kein öffentlicher Lobby-Browser, nur Freunde mit Code)
-const randCode = () => String(Math.floor(100000 + Math.random() * 900000));
-const isRoomCode = (c) => /^\d{6}$/.test(String(c || "").trim());
+// 5 Ziffern — leichter tippbar als 6, deutlich sicherer als 4 (nur Freunde mit Code, kein Lobby-Browser)
+const randCode = () => String(Math.floor(10000 + Math.random() * 90000));
+const isRoomCode = (c) => /^\d{5}$/.test(String(c || "").trim());
 const esc = (s) => String(s).replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 
 
@@ -306,8 +330,8 @@ function queueOrStartBooth() {
     return;
   }
   pendingGoLines = true;
-  status("lobby-status", "Host hat gestartet — dein Video lädt noch (" + myLoadPct + "%). Du springst automatisch rein, sobald es fertig ist.", true);
-  try { showToast("⏳ Video lädt noch — du kommst automatisch dazu", "join"); } catch {}
+  status("lobby-status", tt("Host started — your video is still loading (", "Host hat gestartet — dein Video lädt noch (") + myLoadPct + tt("%). You’ll jump in automatically when it’s ready.", "%). Du springst automatisch rein, sobald es fertig ist."), true);
+  try { showToast(tt("⏳ Video still loading — you’ll join automatically", "⏳ Video lädt noch — du kommst automatisch dazu"), "join"); } catch {}
 }
 
 function queueOrStartRealtime() {
@@ -316,8 +340,8 @@ function queueOrStartRealtime() {
     return;
   }
   pendingGoRealtime = true;
-  status("lobby-status", "Host hat gestartet — dein Video lädt noch (" + myLoadPct + "%). Du springst automatisch rein …", true);
-  try { showToast("⏳ Video lädt noch — du kommst automatisch dazu", "join"); } catch {}
+  status("lobby-status", tt("Host started — your video is still loading (", "Host hat gestartet — dein Video lädt noch (") + myLoadPct + tt("%). Jumping in automatically …", "%). Du springst automatisch rein …"), true);
+  try { showToast(tt("⏳ Video still loading — you’ll join automatically", "⏳ Video lädt noch — du kommst automatisch dazu"), "join"); } catch {}
 }
 
 /** Langer Ladehinweis — erst nach ~10s, damit kurze Loads nicht blitzen. */
@@ -370,7 +394,7 @@ function beginSceneVideoLoad(src) {
 
   setBar("download-bar", 0);
   armLoadReassure("lobby");
-  status("lobby-status", "📥 Szene-Video wird geladen … bei langen Szenen kann das etwas dauern.");
+  status("lobby-status", tt("📥 Loading scene video … long scenes can take a bit.", "📥 Szene-Video wird geladen … bei langen Szenen kann das etwas dauern."));
 
   (async () => {
     try {
@@ -379,7 +403,7 @@ function beginSceneVideoLoad(src) {
         myLoadPct = pct;
         setBar("download-bar", pct);
         reportLoadProgress(pct, false);
-        status("lobby-status", "📥 Video lädt … " + pct + "%" + (pct < 100 ? " — bitte warten" : ""));
+        status("lobby-status", tt("📥 Video loading … ", "📥 Video lädt … ") + pct + "%" + (pct < 100 ? tt(" — please wait", " — bitte warten") : ""));
       });
       if (token !== sceneVideoLoadToken) {
         try { URL.revokeObjectURL(blobUrl); } catch {}
@@ -393,7 +417,7 @@ function beginSceneVideoLoad(src) {
       setBar("download-bar", 100);
       clearLoadReassure("lobby");
       reportLoadProgress(100, true);
-      status("lobby-status", "✅ Video geladen — Rolle wählen & „Bin bereit“.");
+      status("lobby-status", tt("✅ Video loaded — pick a role & “I’m ready”.", "✅ Video geladen — Rolle wählen & „Bin bereit“."));
       SFX.ok();
       flushPendingStart();
     } catch (e) {
@@ -408,7 +432,7 @@ function beginSceneVideoLoad(src) {
         setBar("download-bar", 100);
         clearLoadReassure("lobby");
         reportLoadProgress(100, true);
-        status("lobby-status", "✅ Video bereit — Rolle wählen & „Bin bereit“.");
+        status("lobby-status", tt("✅ Video ready — pick a role & “I’m ready”.", "✅ Video bereit — Rolle wählen & „Bin bereit“."));
         flushPendingStart();
       } catch (e2) {
         console.warn("Video-Fallback auch fehlgeschlagen:", e2);
@@ -581,8 +605,13 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.84", items: [
+    "🌐 Language switch: English / Deutsch (EN default) — preference saved",
+    "🔢 Room codes unified to 5 digits everywhere (UI + messages)",
+    "🧭 Big EN | DE control in the header (studio look)"
+  ]},
   { v: "9.10.82", items: [
-    "🔒 Raumcodes jetzt 6 Ziffern (schwerer zu erraten) — Code nur an Freunde weitergeben",
+    "🔒 Room codes 5 digits — share only with friends",
     "🌐 Klarere Meldung wenn der Spiel-Server überlastet / kurz weg ist",
     "📝 Fan-Projekt-Hinweis auf der Startseite (kein Geldverdienen, privat mit Freunden)",
     "🍌 GameBanana-ready: Texte zum Paste in GAMEBANANA.md"
@@ -1588,8 +1617,8 @@ function renderAvatarPicker() {
   if (!grid) return;
   const emojiHtml = AVATAR_EMOJIS.map(e => `<button class="avatarbtn" data-type="emoji" data-value="${e}">${e}</button>`).join("");
   const charHtml = AVATAR_CHARS.map(c => `<button class="avatarbtn avatarbtn-img" data-type="char" data-value="${c.img}" style="background-image:url(\'${c.img}\')" title="${esc(c.label)}"></button>`).join("");
-  grid.innerHTML = `<div class="avatar-section-label">Emoji</div><div class="avatar-row">${emojiHtml}</div>
-    <div class="avatar-section-label">Aus unseren Szenen</div><div class="avatar-row">${charHtml}</div>`;
+  grid.innerHTML = `<div class="avatar-section-label">${tt("Emoji", "Emoji")}</div><div class="avatar-row">${emojiHtml}</div>
+    <div class="avatar-section-label">${tt("From our scenes", "Aus unseren Szenen")}</div><div class="avatar-row">${charHtml}</div>`;
   grid.querySelectorAll(".avatarbtn").forEach(b => b.onclick = () => {
     myAvatar = { type: b.dataset.type, value: b.dataset.value };
     try { localStorage.setItem("ss_avatar", JSON.stringify(myAvatar)); } catch {}
@@ -1609,7 +1638,7 @@ function renderAvatarPicker() {
 function renderAccessoryPicker() {
   const wrap = $("accessory-grid");
   if (!wrap) return;
-  wrap.innerHTML = `<button class="avatarbtn accbtn" data-acc="" title="Kein Accessoire">🚫</button>` +
+  wrap.innerHTML = `<button class="avatarbtn accbtn" data-acc="" title="${esc(tt("No accessory", "Kein Accessoire"))}">🚫</button>` +
     Object.entries(ACCESSORIES).map(([k, a]) => `<button class="avatarbtn accbtn" data-acc="${k}" title="${esc(a.label)}">${a.label.split(" ")[0]}</button>`).join("");
   wrap.querySelectorAll(".accbtn").forEach(b => b.onclick = () => {
     myAccessory = b.dataset.acc || null;
@@ -2119,23 +2148,23 @@ async function initMicScreen() {
   $("mic-ns").checked = micSettings.ns; $("mic-ec").checked = micSettings.ec;
   $("mic-agc").checked = micSettings.agc; $("mic-lowcut").checked = micSettings.lowcut;
   $("mic-gain").value = micSettings.gain; $("mic-gain-val").textContent = Math.round(micSettings.gain * 100) + "%";
-  $("mic-gate").value = micSettings.gate; $("mic-gate-val").textContent = micSettings.gate <= 0 ? "Aus" : Math.round(micSettings.gate * 100) + "%";
+  $("mic-gate").value = micSettings.gate; $("mic-gate-val").textContent = micSettings.gate <= 0 ? tt("Off", "Aus") : Math.round(micSettings.gate * 100) + "%";
   startVizOn("mic-viz");
   $("btn-mic-done").disabled = false;
-  status("mic-status", "Sprich rein — die Bars sollen ausschlagen. Dann Test aufnehmen!");
+  status("mic-status", tt("Speak into the mic — bars should move. Then do a test record!", "Sprich rein — die Bars sollen ausschlagen. Dann Test aufnehmen!"));
 }
 $("btn-mic-record").onclick = async () => {
   if (!micStream) { await initMicScreen(); if (!micStream) return; }
-  status("mic-status", "🎤 Sprich jetzt 3 Sekunden …");
+  status("mic-status", tt("🎤 Speak for 3 seconds …", "🎤 Sprich jetzt 3 Sekunden …"));
   const rec = new MediaRecorder(recStream(), { mimeType: pickMime() });
   const chunks = [];
   rec.ondataavailable = e => chunks.push(e.data);
   rec.onstop = async () => {
-    status("mic-status", "So klingst du in der Aufnahme:");
+    status("mic-status", tt("This is how you sound in the take:", "So klingst du in der Aufnahme:"));
     const ctx = getCtx();
     const buf = await ctx.decodeAudioData(await new Blob(chunks).arrayBuffer());
     const src = ctx.createBufferSource(); src.buffer = buf; src.connect(ctx.destination); src.start();
-    src.onended = () => { status("mic-status", "Passt? Dann weiter — sonst Regler anpassen und nochmal testen."); $("btn-mic-done").disabled = false; };
+    src.onended = () => { status("mic-status", tt("Good? Continue — or tweak the sliders and test again.", "Passt? Dann weiter — sonst Regler anpassen und nochmal testen.")); $("btn-mic-done").disabled = false; };
   };
   rec.start(); SFX.rec();
   setTimeout(() => { rec.stop(); SFX.stop(); }, 3000);
@@ -2163,26 +2192,26 @@ $("btn-mic-raw").onclick = () => {
   $("mic-ns").checked = $("mic-ec").checked = $("mic-agc").checked = $("mic-lowcut").checked = false;
   $("mic-gate").value = 0; $("mic-gate-val").textContent = "Aus";
   buildMic();
-  status("mic-status", "🎙 Roh-Modus: Alle Filter aus — pur wie dein Mikro klingt. (Kopfhörer Pflicht, sonst Echo!)");
+  status("mic-status", tt("🎙 Raw mode: all filters off — pure mic sound. (Headphones required or you'll get echo!)", "🎙 Roh-Modus: Alle Filter aus — pur wie dein Mikro klingt. (Kopfhörer Pflicht, sonst Echo!)"));
 };
 $("mic-gain").oninput = e => { micSettings.gain = parseFloat(e.target.value); $("mic-gain-val").textContent = Math.round(micSettings.gain * 100) + "%"; applyMicTuning(); };
 $("mic-gate").oninput = e => {
   micSettings.gate = parseFloat(e.target.value);
-  $("mic-gate-val").textContent = micSettings.gate <= 0 ? "Aus" : Math.round(micSettings.gate * 100) + "%";
+  $("mic-gate-val").textContent = micSettings.gate <= 0 ? tt("Off", "Aus") : Math.round(micSettings.gate * 100) + "%";
   syncBoothGateUI();
 };
 function syncBoothGateUI() {
   const bg = $("booth-gate"), bv = $("booth-gate-val");
   if (!bg) return;
   bg.value = micSettings.gate;
-  bv.textContent = micSettings.gate <= 0 ? "Aus" : Math.round(micSettings.gate * 100) + "%";
+  bv.textContent = micSettings.gate <= 0 ? tt("Off", "Aus") : Math.round(micSettings.gate * 100) + "%";
 }
 $("booth-gate").oninput = e => {
   micSettings.gate = parseFloat(e.target.value);
   saveMic();
   syncBoothGateUI();
   $("mic-gate").value = micSettings.gate;
-  $("mic-gate-val").textContent = micSettings.gate <= 0 ? "Aus" : Math.round(micSettings.gate * 100) + "%";
+  $("mic-gate-val").textContent = micSettings.gate <= 0 ? tt("Off", "Aus") : Math.round(micSettings.gate * 100) + "%";
 };
 // Beim ersten Klick den Setup starten (AudioContext braucht eine Nutzergeste).
 // Kein { once: true } — sonst verbraucht sich der Listener am ersten Klick, auch wenn dabei nichts passiert ist.
@@ -2234,8 +2263,8 @@ function startHostPeer(attempt, reopenOnly) {
   if (!code) return;
 
   if (!reopenOnly) {
-    if (tryNr === 0) status("start-status", "① Verbinde zum Spiel-Server …");
-    else status("start-status", "🔄 Anderer Spiel-Server / nochmal … (" + (tryNr + 1) + "/" + HOST_CREATE_MAX + " · " + broker.label + ")");
+    if (tryNr === 0) status("start-status", tt("① Connecting to game server …", "① Verbinde zum Spiel-Server …"));
+    else status("start-status", tt("🔄 Other game server / retry … (", "🔄 Anderer Spiel-Server / nochmal … (") + (tryNr + 1) + "/" + HOST_CREATE_MAX + " · " + broker.label + ")");
   } else {
     wvBanner("🔄 Melde Raum am Spiel-Server neu an …");
   }
@@ -2251,10 +2280,10 @@ function startHostPeer(attempt, reopenOnly) {
       return;
     }
     if (reopenOnly) {
-      wvBanner("❌ Spiel-Server weiter blockiert. " + BROKER_TIP, true);
+      wvBanner("❌ Spiel-Server weiter blockiert. " + BROKER_TIP(), true);
       return;
     }
-      status("start-status", "❌ Spiel-Server nicht erreichbar — Raum konnte nicht erstellt werden. " + SERVER_BUSY_TIP + " " + BROKER_TIP, true);
+      status("start-status", tt("❌ Game server unreachable — room could not be created. ", "❌ Spiel-Server nicht erreichbar — Raum konnte nicht erstellt werden. ") + SERVER_BUSY_TIP() + " " + BROKER_TIP(), true);
     SFX.err();
   }, 11000);
 
@@ -2301,7 +2330,7 @@ function startHostPeer(attempt, reopenOnly) {
     if (e.type === "browser-incompatible") {
       finished = true;
       clearHostCreateTimer();
-      status("start-status", "❌ Dieser Browser kann keine Live-Verbindung (WebRTC). Bitte Chrome oder Edge.", true);
+      status("start-status", tt("❌ This browser can’t do live connections (WebRTC). Please use Chrome or Edge.", "❌ Dieser Browser kann keine Live-Verbindung (WebRTC). Bitte Chrome oder Edge."), true);
       return;
     }
     // network / websocket / server-error → nächsten Versuch
@@ -2315,11 +2344,11 @@ function startHostPeer(attempt, reopenOnly) {
         return;
       }
       if (reopenOnly) {
-        wvBanner("❌ Spiel-Server-Fehler (" + (e.type || "?") + "). " + BROKER_TIP, true);
+        wvBanner("❌ Spiel-Server-Fehler (" + (e.type || "?") + "). " + BROKER_TIP(), true);
         return;
       }
       const busy = (e.type === "server-error" || e.type === "socket-error" || e.type === "network");
-      status("start-status", "❌ Spiel-Server blockiert (" + (e.type || "Netzwerk") + "). " + (busy ? SERVER_BUSY_TIP + " " : "") + BROKER_TIP, true);
+      status("start-status", "❌ Spiel-Server blockiert (" + (e.type || "Netzwerk") + "). " + (busy ? SERVER_BUSY_TIP() + " " : "") + BROKER_TIP(), true);
       SFX.err();
     }
   });
@@ -2327,7 +2356,7 @@ function startHostPeer(attempt, reopenOnly) {
 
 $("btn-create").onclick = () => {
   myName = $("in-name").value.trim();
-  if (!myName) return status("start-status", "Erst Namen eingeben, digga 😄", true), SFX.err();
+  if (!myName) return status("start-status", tt("Enter a name first 😄", "Erst Namen eingeben, digga 😄"), true), SFX.err();
   saveName();
   isHost = true;
   logicalHostKey = myKey;
@@ -2340,8 +2369,8 @@ $("btn-create").onclick = () => {
 $("btn-join").onclick = () => {
   myName = $("in-name").value.trim();
   const code = $("in-code").value.trim();
-  if (!myName) return status("start-status", "Erst Namen eingeben 🙂", true), SFX.err();
-  if (!isRoomCode(code)) return status("start-status", "Der Raumcode hat 6 Ziffern.", true), SFX.err();
+  if (!myName) return status("start-status", tt("Enter a name first 🙂", "Erst Namen eingeben 🙂"), true), SFX.err();
+  if (!isRoomCode(code)) return status("start-status", tt("The room code has 5 digits.", "Der Raumcode hat 5 Ziffern."), true), SFX.err();
   saveName();
   absichtlichWeg = false; wvVersuch = 0; warSchonDrin = false; hostHandoffActive = false;
   logicalHostKey = null;
@@ -2397,7 +2426,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
       setTimeout(() => gastBeitreten(code, false, next), 700 + tryNr * 400);
       return;
     }
-    const tip = ((opts && opts.skipTip) || /Hotspot|blockiert|Tipp/.test(msg)) ? "" : " " + NETZ_TIP;
+    const tip = ((opts && opts.skipTip) || /Hotspot|blockiert|Tipp/.test(msg)) ? "" : " " + NETZ_TIP();
     melde(msg + tip, true);
     if (wiederkehr) planeWiederverbindung();
   }
@@ -2418,7 +2447,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
 
   // Schritt 1: Broker/WebSocket — wenn das schon scheitert, kann er auch keine Lobby hosten
   joinFailTimers.push(setTimeout(() => {
-    if (!opened) failJoin("❌ Spiel-Server nicht erreichbar (Vermittlung blockiert). " + SERVER_BUSY_TIP + " " + BROKER_TIP, { skipTip: true });
+    if (!opened) failJoin("❌ Spiel-Server nicht erreichbar (Vermittlung blockiert). " + SERVER_BUSY_TIP() + " " + BROKER_TIP(), { skipTip: true });
   }, 12000));
 
   peer.on("open", () => {
@@ -2448,7 +2477,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
         joinFailTimers.push(setTimeout(() => {
           if (joined || finished) return;
           if (iceFailed) {
-            failJoin("❌ Spiel-Server ok, aber Direktverbindung blockiert (Router/Firewall/NAT). " + BROKER_TIP, { skipTip: true });
+            failJoin("❌ Spiel-Server ok, aber Direktverbindung blockiert (Router/Firewall/NAT). " + BROKER_TIP(), { skipTip: true });
             return;
           }
           failJoin("❌ Spiel-Server ok, aber Verbindung zum Host kommt nicht durch. Oft Router/Firewall — beide am Handy-Hotspot testen (Browser-Wechsel allein hilft selten).", { skipTip: true });
@@ -2492,7 +2521,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
       if (!joined && (st === "failed" || st === "closed")) {
         iceFailed = true;
         clearInterval(iceWatchTimer); iceWatchTimer = null;
-        failJoin("❌ Spiel-Server ok, aber Direktverbindung UND Relay blockiert. " + BROKER_TIP, { skipTip: true });
+        failJoin("❌ Spiel-Server ok, aber Direktverbindung UND Relay blockiert. " + BROKER_TIP(), { skipTip: true });
         return;
       }
       if (joined && (st === "failed" || st === "closed")) {
@@ -2542,7 +2571,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
     if (e.type === "network" || e.type === "socket-error" || e.type === "server-error") {
       if (!joined) {
         const busy = (e.type === "server-error" || e.type === "socket-error" || e.type === "network");
-        failJoin("❌ Spiel-Server-Fehler (" + e.type + "). " + (busy ? SERVER_BUSY_TIP + " " : "") + BROKER_TIP, { skipTip: true });
+        failJoin("❌ Spiel-Server-Fehler (" + e.type + "). " + (busy ? SERVER_BUSY_TIP() + " " : "") + BROKER_TIP(), { skipTip: true });
       }
       return;
     }
@@ -2565,7 +2594,7 @@ function planeWiederverbindung() {
   // deshalb mehr Versuche, bevor wir aufgeben.
   const maxVersuche = 25;
   if (wvVersuch >= maxVersuche) {
-    wvBanner("❌ Komme nicht mehr rein. Läuft der Host noch? " + NETZ_TIP, true);
+    wvBanner("❌ Komme nicht mehr rein. Läuft der Host noch? " + NETZ_TIP(), true);
     return;
   }
   clearTimeout(wvTimer);
@@ -2761,24 +2790,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 // ── Rotierende Tipps/Fun Facts, während man in der Lobby wartet ──
-const LOBBY_TIPS = [
-  "🔒 Raumcode nur an Freunde schicken — es gibt keinen öffentlichen Lobby-Browser.",
-  "💡 Tipp: Kopfhörer aufsetzen — sonst hört dein Mikro den Video-Sound mit!",
-  "🎲 Rollen-Roulette würfelt die Besetzung zufällig — gut gegen Diskussionen.",
-  "🕶 Blind-Modus: keine Übersetzung, kein Original — reines Improvisieren.",
-  "🐢 Im Editor kannst du Szenen in 0.5× ansehen, um Lippen besser zu timen.",
-  "🎮 Während ihr wartet: TicTacToe, Klick-Battle, Reaktions-Duell und Tipp-Renner warten unten!",
-  "🗣 „Original anhören” zeigt dir die echte Betonung, bevor du aufnimmst.",
-  "⭐ Nach jeder Runde bewertet ihr euch gegenseitig — bester Sprecher kriegt die Krone 👑",
-  "⬇ Das fertige Ergebnis lässt sich als Video speichern — perfekt für TikTok.",
-  "🎨 Baut euch eigene Szenen im Szenen-Editor — kein Choicer-Voicer-Pack nötig.",
-];
+function LOBBY_TIPS() {
+  return [
+    tt("🔒 Send the room code only to friends — there’s no public lobby browser.", "🔒 Raumcode nur an Freunde schicken — es gibt keinen öffentlichen Lobby-Browser."),
+    tt("💡 Tip: wear headphones — otherwise your mic will pick up the video sound!", "💡 Tipp: Kopfhörer aufsetzen — sonst hört dein Mikro den Video-Sound mit!"),
+    tt("🎲 Role roulette assigns cast at random — great against long debates.", "🎲 Rollen-Roulette würfelt die Besetzung zufällig — gut gegen Diskussionen."),
+    tt("🕶 Blind mode: no translation, no original — pure improvisation.", "🕶 Blind-Modus: keine Übersetzung, kein Original — reines Improvisieren."),
+    tt("🐢 In the editor you can watch scenes at 0.5× to time lips better.", "🐢 Im Editor kannst du Szenen in 0.5× ansehen, um Lippen besser zu timen."),
+    tt("🎮 While you wait: TicTacToe, click battle, reaction duel and type racer wait below!", "🎮 Während ihr wartet: TicTacToe, Klick-Battle, Reaktions-Duell und Tipp-Renner warten unten!"),
+    tt("🗣 “Hear original” shows you the real delivery before you record.", "🗣 „Original anhören” zeigt dir die echte Betonung, bevor du aufnimmst."),
+    tt("⭐ After each round you rate each other — best speaker gets the crown 👑", "⭐ Nach jeder Runde bewertet ihr euch gegenseitig — bester Sprecher kriegt die Krone 👑"),
+    tt("⬇ The finished result can be saved as video — perfect for TikTok.", "⬇ Das fertige Ergebnis lässt sich als Video speichern — perfekt für TikTok."),
+    tt("🎨 Build your own scenes in the scene editor — no Choicer-Voicer pack needed.", "🎨 Baut euch eigene Szenen im Szenen-Editor — kein Choicer-Voicer-Pack nötig."),
+  ];
+}
 let tipIdx = 0, tipTimer = null;
 function rotateTip() {
   const el = document.getElementById("lobby-tip");
   if (!el) return;
   el.style.opacity = "0";
-  setTimeout(() => { el.textContent = LOBBY_TIPS[tipIdx % LOBBY_TIPS.length]; tipIdx++; el.style.opacity = "1"; }, 300);
+  setTimeout(() => { const tips = LOBBY_TIPS(); el.textContent = tips[tipIdx % tips.length]; tipIdx++; el.style.opacity = "1"; }, 300);
 }
 function startTipRotation() {
   clearInterval(tipTimer);
@@ -2786,28 +2817,53 @@ function startTipRotation() {
   tipTimer = setInterval(rotateTip, 7000);
 }
 
+document.addEventListener("ss-langchange", () => {
+  try {
+    const leave = $("leave-btn");
+    if (leave) leave.textContent = tt("🚪 Leave room", "🚪 Raum verlassen");
+    const cancel = $("btn-leave-cancel");
+    if (cancel) cancel.textContent = tt("Cancel", "Abbrechen");
+    try { if (typeof renderAvatarPicker === "function") renderAvatarPicker(); } catch {}
+    renderPlayers();
+    try { if (typeof renderBoothPlayers === "function") renderBoothPlayers(); } catch {}
+    try { if (typeof checkStartable === "function") checkStartable(); } catch {}
+    try { if (typeof renderRoles === "function") renderRoles(); } catch {}
+    try { if (typeof renderSettingsView === "function") renderSettingsView(); } catch {}
+    try { if (typeof renderSceneGrid === "function") renderSceneGrid(); } catch {}
+    try { rotateTip(); } catch {}
+    try { rotateFunFact(); } catch {}
+    try {
+      const link = $("btn-copy-link");
+      if (link && !/✅/.test(link.textContent || "")) link.textContent = t("lobby.link");
+    } catch {}
+    try { syncCodeVisibility(); } catch {}
+  } catch (e) { console.warn("ss-langchange", e); }
+});
+
 // 💡 Fun-Fact-Ticker fürs linke Seitenpanel — läuft unabhängig durchgehend, rein zur Unterhaltung
-const FUN_FACTS = [
-  "🐙 Oktopusse haben drei Herzen und blaues Blut.",
-  "🍯 Honig verdirbt praktisch nie — man hat noch essbaren Honig in 3000 Jahre alten Gräbern gefunden.",
-  "🌕 Der Mond entfernt sich jedes Jahr etwa 3,8 cm von der Erde.",
-  "🦒 Giraffen und Menschen haben gleich viele Halswirbel: sieben.",
-  "🍌 Bananen sind aus botanischer Sicht Beeren — Erdbeeren dagegen nicht.",
-  "⚡ Ein Blitz ist etwa fünfmal heißer als die Sonnenoberfläche.",
-  "🐌 Manche Schnecken können bis zu drei Jahre am Stück schlafen.",
-  "🎮 Das erste Videospiel-Easter-Egg wurde 1979 in „Adventure” für die Atari 2600 versteckt.",
-  "🧠 Dein Gehirn verbraucht etwa 20% deiner täglichen Energie — obwohl es nur ~2% deines Körpergewichts ausmacht.",
-  "🦈 Haie gibt es schon länger als Bäume — seit etwa 400 Millionen Jahren.",
-  "🥶 Wasser kann bei Zimmertemperatur sieden — wenn der Luftdruck niedrig genug ist.",
-  "🐝 Bienen können einfache Mathe-Aufgaben lösen und Muster erkennen.",
-];
+function FUN_FACTS() {
+  return [
+    tt("🐙 Octopuses have three hearts and blue blood.", "🐙 Oktopusse haben drei Herzen und blaues Blut."),
+    tt("🍯 Honey almost never spoils — edible honey has been found in 3000-year-old tombs.", "🍯 Honig verdirbt praktisch nie — man hat noch essbaren Honig in 3000 Jahre alten Gräbern gefunden."),
+    tt("🌕 The moon drifts about 3.8 cm farther from Earth each year.", "🌕 Der Mond entfernt sich jedes Jahr etwa 3,8 cm von der Erde."),
+    tt("🦒 Giraffes and humans have the same number of neck vertebrae: seven.", "🦒 Giraffen und Menschen haben gleich viele Halswirbel: sieben."),
+    tt("🍌 Botanically, bananas are berries — strawberries aren’t.", "🍌 Bananen sind aus botanischer Sicht Beeren — Erdbeeren dagegen nicht."),
+    tt("⚡ A lightning bolt is about five times hotter than the surface of the sun.", "⚡ Ein Blitz ist etwa fünfmal heißer als die Sonnenoberfläche."),
+    tt("🐌 Some snails can sleep for up to three years straight.", "🐌 Manche Schnecken können bis zu drei Jahre am Stück schlafen."),
+    tt("🎮 The first video-game Easter egg was hidden in 1979’s “Adventure” for Atari 2600.", "🎮 Das erste Videospiel-Easter-Egg wurde 1979 in „Adventure” für die Atari 2600 versteckt."),
+    tt("🧠 Your brain uses about 20% of your daily energy — though it’s only ~2% of body weight.", "🧠 Dein Gehirn verbraucht etwa 20% deiner täglichen Energie — obwohl es nur ~2% deines Körpergewichts ausmacht."),
+    tt("🦈 Sharks have been around longer than trees — about 400 million years.", "🦈 Haie gibt es schon länger als Bäume — seit etwa 400 Millionen Jahren."),
+    tt("🥶 Water can boil at room temperature — if air pressure is low enough.", "🥶 Wasser kann bei Zimmertemperatur sieden — wenn der Luftdruck niedrig genug ist."),
+    tt("🐝 Bees can solve simple math problems and recognize patterns.", "🐝 Bienen können einfache Mathe-Aufgaben lösen und Muster erkennen."),
+  ];
+}
 let funFactIdx = 0, funFactTimer = null;
 function rotateFunFact() {
   const el = document.getElementById("funfact-text");
   if (!el) return;
   el.style.transition = "opacity .3s";
   el.style.opacity = "0";
-  setTimeout(() => { el.textContent = FUN_FACTS[funFactIdx % FUN_FACTS.length]; funFactIdx++; el.style.opacity = "1"; }, 300);
+  setTimeout(() => { const facts = FUN_FACTS(); el.textContent = facts[funFactIdx % facts.length]; funFactIdx++; el.style.opacity = "1"; }, 300);
 }
 // ═════════════════════════════════════════════════════════════
 // 🎵 BEAT-BOOTH — Rhythmus-Minispiel (F = links, J = rechts)
@@ -3286,20 +3342,20 @@ function leaveRoom(statusMsg) {
   $("host-start").style.display = "none";
   $("scene-card").style.display = "none";
   $("leave-btn").style.display = "none";
-  status("start-status", statusMsg || "Raum verlassen. Du kannst direkt einen neuen erstellen oder beitreten.");
+  status("start-status", statusMsg || tt("Left the room. You can create or join a new one right away.", "Raum verlassen. Du kannst direkt einen neuen erstellen oder beitreten."));
   show("scr-start");
   SFX.stop();
 }
 let pendingConfirm = null; // { type:"leave" } | { type:"kick", pid } | { type:"hostgive", pid }
 document.body.insertAdjacentHTML("beforeend",
   `<div id="wv-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:250;background:#c9821f;color:#12120f;font-family:var(--font-mono);font-size:.8rem;font-weight:700;text-align:center;padding:7px 12px;letter-spacing:.04em;box-shadow:0 2px 12px rgba(0,0,0,.5)"></div>
-   <button id="leave-btn" style="position:fixed;right:12px;bottom:10px;z-index:98;display:none;padding:8px 14px;font-size:.82rem;background:#1f1f28;border:1px solid var(--line);border-radius:8px;color:var(--muted)">🚪 Raum verlassen</button>
+   <button id="leave-btn" style="position:fixed;right:12px;bottom:10px;z-index:98;display:none;padding:8px 14px;font-size:.82rem;background:#1f1f28;border:1px solid var(--line);border-radius:8px;color:var(--muted)">🚪 Leave room</button>
    <div id="leave-confirm-overlay" style="display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px">
      <div style="max-width:340px;width:100%;background:#14141b;border:1px solid var(--line);border-radius:16px;padding:22px;text-align:center">
-       <p style="margin:0 0 18px;font-size:1rem" id="leave-confirm-text">Raum wirklich verlassen?</p>
+       <p style="margin:0 0 18px;font-size:1rem" id="leave-confirm-text">Really leave the room?</p>
        <div class="row" style="justify-content:center;gap:10px">
-         <button class="ghost" id="btn-leave-cancel">Abbrechen</button>
-         <button class="primary" id="btn-leave-confirm" style="background:var(--hot)">🚪 Ja, verlassen</button>
+         <button class="ghost" id="btn-leave-cancel">Cancel</button>
+         <button class="primary" id="btn-leave-confirm" style="background:var(--hot)">🚪 Yes, leave</button>
        </div>
      </div>
    </div>`);
@@ -3312,10 +3368,10 @@ function showConfirmDialog(text, confirmLabel, action) {
 }
 $("leave-btn").onclick = () => {
   showConfirmDialog(
-    "Raum wirklich verlassen?" + (isHost
-      ? " Du hältst die Raum-Verbindung — der Raum wird für alle geschlossen!"
-      : (iAmLogicalHost() ? " Deine Host-Rechte gehen dann an den Raum-Ersteller zurück." : "")),
-    "🚪 Ja, verlassen",
+    tt("Really leave the room?", "Raum wirklich verlassen?") + (isHost
+      ? tt(" You hold the room connection — the room will close for everyone!", " Du hältst die Raum-Verbindung — der Raum wird für alle geschlossen!")
+      : (iAmLogicalHost() ? tt(" Your host rights then go back to the room creator.", " Deine Host-Rechte gehen dann an den Raum-Ersteller zurück.") : "")),
+    tt("🚪 Yes, leave", "🚪 Ja, verlassen"),
     { type: "leave" }
   );
 };
@@ -3339,8 +3395,8 @@ document.addEventListener("click", (e) => {
     const p = players.find(x => x.id === pid);
     if (!p || p.id === myId) return;
     showConfirmDialog(
-      (p.name || "Diesen Spieler") + " wirklich aus dem Raum kicken?",
-      "🚪 Ja, kicken",
+      (p.name || tt("This player", "Diesen Spieler")) + tt(" — really kick from the room?", " wirklich aus dem Raum kicken?"),
+      tt("🚪 Yes, kick", "🚪 Ja, kicken"),
       { type: "kick", pid }
     );
     SFX.click();
@@ -3353,13 +3409,13 @@ document.addEventListener("click", (e) => {
     const p = players.find(x => x.id === pid);
     if (!p || p.id === myId) return;
     if (!hostHandoffAllowed()) {
-      showToast("Host weitergeben geht nur in der Lobby oder im Warteraum.", "leave");
+      showToast(tt("You can only pass host in the lobby or waiting room.", "Host weitergeben geht nur in der Lobby oder im Warteraum."), "leave");
       SFX.err();
       return;
     }
     showConfirmDialog(
-      "Host wirklich an " + stripHostTag(p.name || "diesen Spieler") + " weitergeben? Du wirst dann normaler Mitspieler.",
-      "👑 Ja, Host geben",
+      tt("Really pass host to ", "Host wirklich an ") + stripHostTag(p.name || tt("this player", "diesen Spieler")) + tt("? You’ll become a normal player.", " weitergeben? Du wirst dann normaler Mitspieler."),
+      tt("👑 Yes, give host", "👑 Ja, Host geben"),
       { type: "hostgive", pid }
     );
     SFX.click();
@@ -3376,7 +3432,7 @@ function syncCodeVisibility() {
   el.classList.toggle("is-blurred", !!codeHidden);
   if (btn) {
     btn.textContent = codeHidden ? "👁‍🗨" : "👁";
-    btn.title = codeHidden ? "Raumcode anzeigen" : "Raumcode verstecken";
+    btn.title = codeHidden ? tt("Show room code", "Raumcode anzeigen") : tt("Hide room code", "Raumcode verstecken");
   }
 }
 $("btn-toggle-code") && ($("btn-toggle-code").onclick = () => {
@@ -3394,7 +3450,7 @@ $("btn-copy-code") && ($("btn-copy-code").onclick = async () => {
     $("btn-copy-code").textContent = "✅";
     setTimeout(() => { $("btn-copy-code").textContent = "📋"; }, 1500);
     SFX.click();
-  } catch { status("lobby-status", "Kopieren nicht möglich — Code von Hand markieren: " + code, true); }
+  } catch { status("lobby-status", tt("Can't copy — select the code manually: ", "Kopieren nicht möglich — Code von Hand markieren: ") + code, true); }
 });
 
 // ── Einladungs-Link: Raumcode steckt in der Adresse, ein Klick reicht zum Beitreten ──
@@ -3409,10 +3465,10 @@ $("btn-copy-link") && ($("btn-copy-link").onclick = async () => {
   const btn = $("btn-copy-link");
   try {
     await navigator.clipboard.writeText(link);
-    btn.textContent = "✅ Link kopiert — jetzt einfügen!";
-    setTimeout(() => { btn.textContent = "🔗 Einladungs-Link kopieren"; }, 2500);
+    btn.textContent = tt("✅ Link copied — paste it now!", "✅ Link kopiert — jetzt einfügen!");
+    setTimeout(() => { btn.textContent = t("lobby.link"); }, 2500);
     SFX.click();
-  } catch { status("lobby-status", "Kopieren nicht möglich — Link von Hand kopieren: " + link, true); }
+  } catch { status("lobby-status", tt("Can't copy — copy the link manually: ", "Kopieren nicht möglich — Link von Hand kopieren: ") + link, true); }
 });
 // Wer über einen Einladungs-Link kommt, findet den Code schon eingetragen vor.
 // Kein Auto-Beitritt: das Mikro braucht erst eine Freigabe durch eine echte Nutzergeste.
@@ -3428,7 +3484,7 @@ if (invitedCode) whenReady(() => {
     if (!note) return;
     const v = (codeInput.value || "").trim();
     if (v === invitedCode) {
-      note.textContent = "🎬 Du wurdest in Raum " + invitedCode + " eingeladen — Code steht schon drin, einfach auf „Beitreten“.";
+      note.textContent = tt("🎬 You were invited to room ", "🎬 Du wurdest in Raum ") + invitedCode + tt(" — code is filled in, just hit Join.", " eingeladen — Code steht schon drin, einfach auf „Beitreten“.");
       note.style.display = "";
     } else if (isRoomCode(v)) {
       note.textContent = "ℹ️ Einladungs-Link war Raum " + invitedCode + " — du suchst jetzt " + v + " (alter Link zählt nicht).";
@@ -3508,7 +3564,7 @@ function setupHostConn(conn) {
     const frist = gnadenfristMs();
     gone.offline = true;
     gone.offlineBis = Date.now() + frist;
-    showToast("📴 " + gone.name + " ist rausgeflogen — Platz bleibt " + Math.round(frist / 60000) + " Min. frei", "leave");
+    showToast("📴 " + gone.name + tt(" dropped — seat stays free for ", " ist rausgeflogen — Platz bleibt ") + Math.round(frist / 60000) + tt(" min", " Min. frei"), "leave");
     SFX.leave();
     broadcast({ t: "playerOffline", name: gone.name });
     clearTimeout(rueckkehrTimer.get(gone.key));
@@ -3530,7 +3586,7 @@ function endgueltigWeg(p) {
   players = players.filter(x => x !== p);
   conns.delete(p.id);
   broadcast({ t: "playerLeft", name: p.name });
-  showToast("👋 " + p.name + " hat den Raum verlassen", "leave");
+  showToast("👋 " + p.name + tt(" left the room", " hat den Raum verlassen"), "leave");
   SFX.leave();
   if (wasLogical && isHost) reclaimLogicalHost();
   else broadcastState();
@@ -3603,17 +3659,17 @@ function transferHostTo(pid) {
   const target = players.find(p => p.id === pid);
   if (!target) return;
   if (!hostHandoffAllowed()) {
-    showToast("Host weitergeben geht nur in der Lobby oder im Warteraum.", "leave");
+    showToast(tt("You can only pass host in the lobby or waiting room.", "Host weitergeben geht nur in der Lobby oder im Warteraum."), "leave");
     SFX.err();
     return;
   }
   if (target.offline) {
-    showToast("Spieler ist offline — Host nur an jemanden, der online ist.", "leave");
+    showToast(tt("Player is offline — only give host to someone online.", "Spieler ist offline — Host nur an jemanden, der online ist."), "leave");
     SFX.err();
     return;
   }
   if (!target.key) {
-    showToast("Spieler ohne Wiedererkennung — soll einmal neu beitreten, dann nochmal versuchen.", "leave");
+    showToast(tt("Player can’t be re-recognized — ask them to rejoin once, then try again.", "Spieler ohne Wiedererkennung — soll einmal neu beitreten, dann nochmal versuchen."), "leave");
     SFX.err();
     return;
   }
@@ -3640,11 +3696,11 @@ function commitLogicalHost(newKey, newName) {
   syncHostUi();
   const neu = stripHostTag(newName || "?");
   if (newKey === myKey) {
-    showToast("👑 Du bist wieder Host!", "join");
-    status("lobby-status", "👑 Du bist wieder Host!");
+    showToast(tt("👑 You’re host again!", "👑 Du bist wieder Host!"), "join");
+    status("lobby-status", tt("👑 You’re host again!", "👑 Du bist wieder Host!"));
   } else {
-    showToast("👑 Host geht an " + neu, "join");
-    status("lobby-status", "👑 Host ist jetzt " + neu + " — du bleibst im Raum.");
+    showToast(tt("👑 Host goes to ", "👑 Host geht an ") + neu, "join");
+    status("lobby-status", tt("👑 Host is now ", "👑 Host ist jetzt ") + neu + tt(" — you stay in the room.", " — du bleibst im Raum."));
   }
   SFX.ok();
   wvBannerAus();
@@ -3803,15 +3859,15 @@ function onHostHandoffMsg(msg) {
   renderPlayers();
   renderRoles();
   if (msg.newKey === myKey) {
-    showToast("👑 Du bist jetzt Host!", "join");
+    showToast(tt("👑 You’re the host now!", "👑 Du bist jetzt Host!"), "join");
     SFX.ok();
     if (document.querySelector("#scr-lobby.active")) {
-      status("lobby-status", "👑 Du bist jetzt Host!");
+      status("lobby-status", tt("👑 You’re the host now!", "👑 Du bist jetzt Host!"));
     } else if (document.querySelector("#scr-wait.active")) {
-      status("wait-status", "👑 Du bist jetzt Host — warte auf die anderen …");
+      status("wait-status", tt("👑 You’re the host now — wait for the others …", "👑 Du bist jetzt Host — warte auf die anderen …"));
     }
   } else {
-    showToast("👑 Neuer Host: " + stripHostTag(msg.newName || "?"), "join");
+    showToast(tt("👑 New host: ", "👑 Neuer Host: ") + stripHostTag(msg.newName || "?"), "join");
   }
 }
 
@@ -3921,7 +3977,7 @@ function applyPhaseRestore(msg) {
   const hostSchonWeiter = ["scr-playback", "scr-final", "scr-duel-vote", "scr-rate"].includes(msg.phase) && meine !== msg.phase;
 
   if (!msg.forceRestore && habeStand && !vorSpiel && !hostSchonWeiter) {
-    showToast("🔌 Wieder drin — mach einfach weiter!", "join");
+    showToast(tt("🔌 Back in — just keep going!", "🔌 Wieder drin — mach einfach weiter!"), "join");
     SFX.ok();
     return;
   }
@@ -3955,7 +4011,7 @@ function applyPhaseRestore(msg) {
   } else if (msg.phase === "scr-booth") {
     if (msg.role != null && scene) {
       queueOrStartBooth();
-      showToast("🔌 Wieder drin — deine Rolle hast du zurück", "join");
+      showToast(tt("🔌 Back in — you got your role back", "🔌 Wieder drin — deine Rolle hast du zurück"), "join");
     } else {
       show("scr-wait");
       status("wait-status", "🔌 Wieder drin — du schaust zu / warte auf die Premiere …");
@@ -4145,7 +4201,7 @@ function handleMsg(msg, conn) {
 
     // — Gast ← Host —
     case "full":
-      status("start-status", "Raum ist voll (max. " + (msg.cap || 8) + " Spieler). 😅", true);
+      status("start-status", tt("Room is full (max. ", "Raum ist voll (max. ") + (msg.cap || 8) + tt(" players). 😅", " Spieler). 😅"), true);
       show("scr-start"); break;
     case "state":
       hostHandoffActive = false;
@@ -4171,9 +4227,9 @@ function handleMsg(msg, conn) {
       if (iAmLogicalHost()) { syncHostUi(); checkStartable(); }
       break;
     }
-    case "playerLeft": showToast("👋 " + msg.name + " hat den Raum verlassen", "leave"); SFX.leave(); break;
-    case "playerOffline": showToast("📴 " + msg.name + " ist rausgeflogen — Platz bleibt frei", "leave"); break;
-    case "playerBack": showToast("🔌 " + msg.name + " ist wieder da!", "join"); SFX.ok(); break;
+    case "playerLeft": showToast("👋 " + msg.name + tt(" left the room", " hat den Raum verlassen"), "leave"); SFX.leave(); break;
+    case "playerOffline": showToast("📴 " + msg.name + tt(" dropped — seat stays free", " ist rausgeflogen — Platz bleibt frei"), "leave"); break;
+    case "playerBack": showToast("🔌 " + msg.name + tt(" is back!", " ist wieder da!"), "join"); SFX.ok(); break;
     case "kicked":
       absichtlichWeg = true;
       clearTimeout(wvTimer); wvVersuch = 0; wvBannerAus();
@@ -5116,7 +5172,7 @@ function playerCard(p) {
       const pct = Math.max(0, Math.min(100, p.loadPct || 0));
       loadHtml = `<div class="pbar load"><i style="width:${pct}%"></i></div><span class="pload">📥 Video ${pct}%</span>`;
     } else if (!p.total) {
-      loadHtml = `<span class="pload done">📥 Video fertig</span>`;
+      loadHtml = `<span class="pload done">📥 ${tt("Video ready", "Video fertig")}</span>`;
     }
   }
   const micDot = p.id === myId ? `<span id="mic-live-dot" title="Dein Mikro — leuchtet, wenn gerade Ton ankommt" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3a3a46;margin-left:6px"></span>` : "";
@@ -5130,26 +5186,26 @@ function playerCard(p) {
   // Raum-Besitzer (Peer-ID = Raumcode) hält die Leitung — den kann man nicht kicken
   const isRoomPeer = !!(raumCode && p.id === PEER_PREFIX + raumCode);
   const kickBtn = (showHostActs && !isRoomPeer)
-    ? `<button type="button" class="kick-btn" data-kick="${esc(p.id)}" title="Aus dem Raum kicken">Kicken</button>`
+    ? `<button type="button" class="kick-btn" data-kick="${esc(p.id)}" title="${esc(tt("Kick from room", "Aus dem Raum kicken"))}">${tt("Kick", "Kicken")}</button>`
     : "";
   const hostGiveBtn = (showHostActs && p.key && hostHandoffAllowed())
-    ? `<button type="button" class="host-btn" data-hostgive="${esc(p.id)}" title="Host-Rolle weitergeben">Host geben</button>`
+    ? `<button type="button" class="host-btn" data-hostgive="${esc(p.id)}" title="${esc(tt("Pass host role", "Host-Rolle weitergeben"))}">${tt("Give host", "Host geben")}</button>`
     : "";
   const acts = (kickBtn || hostGiveBtn) ? `<div class="player-acts">${hostGiveBtn}${kickBtn}</div>` : "";
   return `<div class="player ${p.ready ? "ready" : ""}${loadingCls}" data-pid="${p.id}" style="${p.eliminated ? "opacity:.5" : p.offline ? "opacity:.55" : ""}">
     ${avatarHTML(p)}
     <div class="pinfo">
       <span class="pname">${esc(p.name)}${micDot}</span>
-      ${p.eliminated ? '<span class="prole" style="color:var(--hot)">🔪 eliminiert</span>' : `<span class="prole ${role ? "" : "empty"}">${role ? "🎭 " + esc(role) : "noch keine Rolle"}</span>`}
-      ${wegTag}${p.ready && !p.total ? '<span class="tag" style="color:var(--ok)">bereit</span>' : ""}${loadHtml}${prog}
+      ${p.eliminated ? '<span class="prole" style="color:var(--hot)">' + tt("🔪 eliminated", "🔪 eliminiert") + '</span>' : `<span class="prole ${role ? "" : "empty"}">${role ? "🎭 " + esc(role) : tt("no role yet", "noch keine Rolle")}</span>`}
+      ${wegTag}${p.ready && !p.total ? '<span class="tag" style="color:var(--ok)">' + tt('ready', 'bereit') + '</span>' : ""}${loadHtml}${prog}
     </div>
     ${acts}
   </div>`;
 }
 function escOfflineCountdown(p) {
   const restSek = p.offline && p.offlineBis ? Math.max(0, Math.round((p.offlineBis - Date.now()) / 1000)) : 0;
-  return "📴 Verbindung weg" + (restSek
-    ? " · kommt hoffentlich zurück (" + Math.floor(restSek / 60) + ":" + String(restSek % 60).padStart(2, "0") + ")"
+  return tt("📴 Connection lost", "📴 Verbindung weg") + (restSek
+    ? tt(" · hopefully back soon (", " · kommt hoffentlich zurück (") + Math.floor(restSek / 60) + ":" + String(restSek % 60).padStart(2, "0") + ")"
     : "");
 }
 function renderPlayers() { $("player-list").innerHTML = players.map(playerCard).join(""); }
@@ -5179,14 +5235,14 @@ function renderRoles() {
     const lc = lineCount(r.id);
     return `<button class="rolebtn ${mine ? "mine" : owner ? "taken" : ""}" data-r="${r.id}" ${owner && !mine ? "disabled" : ""}>
       <span>${esc(r.name)}${lc != null ? ` <span class="meta">· ${lc} Lines</span>` : ""}</span>
-      <span class="meta">${owner ? esc(owner.name) : "frei"} · Pan ${r.pan > 0 ? "R" : r.pan < 0 ? "L" : "Mitte"} · ${EFFECTS[r.effect] || r.effect}</span>
+      <span class="meta">${owner ? esc(owner.name) : tt("free", "frei")} · Pan ${r.pan > 0 ? "R" : r.pan < 0 ? "L" : tt("Center", "Mitte")} · ${EFFECTS[r.effect] || r.effect}</span>
     </button>`;
   }).join("");
   $("role-list").querySelectorAll(".rolebtn").forEach(b => b.onclick = () => pickRole(parseInt(b.dataset.r)));
 }
 
 function pickRole(roleId) {
-  if (match.mode === "rounds") { status("lobby-status", "🎲 Im Match werden Rollen zufällig verteilt — du kannst nicht selbst wählen.", true); return; }
+  if (match.mode === "rounds") { status("lobby-status", tt("🎲 In a match roles are assigned randomly — you can't pick yourself.", "🎲 Im Match werden Rollen zufällig verteilt — du kannst nicht selbst wählen."), true); return; }
   if (isHost) {
     const taken = players.some(p => p.role === roleId && p.id !== myId);
     if (taken) return;
@@ -5212,7 +5268,7 @@ $("btn-roulette").onclick = () => {
   if (!iAmLogicalHost() || !scene) return;
   if (!isHost) {
     sendHost({ t: "hostCmd", cmd: "roulette" });
-    status("lobby-status", "🎲 Rollen werden ausgewürfelt …");
+    status("lobby-status", tt("🎲 Rolling roles …", "🎲 Rollen werden ausgewürfelt …"));
     SFX.done();
     return;
   }
@@ -5224,7 +5280,7 @@ $("btn-roulette").onclick = () => {
   players.forEach(p => { p.role = null; p.ready = false; });
   for (let i = 0; i < n; i++) shuffledPlayers[i].role = roleIds[i];
   broadcastState(); renderRoles();
-  status("lobby-status", "🎲 Rollen ausgewürfelt! Wer keine hat, ist Zuschauer. Jetzt alle „Bin bereit“.");
+  status("lobby-status", tt("🎲 Roles rolled! No role = spectator. Everyone press “I'm ready”.", "🎲 Rollen ausgewürfelt! Wer keine hat, ist Zuschauer. Jetzt alle „Bin bereit“."));
   SFX.done();
 };
 
@@ -5336,16 +5392,16 @@ $("btn-ready").onclick = async () => {
   const me = players.find(p => p.id === myId);
   if (me?.role == null) {
     const free = scene ? scene.roles.some(r => !players.find(p => p.role === r.id)) : true;
-    return status("lobby-status", free ? "Erst eine Rolle aussuchen! (Oder ohne Rolle einfach zuschauen 🍿)" : "Alle Rollen sind weg — du bist Zuschauer und siehst die Premiere trotzdem! 🍿", !free ? false : true), free && SFX.err();
+    return status("lobby-status", free ? tt("Pick a role first! (Or watch without a role 🍿)", "Erst eine Rolle aussuchen! (Oder ohne Rolle einfach zuschauen 🍿)") : tt("All roles taken — you're a spectator and still see the premiere! 🍿", "Alle Rollen sind weg — du bist Zuschauer und siehst die Premiere trotzdem! 🍿"), !free ? false : true), free && SFX.err();
   }
-  if (!isHost && !videoBlobUrl && !scene?.videoUrl) return status("lobby-status", "Video lädt noch …", true);
+  if (!isHost && !videoBlobUrl && !scene?.videoUrl) return status("lobby-status", tt("Video still loading …", "Video lädt noch …"), true);
   if (scene?.videoUrl && !myVideoReady) {
-    return status("lobby-status", "Video lädt noch (" + myLoadPct + "%) — warte bis es bei dir fertig ist, dann „Bin bereit“.", true), SFX.err();
+    return status("lobby-status", tt("Video still loading (", "Video lädt noch (") + myLoadPct + tt("%) — wait until it finishes, then “I'm ready”.", "%) — warte bis es bei dir fertig ist, dann „Bin bereit“."), true), SFX.err();
   }
   if (!(await ensureMic())) return;
   if (isHost) { me.ready = true; broadcastState(); }
   else sendHost({ t: "ready" });
-  status("lobby-status", "✅ Bereit! Warten auf die anderen …");
+  status("lobby-status", tt("✅ Ready! Waiting for the others …", "✅ Bereit! Warten auf die anderen …"));
   SFX.ok();
   burstConfetti();
 };
@@ -5362,15 +5418,15 @@ function checkStartable() {
     $("btn-start").style.display = "";
     $("btn-start").disabled = players.length < 2;
     if (match.mode === "elimination") {
-      $("btn-start").textContent = "🔪 Battle Royale starten (" + players.length + " Spieler)";
-      $("start-hint").textContent = players.length < 2 ? "Mindestens 2 Spieler nötig!" : "Zufalls-Szenen & -Rollen — nach jeder Runde fliegt der Schlechteste raus, bis nur noch einer übrig ist!";
+      $("btn-start").textContent = tt("🔪 Start Battle Royale (", "🔪 Battle Royale starten (") + players.length + tt(" players)", " Spieler)");
+      $("start-hint").textContent = players.length < 2 ? tt("Need at least 2 players!", "Mindestens 2 Spieler nötig!") : tt("Random scenes & roles — after each round the worst is out until one remains!", "Zufalls-Szenen & -Rollen — nach jeder Runde fliegt der Schlechteste raus, bis nur noch einer übrig ist!");
     } else {
-      $("btn-start").textContent = "🎲 Match starten (" + match.rounds + " Runden)";
-      $("start-hint").textContent = "Zufalls-Szene & zufällige Rollen für alle. Los geht's, sobald du startest!";
+      $("btn-start").textContent = tt("🎲 Start match (", "🎲 Match starten (") + match.rounds + tt(" rounds)", " Runden)");
+      $("start-hint").textContent = tt("Random scene & roles for everyone. Go as soon as you start!", "Zufalls-Szene & zufällige Rollen für alle. Los geht's, sobald du startest!");
     }
     return;
   }
-  $("btn-start").textContent = "🔴 Session starten";
+  $("btn-start").textContent = t("host.start");
   const speakers = players.filter(p => p.role != null);
   // Wer gerade rausgeflogen ist, darf den Start nicht blockieren — sein Platz bleibt
   // ja trotzdem frei, er kann jederzeit zurückkommen.
@@ -5382,13 +5438,13 @@ function checkStartable() {
   const spectators = players.length - speakers.length;
   $("btn-start").disabled = !ok;
   if (ok) {
-    $("start-hint").textContent = "Los geht's! " + (spectators ? spectators + " Zuschauer gucken zu. " : "Unbesetzte Rollen sprechen original. ")
-      + (weg.length ? "⚠ " + weg.map(p => p.name).join(", ") + " hat gerade keine Verbindung — Platz bleibt frei." : "");
+    $("start-hint").textContent = tt("Let's go! ", "Los geht's! ") + (spectators ? spectators + tt(" spectators watching. ", " Zuschauer gucken zu. ") : tt("Unfilled roles speak original. ", "Unbesetzte Rollen sprechen original. "))
+      + (weg.length ? "⚠ " + weg.map(p => p.name).join(", ") + tt(" has no connection right now — seat stays free.", " hat gerade keine Verbindung — Platz bleibt frei.") : "");
   } else if (stillLoading.length) {
-    $("start-hint").textContent = "📥 Video lädt noch: " + stillLoading.map(p => p.name + " " + (p.loadPct || 0) + "%").join(" · ")
-      + (notReady.length ? " — danach noch „bereit“: " + notReady.map(p => p.name).join(", ") : "");
+    $("start-hint").textContent = tt("📥 Video still loading: ", "📥 Video lädt noch: ") + stillLoading.map(p => p.name + " " + (p.loadPct || 0) + "%").join(" · ")
+      + (notReady.length ? tt(" — then still need ready: ", " — danach noch „bereit“: ") + notReady.map(p => p.name).join(", ") : "");
   } else {
-    $("start-hint").textContent = "Warte, bis alle Sprecher „bereit“ sind …";
+    $("start-hint").textContent = tt("Wait until all speakers are “ready” …", "Warte, bis alle Sprecher „bereit“ sind …");
   }
 }
 
@@ -5402,12 +5458,12 @@ function pickMime() {
 
 $("btn-mic-test").onclick = async () => {
   if (!(await ensureMic())) return;
-  status("lobby-status", "🎤 Sprich jetzt 3 Sekunden …");
+  status("lobby-status", tt("🎤 Speak for 3 seconds …", "🎤 Sprich jetzt 3 Sekunden …"));
   const rec = new MediaRecorder(recStream(), { mimeType: pickMime() });
   const chunks = [];
   rec.ondataavailable = e => chunks.push(e.data);
   rec.onstop = async () => {
-    status("lobby-status", "Abspielen mit deinem Rollen-Effekt …");
+    status("lobby-status", tt("Playing with your role effect …", "Abspielen mit deinem Rollen-Effekt …"));
     const buf = await new Blob(chunks).arrayBuffer();
     const ctx = getCtx();
     const audio = await ctx.decodeAudioData(buf);
@@ -5418,7 +5474,7 @@ $("btn-mic-test").onclick = async () => {
     src.playbackRate.value = effectPitch(role.effect);
     src.connect(buildChain(ctx, role, ctx.destination));
     src.start();
-    src.onended = () => status("lobby-status", "So klingst du im Take. Passt? Dann „Bin bereit“.");
+    src.onended = () => status("lobby-status", tt("This is how you sound in the take. Good? Then “I'm ready”.", "So klingst du im Take. Passt? Dann „Bin bereit“."));
   };
   rec.start();
   setTimeout(() => rec.stop(), 3000);
@@ -5651,12 +5707,12 @@ function startBooth() {
   const bv = $("booth-video");
   bv.src = sceneVideoSrc();
   $("btn-line-rec").disabled = true;
-  status("booth-status", "⏳ Video lädt — einen Moment …");
+  status("booth-status", tt("⏳ Loading video — one moment …", "⏳ Video lädt — einen Moment …"));
   setBar("booth-bar", 30);
   waitCanPlay(bv).then(() => {
     setBar("booth-bar", 100);
     $("btn-line-rec").disabled = false;
-    status("booth-status", "Unendlich Versuche — nimm auf, bis es sitzt.");
+    status("booth-status", t("booth.status"));
     SFX.ok();
   });
   sendProgress();
@@ -5709,7 +5765,7 @@ function renderLine() {
   stopFxPreview(); fxPreviewRaw = null; fxPreviewCacheKey = null;
   $("rectime-fill").style.width = "0";
   if (lineHasOrig(l)) previewRefViz(l); else { cancelAnimationFrame(vizRAF); const c = $("viz"); if (c) { const g = c.getContext("2d"); g.clearRect(0,0,c.width,c.height); } }
-  status("booth-status", takes[l.idx] ? "Take gespeichert — anhören, neu aufnehmen oder weiter." : "Unendlich Versuche — nimm auf, bis es sitzt.");
+  status("booth-status", takes[l.idx] ? tt("Take saved — listen, re-record or continue.", "Take gespeichert — anhören, neu aufnehmen oder weiter.") : t("booth.status"));
 }
 
 // Szenen-Ausschnitt zum Reinhören

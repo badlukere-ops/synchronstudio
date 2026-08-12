@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -126,6 +126,26 @@
   .vu-leds i.on-hi{background:var(--hot);box-shadow:0 0 8px rgba(230,57,70,.9)}
   .vu-label{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:#5a5a68}
   @media(max-width:700px){.vumeter{display:none}}
+
+  /* Language switch — gaffer/metal pill, amber active */
+  .lang-switch{
+    display:inline-flex;align-items:stretch;gap:0;padding:2px;
+    background:linear-gradient(180deg,#1a1a22,#121218);
+    border:1px solid var(--metal);border-radius:8px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 4px 12px rgba(0,0,0,.35);
+  }
+  .lang-switch button{
+    font-family:var(--font-mono);font-size:.72rem;font-weight:700;letter-spacing:.14em;
+    padding:7px 11px;border:none;border-radius:6px;cursor:pointer;
+    background:transparent;color:#7a7a88;text-transform:uppercase;
+    transition:color .12s, background .12s, box-shadow .12s;
+  }
+  .lang-switch button.on{
+    background:linear-gradient(180deg,#3a2a12,#2a1e0c);
+    color:var(--amber);box-shadow:inset 0 0 0 1px rgba(240,168,48,.45), 0 0 14px rgba(240,168,48,.25);
+  }
+  .lang-switch button:not(.on):hover{color:#c8c8d4}
+  @media(max-width:520px){.lang-switch button{padding:6px 8px;font-size:.66rem;letter-spacing:.08em}}
 
   /* 🎥 Kinosaal bei laufender Premiere: alles dunkel außer Leinwand + Live-Kommentar */
   header,.side-panel,#patchnotes-btn,#leave-btn,#scr-playback > .card,#scr-playback video,.prem-stage{
@@ -1280,114 +1300,118 @@
 <div class="wrap">
 
   <header>
-    <div class="logo"><em>Synchron</em>studio<span>privates Dubbing-Game</span></div>
+    <div class="logo"><em>Synchron</em>studio<span data-i18n="logo.tag">private dubbing game</span></div>
     <div class="row" style="gap:10px;align-items:center">
-      <button class="ghost" id="music-toggle" title="Lobby-Musik an/aus" style="font-size:1.1rem;padding:8px 12px">🎵</button>
-      <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.35" title="Musik-Lautstärke" style="width:70px;accent-color:var(--amber)">
+      <div class="lang-switch" id="lang-switch" role="group" aria-label="Language">
+        <button type="button" id="btn-lang-en" class="on" aria-pressed="true">EN</button>
+        <button type="button" id="btn-lang-de" aria-pressed="false">DE</button>
+      </div>
+      <button class="ghost" id="music-toggle" data-i18n-title="music.title" title="Lobby music on/off" style="font-size:1.1rem;padding:8px 12px">🎵</button>
+      <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.35" data-i18n-title="music.vol" title="Music volume" style="width:70px;accent-color:var(--amber)">
       <canvas id="music-viz" style="width:44px;height:26px"></canvas>
-      <button class="ghost" id="btn-mic-settings" title="Mikrofon-Einstellungen" style="font-size:1.1rem">🎚</button>
-      <div class="vumeter" title="Mikrofon-Pegel">
+      <button class="ghost" id="btn-mic-settings" data-i18n-title="mic.settings" title="Microphone settings" style="font-size:1.1rem">🎚</button>
+      <div class="vumeter" data-i18n-title="vu.title" title="Microphone level">
         <div class="vu-leds" id="vu-leds"></div>
         <span class="vu-label">Mic</span>
       </div>
-      <div class="onair" id="onair">On Air</div>
+      <div class="onair" id="onair" data-i18n="onair">On Air</div>
     </div>
   </header>
 
   <!-- MIKROFON-SETUP (Pflicht beim Reinkommen) -->
   <section class="screen active" id="scr-mic">
     <div class="card">
-      <h2>🎚 Erst mal: Mikro einstellen</h2>
-      <p class="sub">Ohne gutes Mikro klingt die beste Synchro kacke. Sprich rein und schau, ob die Bars ausschlagen.</p>
+      <h2 data-i18n="mic.h2">🎚 First: set up your mic</h2>
+      <p class="sub" data-i18n="mic.sub">Without a good mic even the best dub sounds rough. Speak into it and watch the bars move.</p>
       <canvas class="viz" id="mic-viz"></canvas>
       <div style="display:grid;gap:14px;margin-top:14px">
         <div>
-          <label class="small">Mikrofon</label>
+          <label class="small" data-i18n="mic.device">Microphone</label>
           <select id="mic-device" style="width:100%"></select>
         </div>
         <div class="row" style="gap:18px">
-          <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="mic-ns" checked style="accent-color:var(--amber);width:18px;height:18px"> Rauschunterdrückung</label>
-          <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="mic-ec" checked style="accent-color:var(--amber);width:18px;height:18px"> Echo-Unterdrückung</label>
-          <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="mic-agc" checked style="accent-color:var(--amber);width:18px;height:18px"> Auto-Lautstärke</label>
-          <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="mic-lowcut" checked style="accent-color:var(--amber);width:18px;height:18px"> Brumm-Filter (Tiefen-Cut)</label>
+          <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="mic-ns" checked style="accent-color:var(--amber);width:18px;height:18px"> <span data-i18n="mic.ns">Noise suppression</span></label>
+          <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="mic-ec" checked style="accent-color:var(--amber);width:18px;height:18px"> <span data-i18n="mic.ec">Echo cancellation</span></label>
+          <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="mic-agc" checked style="accent-color:var(--amber);width:18px;height:18px"> <span data-i18n="mic.agc">Auto volume</span></label>
+          <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="mic-lowcut" checked style="accent-color:var(--amber);width:18px;height:18px"> <span data-i18n="mic.lowcut">Hum filter (low cut)</span></label>
         </div>
         <div>
-          <label class="small">Aufnahme-Lautstärke (Gain): <span id="mic-gain-val">100%</span></label>
+          <label class="small"><span data-i18n="mic.gain">Recording volume (Gain):</span> <span id="mic-gain-val">100%</span></label>
           <input type="range" id="mic-gain" min="0.4" max="2.6" step="0.1" value="1" style="width:100%;accent-color:var(--amber)">
         </div>
         <div>
-          <label class="small">Noise Gate — Pausen + Nebengeräusche (weich): <span id="mic-gate-val">50%</span>
-            <span id="gate-lamp" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3a3a46;margin-left:6px;vertical-align:middle" title="grün = Gate offen (du bist hörbar)"></span></label>
+          <label class="small"><span data-i18n="mic.gate">Noise gate — pauses + background noise (soft):</span> <span id="mic-gate-val">50%</span>
+            <span id="gate-lamp" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3a3a46;margin-left:6px;vertical-align:middle" data-i18n-title="mic.gate.lamp" title="green = gate open (you are audible)"></span></label>
           <input type="range" id="mic-gate" min="0" max="1" step="0.05" value="0.5" style="width:100%;accent-color:var(--amber)">
         </div>
       </div>
       <div class="row" style="margin-top:18px">
-        <button class="big" id="btn-mic-record">🎤 Test aufnehmen (3 Sek.)</button>
-        <button class="big ghost" id="btn-mic-raw">🎙 Roh-Modus (alle Filter aus)</button>
-        <button class="big primary" id="btn-mic-done" disabled>✅ Klingt gut, weiter</button>
+        <button class="big" id="btn-mic-record" data-i18n="mic.record">🎤 Test record (3 sec.)</button>
+        <button class="big ghost" id="btn-mic-raw" data-i18n="mic.raw">🎙 Raw mode (all filters off)</button>
+        <button class="big primary" id="btn-mic-done" disabled data-i18n="mic.done">✅ Sounds good, continue</button>
       </div>
-      <p class="status" id="mic-status">Klick auf „Test aufnehmen“, um dein Mikro freizugeben.</p>
+      <p class="status" id="mic-status" data-i18n="mic.status">Click “Test record” to allow your microphone.</p>
     </div>
   </section>
 
   <!-- PROFILBILD-AUSWAHL -->
   <section class="screen" id="scr-avatar">
     <div class="card">
-      <h2>🎭 Wähl dein Profilbild</h2>
-      <p class="sub">Ein Emoji oder einer unserer Szenen-Charaktere — taucht bei dir überall im Spiel auf.</p>
+      <h2 data-i18n="avatar.h2">🎭 Pick your profile picture</h2>
+      <p class="sub" data-i18n="avatar.sub">An emoji or one of our scene characters — shows up everywhere in the game.</p>
       <div id="avatar-grid"></div>
-      <div class="avatar-section-label" style="margin-top:14px">✨ Accessoire (optional)</div>
+      <div class="avatar-section-label" style="margin-top:14px" data-i18n="avatar.acc">✨ Accessory (optional)</div>
       <div style="display:flex;gap:14px;align-items:center;margin-top:6px">
         <div id="accessory-preview" style="flex-shrink:0"></div>
         <div id="accessory-grid" class="avatar-row" style="flex:1"></div>
       </div>
-      <button class="primary big" id="btn-avatar-done" style="margin-top:16px">Weiter</button>
+      <button class="primary big" id="btn-avatar-done" style="margin-top:16px" data-i18n="avatar.done">Continue</button>
     </div>
   </section>
 
   <!-- START -->
   <section class="screen" id="scr-start">
     <div class="card">
-      <h2>Wer spricht?</h2>
-      <div class="row"><input type="text" id="in-name" placeholder="Dein Name" maxlength="16" style="flex:1"></div>
+      <h2 data-i18n="start.who">Who’s speaking?</h2>
+      <div class="row"><input type="text" id="in-name" data-i18n-placeholder="start.name.ph" placeholder="Your name" maxlength="16" style="flex:1"></div>
     </div>
     <div class="card">
-      <h2>Raum erstellen</h2>
-      <p class="sub">Du bist der Host, wählst die Szene und startest die Session.</p>
-      <button class="primary big" id="btn-create">Raum erstellen</button>
+      <h2 data-i18n="start.create.h2">Create room</h2>
+      <p class="sub" data-i18n="start.create.sub">You’re the host — pick the scene and start the session.</p>
+      <button class="primary big" id="btn-create" data-i18n="start.create.btn">Create room</button>
     </div>
     <div class="card">
-      <h2>Raum beitreten</h2>
+      <h2 data-i18n="start.join.h2">Join room</h2>
       <p class="sub" id="invite-note" style="display:none;color:var(--amber)"></p>
       <div class="row">
-        <input type="text" class="code" id="in-code" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="off">
-        <button id="btn-join">Beitreten</button>
+        <input type="text" class="code" id="in-code" placeholder="00000" maxlength="5" inputmode="numeric" autocomplete="off">
+        <button id="btn-join" data-i18n="start.join.btn">Join</button>
       </div>
     </div>
     <p class="status" id="start-status"></p>
-    <p class="sub" style="text-align:center;margin-top:18px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.45">
-      Fan-Projekt zum privaten Spaß mit Freunden — wir verdienen nichts damit.
-      Die Clips gehören den jeweiligen Rechteinhabern; auf Wunsch entfernen wir Szenen.
+    <p class="sub" data-i18n="start.fan" style="text-align:center;margin-top:18px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.45">
+      Fan project for private fun with friends — we don’t earn anything from this.
+      Clips belong to their rights holders; we remove scenes on request.
     </p>
     <p style="text-align:center;margin-top:14px">
-      <a href="editor.html" style="color:var(--muted);font-size:.85rem;text-decoration:none;border-bottom:1px dashed var(--metal)">🛠 Szenen-Editor</a>
+      <a href="editor.html" data-i18n="start.editor" style="color:var(--muted);font-size:.85rem;text-decoration:none;border-bottom:1px dashed var(--metal)">🛠 Scene editor</a>
     </p>
   </section>
 
   <!-- LOBBY -->
   <section class="screen" id="scr-lobby">
     <div class="card">
-      <span class="tag">Raumcode</span>
+      <span class="tag" data-i18n="lobby.code.tag">Room code</span>
       <div style="display:flex;align-items:center;gap:10px">
-        <div class="roomcode-big" id="lobby-code">000000</div>
-        <button class="ghost" id="btn-toggle-code" title="Raumcode verstecken / zeigen" style="font-size:1.15rem;padding:6px 10px">👁</button>
-        <button class="ghost" id="btn-copy-code" title="Raumcode kopieren" style="font-size:1.1rem;padding:6px 10px">📋</button>
+        <div class="roomcode-big" id="lobby-code">00000</div>
+        <button class="ghost" id="btn-toggle-code" data-i18n-title="lobby.code.toggle" title="Hide / show room code" style="font-size:1.15rem;padding:6px 10px">👁</button>
+        <button class="ghost" id="btn-copy-code" data-i18n-title="lobby.code.copy" title="Copy room code" style="font-size:1.1rem;padding:6px 10px">📋</button>
       </div>
-      <button class="primary" id="btn-copy-link" style="margin-top:10px">🔗 Einladungs-Link kopieren</button>
-      <p class="sub">Link nur an Freunde schicken — es gibt keinen öffentlichen Lobby-Browser. Wer den Code hat, kann rein.</p>
+      <button class="primary" id="btn-copy-link" style="margin-top:10px" data-i18n="lobby.link">🔗 Copy invite link</button>
+      <p class="sub" data-i18n="lobby.link.sub">Send the link only to friends — there’s no public lobby browser. Anyone with the code can join.</p>
       <div class="players" id="player-list"></div>
       <div class="row" style="margin-top:14px;gap:6px" id="emoji-bar">
-        <span class="tag" style="margin-right:4px">Reagieren:</span>
+        <span class="tag" style="margin-right:4px" data-i18n="lobby.react">React:</span>
         <button class="emojibtn" data-e="👍">👍</button>
         <button class="emojibtn" data-e="😂">😂</button>
         <button class="emojibtn" data-e="🔥">🔥</button>
@@ -1399,93 +1423,93 @@
     </div>
 
     <div class="card" id="host-settings" style="display:none">
-      <h2>⚙ Match-Einstellungen</h2>
-      <p class="tag" style="margin:0 0 8px">Spielmodus wählen</p>
-      <div class="mode-picker" id="mode-picker" role="radiogroup" aria-label="Spielmodus">
+      <h2 data-i18n="host.settings">⚙ Match settings</h2>
+      <p class="tag" style="margin:0 0 8px" data-i18n="host.mode">Choose game mode</p>
+      <div class="mode-picker" id="mode-picker" role="radiogroup" data-i18n-aria="host.mode" aria-label="Choose game mode">
         <button type="button" class="mode-btn on" data-mode="free" aria-pressed="true">
           <span class="mb-ico">🎮</span>
-          <span class="mb-title">Freies Spiel</span>
-          <span class="mb-sub">Szene &amp; Rollen selbst aussuchen</span>
+          <span class="mb-title" data-i18n="mode.free.title">Free play</span>
+          <span class="mb-sub" data-i18n="mode.free.sub">Pick scene &amp; roles yourself</span>
         </button>
         <button type="button" class="mode-btn" data-mode="rounds" aria-pressed="false">
           <span class="mb-ico">🏆</span>
-          <span class="mb-title">Match</span>
-          <span class="mb-sub">Mehrere Runden — alles Zufall</span>
+          <span class="mb-title" data-i18n="mode.match.title">Match</span>
+          <span class="mb-sub" data-i18n="mode.match.sub">Several rounds — everything random</span>
         </button>
         <button type="button" class="mode-btn" data-mode="elimination" aria-pressed="false">
           <span class="mb-ico">🔪</span>
-          <span class="mb-title">Battle Royale</span>
-          <span class="mb-sub">Schlechtester fliegt jede Runde raus</span>
+          <span class="mb-title" data-i18n="mode.br.title">Battle Royale</span>
+          <span class="mb-sub" data-i18n="mode.br.sub">Worst player is out each round</span>
         </button>
         <button type="button" class="mode-btn" data-mode="duell" aria-pressed="false">
           <span class="mb-ico">🥊</span>
-          <span class="mb-title">Duell</span>
-          <span class="mb-sub">2 Spieler, 1 Rolle, direkter Vergleich</span>
+          <span class="mb-title" data-i18n="mode.duel.title">Duel</span>
+          <span class="mb-sub" data-i18n="mode.duel.sub">2 players, 1 role, head-to-head</span>
         </button>
       </div>
       <select id="set-mode" style="display:none" aria-hidden="true">
-        <option value="free" selected>Freies Spiel</option>
-        <option value="rounds">Match mit Runden</option>
-        <option value="elimination">Battle Royale</option>
-        <option value="duell">Duell</option>
+        <option value="free" selected data-i18n="mode.free.opt">Free play</option>
+        <option value="rounds" data-i18n="mode.match.opt">Match with rounds</option>
+        <option value="elimination" data-i18n="mode.br.opt">Battle Royale</option>
+        <option value="duell" data-i18n="mode.duel.opt">Duel</option>
       </select>
       <input type="checkbox" id="set-roulette" checked style="display:none">
       <div class="row" id="rounds-opts" style="gap:20px;margin-top:12px;display:none">
-        <label class="small" style="margin:0">Runden:
+        <label class="small" style="margin:0"><span data-i18n="host.rounds">Rounds:</span>
           <select id="set-rounds"><option>2</option><option selected>3</option><option>5</option><option>7</option><option>10</option></select>
         </label>
-        <span class="tag">Im Match sind Szenen &amp; Rollen jede Runde zufällig 🎲</span>
+        <span class="tag" data-i18n="host.rounds.hint">In a match, scenes &amp; roles are random every round 🎲</span>
       </div>
     </div>
     <div class="card" id="duel-setup" style="display:none">
-      <h2>🥊 Duell einrichten</h2>
-      <p class="sub">Zwei Spieler sprechen dieselbe Rolle unabhängig voneinander ein — danach hört die Gruppe beide Versionen und stimmt ab, wer's besser gemacht hat.</p>
+      <h2 data-i18n="duel.h2">🥊 Set up duel</h2>
+      <p class="sub" data-i18n="duel.sub">Two players record the same role separately — then the group hears both and votes who did it better.</p>
       <div class="row" style="gap:14px">
         <select id="duel-scene-select" style="flex:1"></select>
-        <button id="btn-duel-load-scene">Laden</button>
+        <button id="btn-duel-load-scene" data-i18n="duel.load">Load</button>
       </div>
       <div class="row" id="duel-pickers" style="gap:14px;margin-top:12px;display:none">
-        <label class="small" style="margin:0">Duell-Rolle
+        <label class="small" style="margin:0"><span data-i18n="duel.role">Duel role</span>
           <select id="duel-role-select"></select>
         </label>
-        <label class="small" style="margin:0">Duellant A
+        <label class="small" style="margin:0"><span data-i18n="duel.a">Duelist A</span>
           <select id="duel-player-a"></select>
         </label>
-        <label class="small" style="margin:0">Duellant B
+        <label class="small" style="margin:0"><span data-i18n="duel.b">Duelist B</span>
           <select id="duel-player-b"></select>
         </label>
-        <button class="primary" id="btn-duel-start">🥊 Duell starten</button>
+        <button class="primary" id="btn-duel-start" data-i18n="duel.start">🥊 Start duel</button>
       </div>
       <p class="status" id="duel-setup-status"></p>
     </div>
     <div class="card" id="host-scene" style="display:none">
-      <h2>Szene wählen</h2>
+      <h2 data-i18n="scene.h2">Pick a scene</h2>
       <div class="row">
-        <input type="text" id="scene-search" placeholder="🔍 Suchen — Titel oder Rolle" style="flex:1" autocomplete="off">
-        <button class="primary" id="btn-load-scene">Laden</button>
+        <input type="text" id="scene-search" data-i18n-placeholder="scene.search.ph" placeholder="🔍 Search — title or role" style="flex:1" autocomplete="off">
+        <button class="primary" id="btn-load-scene" data-i18n="scene.load">Load</button>
       </div>
-      <div class="role-filter" id="role-filter" aria-label="Nach Rollenanzahl filtern"></div>
+      <div class="role-filter" id="role-filter" data-i18n-aria="scene.filter" aria-label="Filter by role count"></div>
       <div class="scene-grid" id="scene-grid"></div>
       <select id="scene-select" style="display:none"></select>
       <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-top:10px;font-size:.9rem;color:var(--muted)">
         <input type="checkbox" id="blind-mode" style="accent-color:var(--amber);width:17px;height:17px">
-        🕶 Blind-Modus — keine Übersetzung, kein Original-Anhören: alle müssen improvisieren
+        <span data-i18n="scene.blind">🕶 Blind mode — no translation, no original listen: everyone must improvise</span>
       </label>
-      <p class="sub" style="margin-top:14px">… oder eigenes Video direkt vom PC (wird an alle übertragen):</p>
+      <p class="sub" style="margin-top:14px" data-i18n="scene.local">… or your own video from your PC (sent to everyone):</p>
       <div class="row"><input type="file" id="file-video" accept="video/mp4,video/webm"></div>
       <div id="local-cfg" style="display:none;margin-top:16px">
-        <label class="small">Rollen für dieses Video (Name / Pan / Effekt):</label>
+        <label class="small" data-i18n="scene.roles">Roles for this video (name / pan / effect):</label>
         <div id="rolecfg-list"></div>
         <div class="row">
-          <button class="ghost" id="btn-add-role">+ Rolle</button>
-          <button id="btn-use-local">Video benutzen</button>
+          <button class="ghost" id="btn-add-role" data-i18n="scene.addrole">+ Role</button>
+          <button id="btn-use-local" data-i18n="scene.use">Use video</button>
         </div>
       </div>
       <div class="bar" id="upload-bar" style="display:none"><i></i></div>
       <p class="status" id="scene-status"></p>
       <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px">
         <div class="row" style="margin:0">
-          <button class="ghost" id="btn-check-scenes">🔍 Alle Szenen-Dateien prüfen</button>
+          <button class="ghost" id="btn-check-scenes" data-i18n="scene.check">🔍 Check all scene files</button>
           <span class="tag" id="check-status"></span>
         </div>
         <div class="bar" id="check-bar" style="display:none;margin-top:10px"><i></i></div>
@@ -1494,26 +1518,26 @@
     </div>
 
     <div class="card" id="scene-card" style="display:none">
-      <h2 id="scene-title">Szene</h2>
+      <h2 id="scene-title">Scene</h2>
       <p class="sub" id="settings-view"></p>
       <video id="preview" playsinline preload="auto" controls></video>
       <div class="bar" id="download-bar" style="display:none"><i></i></div>
-      <p class="load-reassure" id="lobby-load-reassure">⏳ Nicht hängen geblieben — dauert nur etwas länger…</p>
-      <h2 style="margin-top:18px">Rolle aussuchen</h2>
+      <p class="load-reassure" id="lobby-load-reassure" data-i18n="scard.reassure">⏳ Not stuck — just taking a bit longer…</p>
+      <h2 style="margin-top:18px" data-i18n="scard.pickrole">Pick a role</h2>
       <div class="roles" id="role-list"></div>
       <div class="row" style="margin-top:16px">
-        <button id="btn-mic-test">🎤 Mikro-Check (3 Sek. mit deinem Effekt)</button>
-        <button id="btn-roulette" style="display:none">🎲 Rollen-Roulette</button>
-        <button class="primary" id="btn-ready">Bin bereit</button>
+        <button id="btn-mic-test" data-i18n="scard.mictest">🎤 Mic check (3 sec. with your effect)</button>
+        <button id="btn-roulette" style="display:none" data-i18n="scard.roulette">🎲 Role roulette</button>
+        <button class="primary" id="btn-ready" data-i18n="scard.ready">I’m ready</button>
       </div>
-      <p class="hint">Kopfhörer aufsetzen! Sonst nimmt dein Mikro den Video-Sound mit auf.</p>
+      <p class="hint" data-i18n="scard.hint">Put headphones on! Otherwise your mic will pick up the video sound.</p>
       <p class="status" id="lobby-status"></p>
     </div>
 
     <div class="card" id="host-start" style="display:none">
-      <button class="primary big" id="btn-start" disabled>🔴 Session starten</button>
-      <button class="primary big" id="btn-go-round" style="display:none">▶ Runde starten (alle bereit?)</button>
-      <p class="status" id="start-hint">Warte, bis alle mit Rolle „bereit“ sind …</p>
+      <button class="primary big" id="btn-start" disabled data-i18n="host.start">🔴 Start session</button>
+      <button class="primary big" id="btn-go-round" style="display:none" data-i18n="host.round">▶ Start round (everyone ready?)</button>
+      <p class="status" id="start-hint" data-i18n="host.hint">Wait until everyone with a role is “ready” …</p>
     </div>
   </section>
 
@@ -1521,8 +1545,8 @@
   <section class="screen" id="scr-booth">
     <div class="card">
       <div class="booth-head">
-        <div class="booth-role"><img id="booth-avatar" alt="" style="display:none"><div><span class="tag">Deine Rolle</span><div class="rname" id="booth-rolename">—</div></div></div>
-        <div class="linecount" id="booth-count">1/1<small>Voiceline</small></div>
+        <div class="booth-role"><img id="booth-avatar" alt="" style="display:none"><div><span class="tag" data-i18n="booth.role">Your role</span><div class="rname" id="booth-rolename">—</div></div></div>
+        <div class="linecount" id="booth-count">1/1<small data-i18n="booth.line">Voiceline</small></div>
       </div>
 
       <div class="video-wipe-host" style="max-height:260px">
@@ -1542,89 +1566,89 @@
       <div class="bar" id="booth-bar" style="display:none"><i></i></div>
 
       <canvas class="viz" id="viz"></canvas>
-      <p class="tag viz-legend"><span style="color:#c84bff">■ Original oben</span> &nbsp; <span style="color:#5aaaff">■ Deine Stimme unten</span> &nbsp; <span style="opacity:.65">gestrichelt = hier ist das Original fertig</span></p>
+      <p class="tag viz-legend"><span style="color:#c84bff" data-i18n="booth.viz.orig">■ Original on top</span> &nbsp; <span style="color:#5aaaff" data-i18n="booth.viz.you">■ Your voice below</span> &nbsp; <span style="opacity:.65" data-i18n="booth.viz.dash">dashed = original ends here</span></p>
 
       <div class="boothbtns">
-        <button class="big ghost" id="btn-line-prev">⬅ Vorherige</button>
-        <button class="big" id="btn-line-scene">🎬 Szene ansehen</button>
-        <button class="big" id="btn-line-orig" style="display:none">🗣 Original anhören</button>
-        <button class="big primary" id="btn-line-rec">⏺ Aufnehmen</button>
-        <button class="big ghost" id="btn-line-abort" type="button" title="Fehlversuch als Outtake behalten, Take nicht ersetzen">✕ Abbrechen</button>
-        <button class="big" id="btn-line-play" disabled>▶ Anhören</button>
-        <button class="big" id="btn-line-next" disabled>✅ Passt, weiter</button>
-        <button class="big ghost" id="btn-line-skip" style="display:none">⏭ Skip (Original behalten)</button>
+        <button class="big ghost" id="btn-line-prev" data-i18n="booth.prev">⬅ Previous</button>
+        <button class="big" id="btn-line-scene" data-i18n="booth.scene">🎬 Watch scene</button>
+        <button class="big" id="btn-line-orig" style="display:none" data-i18n="booth.orig">🗣 Hear original</button>
+        <button class="big primary" id="btn-line-rec" data-i18n="booth.rec">⏺ Record</button>
+        <button class="big ghost" id="btn-line-abort" type="button" data-i18n="booth.abort" data-i18n-title="booth.abort.title" title="Keep failed attempt as outtake, don’t replace take">✕ Cancel</button>
+        <button class="big" id="btn-line-play" disabled data-i18n="booth.play">▶ Listen</button>
+        <button class="big" id="btn-line-next" disabled data-i18n="booth.next">✅ Good, next</button>
+        <button class="big ghost" id="btn-line-skip" style="display:none" data-i18n="booth.skip">⏭ Skip (keep original)</button>
       </div>
-      <p class="status" id="booth-status">Unendlich Versuche — nimm auf, bis es sitzt.</p>
+      <p class="status" id="booth-status" data-i18n="booth.status">Unlimited tries — record until it clicks.</p>
       <div class="rectime"><i id="rectime-fill"></i></div>
 
       <details class="booth-settings">
-        <summary>🎚 Einstellungen</summary>
+        <summary data-i18n="booth.settings">🎚 Settings</summary>
         <div class="booth-settings-body">
           <label class="tag" style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
-            🎚 Noise Gate (Pausen + Nebengeräusche): <span id="booth-gate-val">50%</span>
+            <span data-i18n="booth.gate">🎚 Noise gate (pauses + background noise):</span> <span id="booth-gate-val">50%</span>
             <input type="range" id="booth-gate" min="0" max="1" step="0.05" value="0.5" style="flex:1;max-width:220px;accent-color:var(--amber)">
-            <span id="booth-gate-lamp" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#3a3a46" title="grün = Gate offen (du bist hörbar)"></span>
+            <span id="booth-gate-lamp" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#3a3a46" data-i18n-title="mic.gate.lamp" title="green = gate open (you are audible)"></span>
           </label>
-          <p class="tag" style="margin:2px 0 0;opacity:.75">Mittel = Tastatur/Rauschen in Pausen weg. Sehr hoch dämpft auch neben der Stimme — zu hoch kann dumpf klingen.</p>
+          <p class="tag" style="margin:2px 0 0;opacity:.75" data-i18n="booth.gate.hint">Medium = keyboard/noise gone in pauses. Very high also ducks next to speech — too high can sound muffled.</p>
 
           <div class="row" style="margin:12px 0 10px;gap:16px">
-            <span class="tag">Übungs-Tempo:</span>
+            <span class="tag" data-i18n="booth.speed">Practice tempo:</span>
             <button class="rolebtn speedbtn mine" data-s="1" style="width:auto;padding:6px 12px">1×</button>
             <button class="rolebtn speedbtn" data-s="0.75" style="width:auto;padding:6px 12px">0.75×</button>
             <button class="rolebtn speedbtn" data-s="0.5" style="width:auto;padding:6px 12px">0.5×</button>
             <span style="flex:1"></span>
-            <span class="tag">🔊 Video</span>
+            <span class="tag" data-i18n="booth.video">🔊 Video</span>
             <input type="range" id="booth-vol" min="0" max="1" step="0.05" value="0.55" style="width:120px;accent-color:var(--amber)">
           </div>
           <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-bottom:8px;font-size:.9rem;color:var(--muted)">
             <input type="checkbox" id="rec-timer" checked style="accent-color:var(--amber);width:17px;height:17px">
-            ⏱ 3-Sek.-Countdown vor der Aufnahme · Leertaste = Aufnehmen / Stoppen
+            <span data-i18n="booth.timer">⏱ 3-sec countdown before recording · Space = record / stop</span>
           </label>
           <label style="display:flex;gap:8px;align-items:center;cursor:pointer;margin-bottom:8px;font-size:.9rem;color:var(--muted)">
             <input type="checkbox" id="rec-wipe" style="accent-color:var(--amber);width:17px;height:17px">
-            ⬜ Weiße Balken-Countdown (wie Synchronstudios) — statt Zahlen
+            <span data-i18n="booth.wipe">⬜ White bar countdown (Synchronstudios style) — instead of numbers</span>
           </label>
           <div id="rec-cue-wrap" style="margin-bottom:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#121218">
             <label style="display:flex;gap:8px;align-items:center;cursor:pointer;font-size:.92rem;font-weight:600">
               <input type="checkbox" id="rec-cue-orig" style="accent-color:var(--amber);width:17px;height:17px">
-              🗣 Original mithören beim Aufnehmen
+              <span data-i18n="booth.cue">🗣 Hear original while recording</span>
             </label>
-            <p class="tag" style="margin:6px 0 8px;opacity:.8">Nur als Hilfe im Ohr — landet nicht im Take. Am besten mit Kopfhörern.</p>
+            <p class="tag" style="margin:6px 0 8px;opacity:.8" data-i18n="booth.cue.hint">Ear help only — not mixed into the take. Best with headphones.</p>
             <label class="tag" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-              Cue-Lautstärke: <span id="rec-cue-vol-val">45%</span>
+              <span data-i18n="booth.cue.vol">Cue volume:</span> <span id="rec-cue-vol-val">45%</span>
               <input type="range" id="rec-cue-vol" min="0" max="1" step="0.05" value="0.45" style="flex:1;max-width:220px;accent-color:var(--amber)">
             </label>
           </div>
           <label class="tag" style="display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#121218;text-transform:none;letter-spacing:.02em;line-height:1.35">
             <input type="checkbox" id="strip-role-fx" style="accent-color:var(--amber);width:17px;height:17px;margin-top:2px;flex-shrink:0">
-            <span><strong style="color:var(--amber)">Rollen-Effekt aus</strong> — der Effekt aus der Szene (z. B. Monster bei Kaigaku) gilt dann nicht mehr für dich. Pro Line kannst du trotzdem selbst einen wählen.</span>
+            <span data-i18n-html="booth.fx.off.html"><strong style="color:var(--amber)">Role effect off</strong> — the scene effect (e.g. monster) no longer applies to you. Per line you can still pick one yourself.</span>
           </label>
           <label class="tag" style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
-            🎚 Dein Effekt für diese Line:
+            <span data-i18n="booth.fx.line">🎚 Your effect for this line:</span>
             <select id="my-effect-select" style="flex:1;max-width:260px"></select>
           </label>
           <div class="row" style="margin:0 0 10px;gap:10px;align-items:center">
-            <span class="tag">Stärke</span>
+            <span class="tag" data-i18n="booth.fx.amt">Strength</span>
             <input type="range" id="my-effect-amount" min="0" max="1" step="0.05" value="1" style="flex:1;max-width:200px">
             <span class="tag" id="my-effect-amount-val" style="min-width:38px">100%</span>
-            <button class="ghost" id="btn-fx-preview" style="padding:6px 12px;font-size:.82rem">🔊 Vorhören</button>
+            <button class="ghost" id="btn-fx-preview" style="padding:6px 12px;font-size:.82rem" data-i18n="booth.fx.prev">🔊 Preview</button>
           </div>
           <div class="row" style="margin:0 0 10px;gap:10px;align-items:center">
-            <span class="tag">🔊 Deine Lautstärke</span>
-            <input type="range" id="my-line-gain" min="0.05" max="4" step="0.05" value="1" style="flex:1;max-width:200px" title="Zu laut (z. B. durch Effekte)? Runterdrehen. Zu leise? Hochdrehen — gilt für Vorhören, Premiere & Speichern.">
+            <span class="tag" data-i18n="booth.gain">🔊 Your volume</span>
+            <input type="range" id="my-line-gain" min="0.05" max="4" step="0.05" value="1" style="flex:1;max-width:200px" data-i18n-title="booth.gain.title" title="Too loud (e.g. from effects)? Turn down. Too quiet? Turn up — for preview, premiere & save.">
             <span class="tag" id="my-line-gain-val" style="min-width:44px">100%</span>
-            <span class="tag" id="my-line-gain-warn" style="color:var(--hot);display:none">⚠ übersteuert</span>
+            <span class="tag" id="my-line-gain-warn" style="color:var(--hot);display:none" data-i18n="booth.gain.warn">⚠ clipping</span>
           </div>
           <div style="margin:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#121218">
-            <div class="tag" style="margin-bottom:8px">🎧 Wo kommt die Stimme her? (Stereo)</div>
+            <div class="tag" style="margin-bottom:8px" data-i18n="booth.pan">🎧 Where does the voice come from? (Stereo)</div>
             <div class="pan-btns" id="my-line-pan"></div>
-            <p class="tag" style="margin:8px 0 0;opacity:.75;text-transform:none;letter-spacing:.02em;font-size:.72rem;line-height:1.35">Standard ist Mitte. Nur ändern, wenn du links/rechts willst — gilt für Premiere &amp; Speichern.</p>
+            <p class="tag" style="margin:8px 0 0;opacity:.75;text-transform:none;letter-spacing:.02em;font-size:.72rem;line-height:1.35" data-i18n="booth.pan.hint">Default is center. Change only if you want left/right — applies to premiere &amp; save.</p>
           </div>
         </div>
       </details>
     </div>
     <div class="card">
-      <h2>Studio-Status</h2>
+      <h2 data-i18n="booth.studio">Studio status</h2>
       <div class="players" id="booth-players"></div>
     </div>
   </section>
@@ -1632,79 +1656,79 @@
   <!-- DUELL-ABSTIMMUNG -->
   <section class="screen" id="scr-duel-vote">
     <div class="card">
-      <h2>🥊 Wer hat's besser gemacht?</h2>
-      <p class="sub" id="duel-vote-sub">Beide Versionen sind gelaufen — jetzt abstimmen!</p>
+      <h2 data-i18n="duelvote.h2">🥊 Who did it better?</h2>
+      <p class="sub" id="duel-vote-sub" data-i18n="duelvote.sub">Both versions played — time to vote!</p>
       <div class="row" style="gap:16px;justify-content:center;margin:20px 0">
         <button class="big" id="btn-vote-a" style="flex:1;max-width:220px;padding:24px 12px;display:flex;flex-direction:column;align-items:center;gap:10px"></button>
         <button class="big" id="btn-vote-b" style="flex:1;max-width:220px;padding:24px 12px;display:flex;flex-direction:column;align-items:center;gap:10px"></button>
       </div>
       <p class="status" id="duel-vote-status"></p>
       <div id="duel-result" style="display:grid;gap:10px;margin-top:10px"></div>
-      <button class="primary big" id="btn-duel-back" style="display:none;margin-top:12px">🏠 Zurück zur Lobby</button>
+      <button class="primary big" id="btn-duel-back" style="display:none;margin-top:12px" data-i18n="duelvote.back">🏠 Back to lobby</button>
     </div>
   </section>
 
   <!-- WARTEN -->
   <section class="screen" id="scr-wait">
     <div class="card">
-      <h2>🎙 Warten auf die Premiere</h2>
-      <div id="duel-waiting-note" style="display:none" class="sub">🥊 Duell läuft — die beiden Duellanten nehmen gerade unabhängig voneinander auf.</div>
-      <p class="sub" id="wait-status">Warte, bis alle fertig eingesprochen haben — dann startet die Premiere automatisch.</p>
-      <button id="btn-force-mix" style="display:none;margin-bottom:12px">🎬 Premiere trotzdem starten (fehlende Spuren weglassen)</button>
+      <h2 data-i18n="wait.h2">🎙 Waiting for the premiere</h2>
+      <div id="duel-waiting-note" style="display:none" class="sub" data-i18n="wait.duel">🥊 Duel running — both duelists are recording independently.</div>
+      <p class="sub" id="wait-status" data-i18n="wait.status">Wait until everyone has finished recording — then the premiere starts automatically.</p>
+      <button id="btn-force-mix" style="display:none;margin-bottom:12px" data-i18n="wait.force">🎬 Start premiere anyway (skip missing tracks)</button>
       <div class="players" id="wait-players"></div>
       <div id="redo-panel-wait" style="margin-top:12px"></div>
       <p class="sub" id="mg-wins" style="margin-top:12px;margin-bottom:0"></p>
     </div>
     <div class="card">
-      <h2>🎮 Warte-Arena: TicTacToe</h2>
-      <p class="sub" id="ttt-info">Zwei Wartende können zocken — wer traut sich?</p>
+      <h2 data-i18n="wait.ttt">🎮 Waiting arena: TicTacToe</h2>
+      <p class="sub" id="ttt-info" data-i18n="wait.ttt.info">Two waiting players can play — who dares?</p>
       <div id="ttt-board" style="display:grid;grid-template-columns:repeat(3,76px);gap:8px;margin-bottom:14px"></div>
       <div class="row">
-        <button id="btn-ttt-join">🕹 Mitspielen</button>
-        <button class="ghost" id="btn-ttt-reset">Neustart</button>
+        <button id="btn-ttt-join" data-i18n="wait.join">🕹 Join</button>
+        <button class="ghost" id="btn-ttt-reset" data-i18n="wait.reset">Restart</button>
       </div>
     </div>
     <div class="card">
-      <h2>⚡ Warte-Arena: Klick-Battle</h2>
-      <p class="sub" id="cb-info">10 Sekunden, ein Button — wer klickt am schnellsten? Alle Wartenden spielen mit.</p>
-      <button class="primary big" id="btn-cb-start">⚡ Battle starten</button>
-      <button class="big" id="cb-btn" style="display:none;width:100%;padding:34px;font-size:1.6rem;font-family:var(--font-display)">🔥 KLICK MICH</button>
+      <h2 data-i18n="wait.cb">⚡ Waiting arena: Click battle</h2>
+      <p class="sub" id="cb-info" data-i18n="wait.cb.info">10 seconds, one button — who clicks fastest? All waiting players join in.</p>
+      <button class="primary big" id="btn-cb-start" data-i18n="wait.cb.start">⚡ Start battle</button>
+      <button class="big" id="cb-btn" style="display:none;width:100%;padding:34px;font-size:1.6rem;font-family:var(--font-display)" data-i18n="wait.cb.click">🔥 CLICK ME</button>
       <div id="cb-result" style="margin-top:12px;display:grid;gap:4px"></div>
     </div>
     <div class="card">
-      <h2>🚦 Warte-Arena: Reaktions-Duell</h2>
-      <p class="sub">Warte auf GRÜN, dann klick so schnell du kannst. Zu früh = disqualifiziert 😄</p>
-      <button class="primary big" id="btn-rx-start">🚦 Runde starten</button>
-      <button class="big" id="rx-pad" style="display:none;width:100%;padding:40px;font-size:1.4rem;font-family:var(--font-display);background:#5c1a1e;border:none;border-radius:14px">WARTE …</button>
+      <h2 data-i18n="wait.rx">🚦 Waiting arena: Reaction duel</h2>
+      <p class="sub" data-i18n="wait.rx.sub">Wait for GREEN, then click as fast as you can. Too early = disqualified 😄</p>
+      <button class="primary big" id="btn-rx-start" data-i18n="wait.rx.start">🚦 Start round</button>
+      <button class="big" id="rx-pad" style="display:none;width:100%;padding:40px;font-size:1.4rem;font-family:var(--font-display);background:#5c1a1e;border:none;border-radius:14px" data-i18n="wait.rx.wait">WAIT …</button>
       <div id="rx-result" style="margin-top:12px;display:grid;gap:4px"></div>
     </div>
     <div class="card">
-      <h2>⌨️ Warte-Arena: Tipp-Renner</h2>
-      <p class="sub">Tipp den Satz so schnell wie möglich fehlerfrei ab.</p>
-      <button class="primary big" id="btn-tp-start">⌨️ Runde starten</button>
+      <h2 data-i18n="wait.tp">⌨️ Waiting arena: Type racer</h2>
+      <p class="sub" data-i18n="wait.tp.sub">Type the sentence as fast as you can without typos.</p>
+      <button class="primary big" id="btn-tp-start" data-i18n="wait.tp.start">⌨️ Start round</button>
       <div id="tp-area" style="display:none">
         <p style="font-size:1.2rem;font-weight:700;margin:10px 0" id="tp-phrase"></p>
-        <input type="text" id="tp-input" placeholder="Hier tippen …" style="width:100%" autocomplete="off">
+        <input type="text" id="tp-input" data-i18n-placeholder="wait.tp.ph" placeholder="Type here …" style="width:100%" autocomplete="off">
       </div>
       <div id="tp-result" style="margin-top:12px;display:grid;gap:4px"></div>
     </div>
     <div class="card">
-      <h2>✊ Warte-Arena: Schnick-Schnack-Schnuck</h2>
-      <p class="sub" id="rps-info">Zwei Wartende können zocken — wer traut sich?</p>
+      <h2 data-i18n="wait.rps">✊ Waiting arena: Rock-paper-scissors</h2>
+      <p class="sub" id="rps-info" data-i18n="wait.ttt.info">Two waiting players can play — who dares?</p>
       <div id="rps-area" style="margin-bottom:12px"></div>
       <div class="row">
-        <button id="btn-rps-join">🕹 Mitspielen</button>
-        <button class="ghost" id="btn-rps-reset">Neustart</button>
+        <button id="btn-rps-join" data-i18n="wait.join">🕹 Join</button>
+        <button class="ghost" id="btn-rps-reset" data-i18n="wait.reset">Restart</button>
       </div>
     </div>
     <div class="card">
-      <h2>🎲 Warte-Arena: Würfel-Duell</h2>
-      <p class="sub" id="dice-info">Zwei Wartende können zocken — wer traut sich?</p>
+      <h2 data-i18n="wait.dice">🎲 Waiting arena: Dice duel</h2>
+      <p class="sub" id="dice-info" data-i18n="wait.ttt.info">Two waiting players can play — who dares?</p>
       <div id="dice-area" style="margin-bottom:12px"></div>
       <div class="row">
-        <button id="btn-dice-join">🕹 Mitspielen</button>
-        <button class="primary" id="btn-dice-roll">🎲 Würfeln</button>
-        <button class="ghost" id="btn-dice-reset">Neustart</button>
+        <button id="btn-dice-join" data-i18n="wait.join">🕹 Join</button>
+        <button class="primary" id="btn-dice-roll" data-i18n="wait.dice.roll">🎲 Roll</button>
+        <button class="ghost" id="btn-dice-reset" data-i18n="wait.reset">Restart</button>
       </div>
     </div>
   </section>
@@ -1712,17 +1736,17 @@
   <!-- REALTIME (für Szenen ohne Line-Timings) -->
   <section class="screen" id="scr-record">
     <div class="card">
-      <h2 id="rec-role">Deine Rolle</h2>
+      <h2 id="rec-role" data-i18n="rec.role">Your role</h2>
       <video id="rec-video" playsinline preload="auto"></video>
       <div class="prompter" id="rec-prompter"></div>
-      <p class="status" id="rec-status">Läuft … sprich, wenn dein Charakter dran ist!</p>
+      <p class="status" id="rec-status" data-i18n="rec.status">Running … speak when your character is on!</p>
     </div>
   </section>
 
   <!-- FINALE -->
   <section class="screen" id="scr-final">
     <div class="card">
-      <h2>🏁 Finale — Wer synchronisiert am besten?</h2>
+      <h2 data-i18n="final.h2">🏁 Finale — Who dubbed best?</h2>
       <p class="sub" id="final-sub"></p>
       <div class="podium-stage" id="podium-stage">
         <div class="podium-champ" id="podium-champ"></div>
@@ -1762,7 +1786,7 @@
         </div>
       </div>
       <div id="final-rest" style="display:grid;gap:8px;margin-top:10px"></div>
-      <button class="primary big" id="btn-back-lobby" style="display:none;margin-top:16px">🏠 Zurück zur Lobby (alle)</button>
+      <button class="primary big" id="btn-back-lobby" style="display:none;margin-top:16px" data-i18n="final.back">🏠 Back to lobby (everyone)</button>
       <p class="status" id="final-status"></p>
     </div>
   </section>
@@ -1770,15 +1794,15 @@
   <!-- PREMIERE -->
   <section class="screen" id="scr-playback">
     <div class="card">
-      <h2>🎬 Premiere</h2>
-      <p class="sub">Euer fertiger Synchro-Take — Stimmen mit Panning, Effekten und Kompressor über dem Original-Sound.</p>
+      <h2 data-i18n="prem.h2">🎬 Premiere</h2>
+      <p class="sub" data-i18n="prem.sub">Your finished dub take — voices with panning, effects and compressor over the original sound.</p>
       <div class="prem-stage">
         <div class="prem-screen">
           <canvas id="play-ambilight" aria-hidden="true"></canvas>
           <video id="play-video" playsinline preload="auto" crossorigin="anonymous"></video>
         </div>
         <div class="row" style="margin-top:10px;gap:6px" id="prem-emoji-bar">
-          <span class="tag" style="margin-right:4px">🎙 Live-Kommentar:</span>
+          <span class="tag" style="margin-right:4px" data-i18n="prem.live">🎙 Live comment:</span>
           <button class="emojibtn" data-e="👍">👍</button>
           <button class="emojibtn" data-e="😂">😂</button>
           <button class="emojibtn" data-e="🔥">🔥</button>
@@ -1792,29 +1816,29 @@
       <div class="prem-load-wrap" id="prem-load-wrap">
         <div class="bar" id="prem-bar" style="display:none"><i></i></div>
         <p class="prem-pct" id="prem-bar-label" style="display:none"></p>
-        <p class="load-reassure" id="prem-load-reassure">⏳ Nicht hängen geblieben — dauert nur etwas länger…</p>
+        <p class="load-reassure" id="prem-load-reassure" data-i18n="prem.reassure">⏳ Not stuck — just taking a bit longer…</p>
       </div>
       <p class="status" id="prem-status"></p>
       <div id="redo-panel-prem" style="margin-top:8px"></div>
       <div id="prem-orig-panel" style="display:none;margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#121218">
         <label style="display:flex;gap:8px;align-items:center;font-weight:600;cursor:pointer">
           <input type="checkbox" id="prem-orig-master" checked>
-          Original-Stimmen (unbesetzte Rollen)
+          <span data-i18n="prem.orig">Original voices (unfilled roles)</span>
         </label>
-        <p class="tag" style="margin:6px 0 0;opacity:.8">Standard an — fehlt ein Sprecher, spricht das Original. Einzelne Rollen kannst du hier stumm schalten.</p>
+        <p class="tag" style="margin:6px 0 0;opacity:.8" data-i18n="prem.orig.hint">On by default — if a speaker is missing, the original speaks. You can mute individual roles here.</p>
         <div id="prem-orig-roles" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
       </div>
-      <button class="primary big" id="btn-prem-start" style="display:none" disabled>🎬 Premiere für alle starten</button>
-      <button class="big" id="btn-prem-pause" style="display:none">⏸ Pause für alle</button>
-      <button class="primary big" id="btn-duel-play-start" style="display:none">🥊 Beide Versionen abspielen (nur Host)</button>
+      <button class="primary big" id="btn-prem-start" style="display:none" disabled data-i18n="prem.start">🎬 Start premiere for everyone</button>
+      <button class="big" id="btn-prem-pause" style="display:none" data-i18n="prem.pause">⏸ Pause for everyone</button>
+      <button class="primary big" id="btn-duel-play-start" style="display:none" data-i18n="prem.duel">🥊 Play both versions (host only)</button>
       <div class="prompter" id="play-prompter"></div>
       <div class="row" style="margin-top:12px;gap:14px" id="prem-vol-row">
-        <span class="tag">🔊 Gesamt</span><input type="range" id="vol-master" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
-        <span class="tag">🎙 Stimmen</span><input type="range" id="vol-voice" min="0" max="2" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
-        <span class="tag">🎵 Musik</span><input type="range" id="vol-video" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
+        <span class="tag" data-i18n="prem.vol.master">🔊 Master</span><input type="range" id="vol-master" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
+        <span class="tag" data-i18n="prem.vol.voice">🎙 Voices</span><input type="range" id="vol-voice" min="0" max="2" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
+        <span class="tag" data-i18n="prem.vol.music">🎵 Music</span><input type="range" id="vol-video" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--amber)">
       </div>
       <div class="synccontrol">
-        <label class="small" style="margin:0;white-space:nowrap">Lippen-Sync</label>
+        <label class="small" style="margin:0;white-space:nowrap" data-i18n="prem.sync">Lip sync</label>
         <input type="range" id="sync-offset" min="-500" max="500" value="0" step="10">
         <span class="tag" id="sync-val">0 ms</span>
       </div>
@@ -1823,34 +1847,34 @@
       </div>
       <p class="tag" id="dl-progress-label" style="display:none"></p>
       <div class="outtakes-bar" id="outtakes-bar">
-        <span class="ot-hint" id="outtakes-bar-hint">Blooper-Reel bereit</span>
-        <label class="ot-beep-tog" title="TV-Rauschen zwischen den Clips">
+        <span class="ot-hint" id="outtakes-bar-hint" data-i18n="outtakes.hint">Blooper reel ready</span>
+        <label class="ot-beep-tog" data-i18n-title="outtakes.beep.title" title="TV static between clips">
           <input type="checkbox" id="outtakes-beep-tog" checked>
-          <span class="ot-beep-lab">Rauschen an</span>
+          <span class="ot-beep-lab" data-i18n="outtakes.beep">Static on</span>
         </label>
-        <button class="big btn-outtakes-hot" id="btn-outtakes">🎬 Outtakes anschauen</button>
-        <button class="big btn-outtakes-hot" id="btn-outtakes-dl">⬇ Outtakes speichern</button>
+        <button class="big btn-outtakes-hot" id="btn-outtakes" data-i18n="outtakes.watch">🎬 Watch outtakes</button>
+        <button class="big btn-outtakes-hot" id="btn-outtakes-dl" data-i18n="outtakes.save">⬇ Save outtakes</button>
       </div>
       <div class="row" style="margin-top:16px">
-        <button class="primary big" id="btn-replay">▶ Nochmal abspielen</button>
-        <button class="big" id="btn-download-audio">⚡ Nur Ton speichern (sofort)</button>
-        <button class="big" id="btn-download">⬇ Komplettes Video speichern (meist sofort)</button>
-        <button id="btn-again">Neue Runde (gleiche Szene)</button>
-        <button id="btn-back">Andere Szene</button>
+        <button class="primary big" id="btn-replay" data-i18n="prem.replay">▶ Play again</button>
+        <button class="big" id="btn-download-audio" data-i18n="prem.dl.audio">⚡ Save audio only (instant)</button>
+        <button class="big" id="btn-download" data-i18n="prem.dl.video">⬇ Save full video (usually instant)</button>
+        <button id="btn-again" data-i18n="prem.again">New round (same scene)</button>
+        <button id="btn-back" data-i18n="prem.back">Other scene</button>
       </div>
       <p class="status" id="play-status"></p>
     </div>
     <div class="card jury-desk" id="rate-card" style="display:none">
-      <h2>⭐ Bewertung</h2>
-      <p class="jury-sub">1–5 Sterne pro Sprecher</p>
-      <p class="sub">Tippe die Sterne — dich selbst kannst du nicht bewerten.</p>
-      <p class="buddy-hint" id="buddy-hint" style="display:none">Optional: einem Sprecher <b>SynchroBuddy</b> geben (nur 1× pro Match) — Extra-Punkte.</p>
+      <h2 data-i18n="rate.h2">⭐ Rating</h2>
+      <p class="jury-sub" data-i18n="rate.jury">1–5 stars per speaker</p>
+      <p class="sub" data-i18n="rate.sub">Tap the stars — you can’t rate yourself.</p>
+      <p class="buddy-hint" id="buddy-hint" style="display:none" data-i18n-html="rate.buddy">Optional: give one speaker <b>SynchroBuddy</b> (only 1× per match) — extra points.</p>
       <div id="rate-rows" style="display:grid;gap:10px"></div>
       <p class="status" id="rate-progress" style="margin-top:8px"></p>
       <div class="row" style="margin-top:14px">
-        <button class="primary" id="btn-rate-submit" disabled>Bewertung abschicken</button>
-        <button class="ghost" id="btn-rate-force" style="display:none">Ergebnis anzeigen (ohne Nachzügler)</button>
-        <button class="primary big" id="btn-next-round" style="display:none">▶ Nächste Runde</button>
+        <button class="primary" id="btn-rate-submit" disabled data-i18n="rate.submit">Submit rating</button>
+        <button class="ghost" id="btn-rate-force" style="display:none" data-i18n="rate.force">Show results (without stragglers)</button>
+        <button class="primary big" id="btn-next-round" style="display:none" data-i18n="rate.next">▶ Next round</button>
       </div>
       <div id="rate-result" style="margin-top:14px;display:grid;gap:6px"></div>
     </div>
@@ -1864,25 +1888,25 @@
 <!-- Linkes Seitenpanel: Fun-Fact-Ticker -->
 <div class="side-panel side-panel-left" id="side-panel-left" style="visibility:hidden">
   <div class="card">
-    <h2 style="font-size:1rem">💡 Wusstest du…</h2>
+    <h2 style="font-size:1rem" data-i18n="fun.h2">💡 Did you know…</h2>
     <p class="sub" id="funfact-text" style="min-height:96px">…</p>
   </div>
   <div class="card" style="margin-top:16px">
-    <h2 style="font-size:1rem">🎵 Beat-Booth</h2>
-    <p class="sub" id="bg-hint" style="margin-bottom:10px">Triff die Noten im Takt — <b>F</b> links, <b>J</b> rechts. Halte-Noten gedrückt lassen!</p>
+    <h2 style="font-size:1rem" data-i18n="beat.h2">🎵 Beat Booth</h2>
+    <p class="sub" id="bg-hint" style="margin-bottom:10px" data-i18n-html="beat.hint">Hit the notes on beat — <b>F</b> left, <b>J</b> right. Hold notes: keep pressed!</p>
     <div class="bg-stage" id="bg-stage">
       <canvas id="bg-canvas" width="230" height="300"></canvas>
       <div class="bg-judge" id="bg-judge"></div>
       <div class="bg-count" id="bg-count"></div>
     </div>
     <div class="bg-scorebar">
-      <span class="tag">Score</span><span class="bg-score" id="bg-score">0</span>
-      <span class="tag" style="margin-left:auto">Combo</span><span class="bg-combo" id="bg-combo">0</span>
+      <span class="tag" data-i18n="beat.score">Score</span><span class="bg-score" id="bg-score">0</span>
+      <span class="tag" style="margin-left:auto" data-i18n="beat.combo">Combo</span><span class="bg-combo" id="bg-combo">0</span>
     </div>
     <div class="row" style="margin-top:10px;gap:8px">
-      <button class="primary" id="bg-start" style="flex:1;padding:9px">▶ Start</button>
-      <button class="ghost" id="bg-stop" style="flex:1;padding:9px;display:none;border-color:var(--hot);color:var(--hot)">⏹ Song aus</button>
-      <input type="range" id="bg-vol" min="0" max="1" step="0.05" value="0.5" title="Lautstärke" style="width:56px">
+      <button class="primary" id="bg-start" style="flex:1;padding:9px" data-i18n="beat.start">▶ Start</button>
+      <button class="ghost" id="bg-stop" style="flex:1;padding:9px;display:none;border-color:var(--hot);color:var(--hot)" data-i18n="beat.stop">⏹ Song off</button>
+      <input type="range" id="bg-vol" min="0" max="1" step="0.05" value="0.5" data-i18n-title="beat.vol" title="Volume" style="width:56px">
     </div>
     <p class="tag" id="bg-result" style="margin-top:8px;text-transform:none;letter-spacing:0"></p>
   </div>
@@ -1891,13 +1915,13 @@
 <!-- Rechtes Seitenpanel: Kritzel-Board -->
 <div class="side-panel side-panel-right" id="side-panel-right" style="visibility:hidden">
   <div class="card">
-    <h2 style="font-size:1rem">🎨 Kritzel-Board</h2>
-    <p class="sub" style="margin-bottom:8px">Malt zusammen, während ihr wartet!</p>
+    <h2 style="font-size:1rem" data-i18n="draw.h2">🎨 Doodle board</h2>
+    <p class="sub" style="margin-bottom:8px" data-i18n="draw.sub">Draw together while you wait!</p>
     <div style="display:flex;gap:10px">
       <div style="display:flex;flex-direction:column;gap:7px;flex-shrink:0;width:60px">
         <div id="draw-colors" style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px"></div>
-        <button class="ghost" id="btn-draw-eraser" title="Radiergummi" style="padding:5px;font-size:1rem">🧽</button>
-        <input type="range" id="draw-size" min="2" max="24" value="4" style="width:100%" title="Stiftgröße">
+        <button class="ghost" id="btn-draw-eraser" data-i18n-title="draw.eraser" title="Eraser" style="padding:5px;font-size:1rem">🧽</button>
+        <input type="range" id="draw-size" min="2" max="24" value="4" style="width:100%" data-i18n-title="draw.size" title="Pen size">
         <button class="ghost" id="btn-draw-clear" style="padding:5px;font-size:.72rem">🧹</button>
       </div>
       <canvas id="draw-canvas" class="draw-canvas" width="180" height="420" style="width:180px;height:420px;display:block;background:#0e0e13;border:1px solid var(--line);border-radius:12px;cursor:crosshair;touch-action:none"></canvas>
@@ -1907,21 +1931,21 @@
 
 <!-- Kinosaal-Leiste + Mitspieler-Vol bewusst AUSSERHALB der .card / #scr-playback —
      sonst fängt cardin-transform position:fixed ein und die Leiste liegt ÜBER −/+. -->
-<div id="prem-player-vol" class="prem-player-vol" style="display:none" aria-label="Mitspieler-Lautstärke">
+<div id="prem-player-vol" class="prem-player-vol" style="display:none" data-i18n-aria="ppv.title" aria-label="Teammate volume">
   <div class="ppv-head">
-    <span class="tag ppv-title">🎚 Mitspieler lauter/leiser</span>
-    <button type="button" id="ppv-toggle" class="ppv-toggle" aria-expanded="false" title="Mitspieler-Lautstärke ein-/ausklappen">
-      <span>🎚 Mitspieler-Lautstärke</span><span class="ppv-chev" aria-hidden="true">▸</span>
+    <span class="tag ppv-title" data-i18n="ppv.title">🎚 Teammates louder/quieter</span>
+    <button type="button" id="ppv-toggle" class="ppv-toggle" aria-expanded="false" data-i18n-title="ppv.toggle.title" title="Expand/collapse teammate volume">
+      <span data-i18n="ppv.toggle">🎚 Teammate volume</span><span class="ppv-chev" aria-hidden="true">▸</span>
     </button>
-    <span class="tag ppv-hint">nur Host · 5–300 % · gilt für alle</span>
+    <span class="tag ppv-hint" data-i18n="ppv.hint">host only · 5–300% · applies to everyone</span>
   </div>
   <div id="prem-player-vol-list" class="ppv-list"></div>
 </div>
-<div id="cinema-vol" class="cinema-persist" aria-label="Lautstärke">
-  <button type="button" id="btn-cinema-glow" title="Glow an/aus" aria-pressed="true" aria-label="Glow an/aus">🌈</button>
-  <label><span class="cv-label">Gesamt</span> 🔊 <input type="range" id="cin-vol-master" min="0" max="1.5" step="0.05" value="1"></label>
-  <label><span class="cv-label">Stimmen</span> 🎙 <input type="range" id="cin-vol-voice" min="0" max="2" step="0.05" value="1"></label>
-  <label><span class="cv-label">Musik</span> 🎵 <input type="range" id="cin-vol-video" min="0" max="1.5" step="0.05" value="1"></label>
+<div id="cinema-vol" class="cinema-persist" data-i18n-aria="cin.vol" aria-label="Volume">
+  <button type="button" id="btn-cinema-glow" data-i18n-title="cin.glow" title="Glow on/off" aria-pressed="true" data-i18n-aria="cin.glow" aria-label="Glow on/off">🌈</button>
+  <label><span class="cv-label" data-i18n="cin.master">Master</span> 🔊 <input type="range" id="cin-vol-master" min="0" max="1.5" step="0.05" value="1"></label>
+  <label><span class="cv-label" data-i18n="cin.voice">Voices</span> 🎙 <input type="range" id="cin-vol-voice" min="0" max="2" step="0.05" value="1"></label>
+  <label><span class="cv-label" data-i18n="cin.music">Music</span> 🎵 <input type="range" id="cin-vol-video" min="0" max="1.5" step="0.05" value="1"></label>
 </div>
 <div id="podium-blackout" class="podium-blackout"></div>
 <div id="cinema-curtains" class="cinema-curtains" aria-hidden="true">
@@ -1931,8 +1955,8 @@
 </div>
 <div id="outtakes-overlay" class="outtakes-overlay">
   <div class="outtakes-card">
-    <h2 style="margin:0 0 4px;font-size:1.15rem">🎬 Outtakes-Reel</h2>
-    <p class="sub" style="margin:0 0 8px">Takes, die's nicht in die Premiere geschafft haben.</p>
+    <h2 style="margin:0 0 4px;font-size:1.15rem" data-i18n="ot.h2">🎬 Outtakes reel</h2>
+    <p class="sub" style="margin:0 0 8px" data-i18n="ot.sub">Takes that didn’t make the premiere.</p>
     <div class="outtakes-label" id="outtakes-label">OUTTAKE</div>
     <div class="outtakes-video-wrap">
       <video id="outtakes-video" playsinline></video>
@@ -1943,15 +1967,15 @@
       <span class="outtakes-site" aria-hidden="true">synchron-studio.github.io/synchronstudio/</span>
     </div>
     <p class="outtakes-line" id="outtakes-line"></p>
-    <p class="tag" id="outtakes-rec-status" style="display:none;text-align:center;color:var(--hot);margin:8px 0 0">🔴 Nimmt Outtakes auf …</p>
+    <p class="tag" id="outtakes-rec-status" style="display:none;text-align:center;color:var(--hot);margin:8px 0 0" data-i18n="ot.rec">🔴 Recording outtakes …</p>
     <div class="row" style="justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center">
-      <label class="ot-beep-tog" title="TV-Rauschen zwischen den Clips" style="margin:0">
+      <label class="ot-beep-tog" data-i18n-title="outtakes.beep.title" title="TV static between clips" style="margin:0">
         <input type="checkbox" id="outtakes-beep-tog-ov" checked>
-        <span class="ot-beep-lab">Rauschen an</span>
+        <span class="ot-beep-lab" data-i18n="outtakes.beep">Static on</span>
       </label>
-      <button class="ghost" id="btn-outtakes-skip">⏭ Weiter</button>
-      <button class="big btn-outtakes-hot" id="btn-outtakes-dl-overlay" style="display:none">⬇ Reel speichern</button>
-      <button class="primary" id="btn-outtakes-close">Fertig</button>
+      <button class="ghost" id="btn-outtakes-skip" data-i18n="ot.skip">⏭ Next</button>
+      <button class="big btn-outtakes-hot" id="btn-outtakes-dl-overlay" style="display:none" data-i18n="ot.dl">⬇ Save reel</button>
+      <button class="primary" id="btn-outtakes-close" data-i18n="ot.close">Done</button>
     </div>
   </div>
 </div>
@@ -1960,8 +1984,9 @@
 <!-- ?v= muss bei jeder Version mitgezählt werden (gleiche Zahl wie APP_VERSION in client.js).
      Ohne das liefert der Browser den alten, gespeicherten Code zu der neuen Seite aus —
      dann sieht man eine halb aktualisierte Version und muss von Hand neu laden. -->
+  <script src="i18n.js?v=9.10.84"></script>
   <script src="fix-webm-duration.js"></script>
-  <script src="client.js?v=9.10.82"></script>
+  <script src="client.js?v=9.10.84"></script>
   <!-- Besucherzähler (GoatCounter) — Stats: https://synchronstudio.goatcounter.com -->
   <script data-goatcounter="https://synchronstudio.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>

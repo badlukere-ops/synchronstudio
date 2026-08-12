@@ -24,12 +24,12 @@ Private multiplayer dubbing with friends — record lines over anime/movie scene
 ```
 Synchronstudio is a free, private browser dubbing game for friends.
 
-You create a room, share the 6-digit code (or invite link) only with people you trust, pick a scene, assign roles, record your lines in sync with the video, then watch the premiere together — with outtakes, ratings, and download.
+You create a room, share the 5-digit code (or invite link) only with people you trust, pick a scene, assign roles, record your lines in sync with the video, then watch the premiere together — with outtakes, ratings, and download. Site defaults to English; switch EN/DE anytime in the header.
 
 How to play
 1. Open https://synchron-studio.github.io/synchronstudio/
 2. Allow your microphone
-3. Host: Create room → send the code / invite link to friends
+3. Host: Create room → send the 5-digit code / invite link to friends
 4. Friends: Join with the code
 5. Pick a scene, record, premiere, laugh
 
@@ -63,7 +63,7 @@ Please do NOT spam room codes publicly — keep rooms private with friends.
 
 ## Screenshots to take
 1. Start screen (name + create/join)
-2. Lobby with 6-digit room code + player list
+2. Lobby with 5-digit room code + player list
 3. Booth / recording a line
 4. Premiere / cinema view
 5. Outtakes or rating screen (optional)
