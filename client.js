@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.84";
+const APP_VERSION = "9.10.85";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -605,6 +605,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.85", items: [
+    "🌐 EN mode: scene line texts show English (no German captions); effect names + pan Center/Left/Right translated",
+    "🎵 Lobby music fixed (CDN path + AudioContext resume)",
+    "🛠 Scene editor hidden from public — only with special link",
+    "🎬 Premiere status strings translated (preload / all ready / re-record panel / next line cue)"
+  ]},
   { v: "9.10.84", items: [
     "🌐 Language switch: English / Deutsch (EN default) — preference saved",
     "🔢 Room codes unified to 5 digits everywhere (UI + messages)",
@@ -2622,8 +2628,18 @@ function wvBannerAus() { const el = $("wv-banner"); if (el) el.style.display = "
 // ═════════════════════════════════════════════════════════════
 // LOBBY-MUSIK — spielt nur in Lobby & Warte-Screens, nie ingame
 // ═════════════════════════════════════════════════════════════
-const lobbyAudio = new Audio("scenes/lobby_music.mp3");
+// Lobby music — always via assetUrl (Pages/CDN) + resume AudioContext (otherwise silent)
+const lobbyAudio = new Audio();
 lobbyAudio.loop = true;
+lobbyAudio.preload = "auto";
+function ensureLobbySrc() {
+  const url = assetUrl("scenes/lobby_music.mp3");
+  if (lobbyAudio.getAttribute("data-ss-src") !== url) {
+    lobbyAudio.src = url;
+    lobbyAudio.setAttribute("data-ss-src", url);
+  }
+}
+ensureLobbySrc();
 let musicVol = 0.35, musicOn = true;
 try {
   const mv = localStorage.getItem("ss_musicvol"); if (mv !== null) musicVol = parseFloat(mv);
@@ -2691,7 +2707,10 @@ function updateLobbyMusic() {
   const active = document.querySelector(".screen.active")?.id;
   const want = musicOn && MUSIC_SCREENS.has(active);
   if (want) {
+    ensureLobbySrc();
+    try { getCtx().resume(); } catch {}
     ensureLobbyAnalyser();
+    lobbyAudio.volume = musicVol;
     lobbyAudio.play().catch(() => {});
     drawLobbyViz();
   } else {
@@ -2744,9 +2763,11 @@ window.addEventListener("DOMContentLoaded", () => {
   };
   updateLobbyMusic();
 });
-// Autoplay-Freischaltung beim ersten Klick
-document.addEventListener("click", () => { if (musicOn) lobbyAudio.play().catch(() => {}); }, { once: true });
-// Tab im Hintergrund: teure Loops pausieren
+// Autoplay unlock on first gesture — resume WebAudio + play lobby track
+document.addEventListener("click", () => {
+  try { getCtx().resume(); } catch {}
+  if (musicOn) { ensureLobbySrc(); lobbyAudio.play().catch(() => {}); }
+}, { once: true });
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     stopLobbyViz();
@@ -2756,6 +2777,30 @@ document.addEventListener("visibilitychange", () => {
     if (micStream && gateAn) startGateLoop();
   }
 });
+
+// Language switch: refresh live booth / premiere UI strings
+document.addEventListener("ss-langchange", () => {
+  try {
+    if ($("scr-booth")?.classList.contains("active") && typeof renderLine === "function") renderLine();
+    if (typeof renderRedoPanel === "function") {
+      renderRedoPanel("redo-panel-wait");
+      renderRedoPanel("redo-panel-prem");
+    }
+    if (typeof renderPremState === "function") renderPremState();
+    const pv = $("play-video");
+    if (pv && typeof pv.ontimeupdate === "function") pv.ontimeupdate();
+  } catch {}
+});
+
+// Editor link only for Elias (unlocked via editor.html?studio=1)
+function refreshEditorLink() {
+  const wrap = $("editor-link-wrap");
+  if (!wrap) return;
+  let ok = false;
+  try { ok = localStorage.getItem("ss_editor_ok") === "1"; } catch {}
+  wrap.style.display = ok ? "" : "none";
+}
+whenReady(refreshEditorLink);
 
 
 // ═════════════════════════════════════════════════════════════
@@ -4636,11 +4681,31 @@ $("btn-load-scene").onclick = () => {
 };
 
 const EFFECTS = {
-  none: "Normal", vintage_1990: "Vintage / 90er Tape", radio: "Funkgerät", telefon: "Telefon", hall: "Halliger Raum",
-  megaphone: "Megafon", underwater: "Unter Wasser", helium: "Helium", monster: "Monster", robot: "Roboter",
-  chorus: "Doppelgänger", echo: "Nachschlag-Echo", titan: "Titan (sehr tief)",
-  studio: "🎙 Studio-Qualität (rettet schlechte Mikros)"
+  none: "none", vintage_1990: "vintage_1990", radio: "radio", telefon: "telefon", hall: "hall",
+  megaphone: "megaphone", underwater: "underwater", helium: "helium", monster: "monster", robot: "robot",
+  chorus: "chorus", echo: "echo", titan: "titan",
+  studio: "studio"
 };
+function effectLabel(key) {
+  const k = key || "none";
+  const map = {
+    none: tt("Normal", "Normal"),
+    vintage_1990: tt("Vintage / 90s tape", "Vintage / 90er Tape"),
+    radio: tt("Walkie-talkie", "Funkgerät"),
+    telefon: tt("Phone", "Telefon"),
+    hall: tt("Reverb room", "Halliger Raum"),
+    megaphone: tt("Megaphone", "Megafon"),
+    underwater: tt("Underwater", "Unter Wasser"),
+    helium: tt("Helium", "Helium"),
+    monster: tt("Monster", "Monster"),
+    robot: tt("Robot", "Roboter"),
+    chorus: tt("Doppelgänger", "Doppelgänger"),
+    echo: tt("Slapback echo", "Nachschlag-Echo"),
+    titan: tt("Titan (very deep)", "Titan (sehr tief)"),
+    studio: tt("🎙 Studio quality (helps bad mics)", "🎙 Studio-Qualität (rettet schlechte Mikros)")
+  };
+  return map[k] || k;
+}
 
 // ── Spieler kann pro Line seinen eigenen Effekt waehlen — ueberschreibt Rollen-/Szenen-Standard NUR fuer diese Line ──
 let myEffectOverrides = {};   // lineIdx -> Effekt-Key (nur gesetzt, wenn vom Standard abweichend)
@@ -4649,16 +4714,18 @@ let myLineGains = {};        // lineIdx -> Lautstaerke-Faktor (1 = unveraendert)
 let myLinePans = {};         // lineIdx -> Stereo-Pan -1..1 (nur gesetzt, wenn Spieler selbst wählt; sonst Mitte)
 let stripRoleFx = false;     // true = Szenen-/Rollen-Effekt aus (z.B. kein Monster bei Kaigaku), außer man wählt selbst einen
 // Einfache Stereo-Presets — Standard ist immer Mitte (Rollen-Pan aus scenes.json greift nicht mehr)
-const LINE_PAN_PRESETS = [
-  { id: "C",    label: "Mitte", tip: "Standard — genau in der Mitte", pan: 0 },
-  { id: "L",    label: "Links", tip: "Ganzer linker Ohrhörer", pan: -1 },
-  { id: "l",    label: "Etwas L", tip: "Leicht nach links", pan: -0.5 },
-  { id: "r",    label: "Etwas R", tip: "Leicht nach rechts", pan: 0.5 },
-  { id: "R",    label: "Rechts", tip: "Ganzer rechter Ohrhörer", pan: 1 },
-];
+function linePanPresets() {
+  return [
+    { id: "C", label: tt("Center", "Mitte"), tip: tt("Default — dead center", "Standard — genau in der Mitte"), pan: 0 },
+    { id: "L", label: tt("Left", "Links"), tip: tt("Full left ear", "Ganzer linker Ohrhörer"), pan: -1 },
+    { id: "l", label: tt("Slight L", "Etwas L"), tip: tt("Slightly left", "Leicht nach links"), pan: -0.5 },
+    { id: "r", label: tt("Slight R", "Etwas R"), tip: tt("Slightly right", "Leicht nach rechts"), pan: 0.5 },
+    { id: "R", label: tt("Right", "Rechts"), tip: tt("Full right ear", "Ganzer rechter Ohrhörer"), pan: 1 },
+  ];
+}
 function panPresetId(pan) {
   if (pan === undefined || pan === null) return "C";
-  const hit = LINE_PAN_PRESETS.find(p => p.pan === pan);
+  const hit = linePanPresets().find(p => p.pan === pan);
   return hit ? hit.id : "C";
 }
 /** Pan für Mix/Submit: Mitte (0), außer Spieler hat es in den Line-Einstellungen geändert. */
@@ -4666,11 +4733,11 @@ function submitPanFor(l) {
   return myLinePans[l.idx] !== undefined ? myLinePans[l.idx] : 0;
 }
 function panLabel(pan) {
-  if (pan == null || pan === 0) return "Mitte";
-  if (pan <= -0.85) return "Links";
-  if (pan < 0) return "Etwas L";
-  if (pan >= 0.85) return "Rechts";
-  return "Etwas R";
+  if (pan == null || pan === 0) return tt("Center", "Mitte");
+  if (pan <= -0.85) return tt("Left", "Links");
+  if (pan < 0) return tt("Slight L", "Etwas L");
+  if (pan >= 0.85) return tt("Right", "Rechts");
+  return tt("Slight R", "Etwas R");
 }
 // ── Noise Gate NACHTRÄGLICH auf eine fertige Aufnahme anwenden (wie ein Effekt, nicht live eingebrannt) ──
 // ═════════════════════════════════════════════════════════════
@@ -5080,7 +5147,7 @@ function addRoleCfg() {
   div.innerHTML = `
     <input type="text" placeholder="Charakter ${n}" value="Charakter ${n}">
     <div><label class="small">Pan L↔R</label><input type="range" min="-1" max="1" step="0.1" value="0"></div>
-    <select>${Object.entries(EFFECTS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>`;
+    <select>${Object.keys(EFFECTS).map((k) => `<option value="${k}">${esc(effectLabel(k))}</option>`).join("")}</select>`;
   $("rolecfg-list").appendChild(div);
 }
 $("btn-add-role").onclick = addRoleCfg;
@@ -5235,7 +5302,7 @@ function renderRoles() {
     const lc = lineCount(r.id);
     return `<button class="rolebtn ${mine ? "mine" : owner ? "taken" : ""}" data-r="${r.id}" ${owner && !mine ? "disabled" : ""}>
       <span>${esc(r.name)}${lc != null ? ` <span class="meta">· ${lc} Lines</span>` : ""}</span>
-      <span class="meta">${owner ? esc(owner.name) : tt("free", "frei")} · Pan ${r.pan > 0 ? "R" : r.pan < 0 ? "L" : tt("Center", "Mitte")} · ${EFFECTS[r.effect] || r.effect}</span>
+      <span class="meta">${owner ? esc(owner.name) : tt("free", "frei")} · Pan ${r.pan > 0 ? "R" : r.pan < 0 ? "L" : tt("Center", "Mitte")} · ${esc(effectLabel(r.effect))}</span>
     </button>`;
   }).join("");
   $("role-list").querySelectorAll(".rolebtn").forEach(b => b.onclick = () => pickRole(parseInt(b.dataset.r)));
@@ -5723,25 +5790,43 @@ function startBooth() {
   renderLine();
 }
 
+/** Primary caption for UI: EN → original `text`, DE → `de` (fallback the other way). */
+function linePrimaryText(l) {
+  if (!l) return "";
+  if (getLang() === "de") return (l.de || l.text || "");
+  return (l.text || l.de || "");
+}
+/** Secondary line (only in DE mode: show English original under German). EN mode: no German secondary. */
+function lineSecondaryText(l) {
+  if (!l || !scene || scene.blind) return "";
+  if (getLang() === "de" && l.de && l.text && l.text !== l.de) return l.text;
+  return "";
+}
+
 function renderLine() {
   const l = myLines[curLine];
   if (!l) return finishBooth();
   origReqId++;   // Line gewechselt -> jede noch wartende "Original anhören"-Anfrage von vorher wird ungültig
   if (origSrc) { try { origSrc.stop(); } catch {} origSrc = null; }
   stopRecCue();
-  const ob = $("btn-line-orig"); if (ob) ob.textContent = "🗣 Original anhören";
+  const ob = $("btn-line-orig"); if (ob) ob.textContent = tt("🗣 Listen to original", "🗣 Original anhören");
   syncBoothGateUI();
   $("booth-count").innerHTML = `${curLine + 1}/${myLines.length}<small>Voiceline</small>`;
-  $("line-who").textContent = l.who + (l.chars.length > 1 ? " (zusammen!)" : "");
-  $("line-text").textContent = l.text;
-  $("line-de").textContent = (l.de && !scene.blind) ? "🇩🇪 " + l.de : (scene.blind ? "🕶 Blind-Modus — improvisier!" : "");
+  $("line-who").textContent = l.who + (l.chars.length > 1 ? tt(" (together!)", " (zusammen!)") : "");
+  $("line-text").textContent = linePrimaryText(l);
+  const sec = lineSecondaryText(l);
+  $("line-de").textContent = scene.blind
+    ? tt("🕶 Blind mode — improvise!", "🕶 Blind-Modus — improvisier!")
+    : (sec ? "🇬🇧 " + sec : "");
   showLineDuration(l);
   $("booth-video").currentTime = l.t;
   $("btn-line-play").disabled = !takes[l.idx] || takes[l.idx] === "SKIP";
   $("btn-line-next").disabled = !takes[l.idx];
   const prevBtn = $("btn-line-prev");
   if (prevBtn) { prevBtn.style.display = redoMode !== null ? "none" : ""; prevBtn.disabled = curLine <= 0; }
-  $("btn-line-next").textContent = redoMode !== null ? "✅ Aktualisieren & zurück" : "✅ Passt, weiter";
+  $("btn-line-next").textContent = redoMode !== null
+    ? tt("✅ Update & back", "✅ Aktualisieren & zurück")
+    : tt("✅ Good, next", "✅ Passt, weiter");
   const sk = $("btn-line-skip"); if (sk) sk.style.display = lineHasOrig(l) ? "" : "none";
   const og = $("btn-line-orig"); if (og) og.style.display = (lineHasOrig(l) && !scene.blind) ? "" : "none";
   const cueWrap = $("rec-cue-wrap");
@@ -5751,10 +5836,10 @@ function renderLine() {
     const baseRole = roleOf(myRole()) || { effect: "none" };
     const sceneDefault = effectiveRole(baseRole, l).effect;
     const stdLabel = stripRoleFx
-      ? "Normal (Rollen-Effekt aus)"
-      : (EFFECTS[sceneDefault] || sceneDefault);
-    efSel.innerHTML = `<option value="">🎭 Standard (${esc(stdLabel)})</option>` +
-      Object.entries(EFFECTS).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
+      ? tt("Normal (role FX off)", "Normal (Rollen-Effekt aus)")
+      : effectLabel(sceneDefault);
+    efSel.innerHTML = `<option value="">🎭 ${esc(tt("Default", "Standard"))} (${esc(stdLabel)})</option>` +
+      Object.keys(EFFECTS).map((k) => `<option value="${k}">${esc(effectLabel(k))}</option>`).join("");
     efSel.value = myEffectOverrides[l.idx] || "";
   }
   const sx = $("strip-role-fx");
@@ -6286,13 +6371,14 @@ function syncLineGainUI(l) {
 function syncLinePanUI(l) {
   const wrap = $("my-line-pan");
   if (!wrap || !l) return;
+  const presets = linePanPresets();
   const active = panPresetId(myLinePans[l.idx]);
-  wrap.innerHTML = LINE_PAN_PRESETS.map(p =>
+  wrap.innerHTML = presets.map(p =>
     `<button type="button" class="pan-btn${p.id === active ? " on" : ""}" data-pan="${p.id}" title="${esc(p.tip)}">${esc(p.label)}</button>`
   ).join("");
   wrap.querySelectorAll(".pan-btn").forEach(btn => {
     btn.onclick = () => {
-      const preset = LINE_PAN_PRESETS.find(p => p.id === btn.dataset.pan);
+      const preset = presets.find(p => p.id === btn.dataset.pan);
       if (!preset) return;
       // Mitte = Standard → Eintrag löschen; alles andere speichern
       if (preset.pan === 0) delete myLinePans[l.idx];
@@ -8398,10 +8484,10 @@ function renderRedoPanel(containerId) {
   const mine = scene.lines.map((l, i) => ({ ...l, idx: i })).filter(l => l.chars.includes(rid));
   if (!mine.length) { el.innerHTML = ""; return; }
   const fromScreen = containerId === "redo-panel-wait" ? "scr-wait" : "scr-playback";
-  el.innerHTML = `<div class="tag" style="margin:10px 0 6px">🔁 Eine deiner Lines noch nicht zufrieden?</div>` +
+  el.innerHTML = `<div class="tag" style="margin:10px 0 6px">${esc(tt("🔁 Not happy with one of your lines?", "🔁 Eine deiner Lines noch nicht zufrieden?"))}</div>` +
     mine.map(l => `<div class="row" style="justify-content:space-between;background:#14141b;border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:6px;gap:10px">
-      <span style="font-size:.85rem;flex:1">${esc(l.text.slice(0, 55))}${l.text.length > 55 ? "…" : ""}</span>
-      <button class="ghost redo-btn" data-idx="${l.idx}" style="padding:5px 12px;font-size:.8rem;white-space:nowrap">🔁 Neu aufnehmen</button>
+      <span style="font-size:.85rem;flex:1">${esc(linePrimaryText(l).slice(0, 55))}${linePrimaryText(l).length > 55 ? "…" : ""}</span>
+      <button class="ghost redo-btn" data-idx="${l.idx}" style="padding:5px 12px;font-size:.8rem;white-space:nowrap">${esc(tt("🔁 Re-record", "🔁 Neu aufnehmen"))}</button>
     </div>`).join("");
   el.querySelectorAll(".redo-btn").forEach(b => b.onclick = () => redoLine(parseInt(b.dataset.idx), fromScreen));
 }
@@ -8996,7 +9082,7 @@ async function loadMix(data, metaMsg) {
   } catch {}
   pv.src = sceneVideoSrc();
   attachPrompter(pv, $("play-prompter"), null);
-  status("play-status", "⏳ Video wird vorgeladen …");
+  status("play-status", tt("⏳ Preloading video …", "⏳ Video wird vorgeladen …"));
   await waitCanPlayProgress(pv, pct => {
     // 55–99 % = Videopuffer
     reportPremLoad(55 + Math.round((pct / 100) * 44), false);
@@ -9011,7 +9097,7 @@ async function loadMix(data, metaMsg) {
   if (isHost) { broadcastState(); renderPremState(); broadcastPremOrig(); broadcastPremPlayerGains(); }
   else {
     sendHost({ t: "premReady" });
-    status("play-status", "✅ Fertig geladen — warte, bis der Host die Premiere startet …");
+    status("play-status", tt("✅ Loaded — waiting for the host to start premiere …", "✅ Fertig geladen — warte, bis der Host die Premiere startet …"));
   }
   renderRedoPanel("redo-panel-prem");
   updateOuttakesBtn();
@@ -9043,17 +9129,17 @@ function renderPremState() {
   else if (!loadReassureTimers.prem) armLoadReassure("prem");
   const el = $("prem-status");
   if (el) {
-    if (!total) el.textContent = "⏳ Premiere wird vorbereitet …";
+    if (!total) el.textContent = tt("⏳ Preparing premiere …", "⏳ Premiere wird vorbereitet …");
     else if (allReady) {
       el.textContent = iAmLogicalHost()
-        ? "✅ Alle fertig geladen (" + ready + "/" + total + ") — du kannst starten!"
-        : "✅ Alle fertig geladen — warte auf den Host!";
+        ? tt("✅ Everyone loaded (", "✅ Alle fertig geladen (") + ready + "/" + total + tt(") — you can start!", ") — du kannst starten!")
+        : tt("✅ Everyone loaded — wait for the host!", "✅ Alle fertig geladen — warte auf den Host!");
     } else {
       const parts = active.map(p => {
         const pct = p.prem ? 100 : (p.premPct | 0);
         return p.name.replace(/\s*\(Host\)\s*/i, "") + " " + pct + "%";
       });
-      el.textContent = "⏳ Premiere lädt … " + parts.join(" · ");
+      el.textContent = tt("⏳ Premiere loading … ", "⏳ Premiere lädt … ") + parts.join(" · ");
     }
   }
   if (iAmLogicalHost()) {
@@ -10373,9 +10459,9 @@ function attachPrompter(videoEl, promptEl, myRoleId) {
     promptEl.innerHTML =
       (cur ? `<div class="pline ${mine ? "mine" : ""}">
           ${av ? `<img src="${av}" alt="">` : ""}
-          <div class="ptext"><div class="pwho">${esc(cur.who)}${mine ? " — 🎙 DU!" : ""}</div><div class="pcap">${esc(cur.text)}</div>${(cur.de && !scene.blind) ? `<div style="font-size:.85rem;color:var(--amber)">${esc(cur.de)}</div>` : ""}</div>
-        </div>` : `<div class="pline"><div class="ptext"><div class="pwho">…</div><div class="pcap" style="color:var(--muted)">Ruhe im Studio</div></div></div>`) +
-      (next ? `<div class="pnext">Gleich (${Math.max(0, next.t - t).toFixed(0)}s): <b>${esc(next.who)}</b> — ${esc(next.text)}</div>` : "");
+          <div class="ptext"><div class="pwho">${esc(cur.who)}${mine ? tt(" — 🎙 YOU!", " — 🎙 DU!") : ""}</div><div class="pcap">${esc(linePrimaryText(cur))}</div>${lineSecondaryText(cur) ? `<div style="font-size:.85rem;color:var(--amber)">${esc(lineSecondaryText(cur))}</div>` : ""}</div>
+        </div>` : `<div class="pline"><div class="ptext"><div class="pwho">…</div><div class="pcap" style="color:var(--muted)">${esc(tt("Quiet in the studio", "Ruhe im Studio"))}</div></div></div>`) +
+      (next ? `<div class="pnext">${esc(tt("Next", "Gleich"))} (${Math.max(0, next.t - t).toFixed(0)}s): <b>${esc(next.who)}</b> — ${esc(linePrimaryText(next))}</div>` : "");
   };
 }
 

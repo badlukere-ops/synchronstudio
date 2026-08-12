@@ -53,6 +53,28 @@
 </style>
 </head>
 <body>
+<div id="editor-lock" style="display:none;position:fixed;inset:0;z-index:9999;background:#0b0b0e;color:#eeeef2;font-family:system-ui,sans-serif;align-items:center;justify-content:center;padding:24px;text-align:center">
+  <div style="max-width:420px">
+    <h1 style="font-size:1.4rem;margin:0 0 10px">Scene editor locked</h1>
+    <p style="color:#8a8a99;line-height:1.45;margin:0 0 16px">Private tool — open with your studio link (<code style="color:#f0a830">?studio=1</code>) once, then it stays unlocked on this browser.</p>
+    <a href="index.html" style="color:#f0a830">← Back to Synchronstudio</a>
+  </div>
+</div>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search);
+  if (q.get("studio") === "1") {
+    try { localStorage.setItem("ss_editor_ok", "1"); } catch (e) {}
+  }
+  let ok = false;
+  try { ok = localStorage.getItem("ss_editor_ok") === "1"; } catch (e) {}
+  if (!ok) {
+    var lock = document.getElementById("editor-lock");
+    if (lock) lock.style.display = "flex";
+    document.querySelector(".wrap") && (document.querySelector(".wrap").style.display = "none");
+  }
+})();
+</script>
 <div class="wrap">
   <h1><em>Szenen</em>-Editor</h1>
   <p class="sub">Baue eigene Szenen fürs Synchronstudio — komplett ohne Choicer-Voicer-Mods. Video laden, Lines timen, JSON exportieren, fertig.</p>
