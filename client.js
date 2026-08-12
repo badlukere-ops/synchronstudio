@@ -2322,8 +2322,7 @@ function startHostPeer(attempt, reopenOnly) {
       return;
     }
     players = [{ id: myId, key: myKey, name: withHostTag(myName), avatar: myAvatar, accessory: myAccessory, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false }];
-    drawBoard = { strokes: [] };
-    try { renderDrawBoard(); } catch {}
+    resetDrawBoard();
     enterLobby(code);
     loadSceneList();
   });
@@ -2524,8 +2523,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
         wvBanner("🔌 Wieder verbunden — hole den Stand …");
       } else {
         wvVersuch = 0; wvBannerAus();
-        drawBoard = { strokes: [] };
-        try { renderDrawBoard(); } catch {}
+        resetDrawBoard();
         enterLobby(code);
       }
     });
@@ -3354,6 +3352,9 @@ function burstConfetti(mega) {
 let redoMode = null, redoReturnScreen = null;
 let finalTracksData = null;   // Host: letzter kompletter Mix-Datensatz, für Nach-Korrekturen
 let premiereLocked = false;   // true sobald die Premiere offiziell abgespielt wurde
+let pendingPremGo = false;    // premGo kam, Mix war aber noch nicht fertig
+let myPremLocalReady = false; // dieser Client hat loadMix + Video-Puffer fertig
+let premGoRetryTimer = null;
 
 
 // ═════════════════════════════════════════════════════════════
@@ -3390,8 +3391,9 @@ function leaveRoom(statusMsg) {
   try { peer && peer.destroy(); } catch {}
   peer = null; hostConn = null; conns.clear();
   isHost = false; players = []; scene = null;
-  drawBoard = { strokes: [] };
-  try { renderDrawBoard(); } catch {}
+  resetDrawBoard();
+  pendingPremGo = false; myPremLocalReady = false;
+  clearTimeout(premGoRetryTimer); premGoRetryTimer = null;
   if (micStream) { try { micStream.getTracks().forEach(t => t.stop()); } catch {} micStream = null; }
   localVideoBuf = null; clearSceneVideoState();
   takes = {}; myLines = []; curLine = 0; outtakes = []; mixItems = []; collected.clear(); collectedOuttakes.clear();
@@ -3889,7 +3891,7 @@ function handleHostCmd(msg, sender) {
       backToLobby();
       break;
     case "premGo":
-      broadcast({ t: "premGo" });
+      broadcastPremGoReliable();
       premStart();
       break;
     case "premPause":
@@ -3963,7 +3965,7 @@ let stateBroadcastTimer = null;
 function flushStateBroadcast() {
   clearTimeout(stateBroadcastTimer);
   stateBroadcastTimer = null;
-  broadcast({ t: "state", players, logicalHostKey });
+  broadcast({ t: "state", players, logicalHostKey, premiereLocked: !!premiereLocked, premPaused: !!premPaused });
   checkStartable();
   checkAllDone();
   if (isHost) renderPremState();
@@ -4126,7 +4128,11 @@ function handleMsg(msg, conn) {
       // Verbindung sofort in conns — sonst verpasst broadcast den Neuankömmling
       if (conn && conn.peer) conns.set(conn.peer, conn);
       const pushRoster = () => {
-        try { if (conn && conn.open) conn.send({ t: "state", players, logicalHostKey }); } catch {}
+        try {
+          if (conn && conn.open) {
+            conn.send({ t: "state", players, logicalHostKey, premiereLocked: !!premiereLocked, premPaused: !!premPaused });
+          }
+        } catch {}
       };
       const samePeer = players.find(p => p.id === conn.peer);
       if (samePeer) {
@@ -4172,7 +4178,7 @@ function handleMsg(msg, conn) {
           ...rejoinPlaybackFlags(),
         });
         if (scene && localVideoBuf) sendLocalVideo(conn);
-        conn.send({ t: "drawState", drawBoard });
+        conn.send({ t: "drawState", drawBoard, drawEpoch });
         pushRoster();
         showToast("🔌 " + rueck.name + " ist wieder da!", "join");
         SFX.ok();
@@ -4185,7 +4191,7 @@ function handleMsg(msg, conn) {
       players.push({ id: conn.peer, key: msg.key || null, name: stripHostTag(msg.name), avatar: msg.avatar || null, accessory: msg.accessory || null, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false });
       applyLogicalHostLabels();
       if (scene) { if (localVideoBuf) sendLocalVideo(conn); else conn.send({ t: "scene", scene }); }
-      conn.send({ t: "drawState", drawBoard });
+      conn.send({ t: "drawState", drawBoard, drawEpoch });
       // Spät dazukommen mitten in der Runde → in die laufende Phase holen
       const ph = aktuellePhase();
       if (ph && ph !== "scr-lobby" && ph !== "scr-start") {
@@ -4308,6 +4314,11 @@ function handleMsg(msg, conn) {
           me.loadPct = Math.max(me.loadPct || 0, myLoadPct || 0);
           if (myVideoReady) me.videoReady = true;
         }
+        if (me && me.prem) { /* host says we're ready */ }
+        else if (me && mixItems.length && myPremLocalReady) {
+          me.prem = true;
+          me.premPct = Math.max(me.premPct || 0, 100);
+        }
       }
       renderPlayers();
       renderRoles();
@@ -4318,6 +4329,8 @@ function handleMsg(msg, conn) {
         syncForceMixBtn();
       }
       if (document.querySelector("#scr-playback.active")) renderPremStateGuest();
+      // Host hat Premiere schon gestartet, unsere premGo-Nachricht kam aber zu spät / ging unter
+      if (msg.premiereLocked && !isHost) tryFollowHostPremiere(!!msg.premPaused);
       break;
     case "scene": {
       scene = msg.scene; clearSceneVideoState(); clearSceneCaches();
@@ -4415,8 +4428,22 @@ function handleMsg(msg, conn) {
     case "tttState": ttt = msg.ttt; renderTTT(); break;
     case "rpsState": rps = msg.rps; renderRPS(); break;
     case "diceState": dice = msg.dice; renderDice(); break;
-    case "drawState": drawBoard = msg.drawBoard; renderDrawBoard(); break;
-    case "premGo": premStart(); break;
+    case "drawState":
+      // Host ist Autorität — Epoch vom Host übernehmen (Raum-Wechsel / Rejoin)
+      if (msg.drawEpoch != null) drawEpoch = msg.drawEpoch;
+      if (msg._clear) {
+        drawBoard = { strokes: [] };
+        renderDrawBoard();
+        break;
+      }
+      if (msg.drawBoard && Array.isArray(msg.drawBoard.strokes)) {
+        mergeDrawBoard(msg.drawBoard);
+        renderDrawBoard();
+      }
+      break;
+    case "premGo":
+      onPremGoMsg(msg);
+      break;
     case "premOrig": applyPremOrigMsg(msg); break;
     case "premPlayerVol": applyPremPlayerGainsMsg(msg); break;
     case "premPause": premPauseAll(false, msg.tVideo); break;
@@ -7056,21 +7083,50 @@ $("btn-dice-roll") && ($("btn-dice-roll").onclick = () => diceAction({ k: "roll"
 // 🎨 Kritzel-Board: alle warten zusammen malen auf derselben Leinwand
 // ═════════════════════════════════════════════════════════════
 let drawBoard = { strokes: [] };
+let drawEpoch = 0;   // steigt bei jedem Raum-Wechsel — fremde Boards ignorieren
 let drawColor = "#ffc95c", drawSize = 4;
 let drawing = false, curStroke = null, lastSentLen = 0, drawThrottle = null;
 const DRAW_COLORS = ["#ffc95c", "#ff5470", "#7c5cff", "#4ade80", "#4ac9e8", "#f5f5f5", "#3a3a46",
   "#ff8a3d", "#ff4dd8", "#4d7bff", "#2fbf71", "#e8e037", "#8a4b2f", "#000000"];
 const DRAW_CANVAS_IDS = ["draw-canvas"];   // nur noch EIN Canvas -- festes Seitenpanel statt Duplikat pro Screen
 
+function resetDrawBoard() {
+  drawEpoch = (drawEpoch || 0) + 1;
+  drawBoard = { strokes: [] };
+  drawing = false; curStroke = null; lastSentLen = 0;
+  try { renderDrawBoard(); } catch {}
+}
+/** Strokes mergen — kürzere/ältere Versionen dürfen längere nicht „wegwischen“. */
+function mergeDrawBoard(incoming) {
+  if (!incoming || !Array.isArray(incoming.strokes)) return;
+  if (!incoming.strokes.length && drawBoard.strokes.length && incoming._clear) {
+    drawBoard = { strokes: [] };
+    return;
+  }
+  const byId = new Map();
+  for (const s of drawBoard.strokes) if (s && s.id) byId.set(s.id, s);
+  for (const s of incoming.strokes) {
+    if (!s || !s.id) continue;
+    const prev = byId.get(s.id);
+    const nNew = (s.points && s.points.length) || 0;
+    const nOld = (prev && prev.points && prev.points.length) || 0;
+    if (!prev || nNew >= nOld) byId.set(s.id, s);
+  }
+  drawBoard = { strokes: [...byId.values()] };
+}
 function drawAction(a) { if (isHost) drawHandle(a, myId); else sendHost({ t: "draw", a }); }
 function drawHandle(a, pid) {
-  if (a.k === "stroke") {
+  if (a.k === "stroke" && a.stroke) {
     const idx = drawBoard.strokes.findIndex(s => s.id === a.stroke.id);
-    if (idx >= 0) drawBoard.strokes[idx] = a.stroke; else drawBoard.strokes.push(a.stroke);
+    const nNew = (a.stroke.points && a.stroke.points.length) || 0;
+    if (idx >= 0) {
+      const nOld = (drawBoard.strokes[idx].points && drawBoard.strokes[idx].points.length) || 0;
+      if (nNew >= nOld) drawBoard.strokes[idx] = a.stroke;
+    } else drawBoard.strokes.push(a.stroke);
   } else if (a.k === "clear") {
     drawBoard = { strokes: [] };
   }
-  broadcast({ t: "drawState", drawBoard });
+  broadcast({ t: "drawState", drawBoard, drawEpoch, _clear: a.k === "clear" });
   renderDrawBoard();
 }
 // Offscreen-Puffer: nie clearRect auf dem sichtbaren Canvas — Opera zeigt sonst kurz ein leeres Board (Flackern).
@@ -8848,10 +8904,13 @@ function maybeFinishTracks(force) {
   }
   clearTimeout(forceMixTimer);
   const data = [...collected.entries()].map(([r, it]) => ({ role: r, items: it }));
-  publishOuttakesPool();
-  publishMix(data);   // Boost/Pan extra mitschicken — sonst hoeren Gäste wieder 100 %
+  // WICHTIG: Mix ZUERST — Outtakes-Pool ist riesig und hat premGo bei Gästen oft blockiert
+  publishMix(data);
   collected.clear();
   syncForceMixBtn();
+  setTimeout(() => {
+    try { publishOuttakesPool(); } catch (e) { console.warn("outtakes pool:", e); }
+  }, 800);
 }
 // Notausgang für den Host, falls jemand hängt, ohne die Verbindung sauber zu schließen
 function syncForceMixBtn() {
@@ -9134,6 +9193,8 @@ async function loadMix(data, metaMsg) {
   if (me0) { me0.prem = false; me0.premPct = 0; }
   armLoadReassure("prem");
   reportPremLoad(2, false);
+  myPremLocalReady = false;
+  pendingPremGo = false;
   const ctx = getCtx();
   mixItems = [];
   let okCount = 0, failCount = 0;
@@ -9198,6 +9259,7 @@ async function loadMix(data, metaMsg) {
   }, 25000);
   reportPremLoad(100, true);
   clearLoadReassure("prem");
+  myPremLocalReady = true;
   // Fertig geladen → beim Host melden
   $("btn-replay").disabled = true;
   $("btn-download").disabled = true;
@@ -9211,6 +9273,12 @@ async function loadMix(data, metaMsg) {
   renderRedoPanel("redo-panel-prem");
   updateOuttakesBtn();
   SFX.ok();
+  // Host hat schon auf Start gedrückt, während wir noch geladen haben
+  if (pendingPremGo || (premiereLocked && !isHost && !document.querySelector("#scr-playback.active .cinema"))) {
+    const go = pendingPremGo || premiereLocked;
+    pendingPremGo = false;
+    if (go && !isHost) premStart({ skipCountdown: true });
+  }
 }
 
 function renderPremStateGuest() { renderPremState(); }
@@ -9626,6 +9694,8 @@ function premResumeAll(fromHostClick, syncT) {
 }
 
 function premStart(opts) {
+  pendingPremGo = false;
+  myPremLocalReady = myPremLocalReady || mixItems.length > 0;
   premiereLocked = true;
   premPaused = false;
   renderRedoPanel("redo-panel-wait"); renderRedoPanel("redo-panel-prem");
@@ -9641,12 +9711,59 @@ function premStart(opts) {
   // Rejoin mitten in der Premiere: ohne Countdown sofort starten
   if (opts && opts.skipCountdown) playMix(false);
   else countdown({ wipe: false }).then(() => playMix(false));
+  if (isHost) broadcastState();
+}
+
+/** Gast: premGo reliable verarbeiten (auch wenn Mix noch lädt). */
+function onPremGoMsg(msg) {
+  if (isHost) return;
+  if (mixItems.length && $("play-video") && ($("play-video").src || sceneVideoSrc())) {
+    if (premiereLocked && document.querySelector("#scr-playback.active") && !$("play-video").paused && !$("play-video").ended) {
+      return; // läuft schon
+    }
+    premStart({ skipCountdown: !!(msg && msg.skipCountdown) });
+    return;
+  }
+  pendingPremGo = true;
+  status("play-status", tt("🍿 Host started — finishing load, then we join …", "🍿 Host hat gestartet — Lade fertig, dann geht’s los …"));
+}
+
+/** Gast: Host hat laut State schon Premiere an — mitziehen, falls premGo untergegangen ist. */
+function tryFollowHostPremiere(paused) {
+  if (isHost) return;
+  if (premiereLocked && document.querySelector("#scr-playback.active")) {
+    if (paused && !premPaused) premPauseAll(false);
+    return;
+  }
+  if (!mixItems.length) {
+    pendingPremGo = true;
+    premiereLocked = true; // merken, bis loadMix fertig
+    return;
+  }
+  premStart({ skipCountdown: true });
+  if (paused) setTimeout(() => premPauseAll(false), 50);
+}
+
+function broadcastPremGoReliable() {
+  const payload = { t: "premGo", skipCountdown: false };
+  broadcast(payload);
+  // Nochmal nachschicken — DataChannel kann nach großem Mix noch voll sein
+  clearTimeout(premGoRetryTimer);
+  let n = 0;
+  const tick = () => {
+    n++;
+    broadcast({ t: "premGo", skipCountdown: true });
+    broadcastState(); // premiereLocked mitschicken
+    if (n < 4) premGoRetryTimer = setTimeout(tick, 700 * n);
+  };
+  premGoRetryTimer = setTimeout(tick, 400);
 }
 
 $("btn-prem-start").onclick = () => {
   if (!iAmLogicalHost()) return;
   if (!isHost) { sendHost({ t: "hostCmd", cmd: "premGo" }); return; }
-  broadcast({ t: "premGo" });
+  premiereLocked = true;
+  broadcastPremGoReliable();
   premStart();
 };
 $("btn-prem-pause") && ($("btn-prem-pause").onclick = () => {
