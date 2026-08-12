@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.87";
+const APP_VERSION = "9.10.88";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -605,6 +605,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.88", items: [
+    "🔧 Fix: after a round, guests can pick roles & Ready again (role sync race)",
+    "📥 Fix: video “loaded” status resets properly for everyone when host picks a new scene",
+    "🔌 Fix: rejoin / reconnect follows host back to lobby with scene + roles visible",
+    "🎨 Fix: doodle board clears per room (no leftover strokes from other rooms)"
+  ]},
   { v: "9.10.87", items: [
     "🌐 Scene picker: “roles” in English (not “Rollen”); titles + filter chips follow EN|DE",
     "🍌 GameBanana listing pack refreshed (GAMEBANANA.md)"
@@ -2316,6 +2322,8 @@ function startHostPeer(attempt, reopenOnly) {
       return;
     }
     players = [{ id: myId, key: myKey, name: withHostTag(myName), avatar: myAvatar, accessory: myAccessory, role: null, ready: false, done: 0, total: 0, loadPct: 0, videoReady: false }];
+    drawBoard = { strokes: [] };
+    try { renderDrawBoard(); } catch {}
     enterLobby(code);
     loadSceneList();
   });
@@ -2516,6 +2524,8 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
         wvBanner("🔌 Wieder verbunden — hole den Stand …");
       } else {
         wvVersuch = 0; wvBannerAus();
+        drawBoard = { strokes: [] };
+        try { renderDrawBoard(); } catch {}
         enterLobby(code);
       }
     });
@@ -3380,6 +3390,8 @@ function leaveRoom(statusMsg) {
   try { peer && peer.destroy(); } catch {}
   peer = null; hostConn = null; conns.clear();
   isHost = false; players = []; scene = null;
+  drawBoard = { strokes: [] };
+  try { renderDrawBoard(); } catch {}
   if (micStream) { try { micStream.getTracks().forEach(t => t.stop()); } catch {} micStream = null; }
   localVideoBuf = null; clearSceneVideoState();
   takes = {}; myLines = []; curLine = 0; outtakes = []; mixItems = []; collected.clear(); collectedOuttakes.clear();
@@ -4027,8 +4039,10 @@ function applyPhaseRestore(msg) {
   const vorSpiel = ["scr-mic", "scr-avatar", "scr-start", "scr-lobby"].includes(meine);
   const habeStand = myLines.length > 0 || mixItems.length > 0;
   const hostSchonWeiter = ["scr-playback", "scr-final", "scr-duel-vote", "scr-rate"].includes(msg.phase) && meine !== msg.phase;
+  // Host schon wieder in der Lobby / Szenenwahl → Gast MUSS mit — sonst hängt er in Booth/Wait ohne Szene
+  const hostInLobby = !msg.phase || msg.phase === "scr-lobby" || msg.phase === "scr-start";
 
-  if (!msg.forceRestore && habeStand && !vorSpiel && !hostSchonWeiter) {
+  if (!msg.forceRestore && habeStand && !vorSpiel && !hostSchonWeiter && !hostInLobby) {
     showToast(tt("🔌 Back in — just keep going!", "🔌 Wieder drin — mach einfach weiter!"), "join");
     SFX.ok();
     return;
@@ -4084,6 +4098,19 @@ function applyPhaseRestore(msg) {
     show("scr-final");
   } else {
     enterLobby(raumCode);
+    // Szene erneut sichtbar machen (enterLobby allein zeigt die Karte nicht)
+    if (scene) {
+      const card = $("scene-card");
+      if (card) card.style.display = "";
+      renderRoles();
+      renderPlayers();
+      if (scene.videoUrl && !myVideoReady) {
+        // Load kann schon laufen — Status trotzdem an Host melden
+        reportLoadProgress(myLoadPct, myVideoReady);
+      } else if (scene.videoUrl && myVideoReady) {
+        reportLoadProgress(100, true);
+      }
+    }
   }
   SFX.ok();
 }
@@ -4134,6 +4161,7 @@ function handleMsg(msg, conn) {
         // players direkt im rejoined — nach Host-Wechsel sonst oft leere Liste beim Ex-Host
         conn.send({
           t: "rejoined", phase: aktuellePhase(), role: rueck.role,
+          forceRestore: true,
           scene: scene || null,
           players,
           logicalHostKey,
@@ -4191,10 +4219,24 @@ function handleMsg(msg, conn) {
     }
     case "pickRole": {
       const taken = players.some(p => p.role === msg.role && p.id !== conn.peer);
-      if (!taken) { const p = players.find(p => p.id === conn.peer); if (p) { p.role = msg.role; p.ready = false; } }
+      if (!taken) {
+        const p = players.find(p => p.id === conn.peer);
+        if (p) { p.role = msg.role; p.ready = false; }
+      }
       broadcastState(); break;
     }
-    case "ready": { const p = players.find(p => p.id === conn.peer); if (p && p.role != null) p.ready = true; broadcastState(); break; }
+    case "ready": {
+      const p = players.find(p => p.id === conn.peer);
+      if (p) {
+        // Rolle ggf. mit dem Ready-Request mitschicken — Roundtrip von pickRole kann sonst noch fehlen
+        if (msg.role != null && !players.some(o => o.role === msg.role && o.id !== p.id)) {
+          p.role = msg.role;
+        }
+        if (p.role != null) p.ready = true;
+      }
+      broadcastState();
+      break;
+    }
     case "progress": { const p = players.find(p => p.id === conn.peer); if (p) { p.done = msg.done; p.total = msg.total; } broadcastState({ throttle: true }); break; }
     case "loadProg": {
       const p = players.find(p => p.id === conn.peer);
@@ -4259,6 +4301,14 @@ function handleMsg(msg, conn) {
       hostHandoffActive = false;
       players = msg.players || [];
       if (msg.logicalHostKey) logicalHostKey = msg.logicalHostKey;
+      // Eigenen Lade-Stand nicht durch veralteten Host-Snapshot überschreiben
+      {
+        const me = players.find(p => p.id === myId);
+        if (me && scene && scene.videoUrl) {
+          me.loadPct = Math.max(me.loadPct || 0, myLoadPct || 0);
+          if (myVideoReady) me.videoReady = true;
+        }
+      }
       renderPlayers();
       renderRoles();
       renderBoothPlayers();
@@ -4271,9 +4321,13 @@ function handleMsg(msg, conn) {
       break;
     case "scene": {
       scene = msg.scene; clearSceneVideoState(); clearSceneCaches();
+      // Alte „Video fertig“-Flags der Vorrunde sonst bleiben hängen
+      players.forEach(p => { p.loadPct = 0; p.videoReady = false; p.ready = false; p.done = 0; p.total = 0; });
       const phSc = aktuellePhase();
       if (phSc !== "scr-lobby" && phSc !== "scr-start" && phSc !== "scr-mic" && phSc !== "scr-avatar") {
         resetForNewRound();
+      } else {
+        show("scr-lobby");
       }
       showScene(sceneVideoSrc());
       if (iAmLogicalHost()) { syncHostUi(); checkStartable(); }
@@ -5199,7 +5253,12 @@ $("btn-use-local").onclick = () => {
   broadcastState();
 };
 
-function resetRoles() { players.forEach(p => { p.role = null; p.ready = false; p.done = 0; p.total = 0; }); }
+function resetRoles() {
+  players.forEach(p => {
+    p.role = null; p.ready = false; p.done = 0; p.total = 0;
+    p.loadPct = 0; p.videoReady = false;
+  });
+}
 
 function sendLocalVideo(conn) {
   conn.send({ t: "videoMeta", scene, size: localVideoBuf.byteLength });
@@ -5347,7 +5406,18 @@ function pickRole(roleId) {
     const me = players.find(p => p.id === myId);
     me.role = roleId; me.ready = false;
     broadcastState(); renderRoles();
-  } else sendHost({ t: "pickRole", role: roleId });
+  } else {
+    // Sofort lokal setzen — sonst sagt „Bin bereit“ oft „keine Rolle“, obwohl Host sie schon hat
+    const taken = players.some(p => p.role === roleId && p.id !== myId);
+    if (taken) return;
+    let me = players.find(p => p.id === myId);
+    if (!me) me = seedLocalPlayer(roleId);
+    else { me.role = roleId; me.ready = false; }
+    players.forEach(p => { if (p.id !== myId && p.role === roleId) p.role = null; });
+    renderRoles();
+    renderPlayers();
+    sendHost({ t: "pickRole", role: roleId });
+  }
 }
 
 
@@ -5498,7 +5568,11 @@ $("btn-ready").onclick = async () => {
   }
   if (!(await ensureMic())) return;
   if (isHost) { me.ready = true; broadcastState(); }
-  else sendHost({ t: "ready" });
+  else {
+    me.ready = true; // lokal sofort — Host bestätigt per state
+    renderPlayers();
+    sendHost({ t: "ready", role: me.role });
+  }
   status("lobby-status", tt("✅ Ready! Waiting for the others …", "✅ Bereit! Warten auf die anderen …"));
   SFX.ok();
   burstConfetti();
@@ -10514,7 +10588,10 @@ $("btn-back").onclick = () => {
   SFX.back(); scene = null; broadcast({ t: "again" }); resetForNewRound(); $("scene-card").style.display = "none";
 };
 function resetForNewRound() {
-  players.forEach(p => { p.ready = false; p.done = 0; p.total = 0; p.prem = false; p.premPct = 0; });
+  players.forEach(p => {
+    p.ready = false; p.done = 0; p.total = 0; p.prem = false; p.premPct = 0;
+    p.loadPct = 0; p.videoReady = false;
+  });
   mixItems = []; collected.clear(); collectedOuttakes.clear(); takes = {}; outtakes = []; outtakesCache = null;
   clearTimeout(outtakesPrecacheTimer); outtakesPrecacheTimer = null;
   outtakeAbort = true; outtakesPlaying = false; outtakesQuietJob = false;
