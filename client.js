@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.86";
+const APP_VERSION = "9.10.87";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -605,6 +605,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.87", items: [
+    "🌐 Scene picker: “roles” in English (not “Rollen”); titles + filter chips follow EN|DE",
+    "🍌 GameBanana listing pack refreshed (GAMEBANANA.md)"
+  ]},
   { v: "9.10.85", items: [
     "🌐 EN mode: scene line texts show English (no German captions); effect names + pan Center/Left/Right translated",
     "🎵 Lobby music fixed (CDN path + AudioContext resume)",
@@ -2876,6 +2880,7 @@ document.addEventListener("ss-langchange", () => {
     try { if (typeof checkStartable === "function") checkStartable(); } catch {}
     try { if (typeof renderRoles === "function") renderRoles(); } catch {}
     try { if (typeof renderSettingsView === "function") renderSettingsView(); } catch {}
+    try { if (typeof renderRoleFilter === "function") renderRoleFilter(); } catch {}
     try { if (typeof renderSceneGrid === "function") renderSceneGrid(); } catch {}
     try { rotateTip(); } catch {}
     try { rotateFunFact(); } catch {}
@@ -4379,10 +4384,31 @@ function handleMsg(msg, conn) {
 // ═════════════════════════════════════════════════════════════
 let sceneList = [];
 
+/** Scene title for UI: “(N Rollen)” ↔ “(N roles)” by language. */
+function sceneTitleDisplay(title) {
+  if (!title) return "";
+  const t = String(title);
+  if (getLang() === "de") {
+    return t
+      .replace(/\((\d+)\s*roles\)/gi, "($1 Rollen)")
+      .replace(/\((\d+)\s*role\)/gi, "($1 Rolle)");
+  }
+  return t
+    .replace(/\((\d+)\s*Rollen\)/gi, "($1 roles)")
+    .replace(/\((\d+)\s*Rolle\)/gi, "($1 role)");
+}
+function roleCountLabel(n) {
+  if (getLang() === "de") return n + (n === 1 ? " Rolle" : " Rollen");
+  return n + (n === 1 ? " role" : " roles");
+}
+
 // ── Schwierigkeitsgrad einer Szene (automatisch berechnet aus Tempo & Zeitfenstern) ──
 function sceneDifficulty(s) {
+  const easy = { label: tt("Easy", "Leicht"), emoji: "🟢" };
+  const medium = { label: tt("Medium", "Mittel"), emoji: "🟡" };
+  const hard = { label: tt("Tongue twister", "Zungenbrecher"), emoji: "🔴" };
   if (s.difficultyOverride) {
-    const map = { easy: { label: "Easy", emoji: "🟢" }, medium: { label: "Medium", emoji: "🟡" }, hard: { label: "Zungenbrecher", emoji: "🔴" } };
+    const map = { easy, medium, hard };
     if (map[s.difficultyOverride]) return map[s.difficultyOverride];
   }
   if (!s.lines || !s.lines.length) return null;
@@ -4393,9 +4419,9 @@ function sceneDifficulty(s) {
   const avgWin = lines.reduce((sum, l) => sum + (l.end - l.t), 0) / lines.length;
   const avgWords = words / lines.length;
   const score = wps * 1.4 - avgWin * 0.25 + avgWords * 0.05;
-  if (score < 2.0) return { label: "Easy", emoji: "🟢" };
-  if (score < 3.2) return { label: "Medium", emoji: "🟡" };
-  return { label: "Zungenbrecher", emoji: "🔴" };
+  if (score < 2.0) return easy;
+  if (score < 3.2) return medium;
+  return hard;
 }
 
 const HINTEN_ANSTELLEN = new Set(["testplace"]);
@@ -4416,9 +4442,9 @@ async function loadSceneList() {
   sel.innerHTML = sceneList.length
     ? sceneList.map((s, i) => {
         const d = sceneDifficulty(s);
-        return `<option value="${i}">${d ? d.emoji + " " : ""}${esc(s.title)} (${s.roles.length} Rollen${s.lines ? ", " + s.lines.length + " Lines" : ""}${d ? " · " + d.label : ""})</option>`;
+        return `<option value="${i}">${d ? d.emoji + " " : ""}${esc(sceneTitleDisplay(s.title))} (${roleCountLabel(s.roles.length)}${s.lines ? ", " + s.lines.length + " lines" : ""}${d ? " · " + d.label : ""})</option>`;
       }).join("")
-    : "<option>— Szenen laden… kurz warten &amp; Seite neu laden —</option>";
+    : `<option>${tt("— Loading scenes… wait a sec & reload —", "— Szenen laden… kurz warten & Seite neu laden —")}</option>`;
   renderRoleFilter();
   renderSceneGrid();
 }
@@ -4439,11 +4465,11 @@ function renderRoleFilter() {
     const key = n >= 7 ? "7p" : String(n);
     counts[key] = (counts[key] || 0) + 1;
   }
-  const chips = [{ key: "all", label: "Alle" }];
-  for (let n = 1; n <= 6; n++) if (counts[String(n)]) chips.push({ key: String(n), label: n + " Rolle" + (n === 1 ? "" : "n") });
+  const chips = [{ key: "all", label: tt("All", "Alle") }];
+  for (let n = 1; n <= 6; n++) if (counts[String(n)]) chips.push({ key: String(n), label: roleCountLabel(n) });
   if (counts["7p"]) chips.push({ key: "7p", label: "7+" });
   if (!counts[sceneRoleFilter] && sceneRoleFilter !== "all") sceneRoleFilter = "all";
-  bar.innerHTML = `<span class="rf-label">Rollen</span>` + chips.map(c =>
+  bar.innerHTML = `<span class="rf-label">${tt("Roles", "Rollen")}</span>` + chips.map(c =>
     `<button type="button" class="rf-chip${c.key === sceneRoleFilter ? " on" : ""}" data-rf="${c.key}">${c.label}</button>`
   ).join("");
   bar.querySelectorAll(".rf-chip").forEach(btn => {
@@ -4467,13 +4493,16 @@ function renderSceneGrid(filter) {
       if (sceneRoleFilter === "7p") { if (n < 7) return false; }
       else if (sceneRoleFilter !== "all" && n !== parseInt(sceneRoleFilter, 10)) return false;
       if (!q) return true;
-      return (s.title + " " + (s.roles || []).map(r => r.name).join(" ")).toLowerCase().includes(q);
+      return (sceneTitleDisplay(s.title) + " " + s.title + " " + (s.roles || []).map(r => r.name).join(" ")).toLowerCase().includes(q);
     });
 
-  if (!sceneList.length) { grid.innerHTML = `<p class="sub" style="grid-column:1/-1">Szenen laden … kurz warten und Seite neu laden.</p>`; return; }
+  if (!sceneList.length) {
+    grid.innerHTML = `<p class="sub" style="grid-column:1/-1">${tt("Loading scenes… wait a moment and reload the page.", "Szenen laden … kurz warten und Seite neu laden.")}</p>`;
+    return;
+  }
   if (!hits.length) {
-    const tip = sceneRoleFilter !== "all" ? " mit diesem Rollen-Filter" : "";
-    grid.innerHTML = `<p class="sub" style="grid-column:1/-1">Keine Szene passt${q ? " zu „" + esc(q) + "“" : ""}${tip}.</p>`;
+    const tip = sceneRoleFilter !== "all" ? tt(" with this role filter", " mit diesem Rollen-Filter") : "";
+    grid.innerHTML = `<p class="sub" style="grid-column:1/-1">${tt("No scene matches", "Keine Szene passt")}${q ? " “" + esc(q) + "”" : ""}${tip}.</p>`;
     return;
   }
 
@@ -4488,9 +4517,9 @@ function renderSceneGrid(filter) {
     const fb = Object.values(s.avatars || {})[0] || "";
     return `<button type="button" class="scene-tile${String(i) === current ? " sel" : ""}" data-i="${i}"
         data-src="${esc(assetUrl(s.videoUrl))}" data-at="${at.toFixed(2)}" data-fb="${esc(fb)}">
-      <span class="st-thumb"><span class="st-ph">🎬</span><span class="st-badge">${s.roles.length}&nbsp;Rollen</span></span>
-      <span class="st-title">${esc(s.title)}</span>
-      <span class="st-meta">${d ? d.emoji + " " + esc(d.label) : "—"}${s.lines ? " · " + s.lines.length + " Lines" : ""}</span>
+      <span class="st-thumb"><span class="st-ph">🎬</span><span class="st-badge">${roleCountLabel(s.roles.length).replace(" ", "&nbsp;")}</span></span>
+      <span class="st-title">${esc(sceneTitleDisplay(s.title))}</span>
+      <span class="st-meta">${d ? d.emoji + " " + esc(d.label) : "—"}${s.lines ? " · " + s.lines.length + " lines" : ""}</span>
     </button>`;
   }).join("");
 
@@ -5707,7 +5736,7 @@ function nextSameRoleStart(lineIdx) {
 function populateDuelSceneSelect() {
   const sel = $("duel-scene-select");
   sel.innerHTML = sceneList.length
-    ? sceneList.map((s, i) => `<option value="${i}">${esc(s.title)}</option>`).join("")
+    ? sceneList.map((s, i) => `<option value="${i}">${esc(sceneTitleDisplay(s.title))}</option>`).join("")
     : "<option>— Szenen laden… —</option>";
 }
 $("btn-duel-load-scene").onclick = () => {
