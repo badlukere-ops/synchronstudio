@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.90";
+const APP_VERSION = "9.10.91";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -228,7 +228,7 @@ const esc = (s) => String(s).replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;"
 
 function watchVideoErrors(vid, statusId) {
   vid.addEventListener("error", () => {
-    status(statusId, "❌ Video konnte nicht geladen werden! Wenn du gerade erst hochgeladen hast: GitHub Pages braucht 2–5 Min zum Deployen — kurz warten, dann Strg+Shift+R.", true);
+    status(statusId, tt("❌ Video couldn’t load! If you just uploaded: GitHub Pages needs 2–5 min to deploy — wait a bit, then Ctrl+Shift+R.", "❌ Video konnte nicht geladen werden! Wenn du gerade erst hochgeladen hast: GitHub Pages braucht 2–5 Min zum Deployen — kurz warten, dann Strg+Shift+R."), true);
     SFX.err();
   });
   // Schwarze erste Frames: Vorschaubild ein Stück ins Video setzen
@@ -439,7 +439,7 @@ function beginSceneVideoLoad(src) {
         myVideoReady = false;
         clearLoadReassure("lobby");
         reportLoadProgress(myLoadPct, false);
-        status("lobby-status", "❌ Video konnte nicht geladen werden. Verbindung prüfen — große Szenen (~20 MB) brauchen etwas Geduld.", true);
+        status("lobby-status", tt("❌ Video couldn’t load. Check your connection — big scenes (~20 MB) need a bit of patience.", "❌ Video konnte nicht geladen werden. Verbindung prüfen — große Szenen (~20 MB) brauchen etwas Geduld."), true);
         SFX.err();
       }
     }
@@ -605,6 +605,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.91", items: [
+    "🔗 Invite links fill in the 5-digit room code again",
+    "🍿 Premiere: guests unpause with the host; Replay plays for everyone",
+    "🏠 Leaving a room resets match settings to normal defaults",
+    "🌐 English: join/reconnect, lobby banner, minigames, booth, rating, duel, save messages no longer stay German"
+  ]},
   { v: "9.10.90", items: [
     "📶 Scene picker no longer downloads videos for thumbnails — uses character pictures instead (saves a lot of internet)"
   ]},
@@ -1716,13 +1722,13 @@ async function buildMic() {
     const n = e && e.name;
     let msg;
     if (n === "NotAllowedError" || n === "SecurityError")
-      msg = "🚫 Mikrofon ist blockiert. Klick links in der Adressleiste auf das Schloss- bzw. Kamera-Symbol, stell Mikrofon auf Zulassen und lade die Seite neu.";
+      msg = tt("🚫 Microphone is blocked. Click the lock/camera icon in the address bar, allow the mic, and reload the page.", "🚫 Mikrofon ist blockiert. Klick links in der Adressleiste auf das Schloss- bzw. Kamera-Symbol, stell Mikrofon auf Zulassen und lade die Seite neu.");
     else if (n === "NotFoundError" || n === "OverconstrainedError")
-      msg = "🎤 Kein Mikrofon gefunden. Ist eins angeschlossen? Sonst unten ein anderes Gerät auswählen.";
+      msg = tt("🎤 No microphone found. Is one plugged in? Otherwise pick another device below.", "🎤 Kein Mikrofon gefunden. Ist eins angeschlossen? Sonst unten ein anderes Gerät auswählen.");
     else if (n === "NotReadableError")
-      msg = "🎤 Mikrofon ist von einem anderen Programm belegt (Discord, OBS, Teams …). Dort schließen und nochmal versuchen.";
+      msg = tt("🎤 Microphone is in use by another program (Discord, OBS, Teams …). Close it there and try again.", "🎤 Mikrofon ist von einem anderen Programm belegt (Discord, OBS, Teams …). Dort schließen und nochmal versuchen.");
     else
-      msg = "🎤 Mikro-Zugriff fehlgeschlagen" + (n ? " (" + n + ")" : "") + " — Seite neu laden und nochmal versuchen.";
+      msg = tt("🎤 Mic access failed", "🎤 Mikro-Zugriff fehlgeschlagen") + (n ? " (" + n + ")" : "") + tt(" — reload the page and try again.", " — Seite neu laden und nochmal versuchen.");
     status("mic-status", msg, true);
       SFX.err();
     return false;
@@ -1810,7 +1816,7 @@ async function ensureMic() { return micStream ? true : buildMic(); }
 async function populateDevices() {
   try {
     const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === "audioinput");
-    $("mic-device").innerHTML = devs.map(d => `<option value="${d.deviceId}">${esc(d.label || "Mikrofon")}</option>`).join("");
+    $("mic-device").innerHTML = devs.map(d => `<option value="${d.deviceId}">${esc(d.label || tt("Microphone", "Mikrofon"))}</option>`).join("");
     if (micSettings.deviceId) $("mic-device").value = micSettings.deviceId;
   } catch {}
 }
@@ -1984,8 +1990,8 @@ function drawTakeViz() {
     g.fillRect(x, padY, Math.max(1, 1.4 * dpr), H - padY * 2);
 
     let hinweis = null, farbe = null;
-    if (vizClip > 0) { hinweis = "ZU LAUT"; farbe = "#e63946"; }
-    else if (vizElapsed > 0.7 && vizLoudest < 0.1) { hinweis = "ZU LEISE — NÄHER RAN"; farbe = "#f0a830"; }
+    if (vizClip > 0) { hinweis = tt("TOO LOUD", "ZU LAUT"); farbe = "#e63946"; }
+    else if (vizElapsed > 0.7 && vizLoudest < 0.1) { hinweis = tt("TOO QUIET — GET CLOSER", "ZU LEISE — NÄHER RAN"); farbe = "#f0a830"; }
     if (hinweis) {
       g.font = "700 " + (8 * dpr) + "px ui-monospace, monospace";
       const b = g.measureText(hinweis).width + 10 * dpr;
@@ -2214,7 +2220,7 @@ $("mic-lowcut").onchange = e => { micSettings.lowcut = e.target.checked; applyMi
 $("btn-mic-raw").onclick = () => {
   Object.assign(micSettings, { ns: false, ec: false, agc: false, lowcut: false, gate: 0 });
   $("mic-ns").checked = $("mic-ec").checked = $("mic-agc").checked = $("mic-lowcut").checked = false;
-  $("mic-gate").value = 0; $("mic-gate-val").textContent = "Aus";
+  $("mic-gate").value = 0; $("mic-gate-val").textContent = tt("Off", "Aus");
   buildMic();
   status("mic-status", tt("🎙 Raw mode: all filters off — pure mic sound. (Headphones required or you'll get echo!)", "🎙 Roh-Modus: Alle Filter aus — pur wie dein Mikro klingt. (Kopfhörer Pflicht, sonst Echo!)"));
 };
@@ -2268,7 +2274,7 @@ function wireHostPeerLifecycle() {
   peer.on("close", () => {
     if (!hostPeerStable || absichtlichWeg || hostHandoffActive || !isHost || !raumCode) return;
     hostPeerStable = false;
-    wvBanner("📴 Spiel-Server-Verbindung weg — öffne Raum neu …");
+    wvBanner(tt("📴 Game server connection lost — reopening the room …", "📴 Spiel-Server-Verbindung weg — öffne Raum neu …"));
     setTimeout(() => {
       if (absichtlichWeg || hostHandoffActive || !isHost || !raumCode) return;
       startHostPeer(0, true);
@@ -2290,7 +2296,7 @@ function startHostPeer(attempt, reopenOnly) {
     if (tryNr === 0) status("start-status", tt("① Connecting to game server …", "① Verbinde zum Spiel-Server …"));
     else status("start-status", tt("🔄 Other game server / retry … (", "🔄 Anderer Spiel-Server / nochmal … (") + (tryNr + 1) + "/" + HOST_CREATE_MAX + " · " + broker.label + ")");
   } else {
-    wvBanner("🔄 Melde Raum am Spiel-Server neu an …");
+    wvBanner(tt("🔄 Re-registering the room on the game server …", "🔄 Melde Raum am Spiel-Server neu an …"));
   }
 
   let opened = false, finished = false;
@@ -2304,7 +2310,7 @@ function startHostPeer(attempt, reopenOnly) {
       return;
     }
     if (reopenOnly) {
-      wvBanner("❌ Spiel-Server weiter blockiert. " + BROKER_TIP(), true);
+      wvBanner(tt("❌ Game server still blocked. ", "❌ Spiel-Server weiter blockiert. ") + BROKER_TIP(), true);
       return;
     }
       status("start-status", tt("❌ Game server unreachable — room could not be created. ", "❌ Spiel-Server nicht erreichbar — Raum konnte nicht erstellt werden. ") + SERVER_BUSY_TIP() + " " + BROKER_TIP(), true);
@@ -2369,11 +2375,11 @@ function startHostPeer(attempt, reopenOnly) {
         return;
       }
       if (reopenOnly) {
-        wvBanner("❌ Spiel-Server-Fehler (" + (e.type || "?") + "). " + BROKER_TIP(), true);
+        wvBanner(tt("❌ Game server error (", "❌ Spiel-Server-Fehler (") + (e.type || "?") + "). " + BROKER_TIP(), true);
         return;
       }
       const busy = (e.type === "server-error" || e.type === "socket-error" || e.type === "network");
-      status("start-status", "❌ Spiel-Server blockiert (" + (e.type || "Netzwerk") + "). " + (busy ? SERVER_BUSY_TIP() + " " : "") + BROKER_TIP(), true);
+      status("start-status", tt("❌ Game server blocked (", "❌ Spiel-Server blockiert (") + (e.type || tt("network", "Netzwerk")) + "). " + (busy ? SERVER_BUSY_TIP() + " " : "") + BROKER_TIP(), true);
       SFX.err();
     }
   });
@@ -2447,32 +2453,32 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
     const noRetry = opts && opts.noRetry;
     if (!wiederkehr && !noRetry && tryNr < JOIN_MAX_TRIES - 1) {
       const next = tryNr + 1;
-      melde("🔄 Verbindung wird nochmal versucht… (" + (next + 1) + "/" + JOIN_MAX_TRIES + ")");
+      melde(tt("🔄 Trying the connection again… (", "🔄 Verbindung wird nochmal versucht… (") + (next + 1) + "/" + JOIN_MAX_TRIES + ")");
       setTimeout(() => gastBeitreten(code, false, next), 700 + tryNr * 400);
       return;
     }
-    const tip = ((opts && opts.skipTip) || /Hotspot|blockiert|Tipp/.test(msg)) ? "" : " " + NETZ_TIP();
+    const tip = ((opts && opts.skipTip) || /Hotspot|blockiert|Tipp|blocked|Tip:|firewall/i.test(msg)) ? "" : " " + NETZ_TIP();
     melde(msg + tip, true);
     if (wiederkehr) planeWiederverbindung();
   }
 
   function roomMissingMsg(final) {
     if (final) {
-      return "❌ Raum " + code + " nicht gefunden / Host nicht erreichbar. Host noch in der Lobby? Code richtig? Beide: Strg+F5 → Host neuen Raum → du den neuen Code. Alter Einladungs-Tab zählt nicht.";
+      return tt("❌ Room ", "❌ Raum ") + code + tt(" not found / host unreachable. Host still in the lobby? Code right? Both: Ctrl+F5 → host makes a new room → you use the new code. An old invite tab doesn’t count.", " nicht gefunden / Host nicht erreichbar. Host noch in der Lobby? Code richtig? Beide: Strg+F5 → Host neuen Raum → du den neuen Code. Alter Einladungs-Tab zählt nicht.");
     }
-    return "Raum " + code + " auf " + broker.label + " nicht gefunden — prüfe anderen Spiel-Server…";
+    return tt("Room ", "Raum ") + code + tt(" not found on ", " auf ") + broker.label + tt(" — trying another game server…", " nicht gefunden — prüfe anderen Spiel-Server…");
   }
 
   if (!wiederkehr && tryNr > 0) {
-    melde("🔄 Nochmal … (" + (tryNr + 1) + "/" + JOIN_MAX_TRIES + " · " + broker.label + (forceRelay ? " · nur Relay" : "") + ")");
+    melde(tt("🔄 Again … (", "🔄 Nochmal … (") + (tryNr + 1) + "/" + JOIN_MAX_TRIES + " · " + broker.label + (forceRelay ? tt(" · relay only", " · nur Relay") : "") + ")");
   } else {
-    melde("① Verbinde zum Spiel-Server …");
+    melde(tt("① Connecting to the game server …", "① Verbinde zum Spiel-Server …"));
   }
   peer = new Peer(makePeerConfig(forceRelay, brokerIdx));
 
   // Schritt 1: Broker/WebSocket — wenn das schon scheitert, kann er auch keine Lobby hosten
   joinFailTimers.push(setTimeout(() => {
-    if (!opened) failJoin("❌ Spiel-Server nicht erreichbar (Vermittlung blockiert). " + SERVER_BUSY_TIP() + " " + BROKER_TIP(), { skipTip: true });
+    if (!opened) failJoin(tt("❌ Game server unreachable (signaling blocked). ", "❌ Spiel-Server nicht erreichbar (Vermittlung blockiert). ") + SERVER_BUSY_TIP() + " " + BROKER_TIP(), { skipTip: true });
   }, 12000));
 
   peer.on("open", () => {
@@ -2481,7 +2487,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
     myId = peer.id;
     // Alten „Broker öffnen“-Timer weg — sonst kann er später stören
     clearJoinFailTimers();
-    melde("② Spiel-Server OK (" + broker.label + ") — suche Raum " + code + " …");
+    melde(tt("② Game server OK (", "② Spiel-Server OK (") + broker.label + tt(") — looking for room ", ") — suche Raum ") + code + " …");
     hostConn = peer.connect(PEER_PREFIX + code, { reliable: true });
 
     // Schritt 2: Host finden / verbinden — kein endloses „suche Raum“ ohne Meldung
@@ -2498,14 +2504,14 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
       const st = pc && pc.iceConnectionState;
       // ICE läuft schon (checking/…) → Host existiert, nur NAT ist langsam → länger warten
       if (pc && st && (st === "checking" || st === "connected" || st === "completed" || st === "disconnected")) {
-        melde("② Raum gefunden — Verbindung wird aufgebaut … (" + broker.label + ")");
+        melde(tt("② Room found — connecting … (", "② Raum gefunden — Verbindung wird aufgebaut … (") + broker.label + ")");
         joinFailTimers.push(setTimeout(() => {
           if (joined || finished) return;
           if (iceFailed) {
-            failJoin("❌ Spiel-Server ok, aber Direktverbindung blockiert (Router/Firewall/NAT). " + BROKER_TIP(), { skipTip: true });
+            failJoin(tt("❌ Game server OK, but the direct connection is blocked (router/firewall/NAT). ", "❌ Spiel-Server ok, aber Direktverbindung blockiert (Router/Firewall/NAT). ") + BROKER_TIP(), { skipTip: true });
             return;
           }
-          failJoin("❌ Spiel-Server ok, aber Verbindung zum Host kommt nicht durch. Oft Router/Firewall — beide am Handy-Hotspot testen (Browser-Wechsel allein hilft selten).", { skipTip: true });
+          failJoin(tt("❌ Game server OK, but the connection to the host isn’t getting through. Often the router/firewall — both try a phone hotspot (switching browsers alone rarely helps).", "❌ Spiel-Server ok, aber Verbindung zum Host kommt nicht durch. Oft Router/Firewall — beide am Handy-Hotspot testen (Browser-Wechsel allein hilft selten)."), { skipTip: true });
         }, ICE_WAIT_MS));
         return;
       }
@@ -2528,7 +2534,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
       hostHandoffActive = false;
       sendHost({ t: "hello", name: stripHostTag(myName), avatar: myAvatar, accessory: myAccessory, key: myKey });
       if (wiederkehr) {
-        wvBanner("🔌 Wieder verbunden — hole den Stand …");
+        wvBanner(tt("🔌 Reconnected — catching up …", "🔌 Wieder verbunden — hole den Stand …"));
       } else {
         wvVersuch = 0; wvBannerAus();
         resetDrawBoard();
@@ -2547,7 +2553,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
       if (!joined && (st === "failed" || st === "closed")) {
         iceFailed = true;
         clearInterval(iceWatchTimer); iceWatchTimer = null;
-        failJoin("❌ Spiel-Server ok, aber Direktverbindung UND Relay blockiert. " + BROKER_TIP(), { skipTip: true });
+        failJoin(tt("❌ Game server OK, but direct connection AND relay are blocked. ", "❌ Spiel-Server ok, aber Direktverbindung UND Relay blockiert. ") + BROKER_TIP(), { skipTip: true });
         return;
       }
       if (joined && (st === "failed" || st === "closed")) {
@@ -2563,7 +2569,7 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
     hostConn.on("close", verbindungWeg);
     hostConn.on("error", (e) => {
       console.error("conn error", e);
-      if (!joined) failJoin("Verbindungsfehler zum Host: " + (e.type || e));
+      if (!joined) failJoin(tt("Connection error to the host: ", "Verbindungsfehler zum Host: ") + (e.type || e));
       else verbindungWeg();
     });
   });
@@ -2597,11 +2603,11 @@ function gastBeitreten(code, wiederkehr, attempt, preferBroker) {
     if (e.type === "network" || e.type === "socket-error" || e.type === "server-error") {
       if (!joined) {
         const busy = (e.type === "server-error" || e.type === "socket-error" || e.type === "network");
-        failJoin("❌ Spiel-Server-Fehler (" + e.type + "). " + (busy ? SERVER_BUSY_TIP() + " " : "") + BROKER_TIP(), { skipTip: true });
+        failJoin(tt("❌ Game server error (", "❌ Spiel-Server-Fehler (") + e.type + "). " + (busy ? SERVER_BUSY_TIP() + " " : "") + BROKER_TIP(), { skipTip: true });
       }
       return;
     }
-    if (!joined) failJoin("Verbindungsfehler: " + e.type + ".");
+    if (!joined) failJoin(tt("Connection error: ", "Verbindungsfehler: ") + e.type + ".");
     else if (wiederkehr || raumCode) planeWiederverbindung();
   });
 }
@@ -2620,7 +2626,7 @@ function planeWiederverbindung() {
   // deshalb mehr Versuche, bevor wir aufgeben.
   const maxVersuche = 25;
   if (wvVersuch >= maxVersuche) {
-    wvBanner("❌ Komme nicht mehr rein. Läuft der Host noch? " + NETZ_TIP(), true);
+    wvBanner(tt("❌ Can’t get back in. Is the host still running? ", "❌ Komme nicht mehr rein. Läuft der Host noch? ") + NETZ_TIP(), true);
     return;
   }
   clearTimeout(wvTimer);
@@ -2628,7 +2634,7 @@ function planeWiederverbindung() {
   // Erst schnell probieren, dann in immer größeren Abständen — so ist ein kurzes
   // WLAN-Zucken sofort überbrückt, ohne den Host mit Anfragen zu überschütten.
   const warten = Math.min(8000, Math.round(500 * Math.pow(1.45, wvVersuch - 1)));
-  wvBanner("📴 Verbindung weg — versuche wieder reinzukommen … (" + wvVersuch + "/" + maxVersuche + ")");
+  wvBanner(tt("📴 Connection lost — trying to get back in … (", "📴 Verbindung weg — versuche wieder reinzukommen … (") + wvVersuch + "/" + maxVersuche + ")");
   const prefer = (handoffBrokerIdx != null) ? handoffBrokerIdx : activeBrokerIdx;
   const attempt = (wvVersuch - 1) % JOIN_MAX_TRIES;
   wvTimer = setTimeout(() => gastBeitreten(raumCode, true, attempt, prefer), warten);
@@ -3224,7 +3230,7 @@ function bgTick() {
 
 async function bgStart() {
   const chart = await bgLoadChart();
-  if (!chart) { status("bg-result", "Beat-Chart nicht gefunden.", true); return; }
+  if (!chart) { status("bg-result", tt("Beat chart not found.", "Beat-Chart nicht gefunden."), true); return; }
   bgStop(false);
 
   BG.notes = chart.notes.map(n => ({ ...n, done: false, missed: false, hit: null, holdBroken: false, holdDone: false }));
@@ -3258,8 +3264,8 @@ function bgStop(showResult, aborted) {
     const c = BG.counts, total = c.perfect + c.good + c.ok + c.miss;
     const acc = total ? Math.round((c.perfect + c.good * 0.7 + c.ok * 0.35) / total * 100) : 0;
     const res = $("bg-result");
-    const head = aborted ? "⏹ Gestoppt" : "🏁 Fertig";
-    if (res) res.innerHTML = `${head} · <b>${BG.score}</b> Punkte · ${acc}% Genauigkeit · längste Combo ${BG.maxCombo}<br>
+    const head = aborted ? tt("⏹ Stopped", "⏹ Gestoppt") : tt("🏁 Done", "🏁 Fertig");
+    if (res) res.innerHTML = `${head} · <b>${BG.score}</b> ${tt("pts", "Punkte")} · ${acc}% ${tt("accuracy", "Genauigkeit")} · ${tt("longest combo", "längste Combo")} ${BG.maxCombo}<br>
       <span style="color:#5fe3a1">${c.perfect} Perfect</span> · <span style="color:#f0a830">${c.good} Good</span> · ${c.ok} OK · <span style="color:#e63946">${c.miss} Miss</span>`;
     if (aborted) SFX.click(); else SFX.done();
   } else if (!showResult) {
@@ -3406,7 +3412,7 @@ function leaveRoom(statusMsg) {
   localVideoBuf = null; clearSceneVideoState();
   takes = {}; myLines = []; curLine = 0; outtakes = []; mixItems = []; collected.clear(); collectedOuttakes.clear();
   ttt = { p: [], board: Array(9).fill(null), turn: 0, winner: null };
-  match = { rounds: 1, round: 1, totals: {}, autoRoulette: false, buddyGivers: {} };
+  match = { mode: "free", rounds: 3, round: 1, totals: {}, autoRoulette: true, buddyGivers: {} };
   myBuddyUsed = false;
   Object.keys(mgWins).forEach(k => delete mgWins[k]);
   $("host-settings").style.display = "none";
@@ -3423,13 +3429,13 @@ function leaveRoom(statusMsg) {
 let pendingConfirm = null; // { type:"leave" } | { type:"kick", pid } | { type:"hostgive", pid }
 document.body.insertAdjacentHTML("beforeend",
   `<div id="wv-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:250;background:#c9821f;color:#12120f;font-family:var(--font-mono);font-size:.8rem;font-weight:700;text-align:center;padding:7px 12px;letter-spacing:.04em;box-shadow:0 2px 12px rgba(0,0,0,.5)"></div>
-   <button id="leave-btn" style="position:fixed;right:12px;bottom:10px;z-index:98;display:none;padding:8px 14px;font-size:.82rem;background:#1f1f28;border:1px solid var(--line);border-radius:8px;color:var(--muted)">🚪 Leave room</button>
+   <button id="leave-btn" style="position:fixed;right:12px;bottom:10px;z-index:98;display:none;padding:8px 14px;font-size:.82rem;background:#1f1f28;border:1px solid var(--line);border-radius:8px;color:var(--muted)">${tt("🚪 Leave room", "🚪 Raum verlassen")}</button>
    <div id="leave-confirm-overlay" style="display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px">
      <div style="max-width:340px;width:100%;background:#14141b;border:1px solid var(--line);border-radius:16px;padding:22px;text-align:center">
-       <p style="margin:0 0 18px;font-size:1rem" id="leave-confirm-text">Really leave the room?</p>
+       <p style="margin:0 0 18px;font-size:1rem" id="leave-confirm-text">${tt("Really leave the room?", "Raum wirklich verlassen?")}</p>
        <div class="row" style="justify-content:center;gap:10px">
-         <button class="ghost" id="btn-leave-cancel">Cancel</button>
-         <button class="primary" id="btn-leave-confirm" style="background:var(--hot)">🚪 Yes, leave</button>
+         <button class="ghost" id="btn-leave-cancel">${tt("Cancel", "Abbrechen")}</button>
+         <button class="primary" id="btn-leave-confirm" style="background:var(--hot)">${tt("🚪 Yes, leave", "🚪 Ja, verlassen")}</button>
        </div>
      </div>
    </div>`);
@@ -3547,7 +3553,7 @@ $("btn-copy-link") && ($("btn-copy-link").onclick = async () => {
 // Wer über einen Einladungs-Link kommt, findet den Code schon eingetragen vor.
 // Kein Auto-Beitritt: das Mikro braucht erst eine Freigabe durch eine echte Nutzergeste.
 const invitedCode = (() => {
-  const m = /^\d{6}$/.exec(new URLSearchParams(location.search).get("raum") || "");
+  const m = /^\d{5}$/.exec(new URLSearchParams(location.search).get("raum") || "");
   return m ? m[0] : null;
 })();
 if (invitedCode) whenReady(() => {
@@ -3561,7 +3567,7 @@ if (invitedCode) whenReady(() => {
       note.textContent = tt("🎬 You were invited to room ", "🎬 Du wurdest in Raum ") + invitedCode + tt(" — code is filled in, just hit Join.", " eingeladen — Code steht schon drin, einfach auf „Beitreten“.");
       note.style.display = "";
     } else if (isRoomCode(v)) {
-      note.textContent = "ℹ️ Einladungs-Link war Raum " + invitedCode + " — du suchst jetzt " + v + " (alter Link zählt nicht).";
+      note.textContent = tt("ℹ️ Invite link was room ", "ℹ️ Einladungs-Link war Raum ") + invitedCode + tt(" — you’re looking for ", " — du suchst jetzt ") + v + tt(" (old link doesn’t count).", " (alter Link zählt nicht).");
       note.style.display = "";
     } else {
       note.style.display = "none";
@@ -3914,8 +3920,14 @@ function handleHostCmd(msg, sender) {
       broadcastPremOrig();
       invalidatePremCache();
       break;
+    case "premReplay":
+      broadcast({ t: "premReplay" });
+      invalidatePremCache();
+      playMix(false);
+      break;
     case "playOuttakes":
       broadcast({ t: "playOuttakes" });
+      playOuttakesReel();
       break;
     default:
       console.warn("unbekannter hostCmd", msg.cmd);
@@ -3953,7 +3965,7 @@ function idUmschreiben(alt, neu) {
   const ausObj = (o) => { if (o && Object.prototype.hasOwnProperty.call(o, alt)) { o[neu] = o[alt]; delete o[alt]; } };
   const ausListe = (a) => Array.isArray(a) ? a.map(id => id === alt ? neu : id) : a;
 
-  ausMap(allRatings); ausMap(cbScores);
+  ausMap(allRatings); ausMap(cbScores); ausMap(rxScores); ausMap(tpScores);
   ausObj(duelVotes); ausObj(duelSubs); ausObj(mgWins);
   if (match && match.totals) ausObj(match.totals);
   if (duelInfo) { if (duelInfo.aId === alt) duelInfo.aId = neu; if (duelInfo.bId === alt) duelInfo.bId = neu; }
@@ -4005,7 +4017,7 @@ const GUEST_IN = new Set([
   "settings", "sceneReset", "duelSetupInfo", "duelReady", "duelPlayGo", "duelVoteBroadcast",
   "duelResult", "wins", "nextRound", "matchEnd", "matchLobby", "videoMeta", "videoChunk",
   "goLines", "go", "mix", "outtakesPool", "playOuttakes", "tttState", "rpsState", "diceState",
-  "drawState", "premGo", "premOrig", "premPlayerVol", "premPause", "premResume", "emojiShow", "rateResult",
+  "drawState", "premGo", "premReplay", "premOrig", "premPlayerVol", "premPause", "premResume", "emojiShow", "rateResult",
   "rxGo", "tpGo", "mgResult", "cbGo", "cbResult", "again"
 ]);
 
@@ -4061,7 +4073,7 @@ function applyPhaseRestore(msg) {
   // Eigenes Video kommt noch per Chunks — danach hier weitermachen
   if (msg.hatVideoUebertragung && !videoBlobUrl) {
     pendingPhaseRestore = Object.assign({}, msg, { forceRestore: true });
-    wvBanner("🔌 Hole Video vom Host …");
+    wvBanner(tt("🔌 Getting the video from the host …", "🔌 Hole Video vom Host …"));
     return;
   }
   pendingPhaseRestore = null;
@@ -4076,12 +4088,12 @@ function applyPhaseRestore(msg) {
       if (msg.ratingOpen) {
         premiereLocked = true;
         pendingRate = false;
-        status("play-status", "🔌 Wieder drin — Bewertung läuft …");
+        status("play-status", tt("🔌 Back in — rating is running …", "🔌 Wieder drin — Bewertung läuft …"));
         if (!rateSent) showRateCard();
       } else if (msg.premiereLocked) {
         // Host hat schon gestartet — nicht ewig auf premGo warten
         premStart({ skipCountdown: true });
-        status("play-status", "🔌 Wieder drin — Premiere läuft …");
+        status("play-status", tt("🔌 Back in — premiere is running …", "🔌 Wieder drin — Premiere läuft …"));
       }
     }).catch(e => console.warn("Rejoin-Premiere:", e));
   } else if (msg.phase === "scr-booth") {
@@ -4090,20 +4102,20 @@ function applyPhaseRestore(msg) {
       showToast(tt("🔌 Back in — you got your role back", "🔌 Wieder drin — deine Rolle hast du zurück"), "join");
     } else {
       show("scr-wait");
-      status("wait-status", "🔌 Wieder drin — du schaust zu / warte auf die Premiere …");
+      status("wait-status", tt("🔌 Back in — you’re watching / waiting for the premiere …", "🔌 Wieder drin — du schaust zu / warte auf die Premiere …"));
     }
   } else if (msg.phase === "scr-wait" || msg.phase === "scr-record") {
     show("scr-wait");
-    status("wait-status", "🔌 Wieder drin — warte auf die anderen …");
+    status("wait-status", tt("🔌 Back in — wait for the others …", "🔌 Wieder drin — warte auf die anderen …"));
   } else if (msg.phase === "scr-rate" || msg.ratingOpen) {
     show("scr-playback");
-    status("play-status", "🔌 Wieder drin — Bewertung läuft …");
+    status("play-status", tt("🔌 Back in — rating is running …", "🔌 Wieder drin — Bewertung läuft …"));
     if (msg.mix) {
       loadMix(msg.mix, msg).then(() => { if (!rateSent) showRateCard(); }).catch(() => { if (!rateSent) showRateCard(); });
     } else if (!rateSent) showRateCard();
   } else if (msg.phase === "scr-duel-vote") {
     show("scr-duel-vote");
-    status("duel-vote-status", "🔌 Wieder drin — stimme jetzt ab!");
+    status("duel-vote-status", tt("🔌 Back in — vote now!", "🔌 Wieder drin — stimme jetzt ab!"));
   } else if (msg.phase === "scr-final") {
     show("scr-final");
   } else {
@@ -4188,7 +4200,7 @@ function handleMsg(msg, conn) {
         if (scene && localVideoBuf) sendLocalVideo(conn);
         conn.send({ t: "drawState", drawBoard, drawEpoch });
         pushRoster();
-        showToast("🔌 " + rueck.name + " ist wieder da!", "join");
+        showToast("🔌 " + rueck.name + tt(" is back!", " ist wieder da!"), "join");
         SFX.ok();
         broadcast({ t: "playerBack", name: rueck.name });
         broadcastState();
@@ -4287,7 +4299,7 @@ function handleMsg(msg, conn) {
     case "rate": collectRating(conn.peer, msg.scores, msg.buddy); break;
     case "mg":
       if (msg.k === "rxStart") { const d = 1500 + Math.random() * 3500; broadcast({ t: "rxGo", delay: d }); rxRun(d); }
-      if (msg.k === "tpStart") { const ph = TP_PHRASES[Math.floor(Math.random() * TP_PHRASES.length)]; broadcast({ t: "tpGo", phrase: ph }); tpRun(ph); }
+      if (msg.k === "tpStart") { const phs = tpPhrases(); const ph = phs[Math.floor(Math.random() * phs.length)]; broadcast({ t: "tpGo", phrase: ph }); tpRun(ph); }
       if (msg.k === "rxScore") mgScore("rx", conn.peer, msg.ms);
       if (msg.k === "tpScore") mgScore("tp", conn.peer, msg.ms);
       break;
@@ -4360,7 +4372,7 @@ function handleMsg(msg, conn) {
     case "kicked":
       absichtlichWeg = true;
       clearTimeout(wvTimer); wvVersuch = 0; wvBannerAus();
-      leaveRoom("Du wurdest vom Host aus dem Raum gekickt.");
+      leaveRoom(tt("You were kicked from the room by the host.", "Du wurdest vom Host aus dem Raum gekickt."));
       break;
     case "hostHandoff":
       onHostHandoffMsg(msg);
@@ -4405,7 +4417,7 @@ function handleMsg(msg, conn) {
     case "wins": Object.assign(mgWins, msg.wins); renderWins(); break;
     case "nextRound":
       match.round = msg.round; players = msg.players;
-      if (msg.scene) { scene = msg.scene; clearSceneVideoState(); clearSceneCaches(); backToLobby(true); showScene(sceneVideoSrc()); renderSettingsView(); status("lobby-status", "🎲 Runde " + match.round + ": neue Szene & Rollen! „Bin bereit“ drücken."); }
+      if (msg.scene) { scene = msg.scene; clearSceneVideoState(); clearSceneCaches(); backToLobby(true); showScene(sceneVideoSrc()); renderSettingsView(); status("lobby-status", tt("🎲 Round ", "🎲 Runde ") + match.round + tt(": new scene & roles! Hit “I’m ready”.", ": neue Szene & Rollen! „Bin bereit“ drücken.")); }
       else startNewRound();
       break;
     case "matchEnd": showFinal(msg.list, msg.rounds, msg.championName); break;
@@ -4451,6 +4463,10 @@ function handleMsg(msg, conn) {
       break;
     case "premGo":
       onPremGoMsg(msg);
+      break;
+    case "premReplay":
+      invalidatePremCache();
+      playMix(false);
       break;
     case "premOrig": applyPremOrigMsg(msg); break;
     case "premPlayerVol": applyPremPlayerGainsMsg(msg); break;
@@ -4681,14 +4697,14 @@ $("btn-check-scenes") && ($("btn-check-scenes").onclick = async () => {
   // Alle Datei-Referenzen aus allen Szenen einsammeln
   const jobs = [];
   for (const s of sceneList) for (const f of filesOfScene(s)) jobs.push({ sceneId: s.id, title: s.title, file: f });
-  if (!jobs.length) { status("check-status", "Keine Szenen geladen.", true); btn.disabled = false; $("check-bar").style.display = "none"; return; }
+  if (!jobs.length) { status("check-status", tt("No scenes loaded.", "Keine Szenen geladen."), true); btn.disabled = false; $("check-bar").style.display = "none"; return; }
 
   let done = 0;
   const tasks = jobs.map(j => async () => {
     const ok = await checkFileExists(j.file);
     done++;
     setBar("check-bar", Math.round(done / jobs.length * 100));
-    status("check-status", "Prüfe … " + done + "/" + jobs.length);
+    status("check-status", tt("Checking … ", "Prüfe … ") + done + "/" + jobs.length);
     return { ...j, ok };
   });
   const results = await runWithLimit(tasks, 8);   // max. 8 gleichzeitig, sonst überlastet's den Browser
@@ -4703,10 +4719,10 @@ $("btn-check-scenes") && ($("btn-check-scenes").onclick = async () => {
   el.style.display = "";
   if (!broken.length) {
     status("check-status", "");
-    el.innerHTML = `<div class="raterow" style="border-color:var(--ok)"><span>✅ Alles in Ordnung — alle ${jobs.length} Dateien aus ${sceneList.length} Szenen sind erreichbar.</span></div>`;
+    el.innerHTML = `<div class="raterow" style="border-color:var(--ok)"><span>✅ ${tt("All good — all ", "Alles in Ordnung — alle ")}${jobs.length}${tt(" files from ", " Dateien aus ")}${sceneList.length}${tt(" scenes are reachable.", " Szenen sind erreichbar.")}</span></div>`;
   } else {
     status("check-status", "");
-    el.innerHTML = `<div class="raterow" style="border-color:var(--hot);margin-bottom:8px"><span>⚠️ ${broken.length} von ${jobs.length} Dateien fehlen (${Object.keys(bySc).length} Szenen betroffen)</span></div>` +
+    el.innerHTML = `<div class="raterow" style="border-color:var(--hot);margin-bottom:8px"><span>⚠️ ${broken.length} ${tt("of", "von")} ${jobs.length} ${tt("files missing", "Dateien fehlen")} (${Object.keys(bySc).length} ${tt("scenes affected", "Szenen betroffen")})</span></div>` +
       Object.entries(bySc).map(([sid, info]) => `
         <div style="background:#14141b;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:6px">
           <div style="font-weight:700;margin-bottom:4px">${esc(info.title)} <span class="tag">(${esc(sid)})</span></div>
@@ -5190,10 +5206,10 @@ function rejoinPlaybackFlags() {
 $("file-video").onchange = async (e) => {
   const f = e.target.files[0];
   if (!f) return;
-  status("scene-status", "Lese Video ein …");
+  status("scene-status", tt("Reading video …", "Lese Video ein …"));
   localVideoBuf = await f.arrayBuffer();
-  status("scene-status", "Video geladen (" + Math.round(localVideoBuf.byteLength / 1e6) + " MB). Jetzt Rollen einstellen." +
-    (localVideoBuf.byteLength > 60e6 ? " ⚠ Groß — Übertragung dauert." : ""));
+  status("scene-status", tt("Video loaded (", "Video geladen (") + Math.round(localVideoBuf.byteLength / 1e6) + tt(" MB). Now set the roles.", " MB). Jetzt Rollen einstellen.") +
+    (localVideoBuf.byteLength > 60e6 ? tt(" ⚠ Large — transfer will take a while.", " ⚠ Groß — Übertragung dauert.") : ""));
   $("local-cfg").style.display = "";
   if (!$("rolecfg-list").children.length) { addRoleCfg(); addRoleCfg(); }
 };
@@ -5204,8 +5220,8 @@ function addRoleCfg() {
   const div = document.createElement("div");
   div.className = "rolecfg";
   div.innerHTML = `
-    <input type="text" placeholder="Charakter ${n}" value="Charakter ${n}">
-    <div><label class="small">Pan L↔R</label><input type="range" min="-1" max="1" step="0.1" value="0"></div>
+    <input type="text" placeholder="${tt("Character", "Charakter")} ${n}" value="${tt("Character", "Charakter")} ${n}">
+    <div><label class="small">${tt("Pan L↔R", "Pan L↔R")}</label><input type="range" min="-1" max="1" step="0.1" value="0"></div>
     <select>${Object.keys(EFFECTS).map((k) => `<option value="${k}">${esc(effectLabel(k))}</option>`).join("")}</select>`;
   $("rolecfg-list").appendChild(div);
 }
@@ -5214,7 +5230,7 @@ $("btn-add-role").onclick = addRoleCfg;
 $("btn-use-local").onclick = () => {
   const roles = [...$("rolecfg-list").children].map((div, i) => ({
     id: i + 1,
-    name: div.querySelector("input[type=text]").value || "Charakter " + (i + 1),
+    name: div.querySelector("input[type=text]").value || tt("Character ", "Charakter ") + (i + 1),
     pan: parseFloat(div.querySelector("input[type=range]").value),
     effect: div.querySelector("select").value,
     gain: 1.0
@@ -5306,7 +5322,7 @@ function playerCard(p) {
       loadHtml = `<span class="pload done">📥 ${tt("Video ready", "Video fertig")}</span>`;
     }
   }
-  const micDot = p.id === myId ? `<span id="mic-live-dot" title="Dein Mikro — leuchtet, wenn gerade Ton ankommt" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3a3a46;margin-left:6px"></span>` : "";
+  const micDot = p.id === myId ? `<span id="mic-live-dot" title="${esc(tt("Your mic — lights up when sound is coming in", "Dein Mikro — leuchtet, wenn gerade Ton ankommt"))}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3a3a46;margin-left:6px"></span>` : "";
   // Wer rausgeflogen ist, behält seinen Platz — das muss man sehen, damit niemand denkt
   // die Runde hängt. Mit Restzeit, bis der Platz freigegeben wird.
   const wegTag = p.offline
@@ -5378,6 +5394,7 @@ function pickRole(roleId) {
     const taken = players.some(p => p.role === roleId && p.id !== myId);
     if (taken) return;
     const me = players.find(p => p.id === myId);
+    if (!me) return;
     me.role = roleId; me.ready = false;
     broadcastState(); renderRoles();
   } else {
@@ -5507,21 +5524,22 @@ function renderSettingsView(s) {
   const rl = s ? s.autoRoulette : match.autoRoulette;
   const bl = s ? s.blind : !!(scene && scene.blind);
   const activeLeft = players.filter(p => !p.eliminated).length;
+  const onOff = bl ? tt("on", "an") : tt("off", "aus");
   if (mode === "elimination") {
-    el.innerHTML = `🔪 <b>Battle Royale · Runde ${round}</b> · ${activeLeft} noch im Rennen · 🎲 Zufalls-Szenen &amp; -Rollen · 🕶 Blind: ${bl ? "an" : "aus"}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
+    el.innerHTML = `🔪 <b>${tt("Battle Royale · Round ", "Battle Royale · Runde ")}${round}</b> · ${activeLeft} ${tt("still in", "noch im Rennen")} · 🎲 ${tt("random scenes & roles", "Zufalls-Szenen &amp; -Rollen")} · 🕶 ${tt("Blind", "Blind")}: ${onOff}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
   } else if (mode === "rounds") {
-    el.innerHTML = `🏆 <b>Match · Runde ${round}/${rounds}</b> · 🎲 Zufalls-Szenen &amp; -Rollen · 🕶 Blind: ${bl ? "an" : "aus"}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
+    el.innerHTML = `🏆 <b>${tt("Match · Round ", "Match · Runde ")}${round}/${rounds}</b> · 🎲 ${tt("random scenes & roles", "Zufalls-Szenen &amp; -Rollen")} · 🕶 ${tt("Blind", "Blind")}: ${onOff}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
   } else if (mode === "duell") {
-    el.innerHTML = `🥊 <b>Duell-Modus</b> · Host wählt Szene, Rolle &amp; die zwei Duellanten · Rest schaut zu &amp; stimmt danach ab` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
+    el.innerHTML = `🥊 <b>${tt("Duel mode", "Duell-Modus")}</b> · ${tt("Host picks scene, role &amp; both duelists · everyone else watches &amp; votes after", "Host wählt Szene, Rolle &amp; die zwei Duellanten · Rest schaut zu &amp; stimmt danach ab")}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
   } else {
-    el.innerHTML = `🎮 <b>Freies Spiel</b> · Szene &amp; Rollen frei wählbar · 🕶 Blind: ${bl ? "an" : "aus"}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
+    el.innerHTML = `🎮 <b>${tt("Free play", "Freies Spiel")}</b> · ${tt("pick scene &amp; roles freely", "Szene &amp; Rollen frei wählbar")} · 🕶 ${tt("Blind", "Blind")}: ${onOff}` + (iAmLogicalHost() ? "" : ' <span class="tag">(Host)</span>');
   }
 }
 function renderWins() {
   const el = $("mg-wins");
   if (!el) return;
   const entries = Object.entries(mgWins).sort((a, b) => b[1] - a[1]);
-  el.innerHTML = entries.length ? "🎖 Arena-Siege: " + entries.map(([pid, n]) => `<b>${esc(nameOf(pid))}</b> ×${n}`).join(" · ") : "";
+  el.innerHTML = entries.length ? tt("🎖 Arena wins: ", "🎖 Arena-Siege: ") + entries.map(([pid, n]) => `<b>${esc(nameOf(pid))}</b> ×${n}`).join(" · ") : "";
 }
 function addWin(pid) {
   if (!isHost || !pid) return;
@@ -5679,15 +5697,17 @@ $("btn-start").onclick = async () => {
   if ((match.mode === "rounds" || match.mode === "elimination") && !scene) {
     if (!isHost) {
       sendHost({ t: "hostCmd", cmd: "pickRandom" });
-      status("lobby-status", "🎲 Szene wird ausgewürfelt …");
+      status("lobby-status", "🎲 " + tt("Picking a random scene …", "Szene wird ausgewürfelt …"));
       $("btn-start").style.display = "none";
       $("btn-go-round").style.display = "";
       return;
     }
     // Match-Kickoff: Zufalls-Szene laden, dann warten auf Bereit
     await pickRandomScene();
-    const label = match.mode === "elimination" ? "🔪 Runde 1: Szene &amp; Rollen ausgewürfelt!" : "🎲 Runde 1: Szene &amp; Rollen ausgewürfelt!";
-    status("lobby-status", label + " Alle „Bin bereit“ drücken.");
+    const label = match.mode === "elimination"
+      ? tt("🔪 Round 1: scene & roles rolled!", "🔪 Runde 1: Szene & Rollen ausgewürfelt!")
+      : tt("🎲 Round 1: scene & roles rolled!", "🎲 Runde 1: Szene & Rollen ausgewürfelt!");
+    status("lobby-status", label + tt(" Everyone hit “I’m ready”.", " Alle „Bin bereit“ drücken."));
     $("btn-start").style.display = "none";
     $("btn-go-round").style.display = "";
     return;
@@ -5710,8 +5730,8 @@ function startSession() {
   if (!anwesend.length || !anwesend.every(p => p.ready && p.videoReady)) {
     const loading = anwesend.filter(p => !p.videoReady);
     status("lobby-status", loading.length
-      ? "Noch nicht — Video lädt bei: " + loading.map(p => p.name + " " + (p.loadPct || 0) + "%").join(", ")
-      : "Es müssen erst alle Sprecher „bereit“ sein!", true);
+      ? tt("Not yet — video still loading for: ", "Noch nicht — Video lädt bei: ") + loading.map(p => p.name + " " + (p.loadPct || 0) + "%").join(", ")
+      : tt("All speakers need to be “ready” first!", "Es müssen erst alle Sprecher „bereit“ sein!"), true);
     SFX.err(); return;
   }
   stopLobbyPreview();
@@ -5785,7 +5805,7 @@ function populateDuelSceneSelect() {
   const sel = $("duel-scene-select");
   sel.innerHTML = sceneList.length
     ? sceneList.map((s, i) => `<option value="${i}">${esc(sceneTitleDisplay(s.title))}</option>`).join("")
-    : "<option>— Szenen laden… —</option>";
+    : `<option>— ${tt("Loading scenes…", "Szenen laden…")} —</option>`;
 }
 $("btn-duel-load-scene").onclick = () => {
   const s = sceneList[$("duel-scene-select").value];
@@ -5797,16 +5817,16 @@ $("btn-duel-load-scene").onclick = () => {
   $("duel-player-b").innerHTML = playerOpts;
   if (players[1]) $("duel-player-b").value = players[1].id;
   $("duel-pickers").style.display = "flex";
-  status("duel-setup-status", "Szene geladen — jetzt Rolle & beide Duellanten wählen.");
+  status("duel-setup-status", tt("Scene loaded — now pick a role & both duelists.", "Szene geladen — jetzt Rolle & beide Duellanten wählen."));
 };
 $("btn-duel-start").onclick = () => {
   if (!iAmLogicalHost() || !duelStagedScene) return;
   const roleId = parseInt($("duel-role-select").value);
   const aId = $("duel-player-a").value, bId = $("duel-player-b").value;
-  if (aId === bId) return status("duel-setup-status", "Duellant A und B müssen unterschiedlich sein!", true), SFX.err();
+  if (aId === bId) return status("duel-setup-status", tt("Duelist A and B must be different people!", "Duellant A und B müssen unterschiedlich sein!"), true), SFX.err();
   if (!isHost) {
     sendHost({ t: "hostCmd", cmd: "duelStart", sceneId: duelStagedScene.id, roleId, aId, bId });
-    status("duel-setup-status", "🥊 Duell wird gestartet …");
+    status("duel-setup-status", tt("🥊 Starting the duel …", "🥊 Duell wird gestartet …"));
     return;
   }
   duelInfo = { roleId, aId, bId };
@@ -5824,7 +5844,7 @@ $("btn-duel-start").onclick = () => {
   showScene(sceneVideoSrc());
   broadcast({ t: "duelSetupInfo", duelInfo });
   broadcastState();
-  status("duel-setup-status", "🥊 Duell steht: " + nameOf(aId) + " vs " + nameOf(bId) + " als " + duelStagedScene.roles.find(r => r.id === roleId).name + " — warte auf Video-Download …");
+  status("duel-setup-status", tt("🥊 Duel set: ", "🥊 Duell steht: ") + nameOf(aId) + " vs " + nameOf(bId) + tt(" as ", " als ") + duelStagedScene.roles.find(r => r.id === roleId).name + tt(" — waiting for the video download …", " — warte auf Video-Download …"));
   broadcast({ t: "goLines" });
   queueOrStartBooth();
 };
@@ -5839,8 +5859,8 @@ function startBooth() {
     const me0 = players.find(p => p.id === myId);
     const bench = me0 ? (me0.timesSpectated || 0) : 0;
     status("wait-status", match.mode === "duell"
-      ? "🥊 Duell läuft — " + nameOf(duelInfo?.aId) + " vs " + nameOf(duelInfo?.bId) + " nehmen unabhängig voneinander auf. Danach hört ihr beide Versionen und stimmt ab!"
-      : "🍿 Du bist Zuschauer — die Premiere startet automatisch, wenn alle fertig sind." + (match.mode === "rounds" ? " (Nächste Runde bist du garantiert bevorzugt dran, " + bench + "x gebankt bisher.)" : ""));
+      ? tt("🥊 Duel running — ", "🥊 Duell läuft — ") + nameOf(duelInfo?.aId) + " vs " + nameOf(duelInfo?.bId) + tt(" record independently. Then you hear both versions and vote!", " nehmen unabhängig voneinander auf. Danach hört ihr beide Versionen und stimmt ab!")
+      : tt("🍿 You’re watching — the premiere starts automatically when everyone’s done.", "🍿 Du bist Zuschauer — die Premiere startet automatisch, wenn alle fertig sind.") + (match.mode === "rounds" ? tt(" (Next round you’re guaranteed a preferred slot, banked ", " (Nächste Runde bist du garantiert bevorzugt dran, ") + bench + tt("× so far.)", "x gebankt bisher.)") : ""));
     return;
   }
   myLines = scene.lines.map((l, i) => ({ ...l, idx: i })).filter(l => l.chars.includes(rid));
@@ -5998,7 +6018,7 @@ let origSrc = null, origReqId = 0;
 $("btn-line-orig").onclick = async () => {
   const l = myLines[curLine];
   if (!lineHasOrig(l)) return;
-  if (origSrc) { try { origSrc.stop(); } catch {} origSrc = null; $("btn-line-orig").textContent = "🗣 Original anhören"; $("booth-video").pause(); return; }
+  if (origSrc) { try { origSrc.stop(); } catch {} origSrc = null; $("btn-line-orig").textContent = t("booth.orig"); $("booth-video").pause(); return; }
   const ctx = getCtx();
   const myReqId = ++origReqId;   // eigener Zähler-Wert -- wenn sich die Line inzwischen geändert hat, brechen wir unten ab
   try {
@@ -6018,11 +6038,11 @@ $("btn-line-orig").onclick = async () => {
     src.start();
     origSrc = src;
     $("btn-line-orig").textContent = "⏹ Stopp";
-    src.onended = () => { if (origSrc === src) { origSrc = null; $("btn-line-orig").textContent = "🗣 Original anhören"; v.pause(); } };
+    src.onended = () => { if (origSrc === src) { origSrc = null; $("btn-line-orig").textContent = t("booth.orig"); v.pause(); } };
   } catch (e) {
     if (myReqId !== origReqId) return;
-    $("btn-line-orig").textContent = "🗣 Original anhören";
-    status("booth-status", "Original-Audio nicht ladbar — GitHub Pages noch am Deployen?", true);
+    $("btn-line-orig").textContent = t("booth.orig");
+    status("booth-status", tt("Original audio couldn’t load — GitHub Pages still deploying?", "Original-Audio nicht ladbar — GitHub Pages noch am Deployen?"), true);
   }
 };
 
@@ -6040,16 +6060,16 @@ $("btn-line-scene").onclick = () => {
   const l = myLines[curLine];
   const v = $("booth-video");
   if (sceneStopHandler) { v.removeEventListener("timeupdate", sceneStopHandler); sceneStopHandler = null; }
-  if (!v.paused) { v.pause(); $("btn-line-scene").textContent = "🎬 Szene ansehen"; return; }   // 2. Klick = Stopp
+  if (!v.paused) { v.pause(); $("btn-line-scene").textContent = t("booth.scene"); return; }   // 2. Klick = Stopp
   v.currentTime = Math.max(0, l.t - 0.5);
   v.volume = boothVol; v.playbackRate = practiceSpeed;
   v.play();
-  $("btn-line-scene").textContent = "⏹ Stopp";
+  $("btn-line-scene").textContent = tt("⏹ Stop", "⏹ Stopp");
   sceneStopHandler = () => {
     if (v.currentTime >= l.end + 0.3) {
       v.pause();
       v.removeEventListener("timeupdate", sceneStopHandler); sceneStopHandler = null;
-      $("btn-line-scene").textContent = "🎬 Szene ansehen";
+      $("btn-line-scene").textContent = t("booth.scene");
     }
   };
   v.addEventListener("timeupdate", sceneStopHandler);
@@ -6098,7 +6118,7 @@ function abortLineRec() {
   if (recBusy && !recording) {
     recPrepCancel = true;
     forceRecReset();
-    status("booth-status", "Aufnahme abgebrochen.");
+    status("booth-status", tt("Recording cancelled.", "Aufnahme abgebrochen."));
     SFX.click();
     return;
   }
@@ -6121,10 +6141,10 @@ $("btn-line-rec").onclick = async () => {
   recAbortOuttake = false;
   stopRecCue();
   // Original-Anhören stoppen, sonst doppelt mit Cue
-  if (origSrc) { try { origSrc.stop(); } catch {} origSrc = null; const ob = $("btn-line-orig"); if (ob) ob.textContent = "🗣 Original anhören"; }
+  if (origSrc) { try { origSrc.stop(); } catch {} origSrc = null; const ob = $("btn-line-orig"); if (ob) ob.textContent = t("booth.orig"); }
   ["btn-line-scene","btn-line-play","btn-line-next","btn-line-skip","btn-line-orig","btn-line-prev"].forEach(id => { const el = $(id); if (el) el.disabled = true; });
   setAbortBtn(true);
-  status("booth-status", "🎯 Bereite Aufnahme vor …");
+  status("booth-status", tt("🎯 Getting ready to record …", "🎯 Bereite Aufnahme vor …"));
   try {
     if ($("rec-timer").checked) {
       if ($("rec-wipe") && $("rec-wipe").checked) await wipeCountdown();
@@ -6166,7 +6186,7 @@ $("btn-line-rec").onclick = async () => {
     startRecCue(l);
     startDualViz("viz", l, recMax);
     SFX.rec();
-    $("btn-line-rec").textContent = "⏹ Stopp";
+    $("btn-line-rec").textContent = tt("⏹ Stop", "⏹ Stopp");
     $("btn-line-rec").classList.add("recording");
     recStartT = performance.now();
     clearInterval(recTimer);
@@ -6175,17 +6195,17 @@ $("btn-line-rec").onclick = async () => {
       $("rectime-fill").style.width = Math.min(100, el / recMax * 100) + "%";
       if (el >= recMax) stopLineRec();
     }, 50);
-    const cueHint = cueWhileRecOn() && lineHasOrig(l) ? " · Original im Ohr" : "";
-    status("booth-status", "🔴 Aufnahme läuft … Stopp = Take behalten · Abbrechen = Outtake" + cueHint);
+    const cueHint = cueWhileRecOn() && lineHasOrig(l) ? tt(" · original in your ear", " · Original im Ohr") : "";
+    status("booth-status", tt("🔴 Recording … Stop = keep take · Cancel = outtake", "🔴 Aufnahme läuft … Stopp = Take behalten · Abbrechen = Outtake") + cueHint);
   } catch (e) {
     if (e && e.name === "RecCancel") {
       forceRecReset();
-      status("booth-status", "Aufnahme abgebrochen.");
+      status("booth-status", tt("Recording cancelled.", "Aufnahme abgebrochen."));
       return;
     }
     console.error("Rec-Start fehlgeschlagen:", e);
     forceRecReset();
-    status("booth-status", "⚠ Aufnahme-Start hakte — nochmal drücken!", true);
+    status("booth-status", tt("⚠ Record start stuck — press again!", "⚠ Aufnahme-Start hakte — nochmal drücken!"), true);
   } finally {
     recPrepCancel = false;
   }
@@ -6204,7 +6224,7 @@ function forceRecReset() {
     try { lineRec.stop(); } catch {}
   }
   setAbortBtn(false);
-  $("btn-line-rec").textContent = "⏺ Aufnehmen";
+  $("btn-line-rec").textContent = t("booth.rec");
   $("btn-line-rec").classList.remove("recording");
   $("btn-line-rec").disabled = false;
   ["btn-line-scene","btn-line-orig"].forEach(id => { const el = $(id); if (el) el.disabled = false; });
@@ -6318,7 +6338,7 @@ function stopLineRec() {
     try { lineRec.stop(); } catch {}
   }
   setAbortBtn(false);
-  $("btn-line-rec").textContent = "⏺ Nochmal aufnehmen";
+  $("btn-line-rec").textContent = tt("⏺ Record again", "⏺ Nochmal aufnehmen");
   $("btn-line-rec").classList.remove("recording");
   SFX.stop();
 }
@@ -6353,10 +6373,10 @@ async function onLineRecorded() {
           uid: outtakeUid()
         });
         updateOuttakesBtn();
-        status("booth-status", "Outtake gespeichert — alter Take bleibt. Nochmal oder weiter.");
+        status("booth-status", tt("Outtake saved — previous take stays. Again or continue.", "Outtake gespeichert — alter Take bleibt. Nochmal oder weiter."));
       } catch (e) { console.warn("Outtake abort:", e); }
     } else {
-      status("booth-status", "Abgebrochen (zu kurz für Outtake).");
+      status("booth-status", tt("Cancelled (too short for an outtake).", "Abgebrochen (zu kurz für Outtake)."));
     }
     $("btn-line-play").disabled = !takes[l.idx] || takes[l.idx] === "SKIP";
     $("btn-line-next").disabled = !takes[l.idx];
@@ -6383,11 +6403,11 @@ async function onLineRecorded() {
     takes[l.idx] = buf;
     $("btn-line-play").disabled = false;
     $("btn-line-next").disabled = false;
-    status("booth-status", "Take im Kasten! Anhören oder direkt weiter.");
+    status("booth-status", tt("Take in the can! Listen or continue.", "Take im Kasten! Anhören oder direkt weiter."));
   } else {
     $("btn-line-play").disabled = !takes[l.idx] || takes[l.idx] === "SKIP";
     $("btn-line-next").disabled = !takes[l.idx];
-    status("booth-status", "Aufnahme war leer/zu kurz — nochmal versuchen.", true);
+    status("booth-status", tt("Recording was empty/too short — try again.", "Aufnahme war leer/zu kurz — nochmal versuchen."), true);
   }
 }
 
@@ -6536,8 +6556,8 @@ async function fxPreview() {
       try { raw = await getLineOrigBuffer(l); } catch {}
     }
     if (!raw) {
-      status("booth-status", "Zum Vorhören erst aufnehmen — oder eine Szene mit Original wählen.", true);
-      btn.textContent = "🔊 Vorhören"; return;
+      status("booth-status", tt("Record first to preview — or pick a scene with original audio.", "Zum Vorhören erst aufnehmen — oder eine Szene mit Original wählen."), true);
+      btn.textContent = t("booth.fx.prev"); return;
     }
     fxPreviewRaw = raw;
     fxPreviewIsTake = isTake;
@@ -6545,14 +6565,14 @@ async function fxPreview() {
     startFxPreview();
   } catch (e) {
     console.error("Vorhören fehlgeschlagen:", e);
-    status("booth-status", "Vorhören hat nicht geklappt — nochmal versuchen.", true);
-    btn.textContent = "🔊 Vorhören";
+    status("booth-status", tt("Preview didn’t work — try again.", "Vorhören hat nicht geklappt — nochmal versuchen."), true);
+    btn.textContent = t("booth.fx.prev");
   }
 }
 
 function stopFxPreview() {
   if (fxPreviewSrc) { try { fxPreviewSrc.stop(); } catch {} fxPreviewSrc = null; }
-  const btn = $("btn-fx-preview"); if (btn) btn.textContent = "🔊 Vorhören";
+  const btn = $("btn-fx-preview"); if (btn) btn.textContent = t("booth.fx.prev");
 }
 
 function startFxPreview() {
@@ -6577,8 +6597,8 @@ function startFxPreview() {
   src.connect(buildChain(ctx, role, ctx.destination));
   src.start();
   fxPreviewSrc = src;
-  if (btn) btn.textContent = "⏹ Stopp";
-  src.onended = () => { if (fxPreviewSrc === src) { fxPreviewSrc = null; if (btn) btn.textContent = "🔊 Vorhören"; } };
+  if (btn) btn.textContent = tt("⏹ Stop", "⏹ Stopp");
+  src.onended = () => { if (fxPreviewSrc === src) { fxPreviewSrc = null; if (btn) btn.textContent = t("booth.fx.prev"); } };
 }
 $("btn-fx-preview") && ($("btn-fx-preview").onclick = fxPreview);
 $("btn-line-prev").onclick = () => {
@@ -6759,7 +6779,7 @@ function finishBooth() {
   if (match.mode === "duell" && duelInfo) {
     if (isHost) collectDuelSubmit(myId, items);
     else sendHost({ t: "duelSubmit", playerId: myId, items, boostByIdx, panByIdx });
-    status("wait-status", "🥊 Dein Take ist im Kasten! Warte auf den anderen Duellanten …");
+    status("wait-status", tt("🥊 Your take is in the can! Waiting for the other duelist …", "🥊 Dein Take ist im Kasten! Warte auf den anderen Duellanten …"));
     return;
   }
   if (isHost) collectTracks(myRole(), items, ots, myId);
@@ -6778,11 +6798,11 @@ async function startRealtime() {
     show("scr-wait");
     renderBoothPlayers();
     const dn = $("duel-waiting-note"); if (dn) dn.style.display = "none";
-    status("wait-status", "🍿 Du bist Zuschauer — die Premiere startet automatisch, wenn alle fertig sind.");
+    status("wait-status", tt("🍿 You’re watching — the premiere starts automatically when everyone’s done.", "🍿 Du bist Zuschauer — die Premiere startet automatisch, wenn alle fertig sind."));
     return;
   }
   const role = roleOf(rid) || { name: "—" };
-  $("rec-role").textContent = "🎭 Du bist: " + role.name;
+  $("rec-role").textContent = tt("🎭 You are: ", "🎭 Du bist: ") + role.name;
   const v = $("rec-video");
   v.src = sceneVideoSrc();
   attachPrompter(v, $("rec-prompter"), myRole());
@@ -6794,7 +6814,7 @@ async function startRealtime() {
   rtRecorder.ondataavailable = e => { if (e.data.size) rtChunks.push(e.data); };
   rtRecorder.onstop = async () => {
     $("onair").classList.remove("live");
-    status("rec-status", "Aufnahme fertig — sammle alle Spuren ein …");
+    status("rec-status", tt("Recording done — collecting all tracks …", "Aufnahme fertig — sammle alle Spuren ein …"));
     const buf = await new Blob(rtChunks, { type: rtChunks[0]?.type }).arrayBuffer();
     const items = [{ startAt: 0, buf }];
     if (isHost) collectTracks(myRole(), items);
@@ -6858,10 +6878,10 @@ function renderTTT() {
   board.querySelectorAll(".tttcell").forEach(b => b.onclick = () => tttAction({ k: "move", i: parseInt(b.dataset.i) }));
   $("btn-ttt-join").style.display = (!iAmIn && ttt.p.length < 2) ? "" : "none";
   let info;
-  if (ttt.p.length < 2) info = ttt.p.length === 0 ? "Zwei Wartende können zocken — wer traut sich?" : nameOf(ttt.p[0]) + " wartet auf einen Gegner …";
-  else if (ttt.winner === -1) info = "Unentschieden! 🤝";
-  else if (ttt.winner != null) info = "🏆 " + nameOf(ttt.p[ttt.winner]) + " gewinnt!";
-  else info = (myTurn ? "🫵 DU bist dran (" : nameOf(ttt.p[ttt.turn]) + " ist dran (") + (ttt.turn === 0 ? "X" : "O") + ")";
+  if (ttt.p.length < 2) info = ttt.p.length === 0 ? tt("Two people waiting can play — who’s in?", "Zwei Wartende können zocken — wer traut sich?") : nameOf(ttt.p[0]) + tt(" is waiting for an opponent …", " wartet auf einen Gegner …");
+  else if (ttt.winner === -1) info = tt("Draw! 🤝", "Unentschieden! 🤝");
+  else if (ttt.winner != null) info = "🏆 " + nameOf(ttt.p[ttt.winner]) + tt(" wins!", " gewinnt!");
+  else info = (myTurn ? tt("🫵 YOUR turn (", "🫵 DU bist dran (") : nameOf(ttt.p[ttt.turn]) + tt("’s turn (", " ist dran (")) + (ttt.turn === 0 ? "X" : "O") + ")";
   $("ttt-info").textContent = nameOf(ttt.p[0] || "") && ttt.p.length === 2 ? nameOf(ttt.p[0]) + " (X) vs " + nameOf(ttt.p[1]) + " (O) — " + info : info;
 }
 document.addEventListener("DOMContentLoaded", () => {
@@ -6895,12 +6915,12 @@ function cbRun() {
   $("cb-btn").style.display = ""; $("btn-cb-start").style.display = "none";
   $("cb-result").innerHTML = "";
   let left = 10;
-  $("cb-info").textContent = "⚡ LOS! Klick was das Zeug hält — " + left + "s";
+  $("cb-info").textContent = tt("⚡ GO! Click as fast as you can — ", "⚡ LOS! Klick was das Zeug hält — ") + left + "s";
   if (onWaitScreen()) SFX.go();
   clearInterval(cbTimer);
   cbTimer = setInterval(() => {
     left--;
-    $("cb-info").textContent = left > 0 ? "⚡ " + left + "s — KLICK KLICK KLICK!" : "Zeit um!";
+    $("cb-info").textContent = left > 0 ? tt("⚡ ", "⚡ ") + left + tt("s — CLICK CLICK CLICK!", "s — KLICK KLICK KLICK!") : tt("Time’s up!", "Zeit um!");
     if (left <= 0) {
       clearInterval(cbTimer);
       cbActive = false;
@@ -6923,8 +6943,8 @@ function cbScore(pid, n) {
 }
 function cbShowResult(list) {
   $("cb-result").innerHTML = list.map(([pid, n], i) =>
-    `<div>${i === 0 ? "🏆" : i === 1 ? "🥈" : i === 2 ? "🥉" : "•"} <b>${esc(nameOf(pid))}</b> — ${n} Klicks</div>`).join("");
-  $("cb-info").textContent = list.length ? "Ergebnis! Revanche?" : "Zwei Wartende, ein Button — wer klickt schneller?";
+    `<div>${i === 0 ? "🏆" : i === 1 ? "🥈" : i === 2 ? "🥉" : "•"} <b>${esc(nameOf(pid))}</b> — ${n} ${tt("clicks", "Klicks")}</div>`).join("");
+  $("cb-info").textContent = list.length ? tt("Results! Rematch?", "Ergebnis! Revanche?") : tt("Two waiting, one button — who clicks faster?", "Zwei Wartende, ein Button — wer klickt schneller?");
   if (onWaitScreen()) SFX.done();
 }
 document.addEventListener("DOMContentLoaded", () => {
@@ -6964,11 +6984,11 @@ function renderRPS() {
   const iAmIn = rps.p.includes(myId);
   const bothIn = rps.p.length === 2;
   $("btn-rps-join").style.display = (!iAmIn && rps.p.length < 2) ? "" : "none";
-  if (!bothIn) { el.innerHTML = ""; $("rps-info").textContent = rps.p.length === 0 ? "Zwei Wartende können zocken — wer traut sich?" : nameOf(rps.p[0]) + " wartet auf einen Gegner …"; return; }
+  if (!bothIn) { el.innerHTML = ""; $("rps-info").textContent = rps.p.length === 0 ? tt("Two people waiting can play — who’s in?", "Zwei Wartende können zocken — wer traut sich?") : nameOf(rps.p[0]) + tt(" is waiting for an opponent …", " wartet auf einen Gegner …"); return; }
   const [a1, a2] = rps.p;
   if (rps.lastResult) {
     const { c1, c2, winner } = rps.lastResult;
-    $("rps-info").textContent = winner ? "🏆 " + nameOf(winner) + " gewinnt die Runde!" : "🤝 Unentschieden!";
+    $("rps-info").textContent = winner ? "🏆 " + nameOf(winner) + tt(" wins the round!", " gewinnt die Runde!") : tt("🤝 Draw!", "🤝 Unentschieden!");
     el.innerHTML = `<div style="display:flex;gap:24px;justify-content:center;font-size:3rem">
       <div style="text-align:center"><div>${RPS_ICON[c1]}</div><div class="tag">${esc(nameOf(a1))}</div></div>
       <div style="align-self:center;font-size:1.4rem">⚔️</div>
@@ -6977,7 +6997,7 @@ function renderRPS() {
     if (onWaitScreen()) winner ? SFX.done() : SFX.beep();
   } else {
     const myTurn = iAmIn && !rps.picks[myId];
-    $("rps-info").textContent = nameOf(a1) + " (" + (rps.wins[a1]||0) + ") vs " + nameOf(a2) + " (" + (rps.wins[a2]||0) + ")" + (iAmIn ? (rps.picks[myId] ? " — warte auf Gegner …" : " — wähl deinen Zug!") : " — beide wählen gerade …");
+    $("rps-info").textContent = nameOf(a1) + " (" + (rps.wins[a1]||0) + ") vs " + nameOf(a2) + " (" + (rps.wins[a2]||0) + ")" + (iAmIn ? (rps.picks[myId] ? tt(" — waiting for opponent …", " — warte auf Gegner …") : tt(" — pick your move!", " — wähl deinen Zug!")) : tt(" — both are picking …", " — beide wählen gerade …"));
     el.innerHTML = !myTurn ? "" : `<div style="display:flex;gap:10px;justify-content:center">${Object.entries(RPS_ICON).map(([k,ic]) => `<button class="big" data-k="${k}" style="font-size:1.8rem;padding:14px 20px">${ic}</button>`).join("")}</div>`;
     el.querySelectorAll("button").forEach(b => b.onclick = () => rpsAction({ k: "pick", choice: b.dataset.k }));
   }
@@ -7007,7 +7027,7 @@ function renderDice() {
   const el = $("dice-area"); if (!el) return;
   const iAmIn = dice.p.includes(myId);
   $("btn-dice-join").style.display = (!iAmIn && dice.p.length < 2) ? "" : "none";
-  if (dice.p.length < 2) { el.innerHTML = ""; $("dice-info").textContent = dice.p.length === 0 ? "Zwei Wartende können zocken — wer traut sich?" : nameOf(dice.p[0]) + " wartet auf einen Gegner …"; return; }
+  if (dice.p.length < 2) { el.innerHTML = ""; $("dice-info").textContent = dice.p.length === 0 ? tt("Two people waiting can play — who’s in?", "Zwei Wartende können zocken — wer traut sich?") : nameOf(dice.p[0]) + tt(" is waiting for an opponent …", " wartet auf einen Gegner …"); return; }
   const [a1, a2] = dice.p;
   const r1 = dice.rolls[a1], r2 = dice.rolls[a2];
   el.innerHTML = `<div style="display:flex;gap:24px;justify-content:center;font-size:3.2rem">
@@ -7016,12 +7036,12 @@ function renderDice() {
     <div style="text-align:center"><div>${r2 ? DICE_FACE[r2-1] : "🎲"}</div><div class="tag">${esc(nameOf(a2))}</div></div>
   </div>`;
   if (dice.winner) {
-    $("dice-info").textContent = dice.winner === "tie" ? "🤝 Unentschieden! Nochmal?" : "🏆 " + nameOf(dice.winner) + " gewinnt (" + Math.max(r1,r2) + " vs " + Math.min(r1,r2) + ")!";
+    $("dice-info").textContent = dice.winner === "tie" ? tt("🤝 Draw! Again?", "🤝 Unentschieden! Nochmal?") : "🏆 " + nameOf(dice.winner) + tt(" wins (", " gewinnt (") + Math.max(r1,r2) + " vs " + Math.min(r1,r2) + ")!";
     if (onWaitScreen()) dice.winner === "tie" ? SFX.beep() : SFX.done();
   } else if (iAmIn && dice.rolls[myId] == null) {
-    $("dice-info").textContent = "🎲 Du bist dran — würfeln!";
+    $("dice-info").textContent = tt("🎲 Your turn — roll!", "🎲 Du bist dran — würfeln!");
   } else {
-    $("dice-info").textContent = nameOf(a1) + " vs " + nameOf(a2) + " — warte auf beide Würfe …";
+    $("dice-info").textContent = nameOf(a1) + " vs " + nameOf(a2) + tt(" — waiting for both rolls …", " — warte auf beide Würfe …");
   }
 }
 $("btn-dice-roll") && ($("btn-dice-roll").onclick = () => diceAction({ k: "roll" }));
@@ -7224,7 +7244,7 @@ function showRateCard() {
   const speakers = players.filter(p => p.role != null && !p.offline && p.id !== myId);
   const anySpeakers = players.filter(p => p.role != null && !p.offline).length >= 2;
   if (!anySpeakers) {
-    status("play-status", "Zu wenig Sprecher für eine Bewertung — weiter ohne Sterne.");
+    status("play-status", tt("Not enough speakers for a rating — continuing without stars.", "Zu wenig Sprecher für eine Bewertung — weiter ohne Sterne."));
     return;
   }
   myStars = {}; myBuddy = null; rateSent = false; ratingDone = false; allRatings.clear();
@@ -7239,11 +7259,11 @@ function showRateCard() {
   if (hint) {
     hint.style.display = speakers.length ? "" : "none";
     hint.innerHTML = myBuddyUsed
-      ? "🤝 SynchroBuddy hast du in diesem Match schon vergeben."
-      : "🤝 Optional: gib <b>einem</b> Sprecher einen <b>SynchroBuddy</b>-Sticker (nur <b>1× pro Match</b>) — Extra-Punkte!";
+      ? tt("🤝 You already gave your SynchroBuddy this match.", "🤝 SynchroBuddy hast du in diesem Match schon vergeben.")
+      : tt("🤝 Optional: give <b>one</b> speaker a <b>SynchroBuddy</b> sticker (<b>1× per match</b>) — extra points!", "🤝 Optional: gib <b>einem</b> Sprecher einen <b>SynchroBuddy</b>-Sticker (nur <b>1× pro Match</b>) — Extra-Punkte!");
   }
   if (!speakers.length) {
-    $("rate-rows").innerHTML = '<p class="sub">Du warst der einzige Sprecher — die anderen bewerten dich gerade… 👀</p>';
+    $("rate-rows").innerHTML = `<p class="sub">${tt("You were the only speaker — the others are rating you right now… 👀", "Du warst der einzige Sprecher — die anderen bewerten dich gerade… 👀")}</p>`;
     $("btn-rate-submit").style.display = "none";
     sendRating({}, null);
     return;
@@ -7255,8 +7275,8 @@ function showRateCard() {
         <span class="ratename">${esc(p.name)}</span>
         <span class="tag">🎭 ${esc(scene.roles.find(r => r.id === p.role)?.name || "")}</span>
       </div>
-      <div class="starrow" role="group" aria-label="Sterne für ${esc(p.name)}">${[1,2,3,4,5].map(n => `<button type="button" class="starbtn" data-n="${n}" title="${n} Stern${n > 1 ? "e" : ""}">★</button>`).join("")}</div>
-      ${canBuddy ? `<button type="button" class="buddy-btn" data-buddy="${p.id}" title="SynchroBuddy geben (1× pro Match)">Buddy</button>` : ""}
+      <div class="starrow" role="group" aria-label="${esc(tt("Stars for ", "Sterne für ") + p.name)}">${[1,2,3,4,5].map(n => `<button type="button" class="starbtn" data-n="${n}" title="${n} ${n > 1 ? tt("stars", "Sterne") : tt("star", "Stern")}">★</button>`).join("")}</div>
+      ${canBuddy ? `<button type="button" class="buddy-btn" data-buddy="${p.id}" title="${esc(tt("Give SynchroBuddy (1× per match)", "SynchroBuddy geben (1× pro Match)"))}">Buddy</button>` : ""}
     </div>`).join("");
   $("rate-rows").querySelectorAll(".raterow").forEach(row => {
     row.querySelectorAll(".starbtn").forEach(b => b.onclick = () => {
@@ -7286,7 +7306,7 @@ $("btn-rate-submit").onclick = () => {
   if (rateSent) return;
   rateSent = true;
   $("btn-rate-submit").disabled = true;
-  $("btn-rate-submit").textContent = "✅ Abgeschickt — warte auf die anderen …";
+  $("btn-rate-submit").textContent = tt("✅ Sent — waiting for the others …", "✅ Abgeschickt — warte auf die anderen …");
   // Buddy nur 1× pro Match — lokal sofort merken, Host prüft zusätzlich
   const buddy = (!myBuddyUsed && myBuddy) ? myBuddy : null;
   if (buddy) myBuddyUsed = true;
@@ -7329,11 +7349,13 @@ function updateRateProgress() {
   const have = [...allRatings.keys()].filter(id => onlineIds.has(id)).length;
   const total = onlineIds.size;
   const el = $("rate-progress");
-  if (el) el.textContent = "🗳 " + have + "/" + total + " online haben abgestimmt" + (have < total ? " …" : " — alle fertig!");
+  if (el) el.textContent = "🗳 " + have + "/" + total + (have < total
+    ? tt(" online have voted …", " online haben abgestimmt …")
+    : tt(" online have voted — everyone’s done!", " online haben abgestimmt — alle fertig!"));
   const btn = $("btn-rate-force");
   if (btn && have >= total) btn.style.display = "none";
 }
-$("btn-rate-force").onclick = () => { if (confirm("Wirklich ohne die fehlenden Stimmen weiter?")) finishRating(); };
+$("btn-rate-force").onclick = () => { if (confirm(tt("Really continue without the missing votes?", "Wirklich ohne die fehlenden Stimmen weiter?"))) finishRating(); };
 let ratingDone = false;
 function finishRating() {
   if (!isHost || ratingDone) return;
@@ -7381,9 +7403,9 @@ function finishRating() {
   const btn = $("btn-next-round");
   btn.style.display = "";
   if (match.mode === "elimination") {
-    btn.textContent = activeLeft > 1 ? ("▶ Nächste Runde (" + activeLeft + " noch im Rennen)") : "🏆 Champion küren!";
+    btn.textContent = activeLeft > 1 ? (tt("▶ Next round (", "▶ Nächste Runde (") + activeLeft + tt(" still in)", " noch im Rennen)")) : tt("🏆 Crown the champion!", "🏆 Champion küren!");
   } else {
-    btn.textContent = match.round < match.rounds ? ("▶ Nächste Runde (" + (match.round + 1) + "/" + match.rounds + ")") : "🏁 Finale anzeigen!";
+    btn.textContent = match.round < match.rounds ? (tt("▶ Next round (", "▶ Nächste Runde (") + (match.round + 1) + "/" + match.rounds + ")") : tt("🏁 Show finale!", "🏁 Finale anzeigen!");
   }
 }
 
@@ -7398,12 +7420,14 @@ $("btn-next-round").onclick = async () => {
     match.round++;
     if (match.mode === "rounds" || match.mode === "elimination") {
       // Kurze Verschnaufpause mit Countdown, bevor's in die naechste Runde geht
-      for (let s = 3; s >= 1; s--) { $("btn-next-round").style.display = "none"; status("rate-progress", "⏳ Nächste Runde in " + s + " …"); await new Promise(r => setTimeout(r, 1000)); }
+      for (let s = 3; s >= 1; s--) { $("btn-next-round").style.display = "none"; status("rate-progress", tt("⏳ Next round in ", "⏳ Nächste Runde in ") + s + " …"); await new Promise(r => setTimeout(r, 1000)); }
       // Neue Zufalls-Szene + neue Zufalls-Rollen, zurück in die Lobby zum Bereitmachen
       backToLobby(true);
       await pickRandomScene();
-      const label = match.mode === "elimination" ? ("🔪 Runde " + match.round + " — " + activeLeft + " noch im Rennen!") : ("🎲 Runde " + match.round + "/" + match.rounds);
-      status("lobby-status", label + ": neue Szene &amp; Rollen! Alle „Bin bereit“.");
+      const label = match.mode === "elimination"
+        ? (tt("🔪 Round ", "🔪 Runde ") + match.round + tt(" — ", " — ") + activeLeft + tt(" still in!", " noch im Rennen!"))
+        : (tt("🎲 Round ", "🎲 Runde ") + match.round + "/" + match.rounds);
+      status("lobby-status", label + tt(": new scene & roles! Everyone hit “I’m ready”.", ": neue Szene & Rollen! Alle „Bin bereit“."));
       $("btn-go-round").style.display = "";
       broadcast({ t: "nextRound", round: match.round, players, scene });
       return;
@@ -7423,7 +7447,7 @@ function startNewRound() {
   resetForNewRound();
   broadcastSettings && isHost && broadcastSettings();
   renderSettingsView();
-  status("lobby-status", "🎬 Runde " + match.round + "/" + match.rounds + (match.autoRoulette ? " — neue Rollen ausgewürfelt!" : "") + " Alle wieder „Bin bereit“!");
+  status("lobby-status", tt("🎬 Round ", "🎬 Runde ") + match.round + "/" + match.rounds + (match.autoRoulette ? tt(" — new roles rolled!", " — neue Rollen ausgewürfelt!") : "") + tt(" Everyone “I’m ready” again!", " Alle wieder „Bin bereit“!"));
   SFX.go();
 }
 
@@ -7445,8 +7469,8 @@ function showFinal(list, rounds, championName) {
   const rest = ordered.slice(5);
 
   $("final-sub").textContent = championName
-    ? "🔪 Battle Royale beendet — " + championName + " hat als Einzige(r) überlebt!"
-    : rounds + " Runde" + (rounds > 1 ? "n" : "") + " gespielt — hier ist eure Gesamtwertung:";
+    ? tt("🔪 Battle Royale over — ", "🔪 Battle Royale beendet — ") + championName + tt(" is the last one standing!", " hat als Einzige(r) überlebt!")
+    : rounds + (rounds > 1 ? tt(" rounds played — here’s the overall score:", " Runden gespielt — hier ist eure Gesamtwertung:") : tt(" round played — here’s the overall score:", " Runde gespielt — hier ist eure Gesamtwertung:"));
 
   const stage = $("podium-stage");
   if (stage) stage.classList.remove("alive");
@@ -7589,14 +7613,14 @@ function backToLobby(keepMatch) {
   pendingRate = false; rateSent = false; ratingDone = false; allRatings.clear(); myStars = {}; myBuddy = null;
   $("rate-card").style.display = "none"; $("rate-rows").innerHTML = ""; $("rate-result").innerHTML = "";
   $("btn-next-round").style.display = "none"; $("btn-rate-submit").disabled = true;
-  $("btn-rate-submit").textContent = "Bewertung abschicken";
+  $("btn-rate-submit").textContent = tt("Submit rating", "Bewertung abschicken");
   updateOuttakesBtn();
   show("scr-lobby");
   $("leave-btn").style.display = "";
   if (isHost) { broadcastState(); }
   renderSettingsView();
   updateLobbyMusic();
-  if (!keepMatch) status("lobby-status", "🏠 Zurück in der Lobby!");
+  if (!keepMatch) status("lobby-status", tt("🏠 Back in the lobby!", "🏠 Zurück in der Lobby!"));
 }
 function showRateResult(results, eliminatedName) {
   $("btn-rate-submit").style.display = "none";
@@ -7616,7 +7640,7 @@ function showRateResult(results, eliminatedName) {
       ${p ? avatarHTML(p) : ""}
       <div class="rateinfo">
         <span class="ratename">${i === 0 ? "🏆 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "• "}${esc(r.name)}</span>
-        ${i === 0 ? '<span class="tag" style="color:var(--amber)">Bester Synchronsprecher!</span>' : `<span class="tag">${r.votes} Stimmen</span>`}
+        ${i === 0 ? `<span class="tag" style="color:var(--amber)">${tt("Best voice actor!", "Bester Synchronsprecher!")}</span>` : `<span class="tag">${r.votes} ${tt("votes", "Stimmen")}</span>`}
         ${buddyBit}
       </div>
       <span class="resultscore">${scoreLabel}</span>
@@ -8452,12 +8476,12 @@ function rxRun(delay) {
   $("rx-pad").style.display = ""; $("btn-rx-start").style.display = "none";
   $("rx-result").innerHTML = "";
   const pad = $("rx-pad");
-  pad.style.background = "#5c1a1e"; pad.textContent = "WARTE AUF GRÜN …";
+  pad.style.background = "#5c1a1e"; pad.textContent = tt("WAIT FOR GREEN …", "WARTE AUF GRÜN …");
   rxGreenAt = 0;
   setTimeout(() => {
     if (!rxWaiting) return;
     rxGreenAt = performance.now();
-    pad.style.background = "#1a5c34"; pad.textContent = "JETZT! KLICK!";
+    pad.style.background = "#1a5c34"; pad.textContent = tt("NOW! CLICK!", "JETZT! KLICK!");
     if (onWaitScreen()) SFX.go();
   }, delay);
 }
@@ -8465,17 +8489,19 @@ $("rx-pad") && ($("rx-pad").onclick = () => {
   if (!rxWaiting || rxDone) return;
   rxDone = true; rxWaiting = false;
   let ms;
-  if (!rxGreenAt) { ms = 9999; $("rx-pad").textContent = "ZU FRÜH! 😅"; SFX.err(); }
+  if (!rxGreenAt) { ms = 9999; $("rx-pad").textContent = tt("TOO EARLY! 😅", "ZU FRÜH! 😅"); SFX.err(); }
   else { ms = Math.round(performance.now() - rxGreenAt); $("rx-pad").textContent = ms + " ms!"; SFX.ok(); }
   setTimeout(() => { $("rx-pad").style.display = "none"; $("btn-rx-start").style.display = ""; }, 1200);
   if (isHost) mgScore("rx", myId, ms); else sendHost({ t: "mg", k: "rxScore", ms });
 });
 
 // — Tipp-Renner (eigene, kurze Phrasen) —
-const TP_PHRASES = ["synchronstudio läuft heiß", "wer klickt der spricht", "mikro an hirn aus", "premiere in drei zwei eins", "der take sitzt beim ersten mal", "kopfhörer auf und los", "gate offen stimme raus", "voll auf die lippen getimet"];
+const TP_PHRASES_DE = ["synchronstudio läuft heiß", "wer klickt der spricht", "mikro an hirn aus", "premiere in drei zwei eins", "der take sitzt beim ersten mal", "kopfhörer auf und los", "gate offen stimme raus", "voll auf die lippen getimet"];
+const TP_PHRASES_EN = ["synchronstudio running hot", "clickers gonna speak", "mic on brain off", "premiere in three two one", "nailed it first take", "headphones on let's go", "gate open voice out", "timed right on the lips"];
+function tpPhrases() { return getLang() === "de" ? TP_PHRASES_DE : TP_PHRASES_EN; }
 let tpPhrase = "", tpStartT = 0, tpDone = false;
 $("btn-tp-start").onclick = () => {
-  const phrase = TP_PHRASES[Math.floor(Math.random() * TP_PHRASES.length)];
+  const phrase = tpPhrases()[Math.floor(Math.random() * tpPhrases().length)];
   if (isHost) { broadcast({ t: "tpGo", phrase }); tpRun(phrase); }
   else sendHost({ t: "mg", k: "tpStart" });
 };
@@ -8515,7 +8541,7 @@ function mgScore(game, pid, ms) {
 function mgShowResult(game, list) {
   const el = $(game === "rx" ? "rx-result" : "tp-result");
   el.innerHTML = list.map(([pid, ms], i) =>
-    `<div>${i === 0 ? "🏆" : i === 1 ? "🥈" : i === 2 ? "🥉" : "•"} <b>${esc(nameOf(pid))}</b> — ${ms >= 9999 ? "zu früh 😅" : game === "rx" ? ms + " ms" : (ms / 1000).toFixed(2) + "s"}</div>`).join("");
+    `<div>${i === 0 ? "🏆" : i === 1 ? "🥈" : i === 2 ? "🥉" : "•"} <b>${esc(nameOf(pid))}</b> — ${ms >= 9999 ? tt("too early 😅", "zu früh 😅") : game === "rx" ? ms + " ms" : (ms / 1000).toFixed(2) + "s"}</div>`).join("");
   if (onWaitScreen()) SFX.done();
 }
 
@@ -8538,7 +8564,7 @@ function redoLine(lineIdx, fromScreen) {
   const av = scene.avatars?.[String(rid)];
   $("booth-avatar").style.display = av ? "" : "none";
   if (av) $("booth-avatar").src = assetUrl(av);
-  $("booth-rolename").textContent = roleOf(rid).name + " (Korrektur)";
+  $("booth-rolename").textContent = roleOf(rid).name + tt(" (fix)", " (Korrektur)");
   setBar("booth-bar", 30);
   waitCanPlay(bv).then(() => { setBar("booth-bar", 100); $("btn-line-rec").disabled = false; });
   show("scr-booth");
@@ -8580,7 +8606,7 @@ function finishRedo() {
     if (isHost) ingestOuttakesFromPlayer(myId, myName, ots);
     else sendHost({ t: "trackUpdate", role: myRole(), lineIdx, startAt, buf: null, outtakes: ots, name: myName });
   }
-  status(back === "scr-playback" ? "play-status" : "wait-status", "✅ Line aktualisiert! Wird im Endergebnis berücksichtigt.");
+  status(back === "scr-playback" ? "play-status" : "wait-status", tt("✅ Line updated! It’ll be in the final mix.", "✅ Line aktualisiert! Wird im Endergebnis berücksichtigt."));
   renderRedoPanel("redo-panel-wait");
   renderRedoPanel("redo-panel-prem");
   SFX.done();
@@ -8680,7 +8706,7 @@ async function loadDuelSequence(dataA, dataB, info) {
   const otDuel = $("btn-outtakes"); if (otDuel) otDuel.style.display = "none";
   $("prem-status").textContent = "";   // veraltete "X/Y geladen"-Anzeige vom normalen Modus ausblenden, gilt hier nicht
   $("btn-prem-start").style.display = "none";
-  status("play-status", "🥊 Bereite beide Versionen vor …");
+  status("play-status", tt("🥊 Preparing both versions …", "🥊 Bereite beide Versionen vor …"));
 
   const itemsA = await decodeDuelData(dataA);
   const itemsB = await decodeDuelData(dataB);
@@ -8700,17 +8726,17 @@ async function loadDuelSequence(dataA, dataB, info) {
   const runSequence = async () => {
     $("btn-duel-play-start").style.display = "none";
     await playOnce(itemsA, "Take 1: " + nameOf(duelInfo.aId));
-    for (let s = 3; s >= 1; s--) { status("play-status", "⏳ Take 2 in " + s + " …"); await new Promise(r => setTimeout(r, 1000)); }
+    for (let s = 3; s >= 1; s--) { status("play-status", tt("⏳ Take 2 in ", "⏳ Take 2 in ") + s + " …"); await new Promise(r => setTimeout(r, 1000)); }
     await playOnce(itemsB, "Take 2: " + nameOf(duelInfo.bId));
     showDuelVote();
   };
 
   if (isHost) {
-    status("play-status", "✅ Beide Versionen bereit — du entscheidest, wann's losgeht!");
+    status("play-status", tt("✅ Both versions ready — you decide when it starts!", "✅ Beide Versionen bereit — du entscheidest, wann's losgeht!"));
     $("btn-duel-play-start").style.display = "";
     $("btn-duel-play-start").onclick = () => { broadcast({ t: "duelPlayGo" }); runSequence(); };
   } else {
-    status("play-status", "✅ Bereit — warte, bis der Host startet …");
+    status("play-status", tt("✅ Ready — waiting for the host to start …", "✅ Bereit — warte, bis der Host startet …"));
     window.__duelRunSequence = runSequence;   // Gast wartet auf die "duelPlayGo"-Nachricht vom Host
   }
 }
@@ -8729,8 +8755,8 @@ function showDuelVote() {
   $("btn-vote-a").disabled = amDuelist && !soloDuel;
   $("btn-vote-b").disabled = amDuelist && !soloDuel;
   status("duel-vote-status", soloDuel
-    ? "Ihr seid nur zu zweit — also stimmt ihr selbst ab. Seid ehrlich 😄"
-    : amDuelist ? "Als Duellant darfst du nicht über dich selbst abstimmen 😄" : "Klick auf die Version, die dir besser gefallen hat!");
+    ? tt("It’s just the two of you — so you vote yourselves. Be honest 😄", "Ihr seid nur zu zweit — also stimmt ihr selbst ab. Seid ehrlich 😄")
+    : amDuelist ? tt("As a duelist you can’t vote for yourself 😄", "Als Duellant darfst du nicht über dich selbst abstimmen 😄") : tt("Click the version you liked better!", "Klick auf die Version, die dir besser gefallen hat!"));
 }
 // Wer darf abstimmen? Normalerweise alle außer den Duellanten. Sind aber NUR die beiden
 // Duellanten im Raum, dürfen sie selbst ran — sonst könnte niemand abstimmen und der
@@ -8747,7 +8773,7 @@ $("btn-vote-b").onclick = () => castDuelVote("b");
 function castDuelVote(choice) {
   if (!duelVoterIds().includes(myId)) return;
   $("btn-vote-a").disabled = true; $("btn-vote-b").disabled = true;
-  status("duel-vote-status", "✅ Stimme abgegeben — warte auf die anderen …");
+  status("duel-vote-status", tt("✅ Vote in — waiting for the others …", "✅ Stimme abgegeben — warte auf die anderen …"));
   SFX.click();
   if (isHost) collectDuelVote(myId, choice);
   else sendHost({ t: "duelVote", choice });
@@ -8767,7 +8793,7 @@ function maybeFinishDuelVote() {
   if (voters.length && abgegeben >= voters.length) finishDuelVote(tally);
 }
 function showDuelVoteLive(tally) {
-  $("duel-vote-sub").textContent = "Stimmen bisher: " + nameOf(duelInfo.aId) + " " + tally.a + " : " + tally.b + " " + nameOf(duelInfo.bId);
+  $("duel-vote-sub").textContent = tt("Votes so far: ", "Stimmen bisher: ") + nameOf(duelInfo.aId) + " " + tally.a + " : " + tally.b + " " + nameOf(duelInfo.bId);
 }
 function finishDuelVote(tally) {
   if (!isHost) return;
@@ -8781,8 +8807,8 @@ function showDuelResult(result) {
   $("btn-vote-a").disabled = true; $("btn-vote-b").disabled = true;
   const { tally, winner, aName, bName } = result;
   $("duel-result").innerHTML = winner === "tie"
-    ? `<div class="raterow">🤝 Unentschieden! ${tally.a} : ${tally.b}</div>`
-    : `<div class="raterow winner" style="border-color:var(--amber);box-shadow:0 0 16px rgba(255,201,92,.3)">🏆 <b>${esc(winner === "a" ? aName : bName)}</b> gewinnt das Duell! (${tally.a} : ${tally.b})</div>`;
+    ? `<div class="raterow">🤝 ${tt("Draw!", "Unentschieden!")} ${tally.a} : ${tally.b}</div>`
+    : `<div class="raterow winner" style="border-color:var(--amber);box-shadow:0 0 16px rgba(255,201,92,.3)">🏆 <b>${esc(winner === "a" ? aName : bName)}</b> ${tt("wins the duel!", "gewinnt das Duell!")} (${tally.a} : ${tally.b})</div>`;
   status("duel-vote-status", "");
   if (isHost) $("btn-duel-back").style.display = "";
   SFX.done();
@@ -8874,7 +8900,7 @@ function syncForceMixBtn() {
 $("btn-force-mix") && ($("btn-force-mix").onclick = () => {
   if (!iAmLogicalHost()) return;
   $("btn-force-mix").style.display = "none";
-  status("wait-status", "🎬 Starte die Premiere mit den vorhandenen Spuren …");
+  status("wait-status", tt("🎬 Starting the premiere with the tracks we have …", "🎬 Starte die Premiere mit den vorhandenen Spuren …"));
   if (!isHost) { sendHost({ t: "hostCmd", cmd: "forceMix" }); return; }
   maybeFinishTracks(true);
 });
@@ -8966,7 +8992,7 @@ function syncGlowBtn() {
   if (!btn) return;
   btn.classList.toggle("off", !ambilightOn);
   btn.setAttribute("aria-pressed", ambilightOn ? "true" : "false");
-  btn.title = ambilightOn ? "Glow aus" : "Glow an";
+  btn.title = ambilightOn ? tt("Glow off", "Glow aus") : tt("Glow on", "Glow an");
 }
 function setCinemaGlowFallback(on) {
   document.body.classList.toggle("cinema-glow-fallback", !!on);
@@ -9125,7 +9151,7 @@ syncGlowBtn();
 
 async function loadMix(data, metaMsg) {
   if (!scene) {
-    status("play-status", "⚠ Szene fehlt noch — kurz warten oder Seite neu laden.", true);
+    status("play-status", tt("⚠ Scene isn’t here yet — wait a moment or reload the page.", "⚠ Szene fehlt noch — kurz warten oder Seite neu laden."), true);
     return;
   }
   // PeerJS streicht Boost/Pan oft neben den Audio-Buffern — Maps / eigene Booth-Werte nachziehen
@@ -9134,14 +9160,13 @@ async function loadMix(data, metaMsg) {
   if (metaMsg && metaMsg.playerGains) ingestPremPlayerGains(metaMsg.playerGains);
   show("scr-playback");
   exitCinemaMode();
-  status("play-status", "Dekodiere Spuren …");
+  status("play-status", tt("Decoding tracks …", "Dekodiere Spuren …"));
   invalidatePremCache();
   const me0 = players.find(x => x.id === myId);
   if (me0) { me0.prem = false; me0.premPct = 0; }
   armLoadReassure("prem");
   reportPremLoad(2, false);
   myPremLocalReady = false;
-  pendingPremGo = false;
   const ctx = getCtx();
   mixItems = [];
   let okCount = 0, failCount = 0;
@@ -9162,7 +9187,7 @@ async function loadMix(data, metaMsg) {
     }
   }
   console.log("Mix geladen:", okCount, "Spuren ok,", failCount, "fehlgeschlagen");
-  if (failCount) status("play-status", "⚠ " + failCount + " Spur(en) konnten nicht geladen werden — F12 → Console.", true);
+  if (failCount) status("play-status", "⚠ " + failCount + tt(" track(s) couldn’t load — F12 → Console.", " Spur(en) konnten nicht geladen werden — F12 → Console."), true);
   reportPremLoad(48, false);
   // Original-Stimmen für alle Lines, die KEIN Spieler eingesprochen hat
   // (unbesetzte Rollen + übersprungene Lines)
@@ -9681,6 +9706,7 @@ function tryFollowHostPremiere(paused) {
   if (isHost) return;
   if (premiereLocked && document.querySelector("#scr-playback.active")) {
     if (paused && !premPaused) premPauseAll(false);
+    else if (!paused && premPaused) premResumeAll(false);
     return;
   }
   if (!mixItems.length) {
@@ -9732,7 +9758,14 @@ $("prem-orig-master") && ($("prem-orig-master").onchange = () => {
   broadcastPremOrig();
   invalidatePremCache();
 });
-$("btn-replay").onclick = () => { invalidatePremCache(); playMix(false); };
+$("btn-replay").onclick = () => {
+  invalidatePremCache();
+  if (iAmLogicalHost()) {
+    if (!isHost) sendHost({ t: "hostCmd", cmd: "premReplay" });
+    else broadcast({ t: "premReplay" });
+  }
+  playMix(false);
+};
 $("btn-download").onclick = () => downloadPremiere();
 $("btn-download-audio").onclick = () => exportAudioFast();
 
@@ -9804,7 +9837,7 @@ function audioBufferToWav(buffer) {
 // ── Schneller Ton-Export: rendert den kompletten Mix OHNE Echtzeit-Warten ──
 async function exportAudioFast() {
   try {
-    status("play-status", "⚡ Rendere Ton … (dauert nur Sekunden, kein Zuschauen nötig)");
+    status("play-status", tt("⚡ Rendering audio … (only takes seconds, no need to watch)", "⚡ Rendere Ton … (dauert nur Sekunden, kein Zuschauen nötig)"));
     const OfflineCtor = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     const fromLines = scene?.lines?.length ? Math.max(...scene.lines.map(l => l.end)) : 0;
     const fromMix = mixItems.length ? Math.max(...mixItems.map(i => i.startAt + (i.buffer?.duration || 0))) : 0;
@@ -9857,12 +9890,12 @@ async function exportAudioFast() {
     const rendered = await offlineCtx.startRendering();
     const blob = audioBufferToWav(rendered);
     const wie = await saveBlob(blob, (scene?.id || "synchro") + "_ton.wav");
-    if (wie === "abort") { status("play-status", "Speichern abgebrochen."); return; }
-    status("play-status", "✅ Ton gespeichert (WAV, sofort)! Einfach auf die Videospur in CapCut/Premiere/AE ziehen.");
+    if (wie === "abort") { status("play-status", tt("Save cancelled.", "Speichern abgebrochen.")); return; }
+    status("play-status", tt("✅ Audio saved (WAV, instant)! Just drop it on the video track in CapCut/Premiere/AE.", "✅ Ton gespeichert (WAV, sofort)! Einfach auf die Videospur in CapCut/Premiere/AE ziehen."));
     SFX.done();
   } catch (e) {
     console.error("Schneller Ton-Export fehlgeschlagen:", e);
-    status("play-status", "❌ Ton-Export hat nicht geklappt — F12-Konsole für Details.", true);
+    status("play-status", tt("❌ Audio export failed — F12 console for details.", "❌ Ton-Export hat nicht geklappt — F12-Konsole für Details."), true);
   }
 }
 
@@ -10307,24 +10340,24 @@ async function playMix(opts) {
         if (r) try { r(result); } catch {}
         updateDownloadBtnLabel();
         if (!ok && !saveFile) {
-          status("play-status", "⚠ Sofort-Speichern hat diesmal nicht geklappt (Fenster im Hintergrund?). Beim Speichern einmal durchlaufen — bitte Tab im Vordergrund lassen.", true);
+          status("play-status", tt("⚠ Instant save didn’t work this time (window in the background?). When saving, let it play through — please keep the tab in the foreground.", "⚠ Sofort-Speichern hat diesmal nicht geklappt (Fenster im Hintergrund?). Beim Speichern einmal durchlaufen — bitte Tab im Vordergrund lassen."), true);
         }
         if (saveFile && ok) {
           const name = (scene?.id || "synchro") + "_dub." + endung;
           saveBlob(blob, name).then(wie => {
-            if (wie === "abort") { status("play-status", "Speichern abgebrochen."); return; }
-            if (fps < 5) status("play-status", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein (nur " + fps.toFixed(1) + " Bilder/Sek.). Der Browser drosselt das Aufnehmen, wenn das Fenster im Hintergrund ist — bitte nochmal speichern und das Fenster dabei offen im Vordergrund lassen.", true);
+            if (wie === "abort") { status("play-status", tt("Save cancelled.", "Speichern abgebrochen.")); return; }
+            if (fps < 5) status("play-status", tt("⚠ Saved, but the picture may stutter or be black (only ", "⚠ Gespeichert, aber das Bild dürfte ruckeln oder schwarz sein (nur ") + fps.toFixed(1) + tt(" frames/sec.). The browser throttles recording when the window is in the background — please save again and keep the window open in the foreground.", " Bilder/Sek.). Der Browser drosselt das Aufnehmen, wenn das Fenster im Hintergrund ist — bitte nochmal speichern und das Fenster dabei offen im Vordergrund lassen."), true);
             else {
               status("play-status", endung === "mp4"
-                ? "✅ Gespeichert als MP4 — kann direkt bei TikTok, Insta oder WhatsApp hochgeladen werden."
-                : "✅ Gespeichert! Dein Browser kann nur .webm — für TikTok/Insta einmal in CapCut o. Ä. zu MP4 exportieren.");
+                ? tt("✅ Saved as MP4 — you can upload it straight to TikTok, Insta or WhatsApp.", "✅ Gespeichert als MP4 — kann direkt bei TikTok, Insta oder WhatsApp hochgeladen werden.")
+                : tt("✅ Saved! Your browser can only do .webm — for TikTok/Insta export once to MP4 in CapCut or similar.", "✅ Gespeichert! Dein Browser kann nur .webm — für TikTok/Insta einmal in CapCut o. Ä. zu MP4 exportieren."));
               SFX.done();
             }
           });
         } else if (saveFile && !ok) {
-          status("play-status", "⚠ Speichern fehlgeschlagen — bitte Tab im Vordergrund lassen und nochmal versuchen.", true);
+          status("play-status", tt("⚠ Save failed — please keep the tab in the foreground and try again.", "⚠ Speichern fehlgeschlagen — bitte Tab im Vordergrund lassen und nochmal versuchen."), true);
         } else if (ok && !quiet) {
-          status("play-status", "✅ Premiere durch — Speichern ist jetzt sofort bereit!");
+          status("play-status", tt("✅ Premiere finished — save is ready instantly now!", "✅ Premiere durch — Speichern ist jetzt sofort bereit!"));
         }
       };
     }
@@ -10643,12 +10676,12 @@ function attachPrompter(videoEl, promptEl, myRoleId) {
 // 10) NEUE RUNDE
 // ═════════════════════════════════════════════════════════════
 $("btn-again").onclick = () => {
-  if (!iAmLogicalHost()) return status("play-status", "Nur der Host kann eine neue Runde starten.", true);
+  if (!iAmLogicalHost()) return status("play-status", tt("Only the host can start a new round.", "Nur der Host kann eine neue Runde starten."), true);
   if (!isHost) { sendHost({ t: "hostCmd", cmd: "again" }); return; }
   broadcast({ t: "again" }); resetForNewRound();
 };
 $("btn-back").onclick = () => {
-  if (!iAmLogicalHost()) return status("play-status", "Nur der Host kann die Szene wechseln.", true);
+  if (!iAmLogicalHost()) return status("play-status", tt("Only the host can change the scene.", "Nur der Host kann die Szene wechseln."), true);
   if (!isHost) { sendHost({ t: "hostCmd", cmd: "backScene" }); return; }
   SFX.back(); scene = null; broadcast({ t: "again" }); resetForNewRound(); $("scene-card").style.display = "none";
 };
@@ -10677,12 +10710,12 @@ function resetForNewRound() {
   const c = $("cinema-curtains"); if (c) c.classList.remove("show", "open");
   $("rate-card").style.display = "none";
   $("rate-rows").innerHTML = ""; $("rate-result").innerHTML = "";
-  $("btn-rate-submit").textContent = "Bewertung abschicken";
+  $("btn-rate-submit").textContent = tt("Submit rating", "Bewertung abschicken");
   $("btn-rate-submit").disabled = true;
   $("btn-next-round").style.display = "none";
   updateOuttakesBtn();
   if (isHost) { ttt = { p: [], board: Array(9).fill(null), turn: 0, winner: null }; broadcast({ t: "tttState", ttt }); renderTTT(); }
   show("scr-lobby");
   if (isHost) broadcastState(); else { renderPlayers(); renderRoles(); }
-  status("lobby-status", "Neue Runde — wieder „Bin bereit“ drücken, wenn's losgehen soll.");
+  status("lobby-status", tt("New round — hit “I’m ready” again when you want to go.", "Neue Runde — wieder „Bin bereit“ drücken, wenn's losgehen soll."));
 }
