@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.88";
+const APP_VERSION = "9.10.90";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -605,6 +605,14 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.90", items: [
+    "📶 Scene picker no longer downloads videos for thumbnails — uses character pictures instead (saves a lot of internet)"
+  ]},
+  { v: "9.10.89", items: [
+    "🍿 Fix: Premiere starts for everyone together (premGo retries + follow host if message was delayed)",
+    "📦 Mix is sent before the big outtakes pack — less blocked start for guests",
+    "🎨 Doodle board: strokes can’t “ghost-erase” from out-of-order updates; board resets per room"
+  ]},
   { v: "9.10.88", items: [
     "🔧 Fix: after a round, guests can pick roles & Ready again (role sync race)",
     "📥 Fix: video “loaded” status resets properly for everyone when host picks a new scene",
@@ -4533,7 +4541,6 @@ async function loadSceneList() {
 // ── Szenen-Auswahl als Bild-Raster ──
 // Das <select> bleibt als unsichtbare Quelle der Wahrheit erhalten, damit der restliche
 // Code (Laden-Knopf, Duell, Roulette) unverändert damit weiterarbeiten kann.
-let thumbObserver = null;
 let sceneRoleFilter = "all";   // "all" | "2" | "3" | … | "7p" (≥7)
 
 function renderRoleFilter() {
@@ -4594,11 +4601,11 @@ function renderSceneGrid(filter) {
   const current = sel ? String(sel.value) : "0";
   grid.innerHTML = hits.map(({ s, i }) => {
     const d = sceneDifficulty(s);
-    const at = (s.lines && s.lines.length ? s.lines[0].t : 1) + 0.35;   // erster gesprochener Moment zeigt am besten, was los ist
-    const fb = Object.values(s.avatars || {})[0] || "";
-    return `<button type="button" class="scene-tile${String(i) === current ? " sel" : ""}" data-i="${i}"
-        data-src="${esc(assetUrl(s.videoUrl))}" data-at="${at.toFixed(2)}" data-fb="${esc(fb)}">
-      <span class="st-thumb"><span class="st-ph">🎬</span><span class="st-badge">${roleCountLabel(s.roles.length).replace(" ", "&nbsp;")}</span></span>
+    const faces = Object.values(s.avatars || {}).slice(0, 4)
+      .map(src => `<img src="${esc(assetUrl(src))}" alt="" loading="lazy" decoding="async">`)
+      .join("");
+    return `<button type="button" class="scene-tile${String(i) === current ? " sel" : ""}" data-i="${i}">
+      <span class="st-thumb">${faces ? `<span class="st-faces">${faces}</span>` : `<span class="st-ph">🎬</span>`}<span class="st-badge">${roleCountLabel(s.roles.length).replace(" ", "&nbsp;")}</span></span>
       <span class="st-title">${esc(sceneTitleDisplay(s.title))}</span>
       <span class="st-meta">${d ? d.emoji + " " + esc(d.label) : "—"}${s.lines ? " · " + s.lines.length + " lines" : ""}</span>
     </button>`;
@@ -4614,66 +4621,6 @@ function renderSceneGrid(filter) {
       if (alreadyPicked) $("btn-load-scene").click();   // zweiter Klick auf dieselbe Szene lädt sie direkt
     };
   });
-
-  // Vorschaubilder erst laden, wenn die Kachel wirklich sichtbar ist
-  if (thumbObserver) thumbObserver.disconnect();
-  if (typeof IntersectionObserver === "function") {
-    thumbObserver = new IntersectionObserver((entries, obs) => {
-      entries.forEach(e => { if (e.isIntersecting) { mountSceneThumb(e.target); obs.unobserve(e.target); } });
-    }, { root: grid, rootMargin: "150px" });
-    grid.querySelectorAll(".scene-tile").forEach(t => thumbObserver.observe(t));
-  } else {
-    grid.querySelectorAll(".scene-tile").forEach(mountSceneThumb);
-  }
-}
-// Standbild aus dem Video holen — so bekommt jede Szene automatisch ein Bild,
-// auch neu hinzugefügte, ohne dass extra Dateien gepflegt werden müssen.
-// Sobald das Bild da ist, wird es auf eine kleine Leinwand gemalt und das Video
-// wieder freigegeben: 43 offene Videos gleichzeitig würden sonst den Speicher fluten.
-function mountSceneThumb(tile) {
-  if (tile.dataset.thumb) return;
-  tile.dataset.thumb = "1";
-  const holder = tile.querySelector(".st-thumb");
-  const ph = holder.querySelector(".st-ph");
-  const at = parseFloat(tile.dataset.at) || 1;
-  const v = document.createElement("video");
-  v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = "metadata";
-  v.setAttribute("muted", ""); v.setAttribute("playsinline", "");
-
-  const zeigeErsatzbild = () => {
-    const fb = tile.dataset.fb;
-    if (fb) { const img = document.createElement("img"); img.src = fb; img.alt = ""; holder.insertBefore(img, holder.firstChild); if (ph) ph.remove(); }
-    else if (ph) ph.textContent = "🚫";
-  };
-  const einfrieren = () => {
-    if (tile.dataset.frozen) return;
-    tile.dataset.frozen = "1";
-    try {
-      const breit = 320, verhaeltnis = v.videoWidth ? v.videoHeight / v.videoWidth : 0.5625;
-      const c = document.createElement("canvas");
-      c.width = breit; c.height = Math.max(1, Math.round(breit * verhaeltnis));
-      c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
-      holder.insertBefore(c, holder.firstChild);
-      if (ph) ph.remove();
-    } catch { zeigeErsatzbild(); }
-    v.removeAttribute("src");
-    try { v.load(); } catch {}
-    v.remove();
-  };
-
-  let sprungNoetig = false;
-  v.addEventListener("loadedmetadata", () => {
-    const ziel = Math.min(at, Math.max(0, (v.duration || at) - 0.1));
-    if (Math.abs(v.currentTime - ziel) > 0.3) { sprungNoetig = true; try { v.currentTime = ziel; } catch { sprungNoetig = false; } }
-  }, { once: true });
-  v.addEventListener("seeked", einfrieren, { once: true });
-  v.addEventListener("loadeddata", () => { if (!sprungNoetig) einfrieren(); }, { once: true });
-  v.addEventListener("error", () => { v.remove(); zeigeErsatzbild(); }, { once: true });
-  // Reißleine, falls der Sprung nie zurückmeldet (z. B. Server ohne Range-Unterstützung)
-  setTimeout(() => { if (!tile.dataset.frozen && v.readyState >= 2) einfrieren(); }, 8000);
-
-  v.src = tile.dataset.src + "#t=" + at.toFixed(2);
-  holder.insertBefore(v, holder.firstChild);
 }
 $("scene-search") && ($("scene-search").oninput = () => renderSceneGrid());
 
@@ -9274,10 +9221,11 @@ async function loadMix(data, metaMsg) {
   updateOuttakesBtn();
   SFX.ok();
   // Host hat schon auf Start gedrückt, während wir noch geladen haben
-  if (pendingPremGo || (premiereLocked && !isHost && !document.querySelector("#scr-playback.active .cinema"))) {
-    const go = pendingPremGo || premiereLocked;
+  if (!isHost && (pendingPremGo || premiereLocked)) {
+    const alreadyPlaying = premiereLocked && document.querySelector("#scr-playback.active")
+      && $("play-video") && !$("play-video").paused && !$("play-video").ended;
     pendingPremGo = false;
-    if (go && !isHost) premStart({ skipCountdown: true });
+    if (!alreadyPlaying) premStart({ skipCountdown: true });
   }
 }
 
