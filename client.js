@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.91";
+const APP_VERSION = "9.10.94";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -194,6 +194,7 @@ let premPaused = false;
 // Premiere: Host-Lautstärke pro Mitspieler-Rolle (0.05–3, Default 1) — für alle synchron
 // Keys IMMER als String ("0","1",…), sonst Object/Map-Mismatch → Anzeige klebt bei 100 %.
 let premPlayerGains = Object.create(null);   // roleIdStr -> number
+let premAutoBalance = false;                 // Host: Stimmen automatisch angleichen
 let premPlayerGainNodes = new Map();         // roleIdStr -> GainNode (live)
 let premPlayerVolBound = false;
 let premPlayerVolToggleBound = false;
@@ -605,6 +606,19 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.94", items: [
+    "🎤 Mikrofon: alte gespeicherte Geräte-ID blockiert Brave nicht mehr — Auswahl erscheint wieder",
+    "🎬 Ghost Stories + Tokyo Ghoul sind jetzt auch online in der Szenenliste"
+  ]},
+  { v: "9.10.93", items: [
+    "🎬 Neue Szene: Ghost Stories — I Hope to God You're Adopted (Satsuki, Keiichirou, Kaya)",
+    "🎬 Neue Szene: Tokyo Ghoul — Kaneki vs Jason (Rize, Jason, Kaneki)",
+    "📦 Desktop-Ordner ist jetzt auch ein Choicer-Voicer-Pack (dub_video.ogv + Lines)"
+  ]},
+  { v: "9.10.92", items: [
+    "🎚 Premiere: Auto-Ausgleich-Knopf — alle Stimmen ungefähr gleich laut, Musik wird leiser geduckt damit nichts übertönt wird",
+    "Host schaltet vor der Premiere an/aus; gilt für alle Zuhörer (wie die −/+ Mitspieler-Lautstärke)"
+  ]},
   { v: "9.10.91", items: [
     "🔗 Invite links fill in the 5-digit room code again",
     "🍿 Premiere: guests unpause with the host; Replay plays for everyone",
@@ -1461,6 +1475,12 @@ const AVATAR_CHARS = [
   { img: "scenes/ghostpajamas/satsuki.png", label: "Satsuki (Gay Pajamas)" },
   { img: "scenes/ghostitch/satsuki.png", label: "Satsuki (Itch)" },
   { img: "scenes/ghostitch/keiichirou.png", label: "Keiichirou (Itch)" },
+  { img: "scenes/ghostadopted/satsuki.png", label: "Satsuki (Adopted)" },
+  { img: "scenes/ghostadopted/keiichirou.png", label: "Keiichirou (Adopted)" },
+  { img: "scenes/ghostadopted/kaya.png", label: "Kaya (Ghost Stories)" },
+  { img: "scenes/tokyokanekijason/rize.png", label: "Rize" },
+  { img: "scenes/tokyokanekijason/jason.png", label: "Jason (Tokyo Ghoul)" },
+  { img: "scenes/tokyokanekijason/kaneki.png", label: "Kaneki" },
   { img: "scenes/girlyteengirl/pearl.png", label: "Pearl (Girly Teengirl)" },
   { img: "scenes/girlyteengirl/girly_teengirl.png", label: "Girly Teengirl" },
   { img: "scenes/girlyteengirl/mr_krabs.png", label: "Mr. Krabs (Girly Teengirl)" },
@@ -1688,15 +1708,44 @@ function renderAccessoryPreview() {
   el.innerHTML = avatarHTML({ name: myName || "Du", avatar: myAvatar, accessory: myAccessory });
 }
 
+function usableMicId(id) {
+  return typeof id === "string" && id.length > 8 && id !== "default" && id !== "communications";
+}
+function micAudioConstraints(deviceId) {
+  const audio = {
+    echoCancellation: !!micSettings.ec,
+    noiseSuppression: !!micSettings.ns,
+    autoGainControl: !!micSettings.agc
+  };
+  if (usableMicId(deviceId)) audio.deviceId = { ideal: deviceId };
+  return { audio };
+}
+async function getMicStream(preferredId) {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
+    throw Object.assign(new Error("mediaDevices"), { name: "NotSupportedError" });
+  const tries = [
+    micAudioConstraints(preferredId),
+    { audio: { echoCancellation: !!micSettings.ec, noiseSuppression: !!micSettings.ns, autoGainControl: !!micSettings.agc } },
+    { audio: true }
+  ];
+  let lastErr;
+  for (const cons of tries) {
+    try { return await navigator.mediaDevices.getUserMedia(cons); }
+    catch (e) {
+      lastErr = e;
+      if (e && (e.name === "NotAllowedError" || e.name === "SecurityError")) throw e;
+    }
+  }
+  throw lastErr;
+}
 async function buildMic() {
   try {
     if (micStream) micStream.getTracks().forEach(t => t.stop());
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: {
-      deviceId: micSettings.deviceId ? { exact: micSettings.deviceId } : undefined,
-      echoCancellation: micSettings.ec,
-      noiseSuppression: micSettings.ns,
-      autoGainControl: micSettings.agc
-    }});
+    micStream = await getMicStream(micSettings.deviceId);
+    try {
+      const liveId = micStream.getAudioTracks()[0]?.getSettings?.().deviceId;
+      if (usableMicId(liveId)) micSettings.deviceId = liveId;
+    } catch {}
     const ctx = getCtx();
     if (!recDest) {
       recDest = ctx.createMediaStreamDestination();
@@ -1722,15 +1771,21 @@ async function buildMic() {
     const n = e && e.name;
     let msg;
     if (n === "NotAllowedError" || n === "SecurityError")
-      msg = tt("🚫 Microphone is blocked. Click the lock/camera icon in the address bar, allow the mic, and reload the page.", "🚫 Mikrofon ist blockiert. Klick links in der Adressleiste auf das Schloss- bzw. Kamera-Symbol, stell Mikrofon auf Zulassen und lade die Seite neu.");
+      msg = tt("🚫 Microphone is blocked. In the address bar click the lock icon → Microphone → Allow, then click “Test record”. (Brave: also try Shields ↓ for this site.)", "🚫 Mikrofon ist blockiert. In der Adressleiste aufs Schloss klicken → Mikrofon → Zulassen, danach auf „Test aufnehmen“. (Brave: Shields für diese Seite runterdrehen.)");
     else if (n === "NotFoundError" || n === "OverconstrainedError")
       msg = tt("🎤 No microphone found. Is one plugged in? Otherwise pick another device below.", "🎤 Kein Mikrofon gefunden. Ist eins angeschlossen? Sonst unten ein anderes Gerät auswählen.");
     else if (n === "NotReadableError")
       msg = tt("🎤 Microphone is in use by another program (Discord, OBS, Teams …). Close it there and try again.", "🎤 Mikrofon ist von einem anderen Programm belegt (Discord, OBS, Teams …). Dort schließen und nochmal versuchen.");
+    else if (n === "NotSupportedError")
+      msg = tt("🎤 This browser blocked microphone access. Try Chrome or Edge, or turn Brave Shields down for this site.", "🎤 Dieser Browser blockiert das Mikrofon. Versuch Chrome/Edge, oder in Brave die Shields für diese Seite lockern.");
     else
-      msg = tt("🎤 Mic access failed", "🎤 Mikro-Zugriff fehlgeschlagen") + (n ? " (" + n + ")" : "") + tt(" — reload the page and try again.", " — Seite neu laden und nochmal versuchen.");
+      msg = tt("🎤 Mic access failed", "🎤 Mikro-Zugriff fehlgeschlagen") + (n ? " (" + n + ")" : "") + tt(" — click “Test record” once, or reload.", " — einmal auf „Test aufnehmen“ klicken, oder neu laden.");
     status("mic-status", msg, true);
       SFX.err();
+    if (n === "OverconstrainedError" || n === "NotFoundError") {
+      micSettings.deviceId = null;
+      try { saveMic(); } catch {}
+    }
     return false;
   }
 }
@@ -1814,12 +1869,24 @@ function recStream() { return recDest.stream; }
 async function ensureMic() { return micStream ? true : buildMic(); }
 
 async function populateDevices() {
+  const sel = $("mic-device");
+  if (!sel) return;
   try {
     const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === "audioinput");
-    $("mic-device").innerHTML = devs.map(d => `<option value="${d.deviceId}">${esc(d.label || tt("Microphone", "Mikrofon"))}</option>`).join("");
-    if (micSettings.deviceId) $("mic-device").value = micSettings.deviceId;
-  } catch {}
+    if (!devs.length) {
+      sel.innerHTML = `<option value="">${esc(tt("Click “Test record” to choose a microphone", "Klick auf „Test aufnehmen“, dann erscheint die Mikro-Auswahl"))}</option>`;
+      return;
+    }
+    sel.innerHTML = devs.map((d, i) => {
+      const label = d.label || tt("Microphone", "Mikrofon") + " " + (i + 1);
+      return `<option value="${esc(d.deviceId)}">${esc(label)}</option>`;
+    }).join("");
+    if (usableMicId(micSettings.deviceId)) sel.value = micSettings.deviceId;
+  } catch {
+    sel.innerHTML = `<option value="">${esc(tt("Click “Test record” to choose a microphone", "Klick auf „Test aufnehmen“, dann erscheint die Mikro-Auswahl"))}</option>`;
+  }
 }
+try { navigator.mediaDevices.addEventListener("devicechange", () => { populateDevices(); }); } catch {}
 
 
 // ── Dual-Waveform: lila = Original-Referenz-Peaks (statisch), blau = eigene Stimme (live während Aufnahme) ──
@@ -2172,8 +2239,8 @@ function startVizOn(canvasId) {
 // Setup-Screen
 async function initMicScreen() {
   const ok = await buildMic();
-  if (!ok) return false;
   await populateDevices();
+  if (!ok) return false;
   // Gespeicherte Einstellungen in die UI übernehmen
   $("mic-ns").checked = micSettings.ns; $("mic-ec").checked = micSettings.ec;
   $("mic-agc").checked = micSettings.agc; $("mic-lowcut").checked = micSettings.lowcut;
@@ -2212,7 +2279,12 @@ $("btn-mic-settings").onclick = () => {
   show("scr-mic");
   initMicScreen();
 };
-$("mic-device").onchange = e => { micSettings.deviceId = e.target.value; buildMic(); };
+$("mic-device").onchange = e => {
+  const id = e.target.value;
+  if (!usableMicId(id)) return;
+  micSettings.deviceId = id;
+  buildMic();
+};
 $("mic-ns").onchange = e => { micSettings.ns = e.target.checked; buildMic(); };
 $("mic-ec").onchange = e => { micSettings.ec = e.target.checked; buildMic(); };
 $("mic-agc").onchange = e => { micSettings.agc = e.target.checked; buildMic(); };
@@ -4017,7 +4089,7 @@ const GUEST_IN = new Set([
   "settings", "sceneReset", "duelSetupInfo", "duelReady", "duelPlayGo", "duelVoteBroadcast",
   "duelResult", "wins", "nextRound", "matchEnd", "matchLobby", "videoMeta", "videoChunk",
   "goLines", "go", "mix", "outtakesPool", "playOuttakes", "tttState", "rpsState", "diceState",
-  "drawState", "premGo", "premReplay", "premOrig", "premPlayerVol", "premPause", "premResume", "emojiShow", "rateResult",
+  "drawState", "premGo", "premReplay", "premOrig", "premPlayerVol", "premAutoBal", "premPause", "premResume", "emojiShow", "rateResult",
   "rxGo", "tpGo", "mgResult", "cbGo", "cbResult", "again"
 ]);
 
@@ -4470,6 +4542,7 @@ function handleMsg(msg, conn) {
       break;
     case "premOrig": applyPremOrigMsg(msg); break;
     case "premPlayerVol": applyPremPlayerGainsMsg(msg); break;
+    case "premAutoBal": applyPremAutoBalMsg(msg); break;
     case "premPause": premPauseAll(false, msg.tVideo); break;
     case "premResume": premResumeAll(false, msg.tVideo); break;
     case "emojiShow": showEmoji(msg.pid, msg.char); break;
@@ -9237,6 +9310,7 @@ async function loadMix(data, metaMsg) {
   $("btn-download").disabled = true;
   initPremOrigFromMix();
   renderPremPlayerVolPanel();
+  updatePremAutoBalBtn();
   if (isHost) { broadcastState(); renderPremState(); broadcastPremOrig(); broadcastPremPlayerGains(); }
   else {
     sendHost({ t: "premReady" });
@@ -9516,6 +9590,7 @@ function setPremPlayerGain(role, gain) {
 }
 function resetPremPlayerGains() {
   premPlayerGains = Object.create(null);
+  premAutoBalance = false;
   clearPremPlayerGainNodes();
   tunePremCompForPlayerGains();
   const panel = $("prem-player-vol");
@@ -9526,6 +9601,115 @@ function resetPremPlayerGains() {
   }
   const list = $("prem-player-vol-list");
   if (list) list.innerHTML = "";
+}
+function bufferRms(buffer) {
+  if (!buffer) return 0;
+  let sum = 0, n = 0;
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+    const d = buffer.getChannelData(ch);
+    for (let i = 0; i < d.length; i++) { const x = d[i]; sum += x * x; n++; }
+  }
+  return n ? Math.sqrt(sum / n) : 0;
+}
+/** Pro Rolle: gewichteter RMS über alle Voicelines (inkl. Booth-Boost). */
+function computeRoleVoiceLevels() {
+  const byRole = new Map();
+  for (const item of mixItems) {
+    if (item.isOrig || item.role == null || !item.buffer) continue;
+    const k = roleKey(item.role);
+    if (k == null) continue;
+    let rms = bufferRms(item.buffer);
+    const boost = item.boost != null && item.boost !== 1 ? item.boost : 1;
+    rms *= boost;
+    if (rms < 1e-7) continue;
+    const dur = Math.max(0.001, item.buffer.duration || 0.001);
+    if (!byRole.has(k)) byRole.set(k, { weighted: 0, dur: 0 });
+    const e = byRole.get(k);
+    e.weighted += rms * dur;
+    e.dur += dur;
+  }
+  const levels = Object.create(null);
+  for (const [k, e] of byRole) {
+    if (e.dur > 0) levels[k] = e.weighted / e.dur;
+  }
+  return levels;
+}
+function applyAutoBalanceMix() {
+  const levels = computeRoleVoiceLevels();
+  const vals = Object.values(levels).filter(v => v > 1e-6).sort((a, b) => a - b);
+  if (!vals.length) return { ok: false, reason: "empty" };
+  const target = Math.max(vals[Math.floor(vals.length / 2)], 0.04);
+  premPlayerGains = Object.create(null);
+  let maxG = 1;
+  for (const [k, rms] of Object.entries(levels)) {
+    if (rms < 1e-6) continue;
+    const g = clampPremPlayerGain(target / rms);
+    if (Math.abs(g - 1) > 0.001) premPlayerGains[k] = g;
+    if (g > maxG) maxG = g;
+  }
+  // Musik leicht ducken, damit Stimmen klar vorne bleiben — abhängig von gemessener Lautstärke
+  premVol.voice = 1;
+  premVol.video = target > 0.11 || maxG > 1.35 ? 0.68 : target < 0.055 ? 0.88 : 0.78;
+  applyPremVol();
+  syncAllPremVolSliders();
+  applyPremPlayerGainsLive();
+  return { ok: true, target, maxG, roles: Object.keys(levels).length };
+}
+function updatePremAutoBalBtn() {
+  const btn = $("btn-prem-autobal");
+  if (!btn) return;
+  const show = isHost && mixItems.length > 0 && !!document.querySelector("#scr-playback.active");
+  btn.style.display = show ? "" : "none";
+  btn.classList.toggle("primary", premAutoBalance);
+  btn.setAttribute("aria-pressed", premAutoBalance ? "true" : "false");
+  btn.textContent = premAutoBalance ? t("prem.autobal.on") : t("prem.autobal");
+}
+function setPremAutoBalance(on) {
+  if (!isHost) return;
+  premAutoBalance = !!on;
+  if (premAutoBalance) {
+    const r = applyAutoBalanceMix();
+    if (!r.ok) {
+      premAutoBalance = false;
+      status("play-status", tt("No voice tracks to balance yet.", "Noch keine Stimmen zum Ausgleichen."), true);
+      updatePremAutoBalBtn();
+      return;
+    }
+    status("play-status", tt("🎚 Auto-balance on — voices matched, music ducked to ", "🎚 Auto-Ausgleich an — Stimmen angeglichen, Musik auf ") + Math.round(premVol.video * 100) + "%");
+  } else {
+    premPlayerGains = Object.create(null);
+    applyPremPlayerGainsLive();
+    status("play-status", tt("🎚 Auto-balance off — everyone back to 100%.", "🎚 Auto-Ausgleich aus — alle wieder bei 100 %."));
+  }
+  updatePremAutoBalBtn();
+  renderPremPlayerVolPanel();
+  broadcastPremAutoBalance();
+  schedulePremRecache();
+}
+function broadcastPremAutoBalance() {
+  if (!isHost) return;
+  broadcast({
+    t: "premAutoBal",
+    on: premAutoBalance,
+    gains: Object.assign(Object.create(null), premPlayerGains),
+    vol: { master: premVol.master, voice: premVol.voice, video: premVol.video }
+  });
+}
+function applyPremAutoBalMsg(msg) {
+  if (isHost) return;
+  premAutoBalance = !!(msg && msg.on);
+  ingestPremPlayerGains(msg && msg.gains);
+  if (msg && msg.vol) {
+    if (msg.vol.master != null) premVol.master = msg.vol.master;
+    if (msg.vol.voice != null) premVol.voice = msg.vol.voice;
+    if (msg.vol.video != null) premVol.video = msg.vol.video;
+    applyPremVol();
+    syncAllPremVolSliders();
+  }
+  applyPremPlayerGainsLive();
+  updatePremAutoBalBtn();
+  renderPremPlayerVolPanel();
+  schedulePremRecache();
 }
 function rolesInPremMix() {
   const roles = new Set();
@@ -9573,6 +9757,7 @@ function renderPremPlayerVolPanel() {
   if (!rows.length) {
     panel.style.display = "none";
     list.innerHTML = "";
+    updatePremAutoBalBtn();
     return;
   }
   panel.style.display = "";
@@ -9616,6 +9801,7 @@ function renderPremPlayerVolPanel() {
     row.appendChild(plus);
     list.appendChild(row);
   }
+  updatePremAutoBalBtn();
 }
 
 function updatePremPauseBtn() {
@@ -10438,6 +10624,13 @@ function syncCinemaVolSliders() {
   if (v) v.value = premVol.voice;
   if (u) u.value = premVol.video;
 }
+function syncAllPremVolSliders() {
+  syncCinemaVolSliders();
+  for (const [id, key] of [["vol-master", "master"], ["vol-voice", "voice"], ["vol-video", "video"]]) {
+    const el = $(id);
+    if (el) el.value = premVol[key];
+  }
+}
 function bindVolSlider(id, key, twinId) {
   const el = $(id);
   if (!el) return;
@@ -10455,7 +10648,8 @@ bindVolSlider("vol-video", "video", "cin-vol-video");
 bindVolSlider("cin-vol-master", "master", "vol-master");
 bindVolSlider("cin-vol-voice", "voice", "vol-voice");
 bindVolSlider("cin-vol-video", "video", "vol-video");
-syncCinemaVolSliders();
+syncAllPremVolSliders();
+$("btn-prem-autobal") && ($("btn-prem-autobal").onclick = () => { if (isHost) { try { SFX.click(); } catch {} setPremAutoBalance(!premAutoBalance); } });
 let boothVol = 0.55;
 $("booth-vol").oninput = e => { boothVol = parseFloat(e.target.value); $("booth-video").volume = boothVol; };
 
