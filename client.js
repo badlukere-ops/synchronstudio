@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.11.0";
+const APP_VERSION = "9.11.1";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -613,6 +613,9 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.11.1", items: [
+    "🛡 Fix: Eine unvollständig übertragene Kritzel-Nachricht konnte den Empfänger abstürzen lassen — jetzt abgefangen"
+  ]},
   { v: "9.11.0", items: [
     "🔁 Fix: Nach einer Runde blieben einzelne Spieler hängen und man musste eine neue Lobby aufmachen. Ursache: der Rücksprung hing an EINER Nachricht — ging die verloren, korrigierte nichts mehr. Der Host schickt seine Phase jetzt laufend mit, Gäste holen sich selbst zurück.",
     "⚡ Weniger Verzögerung: Datenblöcke von 128 KB auf 16 KB (WebRTC verträgt große Blöcke schlecht) und Rückstau-Grenze von 4 MB auf 256 KB — Steuerbefehle standen vorher minutenlang hinter Videodaten in der Warteschlange",
@@ -7214,6 +7217,9 @@ function mergeDrawBoard(incoming) {
 }
 function drawAction(a) { if (isHost) drawHandle(a, myId); else sendHost({ t: "draw", a }); }
 function drawHandle(a, pid) {
+  // Ohne Aktion nichts tun: eine unvollstaendige Nachricht (z.B. abgeschnitten
+  // uebertragen) hat den Empfaenger sonst abstuerzen lassen.
+  if (!a || typeof a !== "object") return;
   if (a.k === "stroke" && a.stroke) {
     const idx = drawBoard.strokes.findIndex(s => s.id === a.stroke.id);
     const nNew = (a.stroke.points && a.stroke.points.length) || 0;

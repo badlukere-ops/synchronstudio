@@ -40,6 +40,33 @@
   button:hover{border-color:#4a4a5a}
   video{width:100%;border-radius:10px;background:#000;margin-bottom:10px}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  /* ── Zeitleiste ───────────────────────────────────────── */
+  .tl-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+  .tl-toolbar button{padding:6px 12px;font-size:.85rem}
+  .tl-wrap{position:relative;overflow-x:auto;overflow-y:hidden;border:1px solid var(--metal);
+    border-radius:10px;background:linear-gradient(180deg,#101014,#0b0b0e);
+    box-shadow:inset 0 2px 10px rgba(0,0,0,.6)}
+  .tl-inner{position:relative;height:auto;min-height:120px}
+  .tl-ruler{display:block;height:26px;width:100%}
+  .tl-wave{display:block;height:44px;width:100%;opacity:.5}
+  .tl-tracks{position:relative}
+  .tl-track{position:relative;height:34px;border-top:1px solid rgba(255,255,255,.05)}
+  .tl-track .tl-label{position:sticky;left:0;z-index:3;display:inline-block;
+    font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);background:rgba(11,11,14,.9);padding:2px 8px;border-radius:0 6px 6px 0;
+    pointer-events:none}
+  .tl-block{position:absolute;top:5px;height:24px;border-radius:5px;cursor:grab;
+    display:flex;align-items:center;overflow:hidden;user-select:none;
+    box-shadow:0 2px 6px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.18)}
+  .tl-block.sel{outline:2px solid #fff;outline-offset:1px;z-index:2}
+  .tl-block .cap{padding:0 8px;font-size:.7rem;color:#13130f;font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+  .tl-block .hnd{position:absolute;top:0;bottom:0;width:7px;cursor:ew-resize;background:rgba(0,0,0,.28)}
+  .tl-block .hnd.l{left:0;border-radius:5px 0 0 5px} .tl-block .hnd.r{right:0;border-radius:0 5px 5px 0}
+  .tl-play{position:absolute;top:0;bottom:0;width:2px;background:var(--hot);
+    box-shadow:0 0 10px var(--hot);pointer-events:none;z-index:4}
+  .tl-empty{padding:26px;text-align:center;color:var(--muted);font-size:.85rem}
+
   .rolerow,.linerow{display:grid;gap:8px;margin-bottom:8px;align-items:center}
   .rolerow{grid-template-columns:1.6fr 80px 120px 40px 90px 40px;align-items:center}
   .avatar-thumb{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#0e0e13;border:1px solid var(--metal);cursor:pointer;display:block}
@@ -140,8 +167,34 @@
 
   <div class="card">
     <h2>3 · Lines timen</h2>
-    <p class="sub">▶ Springen springt im Video genau zum Start der Zeile.</p>
-    <p class="sub">Video abspielen und im richtigen Moment drücken: <span class="key">S</span> = Line <b>startet hier</b> (fügt neue Line ein) · <span class="key">E</span> = Line <b>endet hier</b> (setzt Ende der letzten Line). Danach Text, Übersetzung und Rolle eintragen. Zeiten kannst du jederzeit von Hand nachjustieren.</p>
+    <p class="sub">Video abspielen und im richtigen Moment drücken: <span class="key">S</span> = Line <b>startet hier</b> · <span class="key">E</span> = Line <b>endet hier</b>. In der Zeitleiste unten kannst du Blöcke <b>verschieben</b> (mitten drauf ziehen) und <b>in der Länge ändern</b> (an den Rändern ziehen).</p>
+
+    <div class="tl-toolbar">
+      <button type="button" id="tl-zoom-out" title="Rauszoomen">➖</button>
+      <span class="tag" id="tl-zoom-val">1.0×</span>
+      <button type="button" id="tl-zoom-in" title="Reinzoomen">➕</button>
+      <button type="button" id="tl-fit">Alles zeigen</button>
+      <span class="tag" style="margin-left:auto" id="tl-info">–</span>
+      <label class="tag" style="display:flex;gap:6px;align-items:center">
+        <input type="checkbox" id="tl-follow" checked> Ansicht folgt dem Abspielkopf
+      </label>
+      <button type="button" id="tl-snap-title" class="tag" style="border:none;background:none;padding:0">
+        <label style="display:flex;gap:6px;align-items:center;cursor:pointer">
+          <input type="checkbox" id="tl-snap" checked> An Nachbarn andocken
+        </label>
+      </button>
+    </div>
+
+    <div class="tl-wrap" id="tl-wrap">
+      <div class="tl-inner" id="tl-inner">
+        <canvas id="tl-ruler" class="tl-ruler"></canvas>
+        <canvas id="tl-wave" class="tl-wave"></canvas>
+        <div id="tl-tracks" class="tl-tracks"></div>
+        <div id="tl-play" class="tl-play"></div>
+      </div>
+    </div>
+    <p class="sub" id="tl-hint" style="margin-top:6px">Tipp: Klick in die Zeitleiste, um im Video dorthin zu springen. Doppelklick auf einen Block wählt ihn in der Liste aus.</p>
+
     <div class="linerow tag"><span>Start</span><span>Ende</span><span>Rolle</span><span>Text (Original)</span><span>Deutsch</span><span>Effekt (opt.)</span><span></span></div>
     <div id="lines"></div>
     <div class="row"><button id="b-s">S — Line startet</button><button id="b-e">E — Line endet</button></div>
@@ -613,6 +666,230 @@ function jumpToLine(i) {
   try { if (!v.paused) v.pause(); } catch (_) {}
 }
 
+
+// Text fuer HTML-Attribute/Inhalte absichern (gab es im Editor noch nicht)
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ZEITLEISTE — Blöcke pro Rolle, ziehbar, mit Abspielkopf
+// ═══════════════════════════════════════════════════════════════
+let tlZoom = 1;            // Pixel pro Sekunde = TL_BASE * tlZoom
+let tlSel = -1;            // ausgewählte Zeile
+let tlDrag = null;         // laufende Zieh-Aktion
+const TL_BASE = 40;
+const TL_COLORS = ["#f0a830","#e63946","#5fe3a1","#a855f7","#4ac9e8","#ff8a3d","#ff4dd8","#4d7bff"];
+
+const tlDur = () => (v && v.duration && isFinite(v.duration)) ? v.duration : (waveformDuration || 60);
+const tlPPS = () => TL_BASE * tlZoom;
+const tlW   = () => Math.max(600, tlDur() * tlPPS());
+
+function tlDrawRuler() {
+  const c = $("tl-ruler"); if (!c) return;
+  const dpr = window.devicePixelRatio || 1, W = tlW(), H = 26;
+  c.style.width = W + "px";
+  if (c.width !== W * dpr) { c.width = W * dpr; c.height = H * dpr; }
+  const g = c.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0);
+  g.clearRect(0,0,W,H);
+  const pps = tlPPS();
+  // Abstand der Beschriftung an den Zoom anpassen, damit es nie überlappt
+  const steps = [0.5,1,2,5,10,15,30,60,120,300];
+  const step = steps.find(s => s * pps >= 55) || 600;
+  g.font = "10px 'Space Mono',monospace"; g.textBaseline = "top";
+  for (let t = 0; t <= tlDur(); t += step) {
+    const x = Math.round(t * pps) + 0.5;
+    g.strokeStyle = "rgba(255,255,255,.18)"; g.beginPath(); g.moveTo(x,14); g.lineTo(x,26); g.stroke();
+    g.fillStyle = "#8a8a99";
+    const m = Math.floor(t/60), s = t - m*60;
+    g.fillText(m > 0 ? `${m}:${String(Math.round(s)).padStart(2,"0")}` : t.toFixed(step<1?1:0)+"s", x+3, 2);
+  }
+}
+
+function tlDrawWave() {
+  const c = $("tl-wave"); if (!c) return;
+  const dpr = window.devicePixelRatio || 1, W = tlW(), H = 44;
+  c.style.width = W + "px";
+  if (c.width !== W * dpr) { c.width = W * dpr; c.height = H * dpr; }
+  const g = c.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0);
+  g.clearRect(0,0,W,H);
+  if (!waveformPeaks || !waveformPeaks.length) {
+    g.fillStyle = "#4a4a55"; g.font = "11px 'Barlow',sans-serif";
+    g.fillText("(Tonspur laden, dann erscheint hier die Wellenform)", 10, 26);
+    return;
+  }
+  const n = waveformPeaks.length, mid = H/2;
+  g.fillStyle = "rgba(240,168,48,.55)";
+  for (let x = 0; x < W; x++) {
+    const p = waveformPeaks[Math.min(n-1, Math.floor(x / W * n))] || 0;
+    const hh = Math.max(1, p * (H/2) * 0.92);
+    g.fillRect(x, mid - hh, 1, hh*2);
+  }
+}
+
+function tlTracksOf() {
+  // eine Spur je Rolle -- so sieht man auf einen Blick, wer wann dran ist
+  const names = roleNames();
+  return names.length ? names : ["Rolle 1"];
+}
+
+function renderTimeline() {
+  const wrap = $("tl-tracks"); if (!wrap) return;
+  const inner = $("tl-inner"); if (inner) inner.style.width = tlW() + "px";
+  tlDrawRuler(); tlDrawWave();
+  const pps = tlPPS(), names = tlTracksOf();
+  const info = $("tl-info");
+  if (info) info.textContent = `${lines.length} Lines · ${names.length} Rollen · ${tlDur().toFixed(1)}s`;
+
+  if (!lines.length) {
+    wrap.innerHTML = `<div class="tl-empty">Noch keine Lines — mit <b>S</b> und <b>E</b> aufnehmen, dann erscheinen hier die Blöcke.</div>`;
+    return;
+  }
+  wrap.innerHTML = names.map((nm, ri) => {
+    const blocks = lines.map((l, i) => ({ l, i })).filter(o => (o.l.role || 1) === ri + 1).map(o => {
+      const st = o.l.t || 0;
+      const en = (o.l.end != null && o.l.end > st) ? o.l.end : st + 1.2;
+      const x = st * pps, w = Math.max(10, (en - st) * pps);
+      const col = TL_COLORS[ri % TL_COLORS.length];
+      const cap = (o.l.text || o.l.de || "…").slice(0, 60);
+      return `<div class="tl-block ${tlSel === o.i ? "sel" : ""}" data-i="${o.i}"
+        style="left:${x}px;width:${w}px;background:linear-gradient(180deg,${col},${col}bb)"
+        title="${String(cap).replace(/"/g,"&quot;")}">
+        <div class="hnd l" data-h="l"></div><span class="cap">${esc(cap)}</span><div class="hnd r" data-h="r"></div>
+      </div>`;
+    }).join("");
+    return `<div class="tl-track" data-role="${ri+1}"><span class="tl-label">${esc(nm)}</span>${blocks}</div>`;
+  }).join("");
+  tlUpdatePlayhead();
+}
+
+function tlUpdatePlayhead() {
+  const p = $("tl-play"); if (!p || !v) return;
+  const x = (v.currentTime || 0) * tlPPS();
+  p.style.left = x + "px";
+  if ($("tl-follow") && $("tl-follow").checked) {
+    const wrap = $("tl-wrap");
+    if (wrap) {
+      const l = wrap.scrollLeft, r = l + wrap.clientWidth;
+      if (x < l + 60 || x > r - 60) wrap.scrollLeft = Math.max(0, x - wrap.clientWidth * 0.4);
+    }
+  }
+}
+
+function tlSnap(t, ignoreIdx) {
+  // An Anfang/Ende benachbarter Lines andocken, damit keine Lücken/Überlappungen entstehen
+  if (!$("tl-snap") || !$("tl-snap").checked) return t;
+  const TOL = 8 / tlPPS();          // 8 Pixel Toleranz, unabhängig vom Zoom
+  let best = t, bd = TOL;
+  lines.forEach((l, i) => {
+    if (i === ignoreIdx) return;
+    for (const cand of [l.t, l.end]) {
+      if (cand == null) continue;
+      const d = Math.abs(cand - t);
+      if (d < bd) { bd = d; best = cand; }
+    }
+  });
+  return best;
+}
+
+function tlSetup() {
+  const wrap = $("tl-wrap"), tracks = $("tl-tracks");
+  if (!wrap || !tracks || tracks.__wired) return;
+  tracks.__wired = true;
+
+  const timeAt = (ev) => {
+    const r = $("tl-inner").getBoundingClientRect();
+    return Math.max(0, Math.min(tlDur(), (ev.clientX - r.left) / tlPPS()));
+  };
+
+  tracks.addEventListener("mousedown", (ev) => {
+    const blk = ev.target.closest(".tl-block");
+    if (!blk) return;
+    ev.preventDefault();
+    const i = parseInt(blk.dataset.i);
+    tlSel = i; renderTimeline();
+    const hnd = ev.target.dataset.h || null;
+    tlDrag = { i, mode: hnd || "move", t0: timeAt(ev), st: lines[i].t, en: lines[i].end };
+    document.body.style.cursor = hnd ? "ew-resize" : "grabbing";
+  });
+
+  window.addEventListener("mousemove", (ev) => {
+    if (!tlDrag) return;
+    const l = lines[tlDrag.i]; if (!l) return;
+    const dt = timeAt(ev) - tlDrag.t0;
+    const dur = tlDur();
+    if (tlDrag.mode === "move") {
+      const len = (tlDrag.en != null ? tlDrag.en - tlDrag.st : 1.2);
+      let ns = Math.max(0, Math.min(dur - 0.05, tlDrag.st + dt));
+      ns = tlSnap(ns, tlDrag.i);
+      l.t = Math.round(ns * 1000) / 1000;
+      if (tlDrag.en != null) l.end = Math.round(Math.min(dur, ns + len) * 1000) / 1000;
+    } else if (tlDrag.mode === "l") {
+      let ns = Math.max(0, Math.min((tlDrag.en ?? dur) - 0.05, tlDrag.st + dt));
+      ns = tlSnap(ns, tlDrag.i);
+      l.t = Math.round(ns * 1000) / 1000;
+    } else {
+      let ne = Math.max(l.t + 0.05, Math.min(dur, (tlDrag.en ?? l.t + 1.2) + dt));
+      ne = tlSnap(ne, tlDrag.i);
+      l.end = Math.round(ne * 1000) / 1000;
+    }
+    renderTimeline();
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!tlDrag) return;
+    tlDrag = null; document.body.style.cursor = "";
+    renderLines();          // Liste unten mitziehen
+  });
+
+  // Klick auf freie Fläche = im Video dorthin springen
+  wrap.addEventListener("click", (ev) => {
+    if (ev.target.closest(".tl-block")) return;
+    if (!v || !v.src) return;
+    v.currentTime = timeAt(ev);
+    tlUpdatePlayhead();
+  });
+
+  tracks.addEventListener("dblclick", (ev) => {
+    const blk = ev.target.closest(".tl-block");
+    if (!blk) return;
+    const i = parseInt(blk.dataset.i);
+    if (v && v.src) { v.currentTime = lines[i].t; v.pause(); }
+    const row = $("lines").children[i];
+    if (row) { row.scrollIntoView({ behavior: "smooth", block: "center" });
+      const inp = row.querySelector("input[type=text]"); if (inp) inp.focus(); }
+  });
+
+  const setZoom = (z) => {
+    tlZoom = Math.max(0.15, Math.min(30, z));
+    const zv = $("tl-zoom-val"); if (zv) zv.textContent = tlZoom.toFixed(2).replace(/0$/,"") + "×";
+    renderTimeline();
+  };
+  $("tl-zoom-in") && ($("tl-zoom-in").onclick = () => setZoom(tlZoom * 1.5));
+  $("tl-zoom-out") && ($("tl-zoom-out").onclick = () => setZoom(tlZoom / 1.5));
+  $("tl-fit") && ($("tl-fit").onclick = () => {
+    const w = $("tl-wrap").clientWidth - 20;
+    setZoom(w / Math.max(1, tlDur()) / TL_BASE);
+  });
+  // Strg+Mausrad = zoomen, wie in Schnittprogrammen üblich
+  wrap.addEventListener("wheel", (ev) => {
+    if (!ev.ctrlKey) return;
+    ev.preventDefault();
+    setZoom(tlZoom * (ev.deltaY < 0 ? 1.15 : 1/1.15));
+  }, { passive: false });
+
+  if (v) {
+    v.addEventListener("timeupdate", tlUpdatePlayhead);
+    v.addEventListener("seeked", tlUpdatePlayhead);
+    v.addEventListener("loadedmetadata", () => { renderTimeline(); });
+    const tick = () => { if (!v.paused) tlUpdatePlayhead(); requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+  renderTimeline();
+}
+
 function renderLines() {
   lines.sort((a, b) => a.t - b.t);
   const names = roleNames();
@@ -630,6 +907,7 @@ function renderLines() {
       <button type="button" title="Zum Zeitpunkt der Zeile springen" onclick="jumpToLine(${i})">▶ Springen</button>
       <button onclick="lines.splice(${i},1);renderLines()">✕</button>
     </div>`).join("");
+  renderTimeline();
 }
 
 function importScene(obj) {
@@ -778,6 +1056,9 @@ $("b-export").onclick = async () => {
   $("b-export").disabled = false;
 };
 $("b-copy").onclick = () => { $("out").select(); document.execCommand("copy"); $("b-copy").textContent = "✅ Kopiert!"; setTimeout(() => $("b-copy").textContent = "📋 Kopieren", 1500); };
+
+// Zeitleiste starten
+tlSetup();
 </script>
 </body>
 </html>
