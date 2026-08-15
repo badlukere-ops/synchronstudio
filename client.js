@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.96";
+const APP_VERSION = "9.11.0";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -129,7 +129,14 @@ function makePeerConfig(forceRelay, brokerIdx) {
     }
   };
 }
-const CHUNK_SIZE = 128 * 1024;
+// WebRTC-DataChannels vertragen grosse Nachrichten schlecht: alles ueber ~64 KB wird
+// fragmentiert und kann bei schwaecheren Verbindungen zu Stau oder Abbruch fuehren.
+// 16 KB ist der Wert, den auch Browser-Implementierungen empfehlen.
+const CHUNK_SIZE = 16 * 1024;
+// Rueckstau-Grenze: frueher 4 MB. So viel Puffer heisst, dass Steuer-Nachrichten
+// (Zustand, "again", Premiere-Start) MINUTEN hinter den Videodaten in der Schlange stehen
+// -- genau das fuehlt sich als "laggy" an. 256 KB haelt die Leitung reaktionsfaehig.
+const BUFFER_LIMIT = 256 * 1024;
 
 // ── State ────────────────────────────────────────────────────
 let peer = null, isHost = false, myName = "", myId = "";
@@ -606,6 +613,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.11.0", items: [
+    "🔁 Fix: Nach einer Runde blieben einzelne Spieler hängen und man musste eine neue Lobby aufmachen. Ursache: der Rücksprung hing an EINER Nachricht — ging die verloren, korrigierte nichts mehr. Der Host schickt seine Phase jetzt laufend mit, Gäste holen sich selbst zurück.",
+    "⚡ Weniger Verzögerung: Datenblöcke von 128 KB auf 16 KB (WebRTC verträgt große Blöcke schlecht) und Rückstau-Grenze von 4 MB auf 256 KB — Steuerbefehle standen vorher minutenlang hinter Videodaten in der Warteschlange",
+    "📏 12 neue Stimmen-Effekte für Figuren, die nicht direkt vor der Kamera stehen: Ein paar Schritte entfernt, Weit weg (Rufweite), Außerhalb des Bildes, Hinter einer Tür, Aus dem Nebenzimmer, Von oben, Flüstern, Rufen, In einer Menschenmenge, Lautsprecher-Durchsage, Aus dem Fernseher, Erinnerung",
+    "🔊 Die Entfernungs-Effekte arbeiten physikalisch: Luft schluckt Höhen mit der Distanz und der Raumanteil steigt — nicht einfach nur leiser"
+  ]},
   { v: "9.10.96", items: [
     "🎬 Neue Szene: Spider-Man — Miles & the Prowler",
     "🎬 Neue Szene: Chainsaw Man — Yee Haw (Denji, Beam, Angel)",
@@ -4076,7 +4089,10 @@ let stateBroadcastTimer = null;
 function flushStateBroadcast() {
   clearTimeout(stateBroadcastTimer);
   stateBroadcastTimer = null;
-  broadcast({ t: "state", players, logicalHostKey, premiereLocked: !!premiereLocked, premPaused: !!premPaused });
+  // Phase mitschicken: Gaeste koennen sich damit selbst korrigieren, wenn eine
+  // einzelne Steuer-Nachricht (z.B. "again") unterwegs verloren gegangen ist.
+  const _phase = (document.querySelector(".screen.active") || {}).id || null;
+  broadcast({ t: "state", players, logicalHostKey, premiereLocked: !!premiereLocked, premPaused: !!premPaused, hostPhase: _phase });
   checkStartable();
   checkAllDone();
   if (isHost) renderPremState();
@@ -4417,6 +4433,13 @@ function handleMsg(msg, conn) {
     case "state":
       hostHandoffActive = false;
       players = msg.players || [];
+      // Selbstheilung: Host ist in der Lobby, wir haengen noch woanders fest -> nachziehen.
+      // Ohne das bleibt ein Gast fuer immer haengen, wenn die "again"-Nachricht verloren ging.
+      if (msg.hostPhase === "scr-lobby" && !iAmLogicalHost()) {
+        const _cur = (document.querySelector(".screen.active") || {}).id;
+        const _stuck = ["scr-playback", "scr-final", "scr-booth", "scr-record", "scr-wait"];
+        if (_stuck.includes(_cur)) { try { resetForNewRound(); } catch (e) { show("scr-lobby"); } }
+      }
       if (msg.logicalHostKey) logicalHostKey = msg.logicalHostKey;
       // Eigenen Lade-Stand nicht durch veralteten Host-Snapshot überschreiben
       {
@@ -4851,7 +4874,11 @@ const EFFECTS = {
   none: "none", vintage_1990: "vintage_1990", radio: "radio", telefon: "telefon", hall: "hall",
   megaphone: "megaphone", underwater: "underwater", helium: "helium", monster: "monster", robot: "robot",
   chorus: "chorus", echo: "echo", titan: "titan",
-  studio: "studio"
+  studio: "studio",
+  // Raum & Position -- fuer Figuren, die nicht direkt vor der Kamera stehen
+  far: "far", veryfar: "veryfar", offscreen: "offscreen", behinddoor: "behinddoor",
+  nextroom: "nextroom", above: "above", whisper: "whisper", shout: "shout",
+  crowd: "crowd", pa: "pa", tv: "tv", memory: "memory"
 };
 function effectLabel(key) {
   const k = key || "none";
@@ -4869,7 +4896,19 @@ function effectLabel(key) {
     chorus: tt("Doppelgänger", "Doppelgänger"),
     echo: tt("Slapback echo", "Nachschlag-Echo"),
     titan: tt("Titan (very deep)", "Titan (sehr tief)"),
-    studio: tt("🎙 Studio quality (helps bad mics)", "🎙 Studio-Qualität (rettet schlechte Mikros)")
+    studio: tt("🎙 Studio quality (helps bad mics)", "🎙 Studio-Qualität (rettet schlechte Mikros)"),
+    far: tt("📏 A few steps away", "📏 Ein paar Schritte entfernt"),
+    veryfar: tt("📏 Far away (shouting distance)", "📏 Weit weg (Rufweite)"),
+    offscreen: tt("👁 Off-screen / out of frame", "👁 Außerhalb des Bildes"),
+    behinddoor: tt("🚪 Behind a door", "🚪 Hinter einer Tür"),
+    nextroom: tt("🏠 From the next room", "🏠 Aus dem Nebenzimmer"),
+    above: tt("⬆ From above / from a rooftop", "⬆ Von oben / vom Dach"),
+    whisper: tt("🤫 Whisper (close to ear)", "🤫 Flüstern (dicht am Ohr)"),
+    shout: tt("📣 Shouting", "📣 Rufen / Schreien"),
+    crowd: tt("👥 In a crowd", "👥 In einer Menschenmenge"),
+    pa: tt("📢 PA / loudspeaker announcement", "📢 Lautsprecher-Durchsage"),
+    tv: tt("📺 From a TV / small speaker", "📺 Aus dem Fernseher / kleiner Box"),
+    memory: tt("💭 Memory / flashback", "💭 Erinnerung / Rückblende")
   };
   return map[k] || k;
 }
@@ -5347,7 +5386,7 @@ function sendLocalVideo(conn) {
   let off = 0;
   const pump = () => {
     while (off < localVideoBuf.byteLength) {
-      if (conn.dataChannel && conn.dataChannel.bufferedAmount > 4e6) { setTimeout(pump, 100); return; }
+      if (conn.dataChannel && conn.dataChannel.bufferedAmount > BUFFER_LIMIT) { setTimeout(pump, 30); return; }
       conn.send({ t: "videoChunk", buf: localVideoBuf.slice(off, off + CHUNK_SIZE) });
       off += CHUNK_SIZE;
     }
@@ -10782,6 +10821,117 @@ function buildChain(ctx, role, dest) {
       node = merge3;
       break;
     }
+    // ── Raum & Position ──────────────────────────────────────────────
+    // Grundgedanke: Entfernung heisst nicht einfach "leiser". Luft schluckt hohe Toene
+    // staerker als tiefe, und je weiter weg, desto mehr hoert man den Raum statt der Stimme.
+    // Genau diese zwei Dinge zusammen ergeben den ueberzeugenden Abstands-Eindruck.
+    case "far":
+    case "veryfar":
+    case "offscreen":
+    case "nextroom":
+    case "behinddoor":
+    case "above":
+    case "crowd":
+    case "memory": {
+      const P = {
+        //            Hoehen-Grenze  Tiefen-Cut  Lautstaerke  Raumanteil  Nachhallzeit
+        far:        { lp: 6500,  hp: 120, vol: 0.62, wet: 0.24, dl: 0.045 },
+        veryfar:    { lp: 3400,  hp: 200, vol: 0.40, wet: 0.44, dl: 0.085 },
+        offscreen:  { lp: 5200,  hp: 150, vol: 0.52, wet: 0.32, dl: 0.06 },
+        nextroom:   { lp: 1500,  hp: 180, vol: 0.45, wet: 0.38, dl: 0.07 },
+        behinddoor: { lp: 900,   hp: 160, vol: 0.42, wet: 0.30, dl: 0.05 },
+        above:      { lp: 4200,  hp: 260, vol: 0.55, wet: 0.36, dl: 0.075 },
+        crowd:      { lp: 5000,  hp: 200, vol: 0.58, wet: 0.30, dl: 0.05 },
+        memory:     { lp: 3800,  hp: 220, vol: 0.60, wet: 0.55, dl: 0.11 },
+      }[role.effect];
+
+      filt("highpass", P.hp, 0.7);
+      filt("lowpass", P.lp, 0.7);
+      if (role.effect === "behinddoor") filt("peaking", 400, 1.2, 4);   // dumpfes Wummern durchs Holz
+      if (role.effect === "above")      filt("peaking", 2500, 1.5, -4); // von oben fehlt Direktschall
+      if (role.effect === "memory")     filt("peaking", 1800, 0.8, 3);  // leicht traumhaft angehoben
+
+      const q = ctx.createGain(); q.gain.value = P.vol;
+      node.connect(q); node = q;
+
+      // Raumanteil: kurze Verzoegerung mit Rueckkopplung = der Hall, den man aus der Ferne hoert
+      const dry = ctx.createGain(); dry.gain.value = 1 - P.wet * 0.6;
+      const wet = ctx.createGain(); wet.gain.value = P.wet;
+      const dly = ctx.createDelay(); dly.delayTime.value = P.dl;
+      const fb  = ctx.createGain(); fb.gain.value = role.effect === "memory" ? 0.5 : 0.34;
+      const dlp = ctx.createBiquadFilter(); dlp.type = "lowpass"; dlp.frequency.value = Math.min(P.lp, 2600);
+      node.connect(dry);
+      node.connect(dly); dly.connect(dlp); dlp.connect(fb); fb.connect(dly);
+      dlp.connect(wet);
+      const mix = ctx.createGain();
+      dry.connect(mix); wet.connect(mix);
+      node = mix;
+      break;
+    }
+
+    case "whisper": {
+      // Dicht am Ohr: kaum Tiefen, dafuer viel Atem-Anteil oben und leichte Kompression
+      filt("highpass", 240, 0.7);
+      filt("peaking", 5200, 0.9, 6);      // Luft/Atem betonen
+      filt("peaking", 900, 1.0, -3);      // Brustanteil raus, wirkt naeher
+      const wc = ctx.createDynamicsCompressor();
+      wc.threshold.value = -34; wc.knee.value = 14; wc.ratio.value = 5;
+      wc.attack.value = 0.004; wc.release.value = 0.12;
+      node.connect(wc); node = wc;
+      const wg = ctx.createGain(); wg.gain.value = 1.5;
+      node.connect(wg); node = wg;
+      break;
+    }
+
+    case "shout": {
+      // Rufen: die Stimme verzerrt leicht, Mitten treten hervor, Raum antwortet
+      filt("highpass", 150, 0.7);
+      filt("peaking", 1900, 1.1, 5);
+      node = chainShaper(ctx, node, 12);
+      const sc = ctx.createDynamicsCompressor();
+      sc.threshold.value = -18; sc.knee.value = 6; sc.ratio.value = 6;
+      sc.attack.value = 0.002; sc.release.value = 0.2;
+      node.connect(sc); node = sc;
+      const sdry = ctx.createGain(); sdry.gain.value = 0.9;
+      const swet = ctx.createGain(); swet.gain.value = 0.22;
+      const sdl = ctx.createDelay(); sdl.delayTime.value = 0.09;
+      const sfb = ctx.createGain(); sfb.gain.value = 0.28;
+      node.connect(sdry); node.connect(sdl); sdl.connect(sfb); sfb.connect(sdl); sdl.connect(swet);
+      const smix = ctx.createGain(); sdry.connect(smix); swet.connect(smix);
+      node = smix;
+      break;
+    }
+
+    case "pa": {
+      // Durchsage: schmalbandig wie ein Trichterlautsprecher, mit Hallfahne in der Halle
+      filt("highpass", 420, 0.9);
+      filt("lowpass", 3600, 0.9);
+      filt("peaking", 1600, 2.2, 7);
+      node = chainShaper(ctx, node, 22);
+      const pdry = ctx.createGain(); pdry.gain.value = 0.75;
+      const pwet = ctx.createGain(); pwet.gain.value = 0.45;
+      const pdl = ctx.createDelay(); pdl.delayTime.value = 0.13;
+      const pfb = ctx.createGain(); pfb.gain.value = 0.42;
+      const plp = ctx.createBiquadFilter(); plp.type = "lowpass"; plp.frequency.value = 2200;
+      node.connect(pdry);
+      node.connect(pdl); pdl.connect(plp); plp.connect(pfb); pfb.connect(pdl); plp.connect(pwet);
+      const pmix = ctx.createGain(); pdry.connect(pmix); pwet.connect(pmix);
+      node = pmix;
+      break;
+    }
+
+    case "tv": {
+      // Kleiner Lautsprecher: keine Tiefen, leicht blechern, minimal verzerrt
+      filt("highpass", 300, 0.8);
+      filt("lowpass", 5000, 0.8);
+      filt("peaking", 1200, 1.6, 4);
+      filt("peaking", 3000, 2.0, -3);
+      node = chainShaper(ctx, node, 8);
+      const tg = ctx.createGain(); tg.gain.value = 0.7;
+      node.connect(tg); node = tg;
+      break;
+    }
+
     case "studio": {
       // Rettet guenstige Mikrofone. Leitgedanke: aufraeumen und glaetten statt aufbohren.
       // Billige Mikros klingen schlecht, WEIL obenrum zu viel Zischeln und Rauschen sitzt --
