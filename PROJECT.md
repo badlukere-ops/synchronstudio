@@ -4,7 +4,7 @@ Privates Online-Synchronisations-Spiel für Freunde. Freunde treten einem Raum b
 
 **Live:** https://synchron-studio.github.io/synchronstudio/
 **Repo:** https://github.com/synchron-studio/synchronstudio
-**Editor:** https://synchron-studio.github.io/synchronstudio/editor.html
+**Editor:** https://synchron-studio.github.io/synchronstudio/editor.html?studio=1
 
 ## Architektur
 
@@ -12,13 +12,16 @@ Privates Online-Synchronisations-Spiel für Freunde. Freunde treten einem Raum b
 - PeerJS/WebRTC für die Verbindung zwischen Spielern (Host = Autorität, Gäste verbinden sich zu ihm)
 - TURN-Relay: ExpressTurn Free (primär) + Open Relay Static-Auth Backup (TURNS/443); alter Metered-Trial entfernt. Zugangsdaten/`MY_TURN` in `client.js`
 - Web Audio API für Effekte, Panning, Aufnahme, Mixing
-- Vanilla JS, kein Framework
+- Vanilla JS, kein Framework (Spiel). Szenen-Editor: React unter `editor-src/`, Build nach `editor/`
 
 ## Wichtige Dateien
 
 - `index.html` — komplettes UI/CSS, alle Screens
 - `client.js` — gesamte Spiellogik
-- `editor.html` — Szenen-Editor (Video hochladen, Lines timen mit S/E-Tasten, ZIP-Mod-Pack-Import)
+- `editor.html` — Redirect zum Szenen-Editor; Studio-Lock mit `?studio=1`
+- `editor/` — gebauter Timeline-Szenen-Editor (Export = Synchronstudio-ZIP)
+- `editor-src/` — Editor-Quellcode (`npm run build`)
+- `editor.legacy.html` — alter Vanilla-Editor (Backup)
 - `scenes.json` — Liste aller spielbaren Szenen mit Rollen/Timing/Text
 - `scenes/` — Videos, Avatare, Voicelines pro Szene
 - `ANLEITUNG.md` — Für-Dummies-Anleitung zum Editor

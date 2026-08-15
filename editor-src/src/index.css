@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Barlow', system-ui, sans-serif;
+  --font-display: 'Anton', Impact, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --color-zinc-950: #0b0b0e;
+  --color-zinc-900: #14141b;
+  --color-zinc-800: #1a1a20;
+  --color-amber-400: #f0a830;
+  --color-amber-500: #f0a830;
+}
+
+body {
+  font-family: 'Barlow', system-ui, sans-serif;
+  background-color: var(--color-zinc-950);
+  color: #eeeef2;
+  -webkit-font-smoothing: antialiased;
+}
+
+*:focus {
+  outline: none !important;
+}
+
+::selection {
+  background-color: rgba(245, 158, 11, 0.3);
+  color: #fef3c7;
+}
+
+::-moz-selection {
+  background-color: rgba(245, 158, 11, 0.3);
+  color: #fef3c7;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* Custom Sleek Scrollbars - Clean, transparent track & rounded corners */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+/* Custom Smooth Range Scrubber without shadow/glow */
+input[type=range] {
+  -webkit-appearance: none;
+  background: transparent;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #f59e0b;
+  cursor: ew-resize;
+  margin-top: -4px;
+  transition: transform 0.1s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  cursor: pointer;
+  background: #27272a;
+  border-radius: 2px;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]:active::-webkit-slider-thumb {
+  transform: scale(1.3);
+}
+
+/* Enforce disabled cursor and styling for progress range slider */
+input[type=range]:disabled {
+  cursor: not-allowed !important;
+}
+input[type=range]:disabled::-webkit-slider-thumb {
+  cursor: not-allowed !important;
+  background: #52525b !important;
+  transform: none !important;
+}
+input[type=range]:disabled::-webkit-slider-runnable-track {
+  cursor: not-allowed !important;
+}

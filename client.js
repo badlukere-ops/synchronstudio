@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.11.2";
+const APP_VERSION = "9.11.3";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -613,6 +613,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.11.3", items: [
+    "🛠 Neuer Szenen-Editor mit Timeline (aus CV Mod Maker) — Export als Synchronstudio-ZIP (scene.json, Video+Backing, Lines EN/DE)",
+    "Link: editor.html?studio=1 — alter Editor unter editor.legacy.html"
+  ]},
   { v: "9.11.2", items: [
     "🔊 Fix: Monster und Titan liefen über ihre Line hinaus — man hörte sie noch, während schon jemand anders sprach. Grund: die Längenbegrenzung rechnet in Quell-Sekunden, bei verlangsamter Wiedergabe dauert dieselbe Länge aber entsprechend länger. Bei Titan waren das 1,3 Sekunden Überlauf.",
     "🎈 Nebenbei: Helium wurde umgekehrt zu früh abgeschnitten — jetzt hat auch der die volle Fensterlänge",

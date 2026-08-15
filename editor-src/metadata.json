@@ -1,0 +1,8 @@
+{
+  "name": "Remix Choicer Voicer Mod Maker",
+  "description": "Mod maker and video timeline editor for creating Dub Mode Packs and Voice Packs for The Choicer Voicer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
