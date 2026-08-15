@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.11.1";
+const APP_VERSION = "9.11.2";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -613,6 +613,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.11.2", items: [
+    "🔊 Fix: Monster und Titan liefen über ihre Line hinaus — man hörte sie noch, während schon jemand anders sprach. Grund: die Längenbegrenzung rechnet in Quell-Sekunden, bei verlangsamter Wiedergabe dauert dieselbe Länge aber entsprechend länger. Bei Titan waren das 1,3 Sekunden Überlauf.",
+    "🎈 Nebenbei: Helium wurde umgekehrt zu früh abgeschnitten — jetzt hat auch der die volle Fensterlänge",
+    "⏱ Einstieg mitten in einer laufenden Premiere trifft bei diesen Effekten jetzt die richtige Stelle"
+  ]},
   { v: "9.11.1", items: [
     "🛡 Fix: Eine unvollständig übertragene Kritzel-Nachricht konnte den Empfänger abstürzen lassen — jetzt abgefangen"
   ]},
@@ -10125,13 +10130,20 @@ async function exportAudioFast() {
       else if (item.pan != null) role = { ...role, pan: item.pan };
       const src = offlineCtx.createBufferSource();
       src.buffer = item.buffer;
-      src.playbackRate.value = effectPitch(role.effect);
+      const rate = effectPitch(role.effect);
+      src.playbackRate.value = rate;
       src.connect(buildChain(offlineCtx, role, master));
       let maxDur = item.buffer.duration;
       if (scene.lines && item.lineIdx != null) {
         const l = scene.lines[item.lineIdx];
         const cutoffT = nextSameRoleStart(item.lineIdx);
-        maxDur = Math.min(maxDur, ((cutoffT != null ? cutoffT : l.end + 0.8) - l.t) + 0.25);
+        // Fensterlaenge in ECHTZEIT
+        const windowSec = ((cutoffT != null ? cutoffT : l.end + 0.8) - l.t) + 0.25;
+        // start(when, offset, duration) erwartet die Dauer im QUELLMATERIAL.
+        // Bei verlangsamter Wiedergabe (Monster/Titan) dauert dieselbe Quell-Laenge
+        // entsprechend laenger -- deshalb mit der Rate umrechnen, sonst laeuft die
+        // Stimme in die naechste Line hinein.
+        maxDur = Math.min(maxDur, windowSec * rate);
       }
       const when = Math.max(0, item.startAt + syncOffsetMs / 1000);
       src.start(when, 0, maxDur);
@@ -10659,15 +10671,23 @@ async function playMix(opts) {
       : master;
     src.connect(buildChain(ctx, role, dest));
     // Spur auf ihr Line-Fenster begrenzen → kein Reinlabern in die nächste Line
+    const _rate = src.playbackRate.value || 1;
     let maxDur = item.buffer.duration;
     if (scene.lines && item.lineIdx != null) {
       const l = scene.lines[item.lineIdx];
       const cutoffT = nextSameRoleStart(item.lineIdx);
-      maxDur = Math.min(maxDur, ((cutoffT != null ? cutoffT : l.end + 0.8) - l.t) + 0.25);
+      const windowSec = ((cutoffT != null ? cutoffT : l.end + 0.8) - l.t) + 0.25;
+      // Dauer bezieht sich aufs Quellmaterial -> mit der Abspielrate umrechnen,
+      // sonst laufen langsame Effekte (Monster/Titan) ueber ihr Fenster hinaus.
+      maxDur = Math.min(maxDur, windowSec * _rate);
     }
     const when = t0 + item.startAt + off;
     if (when >= ctx.currentTime) src.start(when, 0, maxDur);
-    else src.start(ctx.currentTime, ctx.currentTime - when, Math.max(0.05, maxDur - (ctx.currentTime - when)));
+    else {
+      const lateSec = ctx.currentTime - when;            // schon verstrichene ECHTZEIT
+      const offsetSrc = lateSec * _rate;                  // entspricht so viel Quellmaterial
+      src.start(ctx.currentTime, offsetSrc, Math.max(0.05, maxDur - offsetSrc));
+    }
     playNodes.push(src);
   }
   // Videoende = ALLES stoppt → kein 1–2s-Nachlauf-Audio mehr
