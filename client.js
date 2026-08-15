@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.94";
+const APP_VERSION = "9.10.95";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -606,6 +606,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.95", items: [
+    "🎬 Neue Szene: Demon Slayer — Tanjiro & Giyu vs Akaza (Infinity Castle, 20 Lines)",
+    "📦 Choicer-Voicer-Pack liegt auf dem Desktop (dub_video.ogv + Vocals-Slices)"
+  ]},
   { v: "9.10.94", items: [
     "🎤 Mikrofon: alte gespeicherte Geräte-ID blockiert Brave nicht mehr — Auswahl erscheint wieder",
     "🎬 Ghost Stories + Tokyo Ghoul sind jetzt auch online in der Szenenliste"
@@ -1515,6 +1519,9 @@ const AVATAR_CHARS = [
   { img: "scenes/sukunajogo1/sukuna.png", label: "Sukuna (vs Jogo PT1)" },
   { img: "scenes/sukunajogo1/jogo.png", label: "Jogo (vs Jogo PT1)" },
   { img: "scenes/sukunajogo1/geto.png", label: "Geto (vs Jogo PT1)" },
+  { img: "scenes/demonslayerakaza/tanjiro.png", label: "Tanjiro" },
+  { img: "scenes/demonslayerakaza/giyu.png", label: "Giyu" },
+  { img: "scenes/demonslayerakaza/akaza.png", label: "Akaza" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
