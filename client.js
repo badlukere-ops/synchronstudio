@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.10.95";
+const APP_VERSION = "9.10.96";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -606,6 +606,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.10.96", items: [
+    "🎬 Neue Szene: Spider-Man — Miles & the Prowler",
+    "🎬 Neue Szene: Chainsaw Man — Yee Haw (Denji, Beam, Angel)",
+    "🎬 Neue Szene: Tokyo Ghoul — Ken vs Jason (Count / Bucket) — andere Szene als Kaneki vs Jason"
+  ]},
   { v: "9.10.95", items: [
     "🎬 Neue Szene: Demon Slayer — Tanjiro & Giyu vs Akaza (Infinity Castle, 20 Lines)",
     "📦 Choicer-Voicer-Pack liegt auf dem Desktop (dub_video.ogv + Vocals-Slices)"
@@ -1522,6 +1527,13 @@ const AVATAR_CHARS = [
   { img: "scenes/demonslayerakaza/tanjiro.png", label: "Tanjiro" },
   { img: "scenes/demonslayerakaza/giyu.png", label: "Giyu" },
   { img: "scenes/demonslayerakaza/akaza.png", label: "Akaza" },
+  { img: "scenes/milesprowler/miles.png", label: "Miles Morales" },
+  { img: "scenes/milesprowler/prowler.png", label: "Prowler" },
+  { img: "scenes/chainsawyeehaw/denji.png", label: "Denji" },
+  { img: "scenes/chainsawyeehaw/beam.png", label: "Beam" },
+  { img: "scenes/chainsawyeehaw/angel.png", label: "Angel (Chainsaw Man)" },
+  { img: "scenes/kenjasoncount/ken.png", label: "Ken (Count Scene)" },
+  { img: "scenes/kenjasoncount/jason.png", label: "Jason (Count Scene)" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {

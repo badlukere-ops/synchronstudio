@@ -33377,5 +33377,658 @@
       }
     ],
     "difficultyOverride": "hard"
+  },
+  {
+    "id": "milesprowler",
+    "title": "Spider-Man — Miles & the Prowler (2 Rollen)",
+    "videoUrl": "scenes/milesprowler.mp4",
+    "avatars": {
+      "0": "scenes/milesprowler/miles.png",
+      "1": "scenes/milesprowler/prowler.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Miles Morales",
+        "pan": -0.3,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Prowler",
+        "pan": 0.3,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0.343,
+        "end": 1.443,
+        "chars": [
+          0
+        ],
+        "who": "Miles Morales",
+        "text": "What?",
+        "de": "Was?",
+        "orig": "scenes/milesprowler/lines/01.mp3"
+      },
+      {
+        "t": 2,
+        "end": 6,
+        "chars": [
+          1
+        ],
+        "who": "Prowler",
+        "text": "Your father — you said he's still alive.",
+        "de": "Dein Vater — du sagtest, er sei noch am Leben.",
+        "orig": "scenes/milesprowler/lines/02.mp3"
+      },
+      {
+        "t": 6.49,
+        "end": 8.09,
+        "chars": [
+          0
+        ],
+        "who": "Miles Morales",
+        "text": "Yeah?",
+        "de": "Ja?",
+        "orig": "scenes/milesprowler/lines/03.mp3"
+      },
+      {
+        "t": 10.1,
+        "end": 11.2,
+        "chars": [
+          1
+        ],
+        "who": "Prowler",
+        "text": "Hmm.",
+        "de": "Hmm.",
+        "orig": "scenes/milesprowler/lines/04.mp3"
+      },
+      {
+        "t": 12.38,
+        "end": 14.08,
+        "chars": [
+          0
+        ],
+        "who": "Miles Morales",
+        "text": "Who are you?",
+        "de": "Wer bist du?",
+        "orig": "scenes/milesprowler/lines/05.mp3"
+      },
+      {
+        "t": 20.83,
+        "end": 22.53,
+        "chars": [
+          0
+        ],
+        "who": "Miles Morales",
+        "text": "(soft exhale)",
+        "de": "(leichtes Ausatmen)",
+        "orig": "scenes/milesprowler/lines/06.mp3"
+      },
+      {
+        "t": 22.79,
+        "end": 25.79,
+        "chars": [
+          1
+        ],
+        "who": "Prowler",
+        "text": "I'm Miles Morales.",
+        "de": "Ich bin Miles Morales.",
+        "orig": "scenes/milesprowler/lines/07.mp3"
+      },
+      {
+        "t": 26.72,
+        "end": 31.12,
+        "chars": [
+          1
+        ],
+        "who": "Prowler",
+        "text": "But you... you can call me the Prowler.",
+        "de": "Aber du... du darfst mich den Prowler nennen.",
+        "orig": "scenes/milesprowler/lines/08.mp3"
+      },
+      {
+        "t": 32.86,
+        "end": 34.76,
+        "chars": [
+          0
+        ],
+        "who": "Miles Morales",
+        "text": "If I don't make it home...",
+        "de": "Wenn ich nicht nach Hause komme...",
+        "orig": "scenes/milesprowler/lines/09.mp3"
+      },
+      {
+        "t": 36.36,
+        "end": 37.955,
+        "chars": [
+          0
+        ],
+        "who": "Miles Morales",
+        "text": "...then our dad gets killed.",
+        "de": "...dann wird unser Dad getötet.",
+        "orig": "scenes/milesprowler/lines/10.mp3"
+      },
+      {
+        "t": 37.39,
+        "end": 39.19,
+        "chars": [
+          1
+        ],
+        "who": "Prowler",
+        "text": "Your dad.",
+        "de": "Dein Dad.",
+        "orig": "scenes/milesprowler/lines/11.mp3"
+      },
+      {
+        "t": 39.27,
+        "end": 43.27,
+        "chars": [
+          0
+        ],
+        "who": "Miles Morales",
+        "text": "(soft exhale)... please.",
+        "de": "(leichtes Ausatmen)... bitte.",
+        "orig": "scenes/milesprowler/lines/12.mp3"
+      },
+      {
+        "t": 44.552,
+        "end": 46.152,
+        "chars": [
+          0
+        ],
+        "who": "Miles Morales",
+        "text": "You have to let me go.",
+        "de": "Du musst mich gehen lassen.",
+        "orig": "scenes/milesprowler/lines/13.mp3"
+      },
+      {
+        "t": 51.539,
+        "end": 53.339,
+        "chars": [
+          1
+        ],
+        "who": "Prowler",
+        "text": "Why would I do that?",
+        "de": "Warum sollte ich das tun?",
+        "orig": "scenes/milesprowler/lines/14.mp3"
+      }
+    ],
+    "difficultyOverride": "medium"
+  },
+  {
+    "id": "chainsawyeehaw",
+    "title": "Chainsaw Man — Yee Haw (3 Rollen)",
+    "videoUrl": "scenes/chainsawyeehaw.mp4",
+    "avatars": {
+      "0": "scenes/chainsawyeehaw/denji.png",
+      "1": "scenes/chainsawyeehaw/beam.png",
+      "2": "scenes/chainsawyeehaw/angel.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Denji",
+        "pan": -0.25,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Beam",
+        "pan": 0.25,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Angel",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0,
+        "end": 7.347,
+        "chars": [
+          1
+        ],
+        "who": "Beam",
+        "text": "Chainsaw Man is so fast... but it's not his legs... running is for idiots.",
+        "de": "Chainsaw Man ist so schnell... aber nicht wegen seiner Beine... Laufen ist was für Idioten.",
+        "orig": "scenes/chainsawyeehaw/lines/01.mp3"
+      },
+      {
+        "t": 7.466,
+        "end": 13.796,
+        "chars": [
+          1
+        ],
+        "who": "Beam",
+        "text": "He uses his chains to fly around — shoots them out and swings from building to building.",
+        "de": "Er nutzt seine Ketten zum Fliegen — schießt sie raus und schwingt von Gebäude zu Gebäude.",
+        "orig": "scenes/chainsawyeehaw/lines/02.mp3"
+      },
+      {
+        "t": 13.846,
+        "end": 20.605,
+        "chars": [
+          0
+        ],
+        "who": "Denji",
+        "text": "Got it — like a samurai drawing his swords moves crazy fast, and Reze exploding all over the place.",
+        "de": "Verstehe — wie ein Samurai, der seine Schwerter zieht, und Reze, die überall explodiert.",
+        "orig": "scenes/chainsawyeehaw/lines/03.mp3"
+      },
+      {
+        "t": 20.658,
+        "end": 23.364,
+        "chars": [
+          0
+        ],
+        "who": "Denji",
+        "text": "I gotta use my powers in a badass way too!",
+        "de": "Ich muss meine Kräfte auch irgendwie richtig cool einsetzen!",
+        "orig": "scenes/chainsawyeehaw/lines/04.mp3"
+      },
+      {
+        "t": 23.414,
+        "end": 27.073,
+        "chars": [
+          1
+        ],
+        "who": "Beam",
+        "text": "CHAINSAW MAN IS THE BEST — HE'S A GENIUS!",
+        "de": "CHAINSAW MAN IST DER BESTE — ER IST EIN GENIE!",
+        "orig": "scenes/chainsawyeehaw/lines/05.mp3"
+      },
+      {
+        "t": 27.123,
+        "end": 30.277,
+        "chars": [
+          0
+        ],
+        "who": "Denji",
+        "text": "From now on, I'm using my powers the cool way.",
+        "de": "Ab jetzt setze ich meine Kräfte richtig cool ein.",
+        "orig": "scenes/chainsawyeehaw/lines/06.mp3"
+      },
+      {
+        "t": 30.454,
+        "end": 33.033,
+        "chars": [
+          0
+        ],
+        "who": "Denji",
+        "text": "LET'S GO!",
+        "de": "LOS GEHT'S!",
+        "orig": "scenes/chainsawyeehaw/lines/07.mp3"
+      },
+      {
+        "t": 33.085,
+        "end": 36.231,
+        "chars": [
+          1
+        ],
+        "who": "Beam",
+        "text": "That's it — you got it!",
+        "de": "Genau so — jetzt hast du's kapiert!",
+        "orig": "scenes/chainsawyeehaw/lines/08.mp3"
+      },
+      {
+        "t": 36.281,
+        "end": 39.794,
+        "chars": [
+          0
+        ],
+        "who": "Denji",
+        "text": "Alright then, Beam! Turn into a shark!",
+        "de": "Also gut, Beam! Verwandel dich in einen Hai!",
+        "orig": "scenes/chainsawyeehaw/lines/09.mp3"
+      },
+      {
+        "t": 39.844,
+        "end": 42.34,
+        "chars": [
+          1
+        ],
+        "who": "Beam",
+        "text": "Right.",
+        "de": "Alles klar.",
+        "orig": "scenes/chainsawyeehaw/lines/10.mp3"
+      },
+      {
+        "t": 43.095,
+        "end": 44.992,
+        "chars": [
+          1
+        ],
+        "who": "Beam",
+        "text": "Hm?",
+        "de": "Hm?",
+        "orig": "scenes/chainsawyeehaw/lines/11.mp3"
+      },
+      {
+        "t": 45.154,
+        "end": 48.154,
+        "chars": [
+          0
+        ],
+        "who": "Denji",
+        "text": "THAT'S what I'm talking about!",
+        "de": "GENAU davon red ich!",
+        "orig": "scenes/chainsawyeehaw/lines/12.mp3"
+      },
+      {
+        "t": 49.567,
+        "end": 55.703,
+        "chars": [
+          0
+        ],
+        "who": "Denji",
+        "text": "You just transform, and I use my saws to ride you like a little horse.",
+        "de": "Du verwandelst dich einfach, und ich reite dich mit meinen Sägen wie ein Pferdchen.",
+        "orig": "scenes/chainsawyeehaw/lines/13.mp3"
+      },
+      {
+        "t": 56.138,
+        "end": 58.462,
+        "chars": [
+          1
+        ],
+        "who": "Beam",
+        "text": "That wasn't it... that wasn't it...",
+        "de": "Das war's nicht... das war's nicht...",
+        "orig": "scenes/chainsawyeehaw/lines/14.mp3"
+      },
+      {
+        "t": 58.512,
+        "end": 59.298,
+        "chars": [
+          2
+        ],
+        "who": "Angel",
+        "text": "Are you sure about that? There must be some mistake.",
+        "de": "Bist du dir da sicher? Das muss ein Irrtum sein.",
+        "orig": "scenes/chainsawyeehaw/lines/15.mp3"
+      },
+      {
+        "t": 59.348,
+        "end": 61.267,
+        "chars": [
+          1
+        ],
+        "who": "Beam",
+        "text": "*growl*",
+        "de": "*Knurren*",
+        "orig": "scenes/chainsawyeehaw/lines/16.mp3"
+      },
+      {
+        "t": 61.526,
+        "end": 66.141,
+        "chars": [
+          2
+        ],
+        "who": "Angel",
+        "text": "It must be about throwing your chains from your arms and hanging off buildings...",
+        "de": "Es geht doch darum, die Ketten aus den Armen zu schiessen und sich an Gebäuden festzuhalten...",
+        "orig": "scenes/chainsawyeehaw/lines/17.mp3"
+      },
+      {
+        "t": 66.191,
+        "end": 70.176,
+        "chars": [
+          0
+        ],
+        "who": "Denji",
+        "text": "WHAT? That's exactly how it should be, right Beam?",
+        "de": "WAS? Genau so soll's doch sein, oder Beam?",
+        "orig": "scenes/chainsawyeehaw/lines/18.mp3"
+      },
+      {
+        "t": 70.226,
+        "end": 72.915,
+        "chars": [
+          1
+        ],
+        "who": "Beam",
+        "text": "Right way, right way. Right way right way right way.",
+        "de": "Richtiger Weg, richtiger Weg. Richtiger Weg richtiger Weg richtiger Weg.",
+        "orig": "scenes/chainsawyeehaw/lines/19.mp3"
+      },
+      {
+        "t": 72.965,
+        "end": 76.553,
+        "chars": [
+          0
+        ],
+        "who": "Denji",
+        "text": "SPEED UP, little horse — YEE HAW!",
+        "de": "GIB GAS, Pferdchen — YEE HAW!",
+        "orig": "scenes/chainsawyeehaw/lines/20.mp3"
+      }
+    ],
+    "difficultyOverride": "medium"
+  },
+  {
+    "id": "kenjasoncount",
+    "title": "Tokyo Ghoul — Ken vs Jason (Count / Bucket) (2 Rollen)",
+    "videoUrl": "scenes/kenjasoncount.mp4",
+    "avatars": {
+      "0": "scenes/kenjasoncount/ken.png",
+      "1": "scenes/kenjasoncount/jason.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Ken",
+        "pan": -0.3,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Jason",
+        "pan": 0.3,
+        "effect": "monster",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0.845,
+        "end": 3.845,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "(scream of pain)",
+        "de": "(Schrei vor Schmerz)",
+        "orig": "scenes/kenjasoncount/lines/01.mp3"
+      },
+      {
+        "t": 4.382,
+        "end": 5.682,
+        "chars": [
+          1
+        ],
+        "who": "Jason",
+        "text": "(loud exhale)",
+        "de": "(lautes Ausatmen)",
+        "orig": "scenes/kenjasoncount/lines/02.mp3"
+      },
+      {
+        "t": 5.667,
+        "end": 11.967,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "(screaming in pain)",
+        "de": "(Schreien vor Schmerz)",
+        "orig": "scenes/kenjasoncount/lines/03.mp3"
+      },
+      {
+        "t": 9.05,
+        "end": 12.05,
+        "chars": [
+          1
+        ],
+        "who": "Jason",
+        "text": "What number are you on?",
+        "de": "Bei welcher Zahl bist du?",
+        "orig": "scenes/kenjasoncount/lines/04.mp3"
+      },
+      {
+        "t": 11.986,
+        "end": 17.186,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "(559)",
+        "de": "(559)",
+        "orig": "scenes/kenjasoncount/lines/05.mp3"
+      },
+      {
+        "t": 16.13,
+        "end": 17.53,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "(inhale)",
+        "de": "(Einatmen)",
+        "orig": "scenes/kenjasoncount/lines/06.mp3"
+      },
+      {
+        "t": 16.13,
+        "end": 21,
+        "chars": [
+          1
+        ],
+        "who": "Jason",
+        "text": "I wanted to fill the bucket with your blood.",
+        "de": "Ich wollte den Eimer mit deinem Blut füllen.",
+        "orig": "scenes/kenjasoncount/lines/07.mp3"
+      },
+      {
+        "t": 17.16,
+        "end": 20.16,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "552",
+        "de": "552",
+        "orig": "scenes/kenjasoncount/lines/08.mp3"
+      },
+      {
+        "t": 20.15,
+        "end": 28.05,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "(scream — soft to loud, painful... getting louder)",
+        "de": "(Schrei von leise zu laut, schmerzvoll... wird lauter)",
+        "orig": "scenes/kenjasoncount/lines/09.mp3"
+      },
+      {
+        "t": 23.3,
+        "end": 30.7,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "The gecko ordered me to count backwards from 1000 in sevens.",
+        "de": "Der Gecko befahl mir, von 1000 rückwärts in Siebenerschritten zu zählen.",
+        "orig": "scenes/kenjasoncount/lines/10.mp3"
+      },
+      {
+        "t": 30.39,
+        "end": 37.46,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "At first I didn't get why — but then it became clear.",
+        "de": "Zuerst verstand ich den Sinn nicht — doch dann wurde es klar.",
+        "orig": "scenes/kenjasoncount/lines/11.mp3"
+      },
+      {
+        "t": 37.76,
+        "end": 39.26,
+        "chars": [
+          1
+        ],
+        "who": "Jason",
+        "text": "(exhale)",
+        "de": "(Ausatmen)",
+        "orig": "scenes/kenjasoncount/lines/12.mp3"
+      },
+      {
+        "t": 39.702,
+        "end": 42.702,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "500",
+        "de": "500",
+        "orig": "scenes/kenjasoncount/lines/13.mp3"
+      },
+      {
+        "t": 40,
+        "end": 43,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "I clung to those numbers.",
+        "de": "Ich klammerte mich an diese Zahlen fest.",
+        "orig": "scenes/kenjasoncount/lines/14.mp3"
+      },
+      {
+        "t": 43.96,
+        "end": 47.96,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "Meanwhile... Mr. Mori cut off my fingers.",
+        "de": "Währenddessen... trennte Herr Mori meine Finger ab.",
+        "orig": "scenes/kenjasoncount/lines/15.mp3"
+      },
+      {
+        "t": 48.92,
+        "end": 60,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "Again... again... and again... again... again...",
+        "de": "Wieder... wieder... und wieder... wieder... wieder...",
+        "orig": "scenes/kenjasoncount/lines/16.mp3"
+      },
+      {
+        "t": 55.36,
+        "end": 56.96,
+        "chars": [
+          0
+        ],
+        "who": "Ken",
+        "text": "(scream of pain)",
+        "de": "(Schrei vor Schmerz)",
+        "orig": "scenes/kenjasoncount/lines/17.mp3"
+      }
+    ],
+    "difficultyOverride": "hard"
   }
 ]
