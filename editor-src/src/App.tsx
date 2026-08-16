@@ -1213,7 +1213,13 @@ export default function App() {
         console.log('Modpack export cancelled by user.');
       } else {
         console.error('Failed to export ZIP archive:', err);
-        showAlert('Failed to generate ZIP archive. Please check console for details.', 'Export Error');
+        const detail = String(err?.message || err || '').slice(0, 220);
+        showAlert(
+          detail
+            ? `Export failed: ${detail}`
+            : 'Failed to generate ZIP archive. Please try again (Chrome/Edge, hard refresh).',
+          'Export Error'
+        );
       }
     } finally {
       setIsExporting(false);

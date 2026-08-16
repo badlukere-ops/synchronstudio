@@ -17,15 +17,14 @@ async function getFFmpeg(onStatusUpdate?: (status: string) => void): Promise<FFm
     return ffmpegInstance;
   }
   const ffmpeg = new FFmpeg();
-  
-  // Try local assets first (using what the user uploaded on GitHub and downloaded locally)
+
+  // Single-thread core only (no workerURL) — works on GitHub Pages without COOP/COEP.
   try {
     onStatusUpdate?.('Initializing local FFmpeg WebAssembly engine...');
-    const baseURL = `${window.location.origin}/ffmpeg`;
+    const localBase = new URL('ffmpeg/', window.location.href).href.replace(/\/$/, '');
     await ffmpeg.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
+      coreURL: await toBlobURL(`${localBase}/ffmpeg-core.js`, 'text/javascript'),
+      wasmURL: await toBlobURL(`${localBase}/ffmpeg-core.wasm`, 'application/wasm'),
     });
     ffmpegInstance = ffmpeg;
     return ffmpeg;

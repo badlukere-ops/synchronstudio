@@ -1,6 +1,8 @@
 /**
  * Synchronstudio scene ZIP export
  * Produces: scene.json + <id>.mp4 (video+backing) + <id>/*.png + <id>/lines/NN.mp3
+ *
+ * Uses single-thread @ffmpeg/core (no SharedArrayBuffer / COOP-COEP needed on GitHub Pages).
  */
 import JSZip from 'jszip';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
@@ -10,30 +12,52 @@ import { audioBufferToWavBlob, sliceAudioBuffer } from './audio';
 import { ZipExportProgress } from './zipExporter';
 
 let ffmpegInstance: FFmpeg | null = null;
+let ffmpegLoadFailed = false;
 
-async function getFFmpeg(onStatus?: (s: string) => void): Promise<FFmpeg> {
-  if (ffmpegInstance?.loaded) return ffmpegInstance;
-  const ffmpeg = new FFmpeg();
-  try {
-    onStatus?.('Loading FFmpeg (local)…');
-    const base = `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '/') || '/'}ffmpeg`;
-    // built editor serves public/ffmpeg next to index
-    const localBase = new URL('ffmpeg/', window.location.href).href.replace(/\/$/, '');
-    await ffmpeg.load({
-      coreURL: await toBlobURL(`${localBase}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${localBase}/ffmpeg-core.wasm`, 'application/wasm'),
-      workerURL: await toBlobURL(`${localBase}/ffmpeg-core.worker.js`, 'text/javascript'),
-    });
-  } catch {
-    onStatus?.('Loading FFmpeg (CDN)…');
-    const cdn = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm';
-    await ffmpeg.load({
-      coreURL: await toBlobURL(`${cdn}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${cdn}/ffmpeg-core.wasm`, 'application/wasm'),
-    });
+/** Copy out of wasm/SharedArrayBuffer memory so Blob + JSZip accept the bytes. */
+function toPlainU8(data: Uint8Array | string): Uint8Array {
+  if (typeof data === 'string') {
+    return new TextEncoder().encode(data);
   }
-  ffmpegInstance = ffmpeg;
-  return ffmpeg;
+  const out = new Uint8Array(data.byteLength);
+  out.set(data);
+  return out;
+}
+
+function u8ToBlob(data: Uint8Array | string, type: string): Blob {
+  return new Blob([toPlainU8(data)], { type });
+}
+
+async function getFFmpeg(onStatus?: (s: string) => void): Promise<FFmpeg | null> {
+  if (ffmpegLoadFailed) return null;
+  if (ffmpegInstance?.loaded) return ffmpegInstance;
+
+  const tryLoad = async (label: string, coreBase: string) => {
+    onStatus?.(`Loading FFmpeg (${label})…`);
+    const ffmpeg = new FFmpeg();
+    // Single-thread core only — no workerURL (needs COOP/COEP on GitHub Pages).
+    await ffmpeg.load({
+      coreURL: await toBlobURL(`${coreBase}/ffmpeg-core.js`, 'text/javascript'),
+      wasmURL: await toBlobURL(`${coreBase}/ffmpeg-core.wasm`, 'application/wasm'),
+    });
+    ffmpegInstance = ffmpeg;
+    return ffmpeg;
+  };
+
+  try {
+    const localBase = new URL('ffmpeg/', window.location.href).href.replace(/\/$/, '');
+    return await tryLoad('local', localBase);
+  } catch (e1) {
+    console.warn('Local FFmpeg load failed', e1);
+    try {
+      const cdn = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm';
+      return await tryLoad('CDN', cdn);
+    } catch (e2) {
+      console.warn('CDN FFmpeg load failed', e2);
+      ffmpegLoadFailed = true;
+      return null;
+    }
+  }
 }
 
 export function slugifySceneId(title: string, fallback = 'newscene'): string {
@@ -92,6 +116,7 @@ async function muxVideoWithBacking(
   abortSignal?: AbortSignal
 ): Promise<Blob> {
   const ffmpeg = await getFFmpeg((m) => onProgress?.(5, m));
+  if (!ffmpeg) throw new Error('FFMPEG_UNAVAILABLE');
   if (abortSignal?.aborted) throw new Error('EXPORT_CANCELLED');
 
   const progressHandler = ({ progress }: { progress: number }) => {
@@ -101,65 +126,91 @@ async function muxVideoWithBacking(
   ffmpeg.on('progress', progressHandler);
 
   try {
-    const vExt = videoBlob.type.includes('ogg') ? 'ogv' : 'mp4';
-    await ffmpeg.writeFile(`in.${vExt}`, new Uint8Array(await videoBlob.arrayBuffer()));
+    const vExt = videoBlob.type.includes('ogg')
+      ? 'ogv'
+      : videoBlob.type.includes('webm')
+        ? 'webm'
+        : 'mp4';
+    await ffmpeg.writeFile(`in.${vExt}`, toPlainU8(new Uint8Array(await videoBlob.arrayBuffer())));
     if (backingBlob) {
       const aExt = backingBlob.type.includes('wav')
         ? 'wav'
         : backingBlob.type.includes('ogg')
           ? 'ogg'
           : 'mp3';
-      await ffmpeg.writeFile(`backing.${aExt}`, new Uint8Array(await backingBlob.arrayBuffer()));
-      // Prefer copy video + replace audio; fallback mpeg4 if needed
-      let code = await ffmpeg.exec([
-        '-i', `in.${vExt}`,
-        '-i', `backing.${aExt}`,
-        '-map', '0:v:0',
-        '-map', '1:a:0',
-        '-c:v', 'libx264',
-        '-preset', 'ultrafast',
-        '-crf', '28',
-        '-vf', "scale='min(1280,iw)':-2",
-        '-c:a', 'aac',
-        '-b:a', '96k',
-        '-shortest',
-        '-movflags', '+faststart',
-        'out.mp4',
-      ]);
-      if (code !== 0) {
-        code = await ffmpeg.exec([
+      await ffmpeg.writeFile(
+        `backing.${aExt}`,
+        toPlainU8(new Uint8Array(await backingBlob.arrayBuffer()))
+      );
+      // Even scale dims (required by libx264); avoid fancy quote filters that break in wasm.
+      const argsSets: string[][] = [
+        [
+          '-i', `in.${vExt}`,
+          '-i', `backing.${aExt}`,
+          '-map', '0:v:0',
+          '-map', '1:a:0',
+          '-c:v', 'libx264',
+          '-preset', 'ultrafast',
+          '-crf', '28',
+          '-vf', 'scale=1280:-2',
+          '-c:a', 'aac',
+          '-b:a', '96k',
+          '-shortest',
+          '-movflags', '+faststart',
+          'out.mp4',
+        ],
+        [
           '-i', `in.${vExt}`,
           '-i', `backing.${aExt}`,
           '-map', '0:v:0',
           '-map', '1:a:0',
           '-c:v', 'mpeg4',
           '-q:v', '6',
-          '-vf', "scale='min(1280,iw)':-2",
+          '-vf', 'scale=1280:-2',
           '-c:a', 'aac',
           '-b:a', '96k',
           '-shortest',
           'out.mp4',
-        ]);
+        ],
+        [
+          '-i', `in.${vExt}`,
+          '-i', `backing.${aExt}`,
+          '-map', '0:v:0',
+          '-map', '1:a:0',
+          '-c:v', 'copy',
+          '-c:a', 'aac',
+          '-b:a', '96k',
+          '-shortest',
+          'out.mp4',
+        ],
+      ];
+      let ok = false;
+      for (const args of argsSets) {
+        if (abortSignal?.aborted) throw new Error('EXPORT_CANCELLED');
+        const code = await ffmpeg.exec(args);
+        if (code === 0) {
+          ok = true;
+          break;
+        }
       }
-      if (code !== 0) throw new Error('VIDEO_MUX_FAILED');
+      if (!ok) throw new Error('VIDEO_MUX_FAILED');
     } else {
       const code = await ffmpeg.exec([
         '-i', `in.${vExt}`,
         '-c:v', 'libx264',
         '-preset', 'ultrafast',
         '-crf', '28',
-        '-vf', "scale='min(1280,iw)':-2",
+        '-vf', 'scale=1280:-2',
         '-an',
         '-movflags', '+faststart',
         'out.mp4',
       ]);
       if (code !== 0) {
-        // last resort: pass through original bytes as mp4/ogv renamed — caller still gets a file
         return videoBlob;
       }
     }
     const data = await ffmpeg.readFile('out.mp4');
-    return new Blob([data as Uint8Array], { type: 'video/mp4' });
+    return u8ToBlob(data as Uint8Array, 'video/mp4');
   } finally {
     try {
       ffmpeg.off('progress', progressHandler);
@@ -168,7 +219,7 @@ async function muxVideoWithBacking(
 }
 
 async function wavToMonoMp3(wavBlob: Blob, ffmpeg: FFmpeg): Promise<Blob> {
-  await ffmpeg.writeFile('clip.wav', new Uint8Array(await wavBlob.arrayBuffer()));
+  await ffmpeg.writeFile('clip.wav', toPlainU8(new Uint8Array(await wavBlob.arrayBuffer())));
   const code = await ffmpeg.exec(['-y', '-i', 'clip.wav', '-ac', '1', '-b:a', '64k', 'clip.mp3']);
   if (code !== 0) return wavBlob;
   const data = await ffmpeg.readFile('clip.mp3');
@@ -176,7 +227,7 @@ async function wavToMonoMp3(wavBlob: Blob, ffmpeg: FFmpeg): Promise<Blob> {
     await ffmpeg.deleteFile('clip.wav');
     await ffmpeg.deleteFile('clip.mp3');
   } catch {}
-  return new Blob([data as Uint8Array], { type: 'audio/mpeg' });
+  return u8ToBlob(data as Uint8Array, 'audio/mpeg');
 }
 
 export async function exportSynchronstudioZip(
@@ -206,7 +257,6 @@ export async function exportSynchronstudioZip(
   upd('Preparing…', 2);
   check();
 
-  // Roles from characters that appear in clips (or all characters)
   const usedNames = new Set<string>();
   sorted.forEach((c) => c.dubCharacters.forEach((n) => usedNames.add(n)));
   const roleChars = characters.filter((c) => usedNames.has(c.name));
@@ -222,7 +272,8 @@ export async function exportSynchronstudioZip(
   for (let i = 0; i < rolesSource.length; i++) {
     check();
     const char = rolesSource[i];
-    const safe = char.name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `role${i}`;
+    const safe =
+      char.name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `role${i}`;
     let blob: Blob | null = char.avatarFile || null;
     if (!blob && char.avatarUrl) {
       try {
@@ -259,13 +310,24 @@ export async function exportSynchronstudioZip(
         );
       } catch {}
     }
-    // Prefer vocals-style: if separate buffer not available, still try video buffer
+    let lineRel = `scenes/${sceneId}/lines/${n}.mp3`;
     if (wavBlob) {
       try {
-        const mp3 = await wavToMonoMp3(wavBlob, ffmpeg);
-        zip.file(`${sceneId}/lines/${n}.mp3`, mp3);
+        if (ffmpeg) {
+          const mp3 = await wavToMonoMp3(wavBlob, ffmpeg);
+          if (mp3.type === 'audio/mpeg') {
+            zip.file(`${sceneId}/lines/${n}.mp3`, mp3);
+          } else {
+            zip.file(`${sceneId}/lines/${n}.wav`, mp3);
+            lineRel = `scenes/${sceneId}/lines/${n}.wav`;
+          }
+        } else {
+          zip.file(`${sceneId}/lines/${n}.wav`, wavBlob);
+          lineRel = `scenes/${sceneId}/lines/${n}.wav`;
+        }
       } catch {
         zip.file(`${sceneId}/lines/${n}.wav`, wavBlob);
+        lineRel = `scenes/${sceneId}/lines/${n}.wav`;
       }
     }
 
@@ -276,7 +338,7 @@ export async function exportSynchronstudioZip(
       who,
       text,
       de,
-      orig: `scenes/${sceneId}/lines/${n}.mp3`,
+      orig: lineRel,
     });
     upd(`Line ${i + 1}/${sorted.length}…`, 15 + (i / Math.max(1, sorted.length)) * 35);
   }
@@ -299,7 +361,12 @@ export async function exportSynchronstudioZip(
       if (e?.message === 'EXPORT_CANCELLED') throw e;
       console.warn('Video mux failed', e);
       videoFailed = true;
-      zip.file(`${sceneId}_SOURCE` + (videoBlob.type.includes('ogg') ? '.ogv' : '.mp4'), videoBlob);
+      const ext = videoBlob.type.includes('ogg')
+        ? '.ogv'
+        : videoBlob.type.includes('webm')
+          ? '.webm'
+          : '.mp4';
+      zip.file(`${sceneId}_SOURCE${ext}`, videoBlob);
       if (backingBlob) zip.file(`${sceneId}/_backing_track.mp3`, backingBlob);
     }
   } else {
@@ -338,10 +405,14 @@ export async function exportSynchronstudioZip(
       `Scene id: ${sceneId}`,
       `Title: ${scene.title}`,
       `Lines: ${lines.length}`,
-    ].join('\n')
+      videoFailed
+        ? 'NOTE: Video was not muxed in-browser — source video + backing track are in the ZIP.'
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n')
   );
 
-  // Keep draft for re-import
   if (!packInfo.excludeDraftJson) {
     zip.file(
       '_draft_project.json',
@@ -362,10 +433,22 @@ export async function exportSynchronstudioZip(
   }
 
   upd('Compressing ZIP…', 92);
-  const archive = await zip.generateAsync({ type: 'blob' }, (meta) => {
-    check();
-    upd('Compressing ZIP…', 92 + meta.percent * 0.08);
-  });
-  upd('Done!', 100);
-  return { archive, videoFailed };
+  try {
+    const archive = await zip.generateAsync(
+      { type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } },
+      (meta) => {
+        check();
+        upd('Compressing ZIP…', 92 + meta.percent * 0.08);
+      }
+    );
+    upd('Done!', 100);
+    return { archive, videoFailed };
+  } catch (e: any) {
+    console.error('JSZip generateAsync failed', e);
+    throw new Error(
+      e?.message
+        ? `ZIP_FAILED: ${e.message}`
+        : 'ZIP_FAILED: could not compress archive (file may be too large for the browser)'
+    );
+  }
 }

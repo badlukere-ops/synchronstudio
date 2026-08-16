@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.11.3";
+const APP_VERSION = "9.11.4";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -613,6 +613,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.11.4", items: [
+    "🎬 Neue Szene: Demon Slayer — Tanjiro Enters The Transparent World (Akaza, Giyu, Tanjiro)",
+    "📦 Choicer-Voicer-Pack auf dem Desktop (dub_video.ogv + Vocals-Slices statt stummer WAVs)",
+    "🛠 Editor-Export-Fix: ZIP-Export brach ab (falsche Multi-Thread-FFmpeg-Datei ohne SharedArrayBuffer auf GitHub Pages) — jetzt Single-Thread + klarere Fehlermeldung"
+  ]},
   { v: "9.11.3", items: [
     "🛠 Neuer Szenen-Editor mit Timeline (aus CV Mod Maker) — Export als Synchronstudio-ZIP (scene.json, Video+Backing, Lines EN/DE)",
     "Link: editor.html?studio=1 — alter Editor unter editor.legacy.html"
@@ -1552,6 +1557,9 @@ const AVATAR_CHARS = [
   { img: "scenes/demonslayerakaza/tanjiro.png", label: "Tanjiro" },
   { img: "scenes/demonslayerakaza/giyu.png", label: "Giyu" },
   { img: "scenes/demonslayerakaza/akaza.png", label: "Akaza" },
+  { img: "scenes/demonslayertransparent/tanjiro.png", label: "Tanjiro (Transparent World)" },
+  { img: "scenes/demonslayertransparent/giyu.png", label: "Giyu (Transparent World)" },
+  { img: "scenes/demonslayertransparent/akaza.png", label: "Akaza (Transparent World)" },
   { img: "scenes/milesprowler/miles.png", label: "Miles Morales" },
   { img: "scenes/milesprowler/prowler.png", label: "Prowler" },
   { img: "scenes/chainsawyeehaw/denji.png", label: "Denji" },

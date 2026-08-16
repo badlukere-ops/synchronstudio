@@ -34030,5 +34030,118 @@
       }
     ],
     "difficultyOverride": "hard"
+  },
+  {
+    "id": "demonslayertransparent",
+    "title": "Demon Slayer — Tanjiro Enters The Transparent World (3 Rollen)",
+    "videoUrl": "scenes/demonslayertransparent.mp4",
+    "avatars": {
+      "0": "scenes/demonslayertransparent/tanjiro.png",
+      "1": "scenes/demonslayertransparent/giyu.png",
+      "2": "scenes/demonslayertransparent/akaza.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Tanjiro",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Giyu",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Akaza",
+        "pan": 0,
+        "effect": "monster",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 4.62,
+        "end": 10.158,
+        "chars": [
+          2
+        ],
+        "who": "Akaza",
+        "text": "Technique Development Final form... Blue Silver Chaotic Afterglow!",
+        "de": "Technikentwicklung, Endform... Blausilbernes Chaosnachglühen!",
+        "orig": "scenes/demonslayertransparent/lines/01.mp3"
+      },
+      {
+        "t": 13.36,
+        "end": 21.8,
+        "chars": [
+          1
+        ],
+        "who": "Giyu",
+        "text": "His attack speed boosted again... and the forces increased! my only chance now... is try dead calm!",
+        "de": "Seine Angriffsgeschwindigkeit ist nochmal gestiegen... und die Wucht auch! Meine einzige Chance jetzt... ist die Tote Stille!",
+        "orig": "scenes/demonslayertransparent/lines/02.mp3"
+      },
+      {
+        "t": 43.46,
+        "end": 46.56,
+        "chars": [
+          0
+        ],
+        "who": "Tanjiro",
+        "text": "This must be what father was talking about...",
+        "de": "Das muss es sein, wovon Vater gesprochen hat...",
+        "orig": "scenes/demonslayertransparent/lines/03.mp3"
+      },
+      {
+        "t": 47,
+        "end": 50.757,
+        "chars": [
+          0
+        ],
+        "who": "Tanjiro",
+        "text": "This is it! The Transparent World!",
+        "de": "Das ist es! Die transparente Welt!",
+        "orig": "scenes/demonslayertransparent/lines/04.mp3"
+      },
+      {
+        "t": 58.74,
+        "end": 60.44,
+        "chars": [
+          0
+        ],
+        "who": "Tanjiro",
+        "text": "Strange...",
+        "de": "Seltsam...",
+        "orig": "scenes/demonslayertransparent/lines/05.mp3"
+      },
+      {
+        "t": 60.572,
+        "end": 65,
+        "chars": [
+          0
+        ],
+        "who": "Tanjiro",
+        "text": "it feels like... time is passing by so slowly...",
+        "de": "Es fühlt sich an, als... würde die Zeit ganz langsam vergehen...",
+        "orig": "scenes/demonslayertransparent/lines/06.mp3"
+      },
+      {
+        "t": 66.72,
+        "end": 71.42,
+        "chars": [
+          0
+        ],
+        "who": "Tanjiro",
+        "text": "well maybe... their movements just look slower now....",
+        "de": "Oder vielleicht... sehen ihre Bewegungen nur langsamer aus...",
+        "orig": "scenes/demonslayertransparent/lines/07.mp3"
+      }
+    ],
+    "difficultyOverride": "medium"
   }
 ]
