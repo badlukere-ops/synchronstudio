@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.11.4";
+const APP_VERSION = "9.11.5";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -613,6 +613,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.11.5", items: [
+    "🎬 Neue Szene: Jujutsu Kaisen — Gojo Death (Gojo, Yuji, Sukuna)",
+    "🎬 Neue Szene: Naruto — Sasuke & Naruto Final Fight",
+    "🎬 Neue Szene: Jujutsu Kaisen — Sukuna vs Jogo PT 3"
+  ]},
   { v: "9.11.4", items: [
     "🎬 Neue Szene: Demon Slayer — Tanjiro Enters The Transparent World (Akaza, Giyu, Tanjiro)",
     "📦 Choicer-Voicer-Pack auf dem Desktop (dub_video.ogv + Vocals-Slices statt stummer WAVs)",
@@ -1567,6 +1572,13 @@ const AVATAR_CHARS = [
   { img: "scenes/chainsawyeehaw/angel.png", label: "Angel (Chainsaw Man)" },
   { img: "scenes/kenjasoncount/ken.png", label: "Ken (Count Scene)" },
   { img: "scenes/kenjasoncount/jason.png", label: "Jason (Count Scene)" },
+  { img: "scenes/sukunajogo3/sukuna.png", label: "Sukuna (vs Jogo PT3)" },
+  { img: "scenes/sukunajogo3/jogo.png", label: "Jogo (vs Sukuna PT3)" },
+  { img: "scenes/sasukenarutofinal/naruto.png", label: "Naruto (Final Fight)" },
+  { img: "scenes/sasukenarutofinal/sasuke.png", label: "Sasuke (Final Fight)" },
+  { img: "scenes/gojodeath/sukuna.png", label: "Sukuna (Gojo Death)" },
+  { img: "scenes/gojodeath/yuji.png", label: "Yuji (Gojo Death)" },
+  { img: "scenes/gojodeath/gojo.png", label: "Gojo (Death)" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {
