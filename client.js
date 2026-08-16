@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.11.5";
+const APP_VERSION = "9.11.6";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -613,6 +613,10 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.11.6", items: [
+    "🎬 Neue Szene: SpongeBob — Der hackfleischhassende Zerhacker (DE-Pack)",
+    "🎬 Neue Szene: SpongeBob — Geisterpiraten (DE-Pack)"
+  ]},
   { v: "9.11.5", items: [
     "🎬 Neue Szene: Jujutsu Kaisen — Gojo Death (Gojo, Yuji, Sukuna)",
     "🎬 Neue Szene: Naruto — Sasuke & Naruto Final Fight",
@@ -1579,6 +1583,13 @@ const AVATAR_CHARS = [
   { img: "scenes/gojodeath/sukuna.png", label: "Sukuna (Gojo Death)" },
   { img: "scenes/gojodeath/yuji.png", label: "Yuji (Gojo Death)" },
   { img: "scenes/gojodeath/gojo.png", label: "Gojo (Death)" },
+  { img: "scenes/sbgeisterpiraten/kind.png", label: "Kind (Geisterpiraten)" },
+  { img: "scenes/sbgeisterpiraten/derfliegendehollaender.png", label: "Fliegender Holländer" },
+  { img: "scenes/sbgeisterpiraten/patrick.png", label: "Patrick (Geisterpiraten)" },
+  { img: "scenes/sbgeisterpiraten/spongebob.png", label: "Spongebob (Geisterpiraten)" },
+  { img: "scenes/sbzerhacker/gruenerguy.png", label: "Grüner Guy" },
+  { img: "scenes/sbzerhacker/thaddeus.png", label: "Thaddeus (Zerhacker)" },
+  { img: "scenes/sbzerhacker/spongebob.png", label: "Spongebob (Zerhacker)" },
 ];
 // ── Schwebende Hintergrund-Punkte: Mix aus Farbverlauf-Kreisen und ganz dezenten Charakterbildern aus unseren Szenen ──
 (function buildFloaties() {

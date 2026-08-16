@@ -34675,5 +34675,635 @@
       }
     ],
     "difficultyOverride": "hard"
+  },
+  {
+    "id": "sbzerhacker",
+    "title": "SpongeBob — Der hackfleischhassende Zerhacker (3 Rollen)",
+    "videoUrl": "scenes/sbzerhacker.mp4",
+    "avatars": {
+      "0": "scenes/sbzerhacker/spongebob.png",
+      "1": "scenes/sbzerhacker/thaddeus.png",
+      "2": "scenes/sbzerhacker/gruenerguy.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Spongebob",
+        "pan": -0.3,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Thaddeus",
+        "pan": 0.3,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Grüner Guy",
+        "pan": 0,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0,
+        "end": 0.914,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Hello?",
+        "de": "Hallo?",
+        "orig": "scenes/sbzerhacker/lines/01.mp3"
+      },
+      {
+        "t": 0.934,
+        "end": 2.673,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "Nice idea from you",
+        "de": "Netter Einfall von dir",
+        "orig": "scenes/sbzerhacker/lines/02.mp3"
+      },
+      {
+        "t": 2.693,
+        "end": 3.867,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Why 'nice idea'?",
+        "de": "Wieso 'Netter Einfall'?",
+        "orig": "scenes/sbzerhacker/lines/03.mp3"
+      },
+      {
+        "t": 3.887,
+        "end": 10.784,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "The phone rings and nobody's on the line... Hahaha... You won't get me",
+        "de": "Das Telefon klingelt und es ist niemand in der Leitung... Hahaha... Mich kriegst du nicht",
+        "orig": "scenes/sbzerhacker/lines/04.mp3"
+      },
+      {
+        "t": 10.804,
+        "end": 13.221,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Just listen for a second, that's not me!",
+        "de": "Jetzt hör doch mal zu, ich bin das nicht!",
+        "orig": "scenes/sbzerhacker/lines/05.mp3"
+      },
+      {
+        "t": 13.29,
+        "end": 15.907,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Oh, calm down, calm down",
+        "de": "Oh, ganz ruhig, ganz ruhig",
+        "orig": "scenes/sbzerhacker/lines/06.mp3"
+      },
+      {
+        "t": 15.966,
+        "end": 26.566,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "What was it again? First, the lights. Then the phone, and the walls ooze green slime!",
+        "de": "Wie war das? Erstens, die Lichter. Dann, das Telefon und die Wände sondern grünen Schleim ab!",
+        "orig": "scenes/sbzerhacker/lines/07.mp3"
+      },
+      {
+        "t": 26.918,
+        "end": 30.351,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Wait a minute, wrong movie! But what was the third sign?",
+        "de": "Moment mal, falscher Film! Aber was war das dritte Zeichen?",
+        "orig": "scenes/sbzerhacker/lines/08.mp3"
+      },
+      {
+        "t": 35.701,
+        "end": 38.303,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "I didn't even know the buses still run this late",
+        "de": "Ich wusste gar nicht dass die Busse so spät noch fahren",
+        "orig": "scenes/sbzerhacker/lines/09.mp3"
+      },
+      {
+        "t": 38.323,
+        "end": 39.566,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "They don't",
+        "de": "Tun sie auch nicht",
+        "orig": "scenes/sbzerhacker/lines/10.mp3"
+      },
+      {
+        "t": 39.586,
+        "end": 41.553,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "But someone just got off",
+        "de": "Da ist aber jemand ausgestiegen",
+        "orig": "scenes/sbzerhacker/lines/11.mp3"
+      },
+      {
+        "t": 42.874,
+        "end": 48.457,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "AHHHHHHHHHHHHHHHHHHHHH",
+        "de": "AHHHHHHHHHHHHHHHHHHHHH",
+        "orig": "scenes/sbzerhacker/lines/12.mp3"
+      },
+      {
+        "t": 48.518,
+        "end": 53.687,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "The meatloaf-hating-meat-chopping-chopping-block chopper-hacker",
+        "de": "Der hackfleischender-fleischhackender-hackstockender Zerhackstückler",
+        "orig": "scenes/sbzerhacker/lines/13.mp3"
+      },
+      {
+        "t": 53.707,
+        "end": 55.94,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "The Meatloaf-Hating Hash-Slinger",
+        "de": "Der hackfleischhassender Zerhacker",
+        "orig": "scenes/sbzerhacker/lines/14.mp3"
+      },
+      {
+        "t": 56.02,
+        "end": 57.209,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "*cries*",
+        "de": "*heult*",
+        "orig": "scenes/sbzerhacker/lines/15.mp3"
+      },
+      {
+        "t": 57.229,
+        "end": 60.479,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Finally you get it! We're done for!",
+        "de": "Endlich hast du es kapiert! Wir sind am Ende!",
+        "orig": "scenes/sbzerhacker/lines/16.mp3"
+      },
+      {
+        "t": 60.499,
+        "end": 71.966,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "I'm not crying because of that — I'm just so touched that you'd dress up as the ghost of a burger flipper and stand across the street just to put on a good show for me",
+        "de": "Ich weine nicht deswegen, ich bin bloß so gerührt, dass du dir die Mühe machst dich als Geist eines Burgerbraters zu verkleiden und dich auf die andere Straßenseite stellst nur um mir 'ne gute Show zu bieten",
+        "orig": "scenes/sbzerhacker/lines/17.mp3"
+      },
+      {
+        "t": 72.023,
+        "end": 74.714,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "You must really like me",
+        "de": "Du musst mich wirklich mögen",
+        "orig": "scenes/sbzerhacker/lines/18.mp3"
+      },
+      {
+        "t": 74.734,
+        "end": 85.384,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Sadly two things kill your theory. First, I hate you, and second — how can that be me when I'm standing right IN FRONT OF YOU?!",
+        "de": "Leider sprechen zwei Dinge gegen deine Theorie. Erstens, ich hasse dich und zweitens, wie soll ich das sein wenn ich doch direkt VOR DIR STEHE?!",
+        "orig": "scenes/sbzerhacker/lines/19.mp3"
+      },
+      {
+        "t": 86.148,
+        "end": 91.644,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "GAAAHHHH",
+        "de": "GAAAHHHH",
+        "orig": "scenes/sbzerhacker/lines/20.mp3"
+      },
+      {
+        "t": 91.664,
+        "end": 95.197,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "THE MEATLOAF-HATING HASH-SLINGER",
+        "de": "DER HACKFLEISCHHASSENDER ZERHACKER",
+        "orig": "scenes/sbzerhacker/lines/21.mp3"
+      },
+      {
+        "t": 91.664,
+        "end": 95.164,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "THE MEATLOAF-HATING HASH-SLINGER",
+        "de": "DER HACKFLEISCHHASSENDER ZERHACKER",
+        "orig": "scenes/sbzerhacker/lines/22.mp3"
+      },
+      {
+        "t": 95.279,
+        "end": 95.429,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "Go away! Go away! Go away! Go away! Go away! Go away!",
+        "de": "Geh weg! Geh weg! Geh weg! Geh weg! Geh weg! Geh weg!",
+        "orig": "scenes/sbzerhacker/lines/23.mp3"
+      },
+      {
+        "t": 95.301,
+        "end": 98.401,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Spare me! Please spare me!",
+        "de": "Verschone mich! Bitte verschone mich!",
+        "orig": "scenes/sbzerhacker/lines/24.mp3"
+      },
+      {
+        "t": 98.446,
+        "end": 103.825,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "SpongeBob, no matter what I said — somehow I've always liked you",
+        "de": "Spongebob, ganz egal was ich gesagt habe, irgendwie habe ich dich immer gemocht",
+        "orig": "scenes/sbzerhacker/lines/25.mp3"
+      },
+      {
+        "t": 103.845,
+        "end": 106.729,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "And I used your clarinet when my toilet was clogged",
+        "de": "Und ich habe deine Klarinette benutzt als mein Klo verstopft war",
+        "orig": "scenes/sbzerhacker/lines/26.mp3"
+      },
+      {
+        "t": 106.749,
+        "end": 107.736,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Was?",
+        "de": "Was?",
+        "orig": "scenes/sbzerhacker/lines/27.mp3"
+      },
+      {
+        "t": 107.756,
+        "end": 107.96,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "Go away! Go away! Go away! Go away! Go away! Go away! Go away! Go away! Go away!",
+        "de": "Geh weg! Geh weg! Geh weg! Geh weg! Geh weg! Geh weg! Geh weg! Geh weg! Geh weg!",
+        "orig": "scenes/sbzerhacker/lines/28.mp3"
+      },
+      {
+        "t": 107.98,
+        "end": 110.73,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Spare me! Please spare me!",
+        "de": "Verschone mich! Bitte verschone mich!",
+        "orig": "scenes/sbzerhacker/lines/29.mp3"
+      },
+      {
+        "t": 112.01,
+        "end": 116.219,
+        "chars": [
+          2
+        ],
+        "who": "Grüner Guy",
+        "text": "I'd like to apply for a job. I even brought a spatula!",
+        "de": "Ich möchte mich um 'nen Job bewerben. Ich hab auch 'nen Pfannenwender dabei!",
+        "orig": "scenes/sbzerhacker/lines/30.mp3"
+      },
+      {
+        "t": 116.239,
+        "end": 120.006,
+        "chars": [
+          2
+        ],
+        "who": "Grüner Guy",
+        "text": "I called earlier but hung up because I was so nervous",
+        "de": "Ich hab vorhin angerufen aber wieder aufgelegt weil ich so nervös war",
+        "orig": "scenes/sbzerhacker/lines/31.mp3"
+      },
+      {
+        "t": 120.048,
+        "end": 121.298,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "Do you have references?",
+        "de": "Haben Sie Referenzen?",
+        "orig": "scenes/sbzerhacker/lines/32.mp3"
+      },
+      {
+        "t": 121.318,
+        "end": 128.401,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Wait! So he was on the phone and on the bus too — but who did the flickering lights?",
+        "de": "Moment! Er war also am Telefon und im Bus auch, aber wer war das mit den flackernden Lichtern?",
+        "orig": "scenes/sbzerhacker/lines/33.mp3"
+      },
+      {
+        "t": 133.435,
+        "end": 136.585,
+        "chars": [
+          1
+        ],
+        "who": "Thaddeus",
+        "text": "Nosferatu!",
+        "de": "Nosferatu!",
+        "orig": "scenes/sbzerhacker/lines/34.mp3"
+      },
+      {
+        "t": 133.435,
+        "end": 136.535,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "Nosferatu!",
+        "de": "Nosferatu!",
+        "orig": "scenes/sbzerhacker/lines/35.mp3"
+      },
+      {
+        "t": 133.435,
+        "end": 136.468,
+        "chars": [
+          2
+        ],
+        "who": "Grüner Guy",
+        "text": "Nosferatu!",
+        "de": "Nosferatu!",
+        "orig": "scenes/sbzerhacker/lines/36.mp3"
+      }
+    ],
+    "difficultyOverride": "hard"
+  },
+  {
+    "id": "sbgeisterpiraten",
+    "title": "SpongeBob — Geisterpiraten (4 Rollen)",
+    "videoUrl": "scenes/sbgeisterpiraten.mp4",
+    "avatars": {
+      "0": "scenes/sbgeisterpiraten/spongebob.png",
+      "1": "scenes/sbgeisterpiraten/patrick.png",
+      "2": "scenes/sbgeisterpiraten/derfliegendehollaender.png",
+      "3": "scenes/sbgeisterpiraten/kind.png"
+    },
+    "roles": [
+      {
+        "id": 0,
+        "name": "Spongebob",
+        "pan": -0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 1,
+        "name": "Patrick",
+        "pan": 0.35,
+        "effect": "none",
+        "gain": 1
+      },
+      {
+        "id": 2,
+        "name": "Der fliegende Holländer",
+        "pan": 0,
+        "effect": "monster",
+        "gain": 1
+      },
+      {
+        "id": 3,
+        "name": "Kind",
+        "pan": 0.15,
+        "effect": "none",
+        "gain": 1
+      }
+    ],
+    "lines": [
+      {
+        "t": 0,
+        "end": 2.35,
+        "chars": [
+          2
+        ],
+        "who": "Der fliegende Holländer",
+        "text": "Booooooo",
+        "de": "Buuuuuuuuh",
+        "orig": "scenes/sbgeisterpiraten/lines/01.mp3"
+      },
+      {
+        "t": 0,
+        "end": 2.033,
+        "chars": [
+          3
+        ],
+        "who": "Kind",
+        "text": "Ahhhhhhhh",
+        "de": "Ahhhhhhhh",
+        "orig": "scenes/sbgeisterpiraten/lines/02.mp3"
+      },
+      {
+        "t": 2.486,
+        "end": 9.419,
+        "chars": [
+          2
+        ],
+        "who": "Der fliegende Holländer",
+        "text": "From this hour on you'll be tormented by recurring nightmares of my creepy ghost pirate!",
+        "de": "Von stund an wirst du gequält sein von immer wiederkehrenden Alpträumen mit meinem gruseligen Geisterpiraten!",
+        "orig": "scenes/sbgeisterpiraten/lines/03.mp3"
+      },
+      {
+        "t": 11.005,
+        "end": 16.305,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "Uh, was that our cue? Sorry. Just start over from the beginning.",
+        "de": "Ehm war das unser Stichwort? 'Tschuldigung. Fangen Sie einfach nochmal von Vorne an.",
+        "orig": "scenes/sbgeisterpiraten/lines/04.mp3"
+      },
+      {
+        "t": 17.28,
+        "end": 22.83,
+        "chars": [
+          2
+        ],
+        "who": "Der fliegende Holländer",
+        "text": "Recurring nightmares of my creepy ghost pirate!",
+        "de": "Immer wiederkehrenden Alpträumen mit meinem gruseligen Geisterpiraten!",
+        "orig": "scenes/sbgeisterpiraten/lines/05.mp3"
+      },
+      {
+        "t": 23.109,
+        "end": 30.505,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "Woooooooooooooo",
+        "de": "Wuuuuuuuuuuuuuuuh",
+        "orig": "scenes/sbgeisterpiraten/lines/06.mp3"
+      },
+      {
+        "t": 23.109,
+        "end": 30.476,
+        "chars": [
+          1
+        ],
+        "who": "Patrick",
+        "text": "Woooooooooo",
+        "de": "Wuuuuuuuuuuuh",
+        "orig": "scenes/sbgeisterpiraten/lines/07.mp3"
+      },
+      {
+        "t": 30.525,
+        "end": 33.592,
+        "chars": [
+          1
+        ],
+        "who": "Patrick",
+        "text": "How does he even do that?",
+        "de": "Wie macht er das nur?",
+        "orig": "scenes/sbgeisterpiraten/lines/08.mp3"
+      },
+      {
+        "t": 33.668,
+        "end": 36.601,
+        "chars": [
+          1
+        ],
+        "who": "Patrick",
+        "text": "Woooo",
+        "de": "Wuuuuuh",
+        "orig": "scenes/sbgeisterpiraten/lines/09.mp3"
+      },
+      {
+        "t": 36.649,
+        "end": 39.522,
+        "chars": [
+          2
+        ],
+        "who": "Der fliegende Holländer",
+        "text": "Go back to the ship.",
+        "de": "Geht wieder zurück auf's Schiff.",
+        "orig": "scenes/sbgeisterpiraten/lines/10.mp3"
+      },
+      {
+        "t": 39.542,
+        "end": 39.692,
+        "chars": [
+          0
+        ],
+        "who": "Spongebob",
+        "text": "It remains a mystery",
+        "de": "Es ist und bleibt ein Rätsel",
+        "orig": "scenes/sbgeisterpiraten/lines/11.mp3"
+      },
+      {
+        "t": 39.575,
+        "end": 44.142,
+        "chars": [
+          1
+        ],
+        "who": "Patrick",
+        "text": "It remains a mystery",
+        "de": "Es ist und bleibt ein Rätsel",
+        "orig": "scenes/sbgeisterpiraten/lines/12.mp3"
+      },
+      {
+        "t": 45.022,
+        "end": 46.976,
+        "chars": [
+          3
+        ],
+        "who": "Kind",
+        "text": "Those guys are a couple of dorks",
+        "de": "Das sind ja ein paar Dödel",
+        "orig": "scenes/sbgeisterpiraten/lines/13.mp3"
+      },
+      {
+        "t": 46.996,
+        "end": 48.967,
+        "chars": [
+          2
+        ],
+        "who": "Der fliegende Holländer",
+        "text": "Yeah, but they're my dorks",
+        "de": "Ja aber es sind meine Dödel",
+        "orig": "scenes/sbgeisterpiraten/lines/14.mp3"
+      }
+    ],
+    "difficultyOverride": "medium"
   }
 ]
