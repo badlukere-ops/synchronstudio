@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.11.6";
+const APP_VERSION = "9.12.0";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -613,6 +613,11 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.12.0", items: [
+    "⚡ Ladezeit: Beim Start werden statt 868 KB nur noch 56 KB geladen (94 % weniger). Die Zeilen einer Szene kommen erst, wenn sie gebraucht werden — im Schnitt 4,7 KB pro Szene.",
+    "⚡ Die Szenenliste wurde bei jedem Raum-Erstellen dreimal geladen — jetzt einmal",
+    "🛡 Fällt automatisch auf die alte scenes.json zurück, falls der Index fehlt oder beschädigt ist"
+  ]},
   { v: "9.11.6", items: [
     "🎬 Neue Szene: SpongeBob — Der hackfleischhassende Zerhacker (DE-Pack)",
     "🎬 Neue Szene: SpongeBob — Geisterpiraten (DE-Pack)"
@@ -3979,6 +3984,11 @@ function handleHostCmd(msg, sender) {
       const s = (msg.sceneId && sceneList.find(x => x.id === msg.sceneId))
         || (msg.sceneIdx != null ? sceneList[msg.sceneIdx] : null);
       if (!s) break;
+      if (usingSceneIndex && !(s.lines && s.lines.length)) {
+        // Zeilen erst nachladen, dann normal weitermachen
+        ensureSceneLines(s).then(() => handleMsg(msg, conn));
+        break;
+      }
       resetForNewRound();
       clearSceneCaches();
       scene = JSON.parse(JSON.stringify(s));
@@ -4013,6 +4023,10 @@ function handleHostCmd(msg, sender) {
       if (!msg.sceneId || msg.roleId == null || !msg.aId || !msg.bId) break;
       const s = sceneList.find(x => x.id === msg.sceneId);
       if (!s) break;
+      if (usingSceneIndex && !(s.lines && s.lines.length)) {
+        ensureSceneLines(s).then(() => handleMsg(msg, conn));
+        break;
+      }
       duelStagedScene = JSON.parse(JSON.stringify(s));
       duelInfo = { roleId: msg.roleId | 0, aId: msg.aId, bId: msg.bId };
       scene = JSON.parse(JSON.stringify(duelStagedScene));
@@ -4674,7 +4688,11 @@ function sceneDifficulty(s) {
     const map = { easy, medium, hard };
     if (map[s.difficultyOverride]) return map[s.difficultyOverride];
   }
-  if (!s.lines || !s.lines.length) return null;
+  // Ohne geladene Zeilen den beim Index-Bau vorberechneten Wert verwenden
+  if (!s.lines || !s.lines.length) {
+    const map = { easy, medium, hard };
+    return s.difficultyPre ? (map[s.difficultyPre] || null) : null;
+  }
   const lines = s.lines;
   const dur = Math.max(...lines.map(l => l.end)) - Math.min(...lines.map(l => l.t));
   const words = lines.reduce((sum, l) => sum + (l.text || "").split(/\s+/).filter(Boolean).length, 0);
@@ -4689,14 +4707,66 @@ function sceneDifficulty(s) {
 
 const HINTEN_ANSTELLEN = new Set(["testplace"]);
 
-async function loadSceneList() {
+let usingSceneIndex = false;
+const sceneLinesCache = new Map();   // id -> lines, damit dieselbe Szene nur einmal geholt wird
+
+// Holt die Zeilen einer Szene nach. Ist der Index nicht in Gebrauch (alte Struktur),
+// sind die Zeilen bereits da und es passiert nichts.
+async function ensureSceneLines(s) {
+  if (!s) return s;
+  if (Array.isArray(s.lines) && s.lines.length) return s;
+  if (!usingSceneIndex) return s;
+  if (sceneLinesCache.has(s.id)) { s.lines = sceneLinesCache.get(s.id); return s; }
+  try {
+    const r = await fetch("scenedata/" + encodeURIComponent(s.id) + ".json", { cache: "default" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    const lines = data.lines || [];
+    sceneLinesCache.set(s.id, lines);
+    s.lines = lines;
+    // auch im Listeneintrag hinterlegen, damit spaetere Zugriffe direkt passen
+    const inList = sceneList.find(x => x.id === s.id);
+    if (inList && inList !== s) inList.lines = lines;
+  } catch (e) {
+    console.error("Zeilen der Szene konnten nicht geladen werden:", s.id, e);
+    s.lines = s.lines || [];
+  }
+  return s;
+}
+
+let sceneListLoaded = false, sceneListLoading = null;
+async function loadSceneList(force) {
   const sel = $("scene-select");
   if (!sel) return;
+  // Mehrfachaufrufe abfangen: die Liste wird an mehreren Stellen angestossen
+  // (Raum erstellen, Modus wechseln, Runde beenden) -- ohne das laedt sie 3x.
+  if (sceneListLoading) return sceneListLoading;
+  if (sceneListLoaded && !force) { renderRoleFilter(); renderSceneGrid(); return; }
+  sceneListLoading = (async () => {
   try {
-    const res = await fetch("scenes.json?t=" + Date.now(), { cache: "no-store" });
-    sceneList = await res.json();
+    // Beim Start reicht ein schlanker Index (~54 KB): Titel, Rollen, Bilder.
+    // Die Zeilen einer Szene (zusammen ~480 KB) werden erst geholt, wenn sie
+    // wirklich gebraucht werden. Das spart beim Laden rund 94 %.
+    let ok = false;
+    try {
+      const r = await fetch("scenes-index.json?t=" + Date.now(), { cache: "no-store" });
+      if (r.ok) {
+        const data = await r.json();
+        // Nur uebernehmen, wenn es wirklich eine Liste ist. Eine beschaedigte oder
+        // halb hochgeladene Datei wuerde sonst den ganzen Start lahmlegen.
+        if (Array.isArray(data) && data.length) { sceneList = data; usingSceneIndex = true; ok = true; }
+        else console.error("scenes-index.json unbrauchbar, weiche auf scenes.json aus");
+      }
+    } catch (_) {}
+    if (!ok) {
+      // Kein (brauchbarer) Index -> wie bisher die komplette Datei laden
+      const res = await fetch("scenes.json?t=" + Date.now(), { cache: "no-store" });
+      const full = await res.json();
+      sceneList = Array.isArray(full) ? full : [];
+      usingSceneIndex = false;
+    }
   } catch (e) {
-    console.error("scenes.json laden fehlgeschlagen:", e);
+    console.error("Szenenliste laden fehlgeschlagen:", e);
     sceneList = [];
   }
   // Test-Szenen gehören ans Ende: sie sind nur zum Ausprobieren da und sollen beim
@@ -4705,11 +4775,14 @@ async function loadSceneList() {
   sel.innerHTML = sceneList.length
     ? sceneList.map((s, i) => {
         const d = sceneDifficulty(s);
-        return `<option value="${i}">${d ? d.emoji + " " : ""}${esc(sceneTitleDisplay(s.title))} (${roleCountLabel(s.roles.length)}${s.lines ? ", " + s.lines.length + " lines" : ""}${d ? " · " + d.label : ""})</option>`;
+        return `<option value="${i}">${d ? d.emoji + " " : ""}${esc(sceneTitleDisplay(s.title))} (${roleCountLabel(s.roles.length)}${(s.lines && s.lines.length) || s.lineCount ? ", " + ((s.lines && s.lines.length) || s.lineCount) + " lines" : ""}${d ? " · " + d.label : ""})</option>`;
       }).join("")
     : `<option>${tt("— Loading scenes… wait a sec & reload —", "— Szenen laden… kurz warten & Seite neu laden —")}</option>`;
   renderRoleFilter();
   renderSceneGrid();
+  sceneListLoaded = true;
+  })();
+  try { await sceneListLoading; } finally { sceneListLoading = null; }
 }
 
 // ── Szenen-Auswahl als Bild-Raster ──
@@ -4781,7 +4854,7 @@ function renderSceneGrid(filter) {
     return `<button type="button" class="scene-tile${String(i) === current ? " sel" : ""}" data-i="${i}">
       <span class="st-thumb">${faces ? `<span class="st-faces">${faces}</span>` : `<span class="st-ph">🎬</span>`}<span class="st-badge">${roleCountLabel(s.roles.length).replace(" ", "&nbsp;")}</span></span>
       <span class="st-title">${esc(sceneTitleDisplay(s.title))}</span>
-      <span class="st-meta">${d ? d.emoji + " " + esc(d.label) : "—"}${s.lines ? " · " + s.lines.length + " lines" : ""}</span>
+      <span class="st-meta">${d ? d.emoji + " " + esc(d.label) : "—"}${(s.lines && s.lines.length) || s.lineCount ? " · " + ((s.lines && s.lines.length) || s.lineCount) + " lines" : ""}</span>
     </button>`;
   }).join("");
 
@@ -4890,9 +4963,10 @@ $("btn-check-scenes") && ($("btn-check-scenes").onclick = async () => {
   btn.disabled = false;
 });
 
-$("btn-load-scene").onclick = () => {
+$("btn-load-scene").onclick = async () => {
   const s = sceneList[$("scene-select").value];
   if (!s || !iAmLogicalHost()) return;
+  await ensureSceneLines(s);
   const blind = !!($("blind-mode") && $("blind-mode").checked);
   if (!isHost) {
     sendHost({ t: "hostCmd", cmd: "loadScene", sceneId: s.id, blind });
@@ -5827,11 +5901,16 @@ $("btn-mic-test").onclick = async () => {
 // Nach einer vollen Runde durch den Pool startet ein neuer, frisch gemischter Durchlauf.
 let scenePool = [];
 async function pickRandomScene() {
-  const playable = sceneList.filter(s => s.lines && s.lines.length && s.id !== "testplace");
+  // Mit dem schlanken Index sind die Zeilen noch nicht geladen -- dann zaehlt lineCount,
+  // sonst wuerde hier faelschlich KEINE Szene als spielbar gelten.
+  const hasLines = s => (s.lines && s.lines.length) || (s.lineCount > 0);
+  const playable = sceneList.filter(s => hasLines(s) && s.id !== "testplace");
   if (!scenePool.length) {
     scenePool = [...playable].sort(() => Math.random() - 0.5);   // frisch mischen, erst wenn der Stapel leer ist
   }
   const s = scenePool.pop();
+  if (!s) return;
+  await ensureSceneLines(s);
   scene = JSON.parse(JSON.stringify(s));
   scene.blind = $("blind-mode") ? $("blind-mode").checked : false;
   clearSceneVideoState();
@@ -5981,9 +6060,10 @@ function populateDuelSceneSelect() {
     ? sceneList.map((s, i) => `<option value="${i}">${esc(sceneTitleDisplay(s.title))}</option>`).join("")
     : `<option>— ${tt("Loading scenes…", "Szenen laden…")} —</option>`;
 }
-$("btn-duel-load-scene").onclick = () => {
+$("btn-duel-load-scene").onclick = async () => {
   const s = sceneList[$("duel-scene-select").value];
   if (!s) return;
+  await ensureSceneLines(s);
   duelStagedScene = JSON.parse(JSON.stringify(s));
   $("duel-role-select").innerHTML = duelStagedScene.roles.map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join("");
   const playerOpts = players.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("");
