@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.12.1";
+const APP_VERSION = "9.12.2";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -679,6 +679,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.12.2", items: [
+    "🔪 Battle Royale konnte endlos weiterlaufen: bekamen in einer Runde weniger als zwei Sprecher Sterne (z.B. weil jemand die Verbindung verloren hatte), flog niemand raus und „Champion küren“ tauchte nie auf. Jetzt scheidet garantiert jemand aus — notfalls nach Gesamtpunkten",
+    "🎭 Wer gerade offline ist, bekommt keine Rolle mehr zugeteilt. Vorher schnappten Abwesende den Anwesenden die Plätze weg, weil sie die meiste Bank-Zeit gesammelt hatten — im schlimmsten Fall startete die Runde ohne einen einzigen Sprecher",
+    "🤝 SynchroBuddy: nach einem Verbindungsabbruch konnte man ein zweites Mal einen vergeben",
+    "⚡ Szenenliste darf jetzt im Browser-Cache bleiben — spart bei jedem weiteren Besuch 57 KB"
+  ]},
   { v: "9.12.1", items: [
     "🛠 Update-Bremse gelöst: die Seite hatte noch die Version 9.11.6 angefordert, dadurch blieb bei Stammspielern die alte, gecachte Fassung liegen — der Ladezeit-Umbau von 9.12.0 kam bei ihnen nie an",
     "🚀 Videos laufen jetzt über das CDN statt über GitHub Raw — schneller und ohne Drosselung bei vielen Spielern gleichzeitig (mit automatischem Notfallweg)",
@@ -3182,7 +3188,7 @@ const BG_KEYS = { f: 0, j: 1 };
 async function bgLoadChart() {
   if (BG.chart) return BG.chart;
   try {
-    const res = await fetch("beatchart.json?t=" + Date.now(), { cache: "no-store" });
+    const res = await fetch("beatchart.json?v=" + APP_VERSION, { cache: "default" });
     BG.chart = await res.json();
     return BG.chart;
   } catch (e) { console.error("Beat-Chart nicht ladbar:", e); return null; }
@@ -4201,6 +4207,7 @@ function idUmschreiben(alt, neu) {
   ausMap(allRatings); ausMap(cbScores); ausMap(rxScores); ausMap(tpScores);
   ausObj(duelVotes); ausObj(duelSubs); ausObj(mgWins);
   if (match && match.totals) ausObj(match.totals);
+  if (match && match.buddyGivers) ausObj(match.buddyGivers);
   if (duelInfo) { if (duelInfo.aId === alt) duelInfo.aId = neu; if (duelInfo.bId === alt) duelInfo.bId = neu; }
   if (ttt) ttt.p = ausListe(ttt.p);
   if (rps) { rps.p = ausListe(rps.p); ausObj(rps.picks); ausObj(rps.wins); }
@@ -4819,9 +4826,13 @@ async function loadSceneList(force) {
     // Beim Start reicht ein schlanker Index (~54 KB): Titel, Rollen, Bilder.
     // Die Zeilen einer Szene (zusammen ~480 KB) werden erst geholt, wenn sie
     // wirklich gebraucht werden. Das spart beim Laden rund 94 %.
+    // Der Index hängt an der Versionsnummer statt an einem Zeitstempel: so darf der
+    // Browser ihn behalten (spart 57 KB bei jedem weiteren Besuch), holt ihn aber
+    // garantiert neu, sobald APP_VERSION steigt. Wichtig: nach jeder Szenen-Änderung
+    // APP_VERSION hochzählen, sonst sehen Wiederkehrer die neue Szene nicht.
     let ok = false;
     try {
-      const r = await fetch("scenes-index.json?t=" + Date.now(), { cache: "no-store" });
+      const r = await fetch("scenes-index.json?v=" + APP_VERSION, { cache: "default" });
       if (r.ok) {
         const data = await r.json();
         // Nur uebernehmen, wenn es wirklich eine Liste ist. Eine beschaedigte oder
@@ -4832,7 +4843,7 @@ async function loadSceneList(force) {
     } catch (_) {}
     if (!ok) {
       // Kein (brauchbarer) Index -> wie bisher die komplette Datei laden
-      const res = await fetch("scenes.json?t=" + Date.now(), { cache: "no-store" });
+      const res = await fetch("scenes.json?v=" + APP_VERSION, { cache: "default" });
       const full = await res.json();
       sceneList = Array.isArray(full) ? full : [];
       usingSceneIndex = false;
@@ -5999,7 +6010,15 @@ function rouletteRoles() {
   // Auch hier Rollen mischen — sonst landen bei wenigen Spielern und vielen Rollen
   // immer nur die ersten Einträge aus scenes.json.
   const roleIds = mischen(scene.roles.map(r => r.id));
-  const eligible = players.filter(p => !p.eliminated);   // Eliminierte sind für IMMER Zuschauer (Battle Royale)
+  // Eliminierte sind für IMMER Zuschauer (Battle Royale).
+  // Wer gerade keine Verbindung hat, bekommt ebenfalls keine Rolle: Abwesende haben
+  // naturgemäß die meiste Bank-Zeit gesammelt und würden anwesenden Spielern sonst
+  // die Plätze wegschnappen — im Extremfall startet die Runde ohne einen einzigen
+  // Sprecher. Beim Zurückkommen sind sie über timesSpectated sowieso zuerst dran.
+  let eligible = players.filter(p => !p.eliminated && !p.offline);
+  // Ist gerade NIEMAND erreichbar, lieber wie früher verteilen als gar keine Rollen
+  // zu vergeben — sonst stünde der Raum nach einem kurzen Netz-Aussetzer still.
+  if (!eligible.length) eligible = players.filter(p => !p.eliminated);
   const n = Math.min(roleIds.length, eligible.length);
 
   const ranked = eligible.map(p => ({ p, benched: p.timesSpectated || 0, rnd: Math.random() }))
@@ -7686,6 +7705,36 @@ function updateRateProgress() {
 }
 $("btn-rate-force").onclick = () => { if (confirm(tt("Really continue without the missing votes?", "Wirklich ohne die fehlenden Stimmen weiter?"))) finishRating(); };
 let ratingDone = false;
+// Wer fliegt im Battle Royale raus?
+// Früher wurde nur ausgewertet, wer in DIESER Runde Sterne bekommen hat. Blieben davon
+// weniger als zwei übrig (z. B. weil ein Sprecher offline war oder der Host ohne die
+// fehlenden Stimmen weitergedrückt hat), flog niemand raus — activeLeft blieb gleich und
+// das Match lief endlos, „Champion küren" kam nie. Deshalb: solange mehr als eine Person
+// im Rennen ist, scheidet garantiert jemand aus, notfalls nach Gesamtpunkten.
+function waehleAusscheidenden(results) {
+  const aktive = players.filter(p => !p.eliminated);
+  if (aktive.length <= 1) return null;
+  const zufallAus = (liste) => liste[Math.floor(Math.random() * liste.length)];
+
+  // 1) Normalfall — Bewertung dieser Runde (results ist absteigend sortiert)
+  const bewertet = results.filter(r => aktive.some(p => p.id === r.id));
+  if (bewertet.length > 1) {
+    const schlechteste = bewertet[bewertet.length - 1].avg;
+    const kandidaten = bewertet.filter(r => Math.abs(r.avg - schlechteste) < 0.0001);
+    // Achtung: die Auslosung MUSS vor dem find() passieren. Steht sie im Prädikat,
+    // wird für jeden geprüften Spieler neu gewürfelt — dann trifft womöglich niemand
+    // seinen eigenen Wurf, treffer bleibt leer und der Notfallweg unten greift zu Unrecht.
+    const gezogen = zufallAus(kandidaten);
+    const treffer = gezogen ? players.find(p => p.id === gezogen.id) : null;
+    if (treffer) return treffer;
+  }
+
+  // 2) Notfallweg — Gesamtpunkte über alle bisherigen Runden, bei Gleichstand Zufall
+  const rang = aktive.map(p => ({ p, sum: match.totals[p.id] || 0 })).sort((a, b) => a.sum - b.sum);
+  const schlechteste = rang[0].sum;
+  return zufallAus(rang.filter(x => Math.abs(x.sum - schlechteste) < 0.0001)).p;
+}
+
 function finishRating() {
   if (!isHost || ratingDone) return;
   ratingDone = true;
@@ -7716,12 +7765,9 @@ function finishRating() {
   results.forEach(r => { match.totals[r.id] = (match.totals[r.id] || 0) + r.avg; });
 
   let eliminatedName = null;
-  if (match.mode === "elimination" && results.length > 1) {
-    const worstScore = results[results.length - 1].avg;
-    const worstCandidates = results.filter(r => Math.abs(r.avg - worstScore) < 0.0001);
-    const out = worstCandidates[Math.floor(Math.random() * worstCandidates.length)];
-    const p = players.find(pl => pl.id === out.id);
-    if (p) { p.eliminated = true; eliminatedName = p.name; }
+  if (match.mode === "elimination") {
+    const raus = waehleAusscheidenden(results);
+    if (raus) { raus.eliminated = true; eliminatedName = raus.name; }
   }
 
   broadcast({ t: "rateResult", results, eliminatedName });
