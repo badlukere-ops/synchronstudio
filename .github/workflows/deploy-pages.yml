@@ -38,6 +38,7 @@ jobs:
             --exclude '_site' \
             --exclude '.cursor' \
             --exclude 'node_modules' \
+            --exclude 'editor-src' \
             --exclude '_turn_probe.html' \
             --exclude '_turn_probe_cdp.js' \
             --exclude 'package-lock.json' \
