@@ -5,7 +5,7 @@
    Modus B: Realtime (eigene Videos ohne Timings)
    ═══════════════════════════════════════════════════════════════ */
 
-const APP_VERSION = "9.12.0";
+const APP_VERSION = "9.12.1";
 /* i18n helpers — provided by i18n.js; tiny fallback if script missing */
 if (typeof tt !== "function") {
   window.getLang = () => { try { return localStorage.getItem("ss-lang") === "de" ? "de" : "en"; } catch { return "en"; } };
@@ -18,11 +18,21 @@ if (typeof tt !== "function") {
 const PEER_PREFIX = "syncstudio-emvw-";
 // Live: große MP4s liegen nicht auf Pages (Deploy-Limit), sondern kommen vom CDN.
 // Lokal weiterhin relative Pfade (scenes/…). blob:/http(s): unverändert durchreichen.
-// jsDelivr (GitHub) blockiert Dateien > ~20 MB mit 403 — deshalb MP4s von GitHub Raw.
+// jsDelivr (GitHub) blockiert Dateien > ~20 MB mit 403.
+// Früher gingen deshalb ALLE MP4s über GitHub Raw — Raw ist aber kein CDN
+// (Rate-Limits/429, kaum Edge-Cache). Jetzt: jsDelivr für alles, nur die
+// wenigen echten Übergrößen unten in OVERSIZE_MP4 bleiben auf Raw.
 // Raw liefert application/octet-stream + nosniff → <video src> kann scheitern;
 // deshalb laden wir MP4s per fetch als Blob (video/mp4) und zeigen echten Fortschritt.
+// fetchVideoAsBlob() fällt bei jedem Fehler automatisch auf Raw zurück —
+// schlimmstenfalls verhält sich alles exakt wie vorher.
 const CDN_BASE = "https://cdn.jsdelivr.net/gh/synchron-studio/synchronstudio@main/";
 const GH_RAW_BASE = "https://raw.githubusercontent.com/synchron-studio/synchronstudio/main/";
+// Über dem jsDelivr-Limit (Stand v9.12.1). Beim Neu-Encodieren unter 20 MB hier rausnehmen.
+const OVERSIZE_MP4 = new Set([
+  "scenes/zenitsukaigaku.mp4",   // 23,3 MB
+  "scenes/kawaimarin.mp4",       // 21,3 MB
+]);
 function useCdnAssets() {
   try { return /\.github\.io$/i.test(location.hostname); } catch { return false; }
 }
@@ -31,9 +41,51 @@ function assetUrl(path) {
   if (/^(https?:|blob:|data:)/i.test(path)) return path;
   if (!useCdnAssets()) return path;
   const p = String(path).replace(/^\.\//, "").replace(/^\//, "");
-  if (/\.mp4$/i.test(p)) return GH_RAW_BASE + p;
+  if (/\.mp4$/i.test(p) && OVERSIZE_MP4.has(p)) return GH_RAW_BASE + p;
   return CDN_BASE + p;
 }
+/** Gleiche Datei, aber garantiert über GitHub Raw — Notfallweg, wenn das CDN streikt. */
+function rawUrlFor(url) {
+  try {
+    if (!url || !String(url).startsWith(CDN_BASE)) return null;
+    return GH_RAW_BASE + String(url).slice(CDN_BASE.length);
+  } catch { return null; }
+}
+// ── Bild-Notfallweg ────────────────────────────────────────────────
+// Fehlende Avatare (z.B. scenes/meinpack/*) zeigten bisher das kaputte
+// Bild-Symbol des Browsers. Statt jedes <img> einzeln abzusichern, hängt
+// ein einziger Lauscher in der Capture-Phase am document — "error" steigt
+// bei Bildern nicht auf, deshalb capture:true. Greift damit auch für
+// Bilder, die später per innerHTML dazukommen.
+function monogramFor(text) {
+  const s = String(text || "").trim();
+  if (!s) return "?";
+  const parts = s.split(/[\s_-]+/).filter(Boolean);
+  const letters = parts.length >= 2 ? parts[0][0] + parts[1][0] : s.slice(0, 2);
+  return letters.toUpperCase();
+}
+document.addEventListener("error", ev => {
+  const el = ev.target;
+  if (!el || el.tagName !== "IMG" || el.dataset.monoDone) return;
+  el.dataset.monoDone = "1";
+  const span = document.createElement("span");
+  span.className = "img-mono";
+  // Reihenfolge: ausdrücklich mitgegebener Name → alt-Text → Dateiname ohne Präfix
+  let label = el.dataset.mono || el.alt || "";
+  if (!label) {
+    const m = String(el.getAttribute("src") || "").match(/([^/]+)\.(png|jpg|jpeg|webp|gif)$/i);
+    if (m) label = m[1].replace(/^[a-z0-9]+_/i, "").replace(/[_-]+/g, " ");
+  }
+  span.textContent = monogramFor(label);
+  span.title = label || "";
+  // Größe/Form der Kachel vom Original übernehmen, damit das Layout nicht springt
+  try {
+    const cs = getComputedStyle(el);
+    if (cs.borderRadius && cs.borderRadius !== "0px") span.style.borderRadius = cs.borderRadius;
+  } catch {}
+  try { el.replaceWith(span); } catch { try { el.style.visibility = "hidden"; } catch {} }
+}, true);
+
 function sceneVideoSrc() {
   return videoBlobUrl || assetUrl(scene && scene.videoUrl);
 }
@@ -285,8 +337,22 @@ function clearSceneVideoState() {
   try { clearLoadReassure("lobby"); } catch {}
 }
 
-/** Lädt eine Video-URL als Blob (richtiger MIME-Typ) und meldet 0–100 % Fortschritt. */
+/** Lädt eine Video-URL als Blob (richtiger MIME-Typ) und meldet 0–100 % Fortschritt.
+ *  Scheitert das CDN (403 bei Übergrößen, 5xx, Netzfehler), wird still auf
+ *  GitHub Raw umgeschwenkt — das ist genau das Verhalten von vor v9.12.1. */
 async function fetchVideoAsBlob(url, onProgress) {
+  try {
+    return await fetchVideoAsBlobFrom(url, onProgress);
+  } catch (e) {
+    const raw = rawUrlFor(url);
+    if (!raw) throw e;
+    console.warn("Video über CDN fehlgeschlagen (" + e.message + ") → Notfallweg GitHub Raw:", raw);
+    try { if (onProgress) onProgress(0); } catch {}
+    return await fetchVideoAsBlobFrom(raw, onProgress);
+  }
+}
+
+async function fetchVideoAsBlobFrom(url, onProgress) {
   const res = await fetch(url, { mode: "cors", cache: "force-cache" });
   if (!res.ok) throw new Error("HTTP " + res.status);
   const total = Number(res.headers.get("content-length")) || 0;
@@ -613,6 +679,12 @@ document.body.insertAdjacentHTML("beforeend",
    </div>`);
 
 const PATCH_NOTES = [
+  { v: "9.12.1", items: [
+    "🛠 Update-Bremse gelöst: die Seite hatte noch die Version 9.11.6 angefordert, dadurch blieb bei Stammspielern die alte, gecachte Fassung liegen — der Ladezeit-Umbau von 9.12.0 kam bei ihnen nie an",
+    "🚀 Videos laufen jetzt über das CDN statt über GitHub Raw — schneller und ohne Drosselung bei vielen Spielern gleichzeitig (mit automatischem Notfallweg)",
+    "🖼 Fehlende Charakterbilder zeigen kein kaputtes Bild-Symbol mehr, sondern eine Typenschild-Kachel mit den Initialen",
+    "🎭 Das Charakterbild über der aktuellen Zeile lud an unserem CDN vorbei — jetzt auch von dort"
+  ]},
   { v: "9.12.0", items: [
     "⚡ Ladezeit: Beim Start werden statt 868 KB nur noch 56 KB geladen (94 % weniger). Die Zeilen einer Szene kommen erst, wenn sie gebraucht werden — im Schnitt 4,7 KB pro Szene.",
     "⚡ Die Szenenliste wurde bei jedem Raum-Erstellen dreimal geladen — jetzt einmal",
@@ -11169,7 +11241,7 @@ function attachPrompter(videoEl, promptEl, myRoleId) {
     const av = cur && scene.avatars ? scene.avatars[String(cur.chars[0])] : null;
     promptEl.innerHTML =
       (cur ? `<div class="pline ${mine ? "mine" : ""}">
-          ${av ? `<img src="${av}" alt="">` : ""}
+          ${av ? `<img src="${esc(assetUrl(av))}" alt="" data-mono="${esc(cur.who || "?")}">` : ""}
           <div class="ptext"><div class="pwho">${esc(cur.who)}${mine ? tt(" — 🎙 YOU!", " — 🎙 DU!") : ""}</div><div class="pcap">${esc(linePrimaryText(cur))}</div>${lineSecondaryText(cur) ? `<div style="font-size:.85rem;color:var(--amber)">${esc(lineSecondaryText(cur))}</div>` : ""}</div>
         </div>` : `<div class="pline"><div class="ptext"><div class="pwho">…</div><div class="pcap" style="color:var(--muted)">${esc(tt("Quiet in the studio", "Ruhe im Studio"))}</div></div></div>`) +
       (next ? `<div class="pnext">${esc(tt("Next", "Gleich"))} (${Math.max(0, next.t - t).toFixed(0)}s): <b>${esc(next.who)}</b> — ${esc(linePrimaryText(next))}</div>` : "");
