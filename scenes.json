@@ -35309,7 +35309,7 @@
   {
   "id": "newscene",
   "title": "New Scene (4 Rollen)",
-  "videoUrl": "scenes/newscene.mp4",
+  "videoUrl":"newscene.mp4",
   "avatars": {
     "0": "scenes/newscene/peter_parker.png",
     "1": "scenes/newscene/jean_grey.png",
